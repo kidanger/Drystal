@@ -1,0 +1,8 @@
+tags
+*.so
+.depend
+.vim_syntax
+index.html
+index.data
+drystal
+obj/
