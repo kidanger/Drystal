@@ -3,25 +3,29 @@
 
 struct SDL_Surface;
 
-class Drawable;
-struct Position;
-struct Bounds;
+struct Sprite;
 
 class Display
 {
 	private:
-		int size_x = 600;
-		int size_y = 400;
+		int size_x;
+		int size_y;
+		bool resizable;
 		SDL_Surface * screen;
+		SDL_Surface * atlas;
+		int r, g, b;
 
 	public:
 		void init();
+		void show_cursor(bool);
+		void set_resizable(bool);
+		void resize(int w, int h);
 
-		void draw_start();
-		void draw(const Drawable&, const Position&);
-		void draw_end();
+		void set_background(int r, int g, int b);
 
-		void blit(SDL_Surface*, const Position&, const Bounds&);
+		void draw_background();
+		void draw(const Sprite& sp, int x, int y);
+		void flip();
 };
 
 #endif

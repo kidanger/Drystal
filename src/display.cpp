@@ -3,46 +3,81 @@
 
 #include "display.hpp"
 #include "drawable.hpp"
-#include "position.hpp"
+#include "ressource.hpp"
 
 void Display::init()
 {
 	SDL_Init(SDL_INIT_VIDEO);
-	this->screen = SDL_SetVideoMode(this->size_x, this->size_y, 32, SDL_HWSURFACE);
-	if (this->screen == nullptr)
+	atlas = get_image("data/image.png");
+}
+
+void Display::set_resizable(bool b)
+{
+	if (b != resizable)
+	{
+		resizable = b;
+		resize(size_x, size_y);
+	}
+}
+
+void Display::resize(int w, int h)
+{
+	size_x = w;
+	size_y = h;
+	screen = SDL_SetVideoMode(size_x, size_y, 32,
+			SDL_HWSURFACE | (resizable ? SDL_VIDEORESIZE : 0));
+	if (screen == nullptr)
 	{
 		std::cerr << "SDL_SetVideoMode error: " << SDL_GetError() << std::endl;
 	}
 }
 
-void Display::draw_start()
+void Display::show_cursor(bool b)
 {
-	int r = 1;
-	int g = 100;
-	int b = 1;
+	SDL_ShowCursor(b);
+}
+
+void Display::draw_background()
+{
+	if (not this->screen)
+	{
+		fprintf(stderr, "Screen is not initialized\n");
+		return;
+	}
 	SDL_FillRect(this->screen, NULL, SDL_MapRGB(this->screen->format, r, g, b));
 }
 
-void Display::draw(const Drawable& drawable, const Position& position)
+void Display::flip()
 {
-	drawable.draw(*this, position);
-}
-
-void Display::draw_end()
-{
+	if (not this->screen)
+	{
+		fprintf(stderr, "Screen is not initialized\n");
+		return;
+	}
 	SDL_Flip(this->screen);
 }
 
-
-void Display::blit(SDL_Surface* surf, const Position& p, const Bounds& bounds)
+void Display::set_background(int r, int g, int b)
 {
-	SDL_Rect dst, src;
-	dst.x = p.x;
-	dst.y = p.y;
-	src.x = bounds.x;
-	src.y = bounds.y;
-	src.w = bounds.w;
-	src.h = bounds.h;
+	this->r = r;
+	this->g = g;
+	this->b = b;
+}
 
-	SDL_BlitSurface(surf, &src, this->screen, &dst);
+void Display::draw(const Sprite& sp, int x, int y)
+{
+	if (not this->screen)
+	{
+		fprintf(stderr, "Screen is not initialized\n");
+		return;
+	}
+	SDL_Rect dst, src;
+	dst.x = x;
+	dst.y = y;
+	src.x = sp.x;
+	src.y = sp.y;
+	src.w = sp.w;
+	src.h = sp.h;
+
+	SDL_BlitSurface(atlas, &src, this->screen, &dst);
 }

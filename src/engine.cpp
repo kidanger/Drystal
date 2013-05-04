@@ -6,22 +6,21 @@
 #include "display.hpp"
 #include "drawable.hpp"
 #include "event.hpp"
-#include "gamestate.hpp"
 #include "file.hpp"
 
+static Engine* engine;
 
 void Engine::setup(int target_fps)
 {
+	engine = this;
 	this->display = new Display();
 	this->event = new EventManager(*this);
 	this->display->init();
 	this->target_fps = target_fps;
 	L = luaL_newstate();
 	luaL_openlibs(L);
-	reload();
 }
 
-static Engine* engine;
 static void clb_update()
 {
 	engine->update();
@@ -32,9 +31,110 @@ static int mlua_engine_stop(lua_State*)
 	return 0;
 }
 
+static int mlua_draw_sprite(lua_State* L)
+{
+	if (not lua_istable(L, -3))
+		printf("sprite is not a table\n");
+	if (not lua_isnumber(L, -2))
+		printf("y is not a number\n");
+	if (not lua_isnumber(L, -1))
+		printf("x is not a number\n");
+	Sprite sp;
+	// get x
+	lua_pushstring(L, "x");
+	lua_gettable(L, -4);
+	sp.x = lua_tointeger(L, -1);
+	lua_pop(L, 1);
+	// get y
+	lua_pushstring(L, "y");
+	lua_gettable(L, -4);
+	sp.y = lua_tointeger(L, -1);
+	lua_pop(L, 1);
+	// get w
+	lua_pushstring(L, "w");
+	lua_gettable(L, -4);
+	sp.w = lua_tointeger(L, -1);
+	lua_pop(L, 1);
+	// get h
+	lua_pushstring(L, "h");
+	lua_gettable(L, -4);
+	sp.h = lua_tointeger(L, -1);
+	lua_pop(L, 1);
+	// unload table
+	int destx = lua_tointeger(L, -2);
+	int desty = lua_tointeger(L, -1);
+	engine->draw_sprite(sp, destx, desty);
+	return 0;
+}
+
+static int mlua_set_background(lua_State* L)
+{
+	int r = lua_tointeger(L, -3);
+	int g = lua_tointeger(L, -2);
+	int b = lua_tointeger(L, -1);
+	r = r < 0 ? r = 0 : r;
+	r = r > 255 ? r = 255 : r;
+	g = g < 0 ? g = 0 : g;
+	g = g > 255 ? g = 255 : g;
+	b = b < 0 ? b = 0 : b;
+	b = b > 255 ? b = 255 : b;
+	engine->display->set_background(r, g, b);
+	return 0;
+}
+
+static int mlua_show_cursor(lua_State* L)
+{
+	int show = lua_toboolean(L, -1);
+	engine->display->show_cursor(show);
+	return 0;
+}
+static int mlua_set_resizable(lua_State* L)
+{
+	int r = lua_toboolean(L, -1);
+	engine->display->set_resizable(r);
+	return 0;
+}
+static int mlua_resize(lua_State* L)
+{
+	int w = lua_tointeger(L, -2);
+	int h = lua_tointeger(L, -1);
+	engine->display->resize(w, h);
+	return 0;
+}
+static int mlua_flip(lua_State*)
+{
+	engine->display->flip();
+	return 0;
+}
+static int mlua_draw_background(lua_State*)
+{
+	engine->display->draw_background();
+	return 0;
+}
+
+
+void Engine::draw_sprite(const Sprite& sp, int destx, int desty)
+{
+	display->draw(sp, destx, desty);
+}
+
+void Engine::event_resize(int w, int h)
+{
+	lua_getglobal(L, "resize_event");
+	if (not lua_isfunction(L, -1))
+	{
+		return;
+	}
+	lua_pushnumber(L, w);
+	lua_pushnumber(L, h);
+	if (lua_pcall(L, 2, 0, 0))
+	{
+		luaL_error(L, "error calling resize_event: %s", lua_tostring(L, -1));
+	}
+}
+
 void Engine::loop()
 {
-	engine = this;
 	emscripten_set_main_loop(clb_update, this->target_fps, true);
 }
 
@@ -42,18 +142,33 @@ void Engine::send_globals()
 {
 	lua_pushcfunction(L, mlua_engine_stop);
 	lua_setglobal(L, "engine_stop");
+
+	lua_pushcfunction(L, mlua_draw_sprite);
+	lua_setglobal(L, "draw_sprite");
+	lua_pushcfunction(L, mlua_set_background);
+	lua_setglobal(L, "set_background");
+	lua_pushcfunction(L, mlua_show_cursor);
+	lua_setglobal(L, "show_cursor");
+	lua_pushcfunction(L, mlua_set_resizable);
+	lua_setglobal(L, "set_resizable");
+	lua_pushcfunction(L, mlua_resize);
+	lua_setglobal(L, "resize");
+	lua_pushcfunction(L, mlua_flip);
+	lua_setglobal(L, "flip");
+	lua_pushcfunction(L, mlua_draw_background);
+	lua_setglobal(L, "draw_background");
 }
 
 void Engine::reload()
 {
 	std::string filename = "game.lua";
 	if (last_load < last_modified(filename)) {
+		send_globals();
+
 		if (luaL_dofile(L, filename.c_str()))
 		{
 			luaL_error(L, "error running script: %s", lua_tostring(L, -1));
 		}
-
-		send_globals();
 
 		lua_getglobal(L, "init");
 		lua_pcall(L, 0, 0, 0);
@@ -65,24 +180,20 @@ void Engine::reload()
 void Engine::update()
 {
 	event->pull();
+
 	reload();
 
-	game->update(*this);
 	lua_getglobal(L, "update");
 	if (lua_pcall(L, 0, 0, 0))
 	{
 		luaL_error(L, "error calling update: %s", lua_tostring(L, -1));
 	}
 
-	display->draw_start();
-	game->draw(*display);
 	lua_getglobal(L, "draw");
 	if (lua_pcall(L, 0, 0, 0))
 	{
-		luaL_error(L, "error calling update: %s", lua_tostring(L, -1));
+		luaL_error(L, "error calling draw: %s", lua_tostring(L, -1));
 	}
-
-	display->draw_end();
 }
 
 void Engine::mouse_motion(int mx, int my)
@@ -114,20 +225,6 @@ void Engine::mouse_press(int mx, int my, int button)
 	{
 		luaL_error(L, "error calling mouse_button: %s", lua_tostring(L, -1));
 	}
-}
-
-void Engine::push_state(GameState* game)
-{
-	game->set_parent(this->game);
-	this->game = game;
-	game->preload();
-	game->setup(*this);
-}
-
-void Engine::pop_state()
-{
-	this->game->clean(*this);
-	this->game = this->game->get_parent();
 }
 
 void Engine::clean_up()

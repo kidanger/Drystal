@@ -1,28 +1,45 @@
-
-
 ticks = 0
+
 local mouse_x = 0
 local mouse_y = 0
-local bonbons = 0
-local delta_bonbons = 0
+local r, g, b = 125, 0, 0
+
+local sprites = {
+    bonhomme={x=0, y=0, w=32, h=32},
+    enemy={x=32, y=0, w=32, h=32},
+}
+
+local enemy = {
+    x=600,
+    y=400
+}
 
 function init()
     print("initialized from lua")
+    show_cursor(false)
+    resize(900, 500)
+    set_resizable(false)
+end
+
+function resize_event(w, h)
+    resize(w, h)
 end
 
 function update()
     --print("` " .. ticks)
-    --print (mouse_x .. " " .. mouse_y)
     ticks = ticks + 1
-    if ticks % 20 == 0 and delta_bonbons > 0 then
-        bonbons = bonbons + delta_bonbons
-        print ("Vous avez ramasser " .. delta_bonbons .. " bonbons !")
-        print ("Vous en avez maintenant " .. bonbons .. ".")
-        delta_bonbons = 0
-        if math.random(0, 100) > 90 then
-            print ("Pensez à aller voir le marchant ^^")
-        end
+    if mouse_x > enemy.x then
+        enemy.x = enemy.x + 10
+    else
+        enemy.x = enemy.x - 10
     end
+    if mouse_y > enemy.y then
+        enemy.y = enemy.y + 10
+    else
+        enemy.y = enemy.y - 10
+    end
+    r = r + math.random(-5, 5)
+    set_background(r, g, b)
 end
 
 function mouse_motion(x, y)
@@ -31,10 +48,12 @@ function mouse_motion(x, y)
 end
 
 function mouse_press(x, y, button)
-    delta_bonbons = delta_bonbons + 1
 end
 
 function draw()
-    -- draw_sprite(x, y)
+    draw_background()
+    draw_sprite(sprites.bonhomme, mouse_x, mouse_y)
+    draw_sprite(sprites.enemy, enemy.x, enemy.y)
+    flip()
 end
 
