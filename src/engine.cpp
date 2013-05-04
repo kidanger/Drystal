@@ -21,10 +21,10 @@ void Engine::setup(int target_fps)
 	luaL_openlibs(L);
 }
 
-static void clb_update()
-{
-	engine->update();
-}
+//
+// LUA functions
+//
+
 static int mlua_engine_stop(lua_State*)
 {
 	engine->stop();
@@ -63,7 +63,7 @@ static int mlua_draw_sprite(lua_State* L)
 	// unload table
 	int destx = lua_tointeger(L, -2);
 	int desty = lua_tointeger(L, -1);
-	engine->draw_sprite(sp, destx, desty);
+	engine->display->draw(sp, destx, desty);
 	return 0;
 }
 
@@ -112,31 +112,9 @@ static int mlua_draw_background(lua_State*)
 	return 0;
 }
 
-
-void Engine::draw_sprite(const Sprite& sp, int destx, int desty)
-{
-	display->draw(sp, destx, desty);
-}
-
-void Engine::event_resize(int w, int h)
-{
-	lua_getglobal(L, "resize_event");
-	if (not lua_isfunction(L, -1))
-	{
-		return;
-	}
-	lua_pushnumber(L, w);
-	lua_pushnumber(L, h);
-	if (lua_pcall(L, 2, 0, 0))
-	{
-		luaL_error(L, "error calling resize_event: %s", lua_tostring(L, -1));
-	}
-}
-
-void Engine::loop()
-{
-	emscripten_set_main_loop(clb_update, this->target_fps, true);
-}
+//
+// LUA load
+//
 
 void Engine::send_globals()
 {
@@ -177,30 +155,53 @@ void Engine::reload()
 	}
 }
 
+//
+// Main loop
+//
+
+void Engine::loop()
+{
+	emscripten_set_main_loop([]() { engine->update(); }, this->target_fps, true);
+}
+
 void Engine::update()
 {
+	static int tick = 0;
 	event->pull();
 
-	reload();
+	if (tick % 30 == 0)
+		reload();
 
 	lua_getglobal(L, "update");
-	if (lua_pcall(L, 0, 0, 0))
+	if (lua_isfunction(L, -1))
 	{
-		luaL_error(L, "error calling update: %s", lua_tostring(L, -1));
+		if (lua_pcall(L, 0, 0, 0))
+			luaL_error(L, "error calling update: %s", lua_tostring(L, -1));
 	}
+	else
+		lua_pop(L, 1);
 
 	lua_getglobal(L, "draw");
-	if (lua_pcall(L, 0, 0, 0))
+	if (lua_isfunction(L, -1))
 	{
-		luaL_error(L, "error calling draw: %s", lua_tostring(L, -1));
+		if (lua_pcall(L, 0, 0, 0))
+			luaL_error(L, "error calling draw: %s", lua_tostring(L, -1));
 	}
+	else
+		lua_pop(L, 1);
+	tick += 1;
 }
+
+//
+// Events
+//
 
 void Engine::mouse_motion(int mx, int my)
 {
 	lua_getglobal(L, "mouse_motion");
 	if (not lua_isfunction(L, -1))
 	{
+		lua_pop(L, 1);
 		return;
 	}
 	lua_pushnumber(L, mx);
@@ -216,6 +217,7 @@ void Engine::mouse_press(int mx, int my, int button)
 	lua_getglobal(L, "mouse_press");
 	if (not lua_isfunction(L, -1))
 	{
+		lua_pop(L, 1);
 		return;
 	}
 	lua_pushnumber(L, mx);
@@ -227,11 +229,32 @@ void Engine::mouse_press(int mx, int my, int button)
 	}
 }
 
+void Engine::event_resize(int w, int h)
+{
+	lua_getglobal(L, "resize_event");
+	if (not lua_isfunction(L, -1))
+	{
+		lua_pop(L, 1);
+		return;
+	}
+	lua_pushnumber(L, w);
+	lua_pushnumber(L, h);
+	if (lua_pcall(L, 2, 0, 0))
+	{
+		luaL_error(L, "error calling resize_event: %s", lua_tostring(L, -1));
+	}
+}
+
+
+//
+// Clean
+//
+
 void Engine::clean_up()
 {
 	delete event;
 	delete display;
-	lua_close(L);
+	// lua_close(L);
 }
 
 void Engine::stop()

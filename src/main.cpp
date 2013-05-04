@@ -11,11 +11,10 @@ int main(int argc, const char* argv[])
 
     std::cout << "Starting..." << std::endl;
 
-    engine_t e;
-    engine_setup(&e, 42);
+    e.setup(42);
 
     std::cout << "Looping..." << std::endl;
 
-    engin_loop(&e);
+    e.loop();
     return 0;
 }

@@ -21,23 +21,19 @@ class Engine
 		EventManager *event;
 
 		void setup(int target_fps);
-		void event_resize(int w, int h);
+
+		void send_globals();
+		void reload();
 
 		void loop();
 		void update();
-		void reload();
-		void send_globals();
 
 		void mouse_motion(int, int);
 		void mouse_press(int, int, int);
-
-		void draw_sprite(const Sprite&, int, int);
-		void set_background(int r, int g, int b);
+		void event_resize(int w, int h);
 
 		void clean_up();
 		void stop();
-
-		EventManager& get_event_manager() { return *event; }
 };
 
 #endif
