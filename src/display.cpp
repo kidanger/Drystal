@@ -1,5 +1,8 @@
 #include <SDL/SDL.h>
+
+#ifndef EMSCRIPTEN
 #include <iostream>
+#endif
 
 #include "display.hpp"
 #include "drawable.hpp"
@@ -26,10 +29,12 @@ void Display::resize(int w, int h)
 	size_y = h;
 	screen = SDL_SetVideoMode(size_x, size_y, 32,
 			SDL_HWSURFACE | (resizable ? SDL_VIDEORESIZE : 0));
+#ifndef EMSCRIPTEN
 	if (screen == nullptr)
 	{
 		std::cerr << "SDL_SetVideoMode error: " << SDL_GetError() << std::endl;
 	}
+#endif
 }
 
 void Display::show_cursor(bool b)
@@ -39,21 +44,25 @@ void Display::show_cursor(bool b)
 
 void Display::draw_background()
 {
+#ifndef EMSCRIPTEN
 	if (not this->screen)
 	{
-		fprintf(stderr, "Screen is not initialized\n");
+		std::cerr << "Screen is not initialized" << std::endl;
 		return;
 	}
+#endif
 	SDL_FillRect(this->screen, NULL, SDL_MapRGB(this->screen->format, r, g, b));
 }
 
 void Display::flip()
 {
+#ifndef EMSCRIPTEN
 	if (not this->screen)
 	{
-		fprintf(stderr, "Screen is not initialized\n");
+		std::cerr << "Screen is not initialized" << std::endl;
 		return;
 	}
+#endif
 	SDL_Flip(this->screen);
 }
 
@@ -66,11 +75,13 @@ void Display::set_background(int r, int g, int b)
 
 void Display::draw(const Sprite& sp, int x, int y)
 {
+#ifndef EMSCRIPTEN
 	if (not this->screen)
 	{
-		fprintf(stderr, "Screen is not initialized\n");
+		std::cerr << "Screen is not initialized" << std::endl;
 		return;
 	}
+#endif
 	SDL_Rect dst, src;
 	dst.x = x;
 	dst.y = y;
@@ -81,3 +92,4 @@ void Display::draw(const Sprite& sp, int x, int y)
 
 	SDL_BlitSurface(atlas, &src, this->screen, &dst);
 }
+

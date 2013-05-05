@@ -1,6 +1,6 @@
-#include "emscripten.h"
-
 #include <lua.hpp>
+
+#include "emscripten.h"
 
 #include "engine.hpp"
 #include "display.hpp"
@@ -33,12 +33,14 @@ static int mlua_engine_stop(lua_State*)
 
 static int mlua_draw_sprite(lua_State* L)
 {
+#ifndef EMSCRIPTEN
 	if (not lua_istable(L, -3))
 		printf("sprite is not a table\n");
 	if (not lua_isnumber(L, -2))
 		printf("y is not a number\n");
 	if (not lua_isnumber(L, -1))
 		printf("x is not a number\n");
+#endif
 	Sprite sp;
 	// get x
 	lua_pushstring(L, "x");
@@ -229,6 +231,36 @@ void Engine::mouse_press(int mx, int my, int button)
 	}
 }
 
+void Engine::key_press(const char* key_string)
+{
+	lua_getglobal(L, "key_press");
+	if (not lua_isfunction(L, -1))
+	{
+		lua_pop(L, 1);
+		return;
+	}
+	lua_pushstring(L, key_string);
+	if (lua_pcall(L, 1, 0, 0))
+	{
+		luaL_error(L, "error calling key_press: %s", lua_tostring(L, -1));
+	}
+}
+
+void Engine::key_release(const char* key_string)
+{
+	lua_getglobal(L, "key_release");
+	if (not lua_isfunction(L, -1))
+	{
+		lua_pop(L, 1);
+		return;
+	}
+	lua_pushstring(L, key_string);
+	if (lua_pcall(L, 1, 0, 0))
+	{
+		luaL_error(L, "error calling key_release: %s", lua_tostring(L, -1));
+	}
+}
+
 void Engine::event_resize(int w, int h)
 {
 	lua_getglobal(L, "resize_event");
@@ -259,7 +291,6 @@ void Engine::clean_up()
 
 void Engine::stop()
 {
-	printf("Stopping engine...\n");
 #ifndef EMSCRIPTEN
 	clean_up();
 #endif

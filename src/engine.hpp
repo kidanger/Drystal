@@ -30,6 +30,8 @@ class Engine
 
 		void mouse_motion(int, int);
 		void mouse_press(int, int, int);
+		void key_press(const char* key_string);
+		void key_release(const char* key_string);
 		void event_resize(int w, int h);
 
 		void clean_up();

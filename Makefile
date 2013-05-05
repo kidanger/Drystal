@@ -12,7 +12,7 @@ CCFLAGS=-std=c++11 -I$(SRCDIR) -I$(LUADIR)/include
 CCFLAGS+=-Wall -Wextra
 
 LD=clang++
-SDL_OPTIONS=`sdl-config --libs` -lSDL_image
+SDL_OPTIONS=`sdl-config --libs` -lSDL_image -lGL
 LUA_OPTIONS=liblua.so
 LDFLAGS+=$(SDL_OPTIONS) $(LUA_OPTIONS)
 
@@ -31,10 +31,10 @@ else
 endif
 
 WEB=
-EMSCRIPTEN_DIR=~/dev/emscripten/
+EMCC=emcc
 ifneq ($(WEB),)
-	CC=python $(EMSCRIPTEN_DIR)emcc
-	LD=python $(EMSCRIPTEN_DIR)emcc
+	CC=$(EMCC)
+	LD=$(EMCC)
 	EXT=.bc
 	EEXT=.bc
 	LDFLAGS+=$(shell cat included_files.txt) -s TOTAL_MEMORY=33554432 -s DEAD_FUNCTIONS="['_SDL_DisplayFormat']" --minify 1 -s ASM_JS=1 -O2 -DNDEBUG
