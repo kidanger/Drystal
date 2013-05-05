@@ -4,10 +4,13 @@ static Engine e;
 
 int main(int argc, const char* argv[])
 {
-    (void) argc;
-    (void) argv;
+    const char* filename = "pong.lua";
+    if (argc == 2)
+    {
+        filename = argv[1];
+    }
 
-    e.setup(42);
+    e.setup(filename, 42);
     e.loop();
     return 0;
 }

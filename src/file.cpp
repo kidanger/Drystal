@@ -1,17 +1,18 @@
-#include <string>
-#include <unistd.h>
+#ifndef EMSCRIPTEN
+
 #include <sys/stat.h>
-#include <sys/types.h>
 
 #include "file.hpp"
 
-time_t last_modified(std::string filename)
+time_t last_modified(const char* filename)
 {
     struct stat st;
 
-    if (stat(filename.c_str(), &st)) {
+    if (stat(filename, &st)) {
         return 0;
     } else {
         return st.st_mtime;
     }
 }
+
+#endif

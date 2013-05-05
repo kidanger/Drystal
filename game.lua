@@ -157,4 +157,3 @@ end
 function resize_event(w, h)
     resize(w, h)
 end
-

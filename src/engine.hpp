@@ -14,13 +14,16 @@ class Engine
 	private:
 		int target_fps;
 		lua_State* L;
+#ifndef EMSCRIPTEN
 		time_t last_load;
+#endif
+		const char* filename;
 
 	public:
 		Display *display;
 		EventManager *event;
 
-		void setup(int target_fps);
+		void setup(const char* filename, int target_fps);
 
 		void send_globals();
 		void reload();

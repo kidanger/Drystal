@@ -1,8 +1,8 @@
 #ifndef FILE_HPP
 #define FILE_HPP
 
-#include <string>
+#include <ctime>
 
-time_t last_modified(std::string filename);
+time_t last_modified(const char* filename);
 
 #endif

@@ -6,19 +6,24 @@
 #include "display.hpp"
 #include "drawable.hpp"
 #include "event.hpp"
+
+#ifndef EMSCRIPTEN
 #include "file.hpp"
+#endif
 
 static Engine* engine;
 
-void Engine::setup(int target_fps)
+void Engine::setup(const char* filename, int target_fps)
 {
 	engine = this;
+	this->filename = filename;
 	this->display = new Display();
 	this->event = new EventManager(*this);
 	this->display->init();
 	this->target_fps = target_fps;
 	L = luaL_newstate();
 	luaL_openlibs(L);
+	reload();
 }
 
 //
@@ -141,11 +146,13 @@ void Engine::send_globals()
 
 void Engine::reload()
 {
-	std::string filename = "game.lua";
-	if (last_load < last_modified(filename)) {
+#ifndef EMSCRIPTEN
+	time_t last = last_modified(filename);
+	if (last_load < last) {
+#endif
 		send_globals();
 
-		if (luaL_dofile(L, filename.c_str()))
+		if (luaL_dofile(L, filename))
 		{
 			luaL_error(L, "error running script: %s", lua_tostring(L, -1));
 		}
@@ -153,8 +160,10 @@ void Engine::reload()
 		lua_getglobal(L, "init");
 		lua_pcall(L, 0, 0, 0);
 
-		last_load = last_modified(filename);
+#ifndef EMSCRIPTEN
+		last_load = last;
 	}
+#endif
 }
 
 //
@@ -171,8 +180,10 @@ void Engine::update()
 	static int tick = 0;
 	event->pull();
 
+#ifndef EMSCRIPTEN
 	if (tick % 30 == 0)
 		reload();
+#endif
 
 	lua_getglobal(L, "update");
 	if (lua_isfunction(L, -1))
