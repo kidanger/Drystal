@@ -70,22 +70,31 @@ static int mlua_draw_sprite(lua_State* L)
 	// unload table
 	int destx = lua_tointeger(L, -2);
 	int desty = lua_tointeger(L, -1);
-	engine->display->draw(sp, destx, desty);
+	engine->display->draw_sprite(sp, destx, desty);
 	return 0;
 }
 
-static int mlua_set_background(lua_State* L)
+static int mlua_set_color(lua_State* L)
 {
-	int r = lua_tointeger(L, -3);
-	int g = lua_tointeger(L, -2);
+	lua_pushnil(L);
+	lua_next(L, -2);
+	int r = lua_tointeger(L, -1);
+	lua_pop(L, 1);
+	lua_next(L, -2);
+	int g = lua_tointeger(L, -1);
+	lua_pop(L, 1);
+	lua_next(L, -2);
 	int b = lua_tointeger(L, -1);
-	r = r < 0 ? r = 0 : r;
-	r = r > 255 ? r = 255 : r;
-	g = g < 0 ? g = 0 : g;
-	g = g > 255 ? g = 255 : g;
-	b = b < 0 ? b = 0 : b;
-	b = b > 255 ? b = 255 : b;
-	engine->display->set_background(r, g, b);
+	lua_pop(L, 1);
+	lua_pop(L, 1);
+	engine->display->set_color(r, g, b);
+	return 0;
+}
+static int mlua_set_offset(lua_State* L)
+{
+	int ox = lua_tointeger(L, -2);
+	int oy = lua_tointeger(L, -1);
+	engine->display->set_offset(ox, oy);
 	return 0;
 }
 
@@ -118,6 +127,15 @@ static int mlua_draw_background(lua_State*)
 	engine->display->draw_background();
 	return 0;
 }
+static int mlua_draw_rect(lua_State* L)
+{
+	int x = lua_tointeger(L, -4);
+	int y = lua_tointeger(L, -3);
+	int w = lua_tointeger(L, -2);
+	int h = lua_tointeger(L, -1);
+	engine->display->draw_rect(x, y, w, h);
+	return 0;
+}
 
 //
 // LUA load
@@ -128,10 +146,6 @@ void Engine::send_globals()
 	lua_pushcfunction(L, mlua_engine_stop);
 	lua_setglobal(L, "engine_stop");
 
-	lua_pushcfunction(L, mlua_draw_sprite);
-	lua_setglobal(L, "draw_sprite");
-	lua_pushcfunction(L, mlua_set_background);
-	lua_setglobal(L, "set_background");
 	lua_pushcfunction(L, mlua_show_cursor);
 	lua_setglobal(L, "show_cursor");
 	lua_pushcfunction(L, mlua_set_resizable);
@@ -142,6 +156,14 @@ void Engine::send_globals()
 	lua_setglobal(L, "flip");
 	lua_pushcfunction(L, mlua_draw_background);
 	lua_setglobal(L, "draw_background");
+	lua_pushcfunction(L, mlua_draw_rect);
+	lua_setglobal(L, "draw_rect");
+	lua_pushcfunction(L, mlua_draw_sprite);
+	lua_setglobal(L, "draw_sprite");
+	lua_pushcfunction(L, mlua_set_offset);
+	lua_setglobal(L, "set_offset");
+	lua_pushcfunction(L, mlua_set_color);
+	lua_setglobal(L, "set_color");
 }
 
 void Engine::reload()
