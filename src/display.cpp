@@ -7,17 +7,14 @@
 #include "drawable.hpp"
 #include "ressource.hpp"
 
-//#include <SDL_oglblit.h>
 
 void Display::init()
 {
-	//OGL_Init(800, 600, 0, 0);
 	SDL_Init(SDL_INIT_VIDEO);
 	TTF_Init();
 	atlas = get_image("data/image.png");
-	//atlas = OGL_FromSurfaceFree(get_image("data/image.png"));
-	font = TTF_OpenFont("arial.ttf", 26);
 }
+
 
 void Display::set_resizable(bool b)
 {
@@ -44,7 +41,6 @@ void Display::show_cursor(bool b)
 void Display::flip()
 {
 	SDL_Flip(this->screen);
-	//OGL_Flip();
 }
 
 void Display::set_color(int r, int g, int b)
@@ -66,6 +62,15 @@ void Display::set_offset(int ox, int oy)
 	this->offy = oy;
 }
 
+void Display::set_font(const char* name, int size)
+{
+	if (not fonts[size])
+	{
+		fonts[size] = TTF_OpenFont(name, size);
+	}
+	font = fonts[size];
+}
+
 void Display::draw_background()
 {
 	SDL_FillRect(this->screen, NULL, SDL_MapRGB(this->screen->format, r, g, b));
@@ -82,7 +87,6 @@ void Display::draw_sprite(const Sprite& sp, int x, int y)
 	src.h = sp.h;
 
 	SDL_BlitSurface(atlas, &src, this->screen, &dst);
-	// OGL_Blit(atlas, &src, x, y, 1, 1, 1);
 }
 
 void Display::draw_rect(int x, int y, int w, int h)
@@ -90,16 +94,31 @@ void Display::draw_rect(int x, int y, int w, int h)
 	if (h <= 0 or w <= 0)
 		return;
 
-	SDL_Color color = { 0xff, 0x99, 0x00, 0xff };
-	static SDL_Surface *text = TTF_RenderText_Solid(font, "hello world", color);
-	SDL_BlitSurface (text, NULL, screen, NULL);
-	//SDL_FreeSurface(text);
-
 	SDL_Rect dst;
 	dst.x = x + offx;
 	dst.y = y + offy;
 	dst.w = w;
 	dst.h = h;
 	SDL_FillRect(this->screen, &dst, SDL_MapRGB(this->screen->format, r, g, b));
+}
+
+void Display::draw_text(const char* text, int x, int y)
+{
+	if (not font)
+		return;
+	SDL_Rect dst;
+	dst.x = x + offx;
+	dst.y = y + offy;
+	SDL_Color color = { r, g, b, 0xff };
+	SDL_Surface *surf = TTF_RenderText_Solid(font, text, color);
+	SDL_BlitSurface (surf, NULL, screen, &dst);
+	SDL_FreeSurface(surf);
+}
+
+void Display::text_size(const char* text, int *w, int *h)
+{
+	if (not font)
+		return;
+	TTF_SizeText(font, text, w, h);
 }
 

@@ -40,7 +40,7 @@ ifneq ($(WEB),)
 	LD=$(EMCC)
 	EXT=.bc
 	EEXT=.bc
-	LDFLAGS+=$(shell cat included_files.txt) -s TOTAL_MEMORY=33554432 -s DEAD_FUNCTIONS="['_SDL_DisplayFormat']" --minify 1 -s ASM_JS=0 -O2 #-DNDEBUG
+	LDFLAGS+=$(shell cat included_files.txt) -s TOTAL_MEMORY=33554432 -s DEAD_FUNCTIONS="['_SDL_DisplayFormat']" --minify 1 -s ASM_JS=1 -O2 -DNDEBUG
 	EXEC=index.html
 	SDL_OPTIONS=
 	LUA_OPTIONS=liblua.bc.so

@@ -97,6 +97,23 @@ static int mlua_set_offset(lua_State* L)
 	engine->display->set_offset(ox, oy);
 	return 0;
 }
+static int mlua_set_font(lua_State* L)
+{
+	const char * name = lua_tostring(L, -2);
+	int size = lua_tointeger(L, -1);
+	engine->display->set_font(name, size);
+	return 0;
+}
+
+static int mlua_text_size(lua_State* L)
+{
+	const char* str = lua_tostring(L, -1);
+	int w, h;
+	engine->display->text_size(str, &w, &h);
+	lua_pushnumber(L, w);
+	lua_pushnumber(L, h);
+	return 2;
+}
 
 static int mlua_show_cursor(lua_State* L)
 {
@@ -136,6 +153,14 @@ static int mlua_draw_rect(lua_State* L)
 	engine->display->draw_rect(x, y, w, h);
 	return 0;
 }
+static int mlua_draw_text(lua_State* L)
+{
+	const char* text = lua_tostring(L, -3);
+	int x = lua_tointeger(L, -2);
+	int y = lua_tointeger(L, -1);
+	engine->display->draw_text(text, x, y);
+	return 0;
+}
 
 //
 // LUA load
@@ -154,16 +179,25 @@ void Engine::send_globals()
 	lua_setglobal(L, "resize");
 	lua_pushcfunction(L, mlua_flip);
 	lua_setglobal(L, "flip");
+
 	lua_pushcfunction(L, mlua_draw_background);
 	lua_setglobal(L, "draw_background");
 	lua_pushcfunction(L, mlua_draw_rect);
 	lua_setglobal(L, "draw_rect");
+	lua_pushcfunction(L, mlua_draw_text);
+	lua_setglobal(L, "draw_text");
 	lua_pushcfunction(L, mlua_draw_sprite);
 	lua_setglobal(L, "draw_sprite");
+
 	lua_pushcfunction(L, mlua_set_offset);
 	lua_setglobal(L, "set_offset");
 	lua_pushcfunction(L, mlua_set_color);
 	lua_setglobal(L, "set_color");
+	lua_pushcfunction(L, mlua_set_font);
+	lua_setglobal(L, "set_font");
+
+	lua_pushcfunction(L, mlua_text_size);
+	lua_setglobal(L, "text_size");
 }
 
 void Engine::reload()

@@ -1,1 +1,1 @@
---preload-file data --preload-file game.lua --preload-file pong.lua --preload-file draw.lua --preload-file arial.ttf
+--preload-file data

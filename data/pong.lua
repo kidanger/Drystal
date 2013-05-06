@@ -1,4 +1,4 @@
-require "draw"
+require "data/draw"
 
 width = 800
 height = 600
@@ -49,7 +49,7 @@ function init()
 	set_resizable(false)
 	show_cursor(false)
 
-	initialize_font()
+	set_font('data/arial.ttf', 14)
 	reload_game()
 end
 
@@ -125,7 +125,10 @@ function update_ball(ball)
 	end
 end
 
+font_size = 1
+ticks = 0
 function draw()
+	ticks = ticks + 0.1
 	set_color(GRAY)
 	draw_background()
 
@@ -136,15 +139,19 @@ function draw()
 	draw_sprite(ball.sprite, ball.x-ball.sprite.w/2, ball.y-ball.sprite.h/2)
 
 	local score = 'PLAYER ' .. left.points .. ' ' .. right.points .. ' COMPUTER'
-	draw_string(score, (width - #score * 8) / 2, 50)
+	set_color(BLACK)
+	set_font("data/arial.ttf", 14)
+	draw_text(score, (width - #score * 8) / 2, 50)
 
 	if state == 'pause' then
+		set_font("data/arial.ttf", font_size)
+		font_size = 10 + math.cos(ticks) * 25 + 25
 		local message = 'PRESS ENTER'
-		local frame_size_x = #message * 8 + 32
-		local frame_size_y = 30
-		set_offset((width - frame_size_x) / 2, (height - frame_size_y) / 2)
-		draw_frame(frame_size_x, frame_size_y, BLACK, DARK_GRAY, 5)
-		draw_string(message, frame_size_x / 2 - #message * 4 - 4, frame_size_y / 2 - 4)
+		local sx, sy = text_size(message)
+		set_offset((width - sx) / 2, (height - sy) / 2)
+		draw_frame(sx + 10, sy + 10, BLACK, DARK_GRAY, 5)
+		set_color({font_size*3, 50, 50})
+		draw_text(message, 5, 5)
 		set_offset(0, 0)
 	end
 

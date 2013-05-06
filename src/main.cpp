@@ -4,7 +4,7 @@ static Engine e;
 
 int main(int argc, const char* argv[])
 {
-    const char* filename = "pong.lua";
+    const char* filename = "data/pong.lua";
     if (argc == 2)
     {
         filename = argv[1];
