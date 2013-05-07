@@ -2,6 +2,7 @@ require "data/draw"
 
 width = 800
 height = 600
+fill = true
 
 speed = 6
 ball_speed = 10
@@ -15,14 +16,14 @@ background = {
 }
 
 left = {
-	x = 0,
+	x = 2,
 	w = 5,
 	h = 32,
 	points = 0,
 }
 
 right = {
-	x = width-4,
+	x = width-6,
 	w = 5,
 	h = 32,
 	points = 0,
@@ -38,6 +39,7 @@ function reload_game()
 	ball = {
 		x=width / 2,
 		y=height / 2,
+		radius=6,
 		dx=ball_speed,
 		dy=math.random(-ball_speed/2, ball_speed/2),
 		sprite={x=0, y=32, w=13, h=13},
@@ -123,6 +125,8 @@ function update_ball(ball)
 	if ball.y <= 0 or ball.y+ball.sprite.h >= height then
 		ball.dy = ball.dy * -1
 	end
+	min_dist = math.min(width - ball.x, ball.x)
+	ball.radius = 6 + min_dist*10 / width
 end
 
 font_size = 1
@@ -136,26 +140,52 @@ function draw()
 	draw_rect(left.x, left.y, left.w, left.h)
 	draw_rect(right.x, right.y, right.w, right.h)
 
-	draw_sprite(ball.sprite, ball.x-ball.sprite.w/2, ball.y-ball.sprite.h/2)
+	draw_circle(ball.x, ball.y, ball.radius)
 
 	local score = 'PLAYER ' .. left.points .. ' ' .. right.points .. ' COMPUTER'
 	set_color(BLACK)
 	set_font("data/arial.ttf", 14)
 	draw_text(score, (width - #score * 8) / 2, 50)
 
+	a = (math.cos(ticks/10+math.pi)/2 + 0.5) * 360 - 90
+	al = (math.cos(ticks/10+math.pi)/2 + 0.5) * 255
+	set_alpha(al)
+	draw_arc(40, 40, 20, -90, a)
+	set_alpha(255)
+
 	if state == 'pause' then
 		set_font("data/arial.ttf", font_size)
-		font_size = 10 + math.cos(ticks) * 25 + 25
+		font_size = 16
 		local message = 'PRESS ENTER'
 		local sx, sy = text_size(message)
 		set_offset((width - sx) / 2, (height - sy) / 2)
+		set_round(font_size/5)
+		draw_frame(sx + 10, sy + 10, BLACK, DARK_GRAY, 3)
+		set_color({(math.cos(ticks)/2+0.5)*255, 50, 50})
+		set_round(0)
+		draw_text(message, 5, 5)
+		set_offset(0, 0)
+	end
+
+	--stress()
+	flip()
+end
+
+function stress()
+	for i = 0, 200 do
+		set_round(math.random(0, 1))
+		set_font("data/arial.ttf", font_size)
+		font_size = math.random(10, 30)
+		local message = tostring(math.random())
+		local sx, sy = text_size(message)
+		local x = math.random(0, width-font_size)
+		local y = math.random(0, height-font_size*#message)
+		set_offset(x, y)
 		draw_frame(sx + 10, sy + 10, BLACK, DARK_GRAY, 5)
 		set_color({font_size*3, 50, 50})
 		draw_text(message, 5, 5)
 		set_offset(0, 0)
 	end
-
-	flip()
 end
 
 function key_press(key)
@@ -172,6 +202,10 @@ function key_press(key)
 			state = 'run'
 			reload_game()
 		end
+	end
+	if key == 'f' then
+		fill = not fill
+		set_fill(fill)
 	end
 	if key == 'escape' then
 		engine_stop()

@@ -1,5 +1,7 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_ttf.h>
+#include <SDL/SDL_rotozoom.h>
+#include <SDL/SDL_gfxPrimitives.h>
 
 #include <iostream>
 
@@ -13,6 +15,8 @@ void Display::init()
 	SDL_Init(SDL_INIT_VIDEO);
 	TTF_Init();
 	atlas = get_image("data/image.png");
+	alpha = 255;
+	fill = true;
 }
 
 
@@ -45,15 +49,20 @@ void Display::flip()
 
 void Display::set_color(int r, int g, int b)
 {
-	r = r < 0 ? r = 0 : r;
-	r = r > 255 ? r = 255 : r;
-	g = g < 0 ? g = 0 : g;
-	g = g > 255 ? g = 255 : g;
-	b = b < 0 ? b = 0 : b;
-	b = b > 255 ? b = 255 : b;
+	// r = r < 0 ? r = 0 : r;
+	// r = r > 255 ? r = 255 : r;
+	// g = g < 0 ? g = 0 : g;
+	// g = g > 255 ? g = 255 : g;
+	// b = b < 0 ? b = 0 : b;
+	// b = b > 255 ? b = 255 : b;
 	this->r = r;
 	this->g = g;
 	this->b = b;
+}
+
+void Display::set_alpha(int a)
+{
+	this->alpha = a;
 }
 
 void Display::set_offset(int ox, int oy)
@@ -69,6 +78,16 @@ void Display::set_font(const char* name, int size)
 		fonts[size] = TTF_OpenFont(name, size);
 	}
 	font = fonts[size];
+}
+
+void Display::set_round(uint16_t round)
+{
+	this->round = round;
+}
+
+void Display::set_fill(bool fill)
+{
+	this->fill = fill;
 }
 
 void Display::draw_background()
@@ -94,12 +113,30 @@ void Display::draw_rect(int x, int y, int w, int h)
 	if (h <= 0 or w <= 0)
 		return;
 
-	SDL_Rect dst;
-	dst.x = x + offx;
-	dst.y = y + offy;
-	dst.w = w;
-	dst.h = h;
-	SDL_FillRect(this->screen, &dst, SDL_MapRGB(this->screen->format, r, g, b));
+	x += offx;
+	y += offy;
+	if (fill)
+	{
+		if (not round)
+		{
+			boxRGBA(this->screen, x, y, x+w, y+h, r, g, b, alpha);
+		}
+		else
+		{
+			roundedBoxRGBA(this->screen, x, y, x+w, y+h, round, r, g, b, alpha);
+		}
+	}
+	else
+	{
+		if (not round)
+		{
+			rectangleRGBA(this->screen, x, y, x+w, y+h, r, g, b, alpha);
+		}
+		else
+		{
+			roundedRectangleRGBA(this->screen, x, y, x+w, y+h, round, r, g, b, alpha);
+		}
+	}
 }
 
 void Display::draw_text(const char* text, int x, int y)
@@ -109,10 +146,34 @@ void Display::draw_text(const char* text, int x, int y)
 	SDL_Rect dst;
 	dst.x = x + offx;
 	dst.y = y + offy;
-	SDL_Color color = { r, g, b, 0xff };
+	SDL_Color color = { r, g, b, alpha };
 	SDL_Surface *surf = TTF_RenderText_Solid(font, text, color);
 	SDL_BlitSurface (surf, NULL, screen, &dst);
 	SDL_FreeSurface(surf);
+}
+
+void Display::draw_circle(int x, int y, int rad)
+{
+	if (fill)
+	{
+		filledCircleRGBA(this->screen, x+offx, y+offy, rad, r, g, b, alpha);
+	}
+	else
+	{
+		circleRGBA(this->screen, x+offx, y+offy, rad, r, g, b, alpha);
+	}
+}
+
+void Display::draw_arc(int x, int y, int radius, int rad1, int rad2)
+{
+	if (fill)
+	{
+		filledPieRGBA(this->screen, x+offx, y+offy, radius, rad1, rad2, r, g, b, alpha);
+	}
+	else
+	{
+		pieRGBA(this->screen, x+offx, y+offy, radius, rad1, rad2, r, g, b, alpha);
+	}
 }
 
 void Display::text_size(const char* text, int *w, int *h)

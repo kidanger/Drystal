@@ -104,6 +104,24 @@ static int mlua_set_font(lua_State* L)
 	engine->display->set_font(name, size);
 	return 0;
 }
+static int mlua_set_round(lua_State* L)
+{
+	int round = lua_tointeger(L, -1);
+	engine->display->set_round(round);
+	return 0;
+}
+static int mlua_set_fill(lua_State* L)
+{
+	int fill = lua_toboolean(L, -1);
+	engine->display->set_fill(fill);
+	return 0;
+}
+static int mlua_set_alpha(lua_State* L)
+{
+	int alpha = lua_tointeger(L, -1);
+	engine->display->set_alpha(alpha);
+	return 0;
+}
 
 static int mlua_text_size(lua_State* L)
 {
@@ -161,6 +179,24 @@ static int mlua_draw_text(lua_State* L)
 	engine->display->draw_text(text, x, y);
 	return 0;
 }
+static int mlua_draw_circle(lua_State* L)
+{
+	int x = lua_tointeger(L, -3);
+	int y = lua_tointeger(L, -2);
+	int r = lua_tointeger(L, -1);
+	engine->display->draw_circle(x, y, r);
+	return 0;
+}
+static int mlua_draw_arc(lua_State* L)
+{
+	int x = lua_tointeger(L, -5);
+	int y = lua_tointeger(L, -4);
+	int radius = lua_tointeger(L, -3);
+	int r1 = lua_tointeger(L, -2);
+	int r2 = lua_tointeger(L, -1);
+	engine->display->draw_arc(x, y, radius, r1, r2);
+	return 0;
+}
 
 //
 // LUA load
@@ -188,13 +224,23 @@ void Engine::send_globals()
 	lua_setglobal(L, "draw_text");
 	lua_pushcfunction(L, mlua_draw_sprite);
 	lua_setglobal(L, "draw_sprite");
+	lua_pushcfunction(L, mlua_draw_circle);
+	lua_setglobal(L, "draw_circle");
+	lua_pushcfunction(L, mlua_draw_arc);
+	lua_setglobal(L, "draw_arc");
 
 	lua_pushcfunction(L, mlua_set_offset);
 	lua_setglobal(L, "set_offset");
 	lua_pushcfunction(L, mlua_set_color);
 	lua_setglobal(L, "set_color");
+	lua_pushcfunction(L, mlua_set_alpha);
+	lua_setglobal(L, "set_alpha");
 	lua_pushcfunction(L, mlua_set_font);
 	lua_setglobal(L, "set_font");
+	lua_pushcfunction(L, mlua_set_round);
+	lua_setglobal(L, "set_round");
+	lua_pushcfunction(L, mlua_set_fill);
+	lua_setglobal(L, "set_fill");
 
 	lua_pushcfunction(L, mlua_text_size);
 	lua_setglobal(L, "text_size");
