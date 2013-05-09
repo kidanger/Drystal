@@ -47,7 +47,7 @@ void Display::flip()
 	SDL_Flip(this->screen);
 }
 
-void Display::set_color(int r, int g, int b)
+void Display::set_color(uint8_t r, uint8_t g, uint8_t b)
 {
 	// r = r < 0 ? r = 0 : r;
 	// r = r > 255 ? r = 255 : r;
@@ -60,7 +60,7 @@ void Display::set_color(int r, int g, int b)
 	this->b = b;
 }
 
-void Display::set_alpha(int a)
+void Display::set_alpha(uint8_t a)
 {
 	this->alpha = a;
 }
@@ -143,10 +143,12 @@ void Display::draw_text(const char* text, int x, int y)
 {
 	if (not font)
 		return;
+	if (not text or not text[0])
+		return;
 	SDL_Rect dst;
 	dst.x = x + offx;
 	dst.y = y + offy;
-	SDL_Color color = { r, g, b, alpha };
+	SDL_Color color = { (uint8_t) r, (uint8_t) g, (uint8_t) b, (uint8_t) alpha };
 	SDL_Surface *surf = TTF_RenderText_Solid(font, text, color);
 	SDL_BlitSurface (surf, NULL, screen, &dst);
 	SDL_FreeSurface(surf);
@@ -180,6 +182,9 @@ void Display::text_size(const char* text, int *w, int *h)
 {
 	if (not font)
 		return;
-	TTF_SizeText(font, text, w, h);
+	if (not text or not text[0])
+		*w = *h = 0;
+	else
+		TTF_SizeText(font, text, w, h);
 }
 

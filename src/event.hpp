@@ -15,9 +15,7 @@ class EventManager
 	public:
 		EventManager(Engine&);
 
-		void pull();
-
-	friend class Engine;
+		void poll();
 };
 
 #endif

@@ -18,7 +18,7 @@ class Display
 		TTF_Font* fonts[128];
 
 		TTF_Font* font;
-		uint16_t round;
+		int16_t round;
 		int offx, offy;
 		uint8_t r, g, b;
 		uint8_t alpha;
@@ -30,8 +30,8 @@ class Display
 		void set_resizable(bool);
 		void resize(int w, int h);
 
-		void set_color(int r, int g, int b);
-		void set_alpha(int a);
+		void set_color(uint8_t r, uint8_t g, uint8_t b);
+		void set_alpha(uint8_t a);
 		void set_offset(int, int);
 		void set_font(const char*, int size);
 		void set_round(uint16_t round);

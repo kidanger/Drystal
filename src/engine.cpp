@@ -1,3 +1,4 @@
+#include <cstring>
 #include <lua.hpp>
 
 #include "emscripten.h"
@@ -6,6 +7,7 @@
 #include "display.hpp"
 #include "drawable.hpp"
 #include "event.hpp"
+#include "network.hpp"
 
 #ifndef EMSCRIPTEN
 #include "file.hpp"
@@ -19,6 +21,7 @@ void Engine::setup(const char* filename, int target_fps)
 	this->filename = filename;
 	this->display = new Display();
 	this->event = new EventManager(*this);
+	this->net = new Network(*this);
 	this->display->init();
 	this->target_fps = target_fps;
 	L = luaL_newstate();
@@ -198,6 +201,26 @@ static int mlua_draw_arc(lua_State* L)
 	return 0;
 }
 
+static int mlua_connect(lua_State* L)
+{
+	const char* host = lua_tostring(L, -2);
+	int port = lua_tointeger(L, -1);
+	bool ok = engine->net->connect(host, port);
+	lua_pushnumber(L, ok);
+	return 1;
+}
+static int mlua_send(lua_State* L)
+{
+	const char* message = lua_tostring(L, -1);
+	engine->net->send(message, strlen(message)+1);
+	return 0;
+}
+static int mlua_disconnect(lua_State*)
+{
+	engine->net->disconnect();
+	return 0;
+}
+
 //
 // LUA load
 //
@@ -244,6 +267,14 @@ void Engine::send_globals()
 
 	lua_pushcfunction(L, mlua_text_size);
 	lua_setglobal(L, "text_size");
+
+	// net
+	lua_pushcfunction(L, mlua_connect);
+	lua_setglobal(L, "connect");
+	lua_pushcfunction(L, mlua_send);
+	lua_setglobal(L, "send");
+	lua_pushcfunction(L, mlua_disconnect);
+	lua_setglobal(L, "disconnect");
 }
 
 void Engine::reload()
@@ -280,7 +311,8 @@ void Engine::loop()
 void Engine::update()
 {
 	static int tick = 0;
-	event->pull();
+	event->poll();
+	net->poll();
 
 #ifndef EMSCRIPTEN
 	if (tick % 30 == 0)
@@ -390,6 +422,47 @@ void Engine::event_resize(int w, int h)
 	}
 }
 
+void Engine::net_recv(const unsigned char* str)
+{
+	lua_getglobal(L, "receive");
+	if (not lua_isfunction(L, -1))
+	{
+		lua_pop(L, 1);
+		return;
+	}
+	lua_pushstring(L, (const char*) str);
+	if (lua_pcall(L, 1, 0, 0))
+	{
+		luaL_error(L, "error calling receive: %s", lua_tostring(L, -1));
+	}
+}
+
+void Engine::net_connected()
+{
+	lua_getglobal(L, "connected");
+	if (not lua_isfunction(L, -1))
+	{
+		lua_pop(L, 1);
+		return;
+	}
+	if (lua_pcall(L, 0, 0, 0))
+	{
+		luaL_error(L, "error calling receive: %s", lua_tostring(L, -1));
+	}
+}
+void Engine::net_disconnected()
+{
+	lua_getglobal(L, "disconnected");
+	if (not lua_isfunction(L, -1))
+	{
+		lua_pop(L, 1);
+		return;
+	}
+	if (lua_pcall(L, 0, 0, 0))
+	{
+		luaL_error(L, "error calling receive: %s", lua_tostring(L, -1));
+	}
+}
 
 //
 // Clean
@@ -404,6 +477,7 @@ void Engine::clean_up()
 
 void Engine::stop()
 {
+	net->disconnect();
 #ifndef EMSCRIPTEN
 	clean_up();
 #endif

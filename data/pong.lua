@@ -7,7 +7,13 @@ fill = true
 speed = 6
 ball_speed = 10
 
-state = 'pause'
+timer = 0
+match_duration = 3600
+
+net_status = {
+	status = '',
+	last_received = '',
+}
 
 background = {
 	r = 125,
@@ -19,15 +25,21 @@ left = {
 	x = 2,
 	w = 5,
 	h = 32,
-	points = 0,
 }
 
 right = {
-	x = width-6,
+	x = width-7,
 	w = 5,
 	h = 32,
-	points = 0,
 }
+
+function new_match()
+	state = 'run'
+	timer = 0
+	left.points = 0
+	right.points = 0
+	reload_game()
+end
 
 function reload_game()
 	left.y = height/2-16
@@ -52,21 +64,41 @@ function init()
 	show_cursor(false)
 
 	set_font('data/arial.ttf', 14)
-	reload_game()
+	new_match()
+	state = 'pause'
+	print(connect('localhost', 1234))
+	net_status.info = 'connecting'
 end
 
 function left_loose()
-	print ("Player loses!")
 	state = 'pause'
 	right.points = right.points + 1
-	print ("Score: " .. right.points .. " | " .. left.points)
 end
 
 function right_loose()
-	print ("AI loses!")
 	state = 'pause'
 	left.points = left.points + 1
-	print ("Score: " .. right.points .. " | " .. left.points)
+end
+
+function update()
+	if state == 'run' then
+		if net_status.info ~= 'connected' then
+			update_ai()
+		end
+
+		update_pad(left)
+		update_pad(right)
+		update_ball(ball)
+
+		update_timer()
+
+		if ball.x <= ball.sprite.w/2 then
+			check_collision(left, left_loose)
+		end
+		if ball.x >= width - ball.sprite.w/2 then
+			check_collision(right, right_loose)
+		end
+	end
 end
 
 function update_ai()
@@ -92,20 +124,20 @@ function update_pad(pad)
 	end
 end
 
-function update()
-	if state == 'run' then
-		update_ai()
+function update_ball(ball)
+	ball.x = ball.x + ball.dx
+	ball.y = ball.y + ball.dy
+	if ball.y <= 0 or ball.y+ball.sprite.h >= height then
+		ball.dy = ball.dy * -1
+	end
+	min_dist = math.min(width - ball.x, ball.x)
+	ball.radius = 6 + min_dist*10 / width
+end
 
-		update_pad(left)
-		update_pad(right)
-		update_ball(ball)
-
-		if ball.x <= ball.sprite.w/2 then
-			check_collision(left, left_loose)
-		end
-		if ball.x >= width - ball.sprite.w/2 then
-			check_collision(right, right_loose)
-		end
+function update_timer()
+	timer = timer + 1
+	if timer > match_duration then
+		end_match()
 	end
 end
 
@@ -119,20 +151,14 @@ function check_collision(pad, callback)
 	end
 end
 
-function update_ball(ball)
-	ball.x = ball.x + ball.dx
-	ball.y = ball.y + ball.dy
-	if ball.y <= 0 or ball.y+ball.sprite.h >= height then
-		ball.dy = ball.dy * -1
-	end
-	min_dist = math.min(width - ball.x, ball.x)
-	ball.radius = 6 + min_dist*10 / width
+function end_match()
+	state = 'end'
 end
 
 font_size = 1
 ticks = 0
 function draw()
-	ticks = ticks + 0.1
+	ticks = ticks + 1
 	set_color(GRAY)
 	draw_background()
 
@@ -147,45 +173,70 @@ function draw()
 	set_font("data/arial.ttf", 14)
 	draw_text(score, (width - #score * 8) / 2, 50)
 
-	a = (math.cos(ticks/10+math.pi)/2 + 0.5) * 360 - 90
-	al = (math.cos(ticks/10+math.pi)/2 + 0.5) * 255
-	set_alpha(al)
-	draw_arc(40, 40, 20, -90, a)
-	set_alpha(255)
+	if timer >= match_duration * 0.75 and math.floor(timer/20) % 2 == 0 then
+		set_color(RED)
+	end
+	a = timer / match_duration * 360 - 90
+	set_fill(false)
+	draw_circle(width/2, 25, 20)
+	set_fill(true)
+	draw_arc(width/2, 25, 20, -90, a)
+	set_color(BLACK)
 
 	if state == 'pause' then
+		local font_size = 16
 		set_font("data/arial.ttf", font_size)
-		font_size = 16
 		local message = 'PRESS ENTER'
 		local sx, sy = text_size(message)
-		set_offset((width - sx) / 2, (height - sy) / 2)
+		local x, y = (width - sx) / 2, (height - sy) / 2
 		set_round(font_size/5)
-		draw_frame(sx + 10, sy + 10, BLACK, DARK_GRAY, 3)
-		set_color({(math.cos(ticks)/2+0.5)*255, 50, 50})
+		draw_frame(x, y, sx + 10, sy + 10, BLACK, DARK_GRAY, 3)
+		set_color({(math.cos(ticks/10)/2+0.5)*255, 50, 50})
+		draw_text(message, x+5, y+5)
 		set_round(0)
-		draw_text(message, 5, 5)
-		set_offset(0, 0)
 	end
+
+	if state == 'end' then
+		set_font("data/arial.ttf", 16)
+		set_round(3)
+		---
+		local sx = width / 3
+		local sy = 16 * 3
+		local x, y = (width - sx) / 2, (height - sy) / 2
+		draw_frame(x, y, sx + 10, sy + 10, BLACK, DARK_GRAY, 3)
+		set_color(BLACK)
+		---
+		local message = "Time's up"
+		local sx, sy = text_size(message)
+		local x, y = (width - sx) / 2, y + 5
+		draw_text(message, x+5, y+5)
+		---
+		local message = left.points > right.points and "Player won !" or 'Computer won.'
+		local sx, sy = text_size(message)
+		local x, y = (width - sx) / 2, y + sy + 2
+		draw_text(message, x+5, y+5)
+		---
+		set_round(0)
+	end
+
+	draw_net_status()
 
 	--stress()
 	flip()
 end
 
-function stress()
-	for i = 0, 200 do
-		set_round(math.random(0, 1))
-		set_font("data/arial.ttf", font_size)
-		font_size = math.random(10, 30)
-		local message = tostring(math.random())
-		local sx, sy = text_size(message)
-		local x = math.random(0, width-font_size)
-		local y = math.random(0, height-font_size*#message)
-		set_offset(x, y)
-		draw_frame(sx + 10, sy + 10, BLACK, DARK_GRAY, 5)
-		set_color({font_size*3, 50, 50})
-		draw_text(message, 5, 5)
-		set_offset(0, 0)
-	end
+function set_font_size(size)
+	set_font('data/arial.ttf', size)
+end
+
+function draw_net_status()
+	set_font_size(11)
+	set_color(BLACK)
+	local str = net_status.info
+	local sx, sy = text_size(str)
+	local x, y = 1, height - sy*2 - 2
+	draw_text(str, x, y)
+	draw_text(net_status.last_received, x, y+sy+1)
 end
 
 function key_press(key)
@@ -198,9 +249,15 @@ function key_press(key)
 		end
 	end
 	if state == 'pause' then
+		send('unpause', #'unpause')
 		if key == 'return' then
 			state = 'run'
 			reload_game()
+		end
+	end
+	if state == 'end' then
+		if key == 'return' then
+			new_match()
 		end
 	end
 	if key == 'f' then
@@ -216,5 +273,31 @@ function key_release(key)
 	if key == 'up' or key == 'down' then
 		left.dy = 0
 	end
+end
+
+function receive(str)
+	print('-> ' .. str)
+	send(str, #str)
+	net_status.last_received = str
+	if state == 'run' then
+		if str == 'up' then
+			right.dy = -speed
+		end
+		if str == 'down' then
+			right.dy = speed
+		end
+		if str == 'stop' then
+			right.dy = 0
+		end
+	end
+end
+
+function connected()
+	print('connected to localhost !')
+	net_status.info = 'connected'
+end
+function disconnected()
+	print('disconnected from the server !')
+	net_status.info = 'disconnected'
 end
 

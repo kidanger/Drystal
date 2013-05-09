@@ -301,7 +301,7 @@ void EventManager::handle_event(const SDL_Event& event)
 	}
 }
 
-void EventManager::pull()
+void EventManager::poll()
 {
 	SDL_Event event;
 	while(SDL_PollEvent(&event))
