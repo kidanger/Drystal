@@ -292,6 +292,7 @@ void EventManager::handle_event(const SDL_Event& event)
 			engine.mouse_press(event.button.x, event.button.y, event.button.button);
 			break;
 		case SDL_MOUSEBUTTONUP:
+			engine.mouse_release(event.button.x, event.button.y, event.button.button);
 			break;
 		case SDL_VIDEORESIZE:
 			engine.event_resize(event.resize.w, event.resize.h);

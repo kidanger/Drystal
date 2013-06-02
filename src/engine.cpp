@@ -1,5 +1,7 @@
 #include <cstring>
 #include <lua.hpp>
+#include <ctime>
+#include <sys/time.h> /* for usleep in set_main_loop */
 
 #include "emscripten.h"
 
@@ -12,6 +14,8 @@
 #ifndef EMSCRIPTEN
 #include "file.hpp"
 #endif
+
+long unsigned get_now();
 
 static Engine* engine;
 
@@ -27,6 +31,7 @@ void Engine::setup(const char* filename, int target_fps)
 	L = luaL_newstate();
 	luaL_openlibs(L);
 	reload();
+	last_update = get_now();
 }
 
 //
@@ -79,6 +84,13 @@ static int mlua_draw_sprite(lua_State* L)
 
 static int mlua_set_color(lua_State* L)
 {
+#ifndef EMSCRIPTEN
+	if (not lua_istable(L, -1))
+	{
+		printf("color is not a table\n");
+		return 0;
+	}
+#endif
 	lua_pushnil(L);
 	lua_next(L, -2);
 	int r = lua_tointeger(L, -1);
@@ -93,11 +105,16 @@ static int mlua_set_color(lua_State* L)
 	engine->display->set_color(r, g, b);
 	return 0;
 }
-static int mlua_set_offset(lua_State* L)
+static int mlua_push_offset(lua_State* L)
 {
 	int ox = lua_tointeger(L, -2);
 	int oy = lua_tointeger(L, -1);
-	engine->display->set_offset(ox, oy);
+	engine->display->push_offset(ox, oy);
+	return 0;
+}
+static int mlua_pop_offset(lua_State*)
+{
+	engine->display->pop_offset();
 	return 0;
 }
 static int mlua_set_font(lua_State* L)
@@ -135,6 +152,15 @@ static int mlua_text_size(lua_State* L)
 	lua_pushnumber(L, h);
 	return 2;
 }
+static int mlua_surface_size(lua_State* L)
+{
+	SDL_Surface* surface = (SDL_Surface *) lua_touserdata(L, -1);
+	int w, h;
+	engine->display->surface_size(surface, &w, &h);
+	lua_pushnumber(L, w);
+	lua_pushnumber(L, h);
+	return 2;
+}
 
 static int mlua_show_cursor(lua_State* L)
 {
@@ -153,6 +179,8 @@ static int mlua_resize(lua_State* L)
 	int w = lua_tointeger(L, -2);
 	int h = lua_tointeger(L, -1);
 	engine->display->resize(w, h);
+	lua_pushlightuserdata(L, engine->display->get_screen());
+	lua_setglobal(L, "screen");
 	return 0;
 }
 static int mlua_flip(lua_State*)
@@ -160,6 +188,40 @@ static int mlua_flip(lua_State*)
 	engine->display->flip();
 	return 0;
 }
+static int mlua_load_surface(lua_State* L)
+{
+	const char * filename = lua_tostring(L, -1);
+	void* surface = engine->display->load_surface(filename);
+	lua_pushlightuserdata(L, surface);
+	return 1;
+}
+static int mlua_new_surface(lua_State* L)
+{
+	int w = lua_tointeger(L, -2);
+	int h = lua_tointeger(L, -1);
+	void* surface = engine->display->new_surface(w, h);
+	lua_pushlightuserdata(L, surface);
+	return 1;
+}
+static int mlua_free_surface(lua_State* L)
+{
+	SDL_Surface* surface = (SDL_Surface*) lua_touserdata(L, -1);
+	engine->display->free_surface(surface);
+	return 0;
+}
+static int mlua_draw_on(lua_State* L)
+{
+	SDL_Surface* surface = (SDL_Surface*) lua_touserdata(L, -1);
+	engine->display->draw_on(surface);
+	return 0;
+}
+static int mlua_draw_from(lua_State* L)
+{
+	SDL_Surface* surface = (SDL_Surface*) lua_touserdata(L, -1);
+	engine->display->draw_from(surface);
+	return 0;
+}
+
 static int mlua_draw_background(lua_State*)
 {
 	engine->display->draw_background();
@@ -172,6 +234,14 @@ static int mlua_draw_rect(lua_State* L)
 	int w = lua_tointeger(L, -2);
 	int h = lua_tointeger(L, -1);
 	engine->display->draw_rect(x, y, w, h);
+	return 0;
+}
+static int mlua_draw_surface(lua_State* L)
+{
+	SDL_Surface* surface = (SDL_Surface*) lua_touserdata(L, -3);
+	int x = lua_tointeger(L, -2);
+	int y = lua_tointeger(L, -1);
+	engine->display->draw_surface(surface, x, y);
 	return 0;
 }
 static int mlua_draw_text(lua_State* L)
@@ -200,6 +270,15 @@ static int mlua_draw_arc(lua_State* L)
 	engine->display->draw_arc(x, y, radius, r1, r2);
 	return 0;
 }
+static int mlua_draw_line(lua_State* L)
+{
+	int x = lua_tointeger(L, -4);
+	int y = lua_tointeger(L, -3);
+	int x2 = lua_tointeger(L, -2);
+	int y2 = lua_tointeger(L, -1);
+	engine->display->draw_line(x, y, x2, y2);
+	return 0;
+}
 
 static int mlua_connect(lua_State* L)
 {
@@ -212,7 +291,7 @@ static int mlua_connect(lua_State* L)
 static int mlua_send(lua_State* L)
 {
 	const char* message = lua_tostring(L, -1);
-	engine->net->send(message, strlen(message)+1);
+	engine->net->send(message, strlen(message));
 	return 0;
 }
 static int mlua_disconnect(lua_State*)
@@ -238,11 +317,23 @@ void Engine::send_globals()
 	lua_setglobal(L, "resize");
 	lua_pushcfunction(L, mlua_flip);
 	lua_setglobal(L, "flip");
+	lua_pushcfunction(L, mlua_load_surface);
+	lua_setglobal(L, "load_surface");
+	lua_pushcfunction(L, mlua_new_surface);
+	lua_setglobal(L, "new_surface");
+	lua_pushcfunction(L, mlua_free_surface);
+	lua_setglobal(L, "free_surface");
+	lua_pushcfunction(L, mlua_draw_on);
+	lua_setglobal(L, "draw_on");
+	lua_pushcfunction(L, mlua_draw_from);
+	lua_setglobal(L, "draw_from");
 
 	lua_pushcfunction(L, mlua_draw_background);
 	lua_setglobal(L, "draw_background");
 	lua_pushcfunction(L, mlua_draw_rect);
 	lua_setglobal(L, "draw_rect");
+	lua_pushcfunction(L, mlua_draw_surface);
+	lua_setglobal(L, "draw_surface");
 	lua_pushcfunction(L, mlua_draw_text);
 	lua_setglobal(L, "draw_text");
 	lua_pushcfunction(L, mlua_draw_sprite);
@@ -251,9 +342,13 @@ void Engine::send_globals()
 	lua_setglobal(L, "draw_circle");
 	lua_pushcfunction(L, mlua_draw_arc);
 	lua_setglobal(L, "draw_arc");
+	lua_pushcfunction(L, mlua_draw_line);
+	lua_setglobal(L, "draw_line");
 
-	lua_pushcfunction(L, mlua_set_offset);
-	lua_setglobal(L, "set_offset");
+	lua_pushcfunction(L, mlua_push_offset);
+	lua_setglobal(L, "push_offset");
+	lua_pushcfunction(L, mlua_pop_offset);
+	lua_setglobal(L, "pop_offset");
 	lua_pushcfunction(L, mlua_set_color);
 	lua_setglobal(L, "set_color");
 	lua_pushcfunction(L, mlua_set_alpha);
@@ -267,6 +362,8 @@ void Engine::send_globals()
 
 	lua_pushcfunction(L, mlua_text_size);
 	lua_setglobal(L, "text_size");
+	lua_pushcfunction(L, mlua_surface_size);
+	lua_setglobal(L, "surface_size");
 
 	// net
 	lua_pushcfunction(L, mlua_connect);
@@ -281,6 +378,10 @@ void Engine::reload()
 {
 #ifndef EMSCRIPTEN
 	time_t last = last_modified(filename);
+	if (last == 0)
+	{
+		fprintf(stderr, "file %s does not exist\n", filename);
+	}
 	if (last_load < last) {
 #endif
 		send_globals();
@@ -291,7 +392,8 @@ void Engine::reload()
 		}
 
 		lua_getglobal(L, "init");
-		lua_pcall(L, 0, 0, 0);
+		if (lua_pcall(L, 0, 0, 0))
+			luaL_error(L, "error calling init: %s", lua_tostring(L, -1));
 
 #ifndef EMSCRIPTEN
 		last_load = last;
@@ -308,8 +410,16 @@ void Engine::loop()
 	emscripten_set_main_loop([]() { engine->update(); }, this->target_fps, true);
 }
 
+long unsigned get_now() // in microsecond
+{
+	struct timeval stTimeVal;
+	gettimeofday(&stTimeVal, NULL);
+	return stTimeVal.tv_sec * 1000000ll + stTimeVal.tv_usec;
+}
+
 void Engine::update()
 {
+	unsigned long at_start = get_now();
 	static int tick = 0;
 	event->poll();
 	net->poll();
@@ -319,14 +429,17 @@ void Engine::update()
 		reload();
 #endif
 
+	double dt = (get_now() - last_update) / 1000;
 	lua_getglobal(L, "update");
 	if (lua_isfunction(L, -1))
 	{
-		if (lua_pcall(L, 0, 0, 0))
+		lua_pushnumber(L, dt);
+		if (lua_pcall(L, 1, 0, 0))
 			luaL_error(L, "error calling update: %s", lua_tostring(L, -1));
 	}
 	else
 		lua_pop(L, 1);
+	last_update = get_now();
 
 	lua_getglobal(L, "draw");
 	if (lua_isfunction(L, -1))
@@ -337,6 +450,16 @@ void Engine::update()
 	else
 		lua_pop(L, 1);
 	tick += 1;
+
+#ifndef EMSCRIPTEN
+	unsigned long now = get_now();
+	if ((now - at_start)/1000 < 1000/target_fps)
+	{
+		long sleep_time = (now - at_start)/1000 + 1000/target_fps - 1;
+		if (sleep_time > 0)
+			SDL_Delay(sleep_time);
+	}
+#endif
 }
 
 //
@@ -372,7 +495,24 @@ void Engine::mouse_press(int mx, int my, int button)
 	lua_pushnumber(L, button);
 	if (lua_pcall(L, 3, 0, 0))
 	{
-		luaL_error(L, "error calling mouse_button: %s", lua_tostring(L, -1));
+		luaL_error(L, "error calling mouse_press: %s", lua_tostring(L, -1));
+	}
+}
+
+void Engine::mouse_release(int mx, int my, int button)
+{
+	lua_getglobal(L, "mouse_release");
+	if (not lua_isfunction(L, -1))
+	{
+		lua_pop(L, 1);
+		return;
+	}
+	lua_pushnumber(L, mx);
+	lua_pushnumber(L, my);
+	lua_pushnumber(L, button);
+	if (lua_pcall(L, 3, 0, 0))
+	{
+		luaL_error(L, "error calling mouse_release: %s", lua_tostring(L, -1));
 	}
 }
 
@@ -422,7 +562,7 @@ void Engine::event_resize(int w, int h)
 	}
 }
 
-void Engine::net_recv(const unsigned char* str)
+void Engine::net_recv(const char* str)
 {
 	lua_getglobal(L, "receive");
 	if (not lua_isfunction(L, -1))
@@ -430,7 +570,7 @@ void Engine::net_recv(const unsigned char* str)
 		lua_pop(L, 1);
 		return;
 	}
-	lua_pushstring(L, (const char*) str);
+	lua_pushstring(L, str);
 	if (lua_pcall(L, 1, 0, 0))
 	{
 		luaL_error(L, "error calling receive: %s", lua_tostring(L, -1));

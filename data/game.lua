@@ -1,3 +1,4 @@
+local machine = require "data/state"
 local r, g, b = 125, 0, 0
 
 local sprites = {
@@ -25,7 +26,6 @@ local gamestate = {
 		draw_background()
 		draw_sprite(sprites.bonhomme, me.x, me.y)
 		draw_sprite(sprites.enemy, enemy.x, enemy.y)
-		flip()
 	end,
 
 	update = function()
@@ -42,15 +42,12 @@ local gamestate = {
 		me.x = me.x + me.dx * 5
 		me.y = me.y + me.dy * 5
 		r = r + math.random(-5, 5)
-		set_color(r, g, b)
-	end,
-
-	mouse_motion = function (x, y)
+		set_color({r, g, b})
 	end,
 
 	mouse_press = function(x, y, b)
 		if b == 3 then
-			pop_state()
+			machine:pop()
 		end
 	end,
 
@@ -89,61 +86,42 @@ local pausestate = {
 		draw_background()
 		draw_sprite(sprites.bonhomme, me.x, me.y)
 		draw_sprite(sprites.enemy, enemy.x, enemy.y)
-		flip()
 	end,
 
 	mouse_press = function(x, y, b)
 		if b == 1 then
-			push_state(gamestate)
+			machine:push(gamestate)
 		end
 	end,
 
 	on_enter = function()
-		set_color(0, 0, 0)
+		set_color({0, 0, 0})
 		show_cursor(true)
 	end,
 }
 
-local state = nil
-
-function push_state(new_state)
-	new_state.previous = state
-	change_state(new_state)
+function draw()
+	machine:call('draw')
+	flip()
 end
-
-function change_state(new_state)
-	if state ~= nil and state.on_exit ~= nil then
-		state.on_exit()
-	end
-	state = new_state
-	if state.on_enter ~= nil then
-		state.on_enter()
-	end
-
-	-- set callbacks
-	draw = state.draw
-	update = state.update
-	mouse_press = state.mouse_press
-	mouse_motion = state.mouse_motion
-	key_release = state.key_release
-	key_press = function(key)
-		if key == 'escape' then
-			pop_state()
-		else
-			if state.key_press ~= nil then
-				state.key_press(key)
-			end
-		end
-	end
+function update()
+	machine:call('update')
 end
-
-function pop_state()
-	if state.previous == nil then
-		print ("no state to pop, stop engine")
-		engine_stop()
+function mouse_press(x, y, button)
+	machine:call('mouse_press', x, y, button)
+end
+function mouse_motion(x, y)
+	machine:call('mouse_motion', x, y)
+end
+function key_press(key)
+	if key == 'escape' then
+		machine:pop()
 	else
-		change_state(state.previous)
+		machine:call('key_press', key)
 	end
+end
+function key_release(key)
+	machine:call('key_release', key)
 end
 
 function init()
@@ -151,7 +129,7 @@ function init()
 	resize(900, 500)
 	set_resizable(false)
 
-	push_state(pausestate)
+	machine:push(pausestate)
 end
 
 function resize_event(w, h)

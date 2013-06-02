@@ -15,11 +15,12 @@ struct lua_State;
 class Engine
 {
 	private:
-		int target_fps;
+		unsigned int target_fps;
 		lua_State* L;
 #ifndef EMSCRIPTEN
 		time_t last_load;
 #endif
+		long unsigned last_update;
 		const char* filename;
 
 	public:
@@ -37,11 +38,12 @@ class Engine
 
 		void mouse_motion(int, int);
 		void mouse_press(int, int, int);
+		void mouse_release(int, int, int);
 		void key_press(const char* key_string);
 		void key_release(const char* key_string);
 		void event_resize(int w, int h);
 
-		void net_recv(const unsigned char* str);
+		void net_recv(const char* str);
 		void net_connected();
 		void net_disconnected();
 

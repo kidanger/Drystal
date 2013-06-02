@@ -1,60 +1,142 @@
 require "data/draw"
+machine = machine or require "data/state"
 
 width = 800
 height = 600
 fill = true
 
-speed = 6
-ball_speed = 10
-
-timer = 0
+timer = timer or 0
 match_duration = 3600
+bonus_duration = 360
+cheat = false
 
 net_status = {
+	hostname = 'localhost',
+	port = '1234',
 	status = '',
 	last_received = '',
 }
+in_message = false
+message = ''
 
-background = {
-	r = 125,
-	g = 125,
-	b = 125,
-}
+pausestate = {}
+endstate = {}
+runstate = {}
 
-left = {
-	x = 2,
-	w = 5,
-	h = 32,
-}
+Pad = Pad or { }
+Pad.__index = Pad
 
-right = {
-	x = width-7,
-	w = 5,
-	h = 32,
+function Pad.new(name, posx)
+	local pad = {}
+	pad.w = 5
+	pad.h = 42
+	pad.ai = true
+	pad.points = 0
+	pad.bonus_timer = 0
+	pad.posx = posx
+	pad.name = name
+	return setmetatable(pad, Pad)
+end
+
+function Pad:update()
+	if cheat and self.bonus_timer == 0 then
+		local h = (math.sin(timer / 10)/2+0.5) * 42 + 21
+		self:grow_to(h)
+	end
+	self:update_bonus()
+	if self.diry ~= 0 then
+		self.dy = math.max(math.min(speed, self.dy + self.diry/4), -speed)
+	else
+		self.dy = self.dy * 0.7
+	end
+	self.y = self.y + self.dy
+	if self.y < 0 then
+		self.y = 0
+	elseif self.y+self.h > height then
+		self.y = height - self.h
+	end
+end
+
+function Pad:get_bonus()
+	self.bonus_timer = 1
+end
+
+function Pad:replace()
+	if self.posx < 0 then
+		self.x = width + self.posx - self.w
+	else
+		self.x = self.posx
+	end
+end
+function Pad:update_bonus()
+	if self.bonus_timer == 0 then
+		return
+	end
+	self.bonus_timer = self.bonus_timer + 1
+	if self.bonus_timer < bonus_duration*0.25 then
+		self:grow_to(self.h + 1)
+	end
+	if self.bonus_timer > bonus_duration*0.75 then
+		self:grow_to(self.h - 1)
+	end
+	if self.bonus_timer > bonus_duration then
+		self.bonus_timer = 0
+		self:grow_to(42)
+	end
+end
+function Pad:grow_to(h)
+	local yy = self.y + self.h / 2
+	self.h = h
+	self.y = yy - self.h / 2
+end
+
+function Pad:get_name()
+	return self.ai and 'Computer' or self.name
+end
+function Pad:reset_intergame()
+	self:replace()
+	self.y = height/2-16
+	self.dy = 0
+	self.diry = 0
+end
+function Pad:reset()
+	self:replace()
+	self.points = 0
+	self.ai = true
+	self.h = 42
+end
+
+left = left or Pad.new('Player1', 2)
+right = right or Pad.new('Player2', -2)
+
+powerup = powerup or {
+	x = 0,
+	y = 0,
+	visible = false,
+	sprite = { x=32, y=32, w=32, h=32 },
 }
 
 function new_match()
 	state = 'run'
 	timer = 0
-	left.points = 0
-	right.points = 0
+	powerup.visible = false
+	right:reset()
+	left:reset()
 	reload_game()
 end
 
 function reload_game()
-	left.y = height/2-16
-	left.dy = 0
+	setup_speeds()
 
-	right.y = height/2-16
-	right.dy = 0
+	left:reset_intergame()
+	right:reset_intergame()
 
 	ball = {
 		x=width / 2,
 		y=height / 2,
 		radius=6,
-		dx=ball_speed,
-		dy=math.random(-ball_speed/2, ball_speed/2),
-		sprite={x=0, y=32, w=13, h=13},
+		dx=ball_speed * (left.points < right.points and 1 or -1),
+		dy=math.random(-ball_speed/4, ball_speed/4),
 	}
 end
 
@@ -64,10 +146,26 @@ function init()
 	show_cursor(false)
 
 	set_font('data/arial.ttf', 14)
-	new_match()
-	state = 'pause'
-	print(connect('localhost', 1234))
-	net_status.info = 'connecting'
+	if not state then
+		new_match()
+		state = 'pause'
+	end
+	--do_connect()
+	print('Press ENTER to start the game.')
+	print('Player1 uses Z and S keys.')
+	print('Player2 uses Up and Down arrow keys.')
+end
+
+function setup_speeds()
+	ball_speed = 12 + 3*width/800
+	speed = 10 + 1*height/600
+end
+
+function resize_event(w, h)
+	width = w
+	height = h
+	reload_game()
+	resize(w, h)
 end
 
 function left_loose()
@@ -82,56 +180,67 @@ end
 
 function update()
 	if state == 'run' then
-		if net_status.info ~= 'connected' then
-			update_ai()
+		if right.ai then
+			update_ai(right)
+		end
+		if left.ai then
+			update_ai(left)
 		end
 
-		update_pad(left)
-		update_pad(right)
+		left:update()
+		right:update()
 		update_ball(ball)
+
+		update_powerup()
 
 		update_timer()
 
-		if ball.x <= ball.sprite.w/2 then
+		if ball.x <= ball.radius then
 			check_collision(left, left_loose)
 		end
-		if ball.x >= width - ball.sprite.w/2 then
+		if ball.x >= width - ball.radius then
 			check_collision(right, right_loose)
 		end
 	end
 end
 
-function update_ai()
-	if ball.dx < 0 then
-		right.dy = 0
-		return
-	end
-	if right.y > ball.y then
-		right.dy = -speed
-	elseif right.y+right.h < ball.y then
-		right.dy = speed
+function update_ai(pad)
+	if pad.y > ball.y+ball.dy*2 then
+		pad.diry = -1
+	elseif pad.y+pad.h < ball.y+ball.dy*2 then
+		pad.diry = 1
 	else
-		right.dy = 0
+		pad.diry = 0
 	end
 end
 
-function update_pad(pad)
-	pad.y = pad.y + pad.dy
-	if pad.y < 0 then
-		pad.y = 0
-	elseif pad.y+pad.h > height then
-		pad.y = height - pad.h
+function update_powerup()
+	if not powerup.visible and timer > 120 and math.random() < 0.01 then
+		powerup.x = math.random(width*0.25, width*0.75)
+		powerup.y = math.random(32, height-32*2)
+		powerup.visible = true
 	end
 end
 
 function update_ball(ball)
 	ball.x = ball.x + ball.dx
 	ball.y = ball.y + ball.dy
-	if ball.y <= 0 or ball.y+ball.sprite.h >= height then
+	if ball.y <= 0 or ball.y+ball.radius*2 >= height then
 		ball.dy = ball.dy * -1
 	end
 	min_dist = math.min(width - ball.x, ball.x)
-	ball.radius = 6 + min_dist*10 / width
+	ball.radius = 6 + min_dist*5 / width
+
+	local sprite = powerup.sprite
+	if powerup.visible and ball.x > powerup.x and ball.x < powerup.x+sprite.w
+		and ball.y > powerup.y and ball.y < powerup.y+sprite.h then
+		if ball.dx < 0 then -- right pad is the last which hit the ball
+			right:get_bonus()
+		else
+			left:get_bonus()
+		end
+		powerup.visible = false
+	end
 end
 
 function update_timer()
@@ -143,9 +252,9 @@ end
 
 function check_collision(pad, callback)
 	local y = ball.y
-	if pad.y < y+ball.sprite.h/2 and pad.y+pad.h > y-ball.sprite.h/2 then
-		ball.dx = ball.dx * -1.03
-		ball.dy = ball.dy + math.random(-1, 1)
+	if pad.y < y+ball.radius and pad.y+pad.h > y-ball.radius then
+		ball.dx = ball.dx * -1.001
+		ball.dy = ball.dy * 0.9 + pad.dy * 2 / speed
 	else
 		callback()
 	end
@@ -159,29 +268,41 @@ font_size = 1
 ticks = 0
 function draw()
 	ticks = ticks + 1
+	set_fill(fill)
 	set_color(GRAY)
+	set_alpha(255)
 	draw_background()
 
-	set_color(BLACK)
-	draw_rect(left.x, left.y, left.w, left.h)
-	draw_rect(right.x, right.y, right.w, right.h)
-
-	draw_circle(ball.x, ball.y, ball.radius)
-
-	local score = 'PLAYER ' .. left.points .. ' ' .. right.points .. ' COMPUTER'
+	local score = left:get_name():upper() .. ' ' .. left.points .. ' - ' .. right.points .. ' ' .. right:get_name():upper()
 	set_color(BLACK)
 	set_font("data/arial.ttf", 14)
 	draw_text(score, (width - #score * 8) / 2, 50)
 
+	local barw = 20
+	bar = progress(width/2, 25, barw)
+	bar.border_color = BLACK
+	bar.progress_color = BLACK
 	if timer >= match_duration * 0.75 and math.floor(timer/20) % 2 == 0 then
-		set_color(RED)
+		bar.progress_color = RED
 	end
-	a = timer / match_duration * 360 - 90
-	set_fill(false)
-	draw_circle(width/2, 25, 20)
-	set_fill(true)
-	draw_arc(width/2, 25, 20, -90, a)
+	bar.type = CIRCLE
+	bar.ratio = timer / match_duration
+	bar.draw()
+
+	set_fill(fill)
 	set_color(BLACK)
+	draw_rect(left.x, left.y, left.w, left.h)
+	draw_rect(right.x, right.y, right.w, right.h)
+
+	if cheat then
+		draw_line(ball.x, ball.y, ball.x+ball.dx*10, ball.y+ball.dy*10)
+	end
+
+	draw_circle(ball.x, ball.y, ball.radius)
+
+	if powerup.visible then
+		draw_sprite(powerup.sprite, powerup.x, powerup.y)
+	end
 
 	if state == 'pause' then
 		local font_size = 16
@@ -191,7 +312,7 @@ function draw()
 		local x, y = (width - sx) / 2, (height - sy) / 2
 		set_round(font_size/5)
 		draw_frame(x, y, sx + 10, sy + 10, BLACK, DARK_GRAY, 3)
-		set_color({(math.cos(ticks/10)/2+0.5)*255, 50, 50})
+		set_color({(math.cos(ticks/10)/2+0.5)*50 + 155, 50, 50})
 		draw_text(message, x+5, y+5)
 		set_round(0)
 	end
@@ -211,7 +332,7 @@ function draw()
 		local x, y = (width - sx) / 2, y + 5
 		draw_text(message, x+5, y+5)
 		---
-		local message = left.points > right.points and "Player won !" or 'Computer won.'
+		local message = (left.points > right.points and left:get_name() or right:get_name()) .. ' won.'
 		local sx, sy = text_size(message)
 		local x, y = (width - sx) / 2, y + sy + 2
 		draw_text(message, x+5, y+5)
@@ -219,14 +340,25 @@ function draw()
 		set_round(0)
 	end
 
-	draw_net_status()
+	if in_message then
+		draw_say()
+	else
+		draw_net_status()
+	end
 
-	--stress()
 	flip()
 end
 
 function set_font_size(size)
 	set_font('data/arial.ttf', size)
+end
+
+function draw_say()
+	set_font_size(11)
+	set_color(RED)
+	local sx, sy = text_size(message)
+	local x, y = 1, height - sy
+	draw_text(message, x, y)
 end
 
 function draw_net_status()
@@ -239,17 +371,53 @@ function draw_net_status()
 	draw_text(net_status.last_received, x, y+sy+1)
 end
 
+function do_connect()
+	net_status.info = 'connecting'
+	local ok = connect(net_status.hostname, net_status.port) 
+	if ok == 0 then
+		net_status.info = 'connection failed'
+	end
+end
+
 function key_press(key)
+	if in_message then
+		if key == 'escape' then
+			in_message = false
+		end
+		if key == 'return' then
+			send(message)
+			in_message = false
+			if message == 'imanoob' then
+				cheat = true
+			end
+		elseif key == 'space' then
+			message = message .. ' '
+		elseif key == 'backspace' then
+			message = message:sub(1, #message - 1)
+		elseif #key == 1 then
+			message = message .. key
+		end
+		return
+	end
 	if state == 'run' then
 		if key == 'up' then
-			left.dy = -speed
+			right.ai = false
+			right.diry = -speed
 		end
 		if key == 'down' then
-			left.dy = speed
+			right.ai = false
+			right.diry = speed
+		end
+		if key == 'z' then
+			left.ai = false
+			left.diry = -speed
+		end
+		if key == 's' then
+			left.ai = false
+			left.diry = speed
 		end
 	end
 	if state == 'pause' then
-		send('unpause', #'unpause')
 		if key == 'return' then
 			state = 'run'
 			reload_game()
@@ -260,9 +428,16 @@ function key_press(key)
 			new_match()
 		end
 	end
+	if key == 't' then
+		in_message = true
+		message = ''
+	end
 	if key == 'f' then
 		fill = not fill
 		set_fill(fill)
+	end
+	if key == 'r' then
+		--do_connect()
 	end
 	if key == 'escape' then
 		engine_stop()
@@ -271,23 +446,24 @@ end
 
 function key_release(key)
 	if key == 'up' or key == 'down' then
-		left.dy = 0
+		right.diry = 0
+	end
+	if key == 'z' or key == 's' then
+		left.diry = 0
 	end
 end
 
 function receive(str)
-	print('-> ' .. str)
-	send(str, #str)
 	net_status.last_received = str
 	if state == 'run' then
 		if str == 'up' then
-			right.dy = -speed
+			right.diry = -1
 		end
 		if str == 'down' then
-			right.dy = speed
+			right.diry = 1
 		end
 		if str == 'stop' then
-			right.dy = 0
+			right.diry = 0
 		end
 	end
 end

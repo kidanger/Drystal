@@ -6,17 +6,15 @@ EXEC=drystal$(EEXT)
 DEBUG=no
 
 LUADIR=$(HOME)/dev/lua-5.2.2/install
-ENETDIR=$(HOME)/dev/emscripten/tests/enet
 
 CC=clang++
-CCFLAGS=-std=c++11 -I$(SRCDIR) -I$(LUADIR)/include -I$(ENETDIR)/include
+CCFLAGS=-std=c++11 -I$(SRCDIR) -I$(LUADIR)/include
 CCFLAGS+=-Wall -Wextra
 
 LD=clang++
 SDL_OPTIONS=`sdl-config --libs` -lSDL_image -lSDL_ttf -lSDL_gfx
 LUA_OPTIONS=-llua
-ENET_OPTIONS=-lenet
-LDFLAGS+=$(SDL_OPTIONS) $(LUA_OPTIONS) $(ENET_OPTIONS)
+LDFLAGS+=$(SDL_OPTIONS) $(LUA_OPTIONS)
 
 SRCDIR=src
 OBJDIR=obj
@@ -40,11 +38,10 @@ ifneq ($(WEB),)
 	EXT=.bc
 	EEXT=.bc
 	DIRCOMP=$(HOME)/dev/emscripten/third_party
-	LDFLAGS+=$(shell cat included_files.txt) --minify 1 -s ASM_JS=0 -O1  --compression $(DIRCOMP)/lzma.js/lzma-native,$(DIRCOMP)/lzma.js/lzma-decoder.js,LZMA.decompress
+	LDFLAGS+=--preload-file data --minify 1 -s ASM_JS=1 -O2  --compression $(DIRCOMP)/lzma.js/lzma-native,$(DIRCOMP)/lzma.js/lzma-decoder.js,LZMA.decompress
 	EXEC=index.html
 	SDL_OPTIONS=
 	LUA_OPTIONS=liblua.bc.so
-	ENET_OPTIONS=libenet.bc.so
 endif
 
 SRC:=$(shell find $(SRCDIR) -name "*.cpp")
@@ -86,14 +83,8 @@ clean:
 	-rm -fr $(OBJDIR)
 	-rm $(EXEC)
 
-$(POST_LD): data/pong.lua
-	#python ~/dev/emscripten/tools/file_packager.py index.data --preload data --js-output=load_data.js --compress $(DIRCOMP)/lzma.js/lzma-native $(DIRCOMP)/lzma.js/lzma-decoder.js LZMA.decompress
-
-server: server.c
-	$(CC) -o $@ $^ -lenet -Isrc
-
-runserver: server
-	./$^ $(ARGS)
+runserver:
+	python server/Server.py
 
 depend:
 	-@makedepend -f- -Ysrc -- $(CCFLAGS) -- $(SRC) 2>/dev/null | \

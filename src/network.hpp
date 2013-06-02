@@ -1,16 +1,13 @@
 #ifndef NETWORK_HPP
 #define NETWORK_HPP
 
-#include <enet/enet.h>
-
 class Engine;
 
 class Network
 {
 	private:
 		Engine& engine;
-		ENetHost* host;
-		ENetPeer* peer;
+		int sockfd;
 
 	public:
 		Network(Engine&);
