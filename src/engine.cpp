@@ -154,7 +154,7 @@ static int mlua_text_size(lua_State* L)
 }
 static int mlua_surface_size(lua_State* L)
 {
-	SDL_Surface* surface = (SDL_Surface *) lua_touserdata(L, -1);
+	Surface* surface = (Surface *) lua_touserdata(L, -1);
 	int w, h;
 	engine->display->surface_size(surface, &w, &h);
 	lua_pushnumber(L, w);
@@ -205,19 +205,34 @@ static int mlua_new_surface(lua_State* L)
 }
 static int mlua_free_surface(lua_State* L)
 {
-	SDL_Surface* surface = (SDL_Surface*) lua_touserdata(L, -1);
+	Surface* surface = (Surface*) lua_touserdata(L, -1);
 	engine->display->free_surface(surface);
+	return 0;
+}
+static int mlua_rotate_surface(lua_State* L)
+{
+	Surface* surface = (Surface*) lua_touserdata(L, -2);
+	double angle = lua_tonumber(L, -1);
+	engine->display->rotate_surface(surface, angle);
+	return 0;
+}
+static int mlua_resize_surface(lua_State* L)
+{
+	Surface* surface = (Surface*) lua_touserdata(L, -3);
+	int sx = lua_tointeger(L, -2);
+	int sy = lua_tointeger(L, -1);
+	engine->display->resize_surface(surface, sx, sy);
 	return 0;
 }
 static int mlua_draw_on(lua_State* L)
 {
-	SDL_Surface* surface = (SDL_Surface*) lua_touserdata(L, -1);
+	Surface* surface = (Surface*) lua_touserdata(L, -1);
 	engine->display->draw_on(surface);
 	return 0;
 }
 static int mlua_draw_from(lua_State* L)
 {
-	SDL_Surface* surface = (SDL_Surface*) lua_touserdata(L, -1);
+	Surface* surface = (Surface*) lua_touserdata(L, -1);
 	engine->display->draw_from(surface);
 	return 0;
 }
@@ -238,19 +253,18 @@ static int mlua_draw_rect(lua_State* L)
 }
 static int mlua_draw_surface(lua_State* L)
 {
-	SDL_Surface* surface = (SDL_Surface*) lua_touserdata(L, -3);
+	Surface* surface = (Surface*) lua_touserdata(L, -3);
 	int x = lua_tointeger(L, -2);
 	int y = lua_tointeger(L, -1);
 	engine->display->draw_surface(surface, x, y);
 	return 0;
 }
-static int mlua_draw_text(lua_State* L)
+static int mlua_text_surface(lua_State* L)
 {
-	const char* text = lua_tostring(L, -3);
-	int x = lua_tointeger(L, -2);
-	int y = lua_tointeger(L, -1);
-	engine->display->draw_text(text, x, y);
-	return 0;
+	const char* text = lua_tostring(L, -1);
+	Surface* surface = engine->display->text_surface(text);
+	lua_pushlightuserdata(L, surface);
+	return 1;
 }
 static int mlua_draw_circle(lua_State* L)
 {
@@ -306,72 +320,44 @@ static int mlua_disconnect(lua_State*)
 
 void Engine::send_globals()
 {
-	lua_pushcfunction(L, mlua_engine_stop);
-	lua_setglobal(L, "engine_stop");
+	lua_register(L, "engine_stop", mlua_engine_stop);
+	lua_register(L, "show_cursor", mlua_show_cursor);
 
-	lua_pushcfunction(L, mlua_show_cursor);
-	lua_setglobal(L, "show_cursor");
-	lua_pushcfunction(L, mlua_set_resizable);
-	lua_setglobal(L, "set_resizable");
-	lua_pushcfunction(L, mlua_resize);
-	lua_setglobal(L, "resize");
-	lua_pushcfunction(L, mlua_flip);
-	lua_setglobal(L, "flip");
-	lua_pushcfunction(L, mlua_load_surface);
-	lua_setglobal(L, "load_surface");
-	lua_pushcfunction(L, mlua_new_surface);
-	lua_setglobal(L, "new_surface");
-	lua_pushcfunction(L, mlua_free_surface);
-	lua_setglobal(L, "free_surface");
-	lua_pushcfunction(L, mlua_draw_on);
-	lua_setglobal(L, "draw_on");
-	lua_pushcfunction(L, mlua_draw_from);
-	lua_setglobal(L, "draw_from");
+	lua_register(L, "set_resizable", mlua_set_resizable);
+	lua_register(L, "resize", mlua_resize);
+	lua_register(L, "flip", mlua_flip);
 
-	lua_pushcfunction(L, mlua_draw_background);
-	lua_setglobal(L, "draw_background");
-	lua_pushcfunction(L, mlua_draw_rect);
-	lua_setglobal(L, "draw_rect");
-	lua_pushcfunction(L, mlua_draw_surface);
-	lua_setglobal(L, "draw_surface");
-	lua_pushcfunction(L, mlua_draw_text);
-	lua_setglobal(L, "draw_text");
-	lua_pushcfunction(L, mlua_draw_sprite);
-	lua_setglobal(L, "draw_sprite");
-	lua_pushcfunction(L, mlua_draw_circle);
-	lua_setglobal(L, "draw_circle");
-	lua_pushcfunction(L, mlua_draw_arc);
-	lua_setglobal(L, "draw_arc");
-	lua_pushcfunction(L, mlua_draw_line);
-	lua_setglobal(L, "draw_line");
+	lua_register(L, "load_surface", mlua_load_surface);
+	lua_register(L, "new_surface", mlua_new_surface);
+	lua_register(L, "free_surface", mlua_free_surface);
+	lua_register(L, "rotate_surface", mlua_rotate_surface);
+	lua_register(L, "resize_surface", mlua_resize_surface);
+	lua_register(L, "draw_on", mlua_draw_on);
+	lua_register(L, "draw_from", mlua_draw_from);
 
-	lua_pushcfunction(L, mlua_push_offset);
-	lua_setglobal(L, "push_offset");
-	lua_pushcfunction(L, mlua_pop_offset);
-	lua_setglobal(L, "pop_offset");
-	lua_pushcfunction(L, mlua_set_color);
-	lua_setglobal(L, "set_color");
-	lua_pushcfunction(L, mlua_set_alpha);
-	lua_setglobal(L, "set_alpha");
-	lua_pushcfunction(L, mlua_set_font);
-	lua_setglobal(L, "set_font");
-	lua_pushcfunction(L, mlua_set_round);
-	lua_setglobal(L, "set_round");
-	lua_pushcfunction(L, mlua_set_fill);
-	lua_setglobal(L, "set_fill");
+	lua_register(L, "draw_background", mlua_draw_background);
+	lua_register(L, "draw_rect", mlua_draw_rect);
+	lua_register(L, "draw_surface", mlua_draw_surface);
+	lua_register(L, "draw_sprite", mlua_draw_sprite);
+	lua_register(L, "draw_circle", mlua_draw_circle);
+	lua_register(L, "draw_arc", mlua_draw_arc);
+	lua_register(L, "draw_line", mlua_draw_line);
 
-	lua_pushcfunction(L, mlua_text_size);
-	lua_setglobal(L, "text_size");
-	lua_pushcfunction(L, mlua_surface_size);
-	lua_setglobal(L, "surface_size");
+	lua_register(L, "push_offset", mlua_push_offset);
+	lua_register(L, "pop_offset", mlua_pop_offset);
+	lua_register(L, "set_color", mlua_set_color);
+	lua_register(L, "set_alpha", mlua_set_alpha);
+	lua_register(L, "set_font", mlua_set_font);
+	lua_register(L, "set_round", mlua_set_round);
+	lua_register(L, "set_fill", mlua_set_fill);
 
-	// net
-	lua_pushcfunction(L, mlua_connect);
-	lua_setglobal(L, "connect");
-	lua_pushcfunction(L, mlua_send);
-	lua_setglobal(L, "send");
-	lua_pushcfunction(L, mlua_disconnect);
-	lua_setglobal(L, "disconnect");
+	lua_register(L, "text_surface", mlua_text_surface);
+	lua_register(L, "text_size", mlua_text_size);
+	lua_register(L, "surface_size", mlua_surface_size);
+
+	lua_register(L, "connect", mlua_connect);
+	lua_register(L, "send", mlua_send);
+	lua_register(L, "disconnect", mlua_disconnect);
 }
 
 void Engine::reload()
@@ -455,9 +441,11 @@ void Engine::update()
 	unsigned long now = get_now();
 	if ((now - at_start)/1000 < 1000/target_fps)
 	{
-		long sleep_time = (now - at_start)/1000 + 1000/target_fps - 1;
+		long sleep_time = 1000/target_fps - (now - at_start)/1000;
 		if (sleep_time > 0)
+		{
 			SDL_Delay(sleep_time);
+		}
 	}
 #endif
 }

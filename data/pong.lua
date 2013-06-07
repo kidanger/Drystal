@@ -1,6 +1,9 @@
 require "data/draw"
 machine = machine or require "data/state"
 
+atlas = load_surface('data/image.png')
+draw_from(atlas)
+
 width = 800
 height = 600
 fill = true

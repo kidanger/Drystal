@@ -170,3 +170,9 @@ function draw_segments(points, last_index)
 	end
 end
 
+function lin(p, p2, t)
+	return {
+		p[1] + t * (p2[1] - p[1]),
+		p[2] + t * (p2[2] - p[2]),
+	}
+end

@@ -2,10 +2,22 @@
 #define DISPLAY_HPP
 
 #include <SDL/SDL_ttf.h>
+#include <SDL/SDL_opengl.h>
 
 const int MAX_OFFSETS = 16;
 
 struct SDL_Surface;
+struct Surface
+{
+    GLuint tex;
+    GLuint fbo;
+    GLuint w;
+    GLuint h;
+
+    GLfloat angle;
+    GLuint resizew;
+    GLuint resizeh;
+};
 
 struct Sprite;
 
@@ -15,9 +27,10 @@ class Display
 		int size_x;
 		int size_y;
 		bool resizable;
-		SDL_Surface * screen;
-		SDL_Surface * current;
-		SDL_Surface * current_from;
+		SDL_Surface * sdl_screen;
+		Surface * screen;
+		Surface * current;
+		Surface * current_from;
 		TTF_Font* fonts[128];
 
 		TTF_Font* font;
@@ -27,8 +40,8 @@ class Display
 		int offsetsy[MAX_OFFSETS];
 		int offset_current;
 		int offx, offy;
-		uint8_t r, g, b;
-		uint8_t alpha;
+		float r, g, b;
+		float alpha;
 		bool fill;
 
 	public:
@@ -46,24 +59,26 @@ class Display
 		void set_round(uint16_t round);
 		void set_fill(bool fill);
 
-		SDL_Surface* get_screen();
-		SDL_Surface* new_surface(uint32_t, uint32_t);
-		SDL_Surface* load_surface(const char *);
-		void free_surface(SDL_Surface*);
-		void draw_on(SDL_Surface*);
-		void draw_from(SDL_Surface*);
+		Surface* get_screen();
+		Surface* new_surface(uint32_t, uint32_t);
+		Surface* load_surface(const char *);
+		void free_surface(Surface*);
+		void rotate_surface(Surface*, double);
+		void resize_surface(Surface*, int, int);
+		void draw_on(Surface*);
+		void draw_from(Surface*);
 
 		void draw_background();
-		void draw_surface(SDL_Surface*, int x, int y);
+		void draw_surface(Surface*, int x, int y);
 		void draw_sprite(const Sprite& sp, int x, int y);
 		void draw_rect(int x, int y, int w, int h);
-		void draw_text(const char*, int x, int y);
 		void draw_circle(int x, int y, int rad);
 		void draw_arc(int x, int y, int radius, int rad1, int rad2);
 		void draw_line(int x, int y, int x2, int y2);
 
+		Surface* text_surface(const char*);
 		void text_size(const char* text, int *w, int *h);
-		void surface_size(SDL_Surface* surface, int *w, int *h);
+		void surface_size(Surface* surface, int *w, int *h);
 
 		void flip();
 };
