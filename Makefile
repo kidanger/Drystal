@@ -12,7 +12,7 @@ CCFLAGS=-std=c++11 -I$(SRCDIR) -I$(LUADIR)/include
 CCFLAGS+=-Wall -Wextra
 
 LD=clang++
-SDL_OPTIONS=`sdl-config --libs` -lSDL_image -lSDL_ttf -lSDL_gfx
+SDL_OPTIONS=`sdl-config --libs` -lSDL_image -lSDL_ttf -lSDL_gfx -lGL -lGLU
 LUA_OPTIONS=-llua
 LDFLAGS+=$(SDL_OPTIONS) $(LUA_OPTIONS)
 
@@ -20,6 +20,8 @@ SRCDIR=src
 OBJDIR=obj
 
 ifeq ($(PROF),yes)
+	LDFLAGS+=-p
+	LDFLAGS+=-g
 	CCFLAGS+=-p
 	CCFLAGS+=-g
 endif

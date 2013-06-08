@@ -9,14 +9,16 @@ const int MAX_OFFSETS = 16;
 struct SDL_Surface;
 struct Surface
 {
-    GLuint tex;
-    GLuint fbo;
-    GLuint w;
-    GLuint h;
+	GLuint tex;
+	GLuint fbo;
+	GLuint w;
+	GLuint h;
+	GLuint texw;
+	GLuint texh;
 
-    GLfloat angle;
-    GLuint resizew;
-    GLuint resizeh;
+	GLfloat angle;
+	GLuint resizew;
+	GLuint resizeh;
 };
 
 struct Sprite;
@@ -44,6 +46,7 @@ class Display
 		float alpha;
 		bool fill;
 
+		Surface* surface_from_sdl(SDL_Surface* surf);
 	public:
 		void init();
 		void show_cursor(bool);

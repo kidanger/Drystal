@@ -57,7 +57,7 @@ void Network::poll()
 			const char *last = buff;
 			while(1)
 			{
-				char *str = strstr(last, "\n");
+				char *str = strstr((char*) last, "\n");
 				if(str)
 				{
 					*str = 0;
@@ -130,7 +130,7 @@ void Network::send(const void* data, int len)
 	int n = _send(sockfd, buff, len+1, 0);
 	if (n < 0)
 	{
-		printf("unable to send %s\n", data);
+		printf("unable to send %s\n", (char*)data);
 		disconnect();
 		engine.net_disconnected();
 	}

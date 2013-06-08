@@ -1,6 +1,15 @@
 require "data/draw"
 machine = machine or require "data/state"
 
+draw_text = draw_text or function(text, x, y)
+	if text ~= nil and #text > 0 then
+		local surf = text_surface(text)
+		draw_surface(surf, x, y)
+		set_color(WHITE)
+		free_surface(surf)
+	end
+end
+
 atlas = load_surface('data/image.png')
 draw_from(atlas)
 
@@ -145,7 +154,7 @@ end
 
 function init()
 	resize(width, height)
-	set_resizable(false)
+	set_resizable(true)
 	show_cursor(false)
 
 	set_font('data/arial.ttf', 14)
@@ -160,7 +169,7 @@ function init()
 end
 
 function setup_speeds()
-	ball_speed = 12 + 3*width/800
+	ball_speed = 8 + 3*width/800
 	speed = 10 + 1*height/600
 end
 
@@ -277,18 +286,18 @@ function draw()
 	draw_background()
 
 	local score = left:get_name():upper() .. ' ' .. left.points .. ' - ' .. right.points .. ' ' .. right:get_name():upper()
-	set_color(BLACK)
 	set_font("data/arial.ttf", 14)
+	set_color(BLACK)
 	draw_text(score, (width - #score * 8) / 2, 50)
 
-	local barw = 20
-	bar = progress(width/2, 25, barw)
+	local barw = 200
+	bar = progress(width/2 - barw/2, 25, barw, 20)
 	bar.border_color = BLACK
 	bar.progress_color = BLACK
 	if timer >= match_duration * 0.75 and math.floor(timer/20) % 2 == 0 then
 		bar.progress_color = RED
 	end
-	bar.type = CIRCLE
+	bar.type = BAR
 	bar.ratio = timer / match_duration
 	bar.draw()
 
@@ -303,7 +312,8 @@ function draw()
 
 	draw_circle(ball.x, ball.y, ball.radius)
 
-	if powerup.visible then
+	if true or powerup.visible then
+		set_color(WHITE)
 		draw_sprite(powerup.sprite, powerup.x, powerup.y)
 	end
 
