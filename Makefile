@@ -64,7 +64,7 @@ valgrind: compile
 
 profile: clean
 	make run PROF=yes
-	prof $(EXEC) gmon.out > prof.out
+	gprof $(EXEC) gmon.out > prof.out
 	echo "Read the file \"prof.out\""
 
 splint:

@@ -294,6 +294,36 @@ static int mlua_draw_line(lua_State* L)
 	return 0;
 }
 
+static int mlua_new_shader(lua_State* L)
+{
+	const char* vert = lua_tostring(L, -2);
+	const char* frag = lua_tostring(L, -1);
+	Shader* shader = engine->display->new_shader(vert, frag);
+	lua_pushlightuserdata(L, shader);
+	return 1;
+}
+static int mlua_use_shader(lua_State* L)
+{
+	Shader* shader = (Shader*) lua_touserdata(L, -1);
+	engine->display->use_shader(shader);
+	return 0;
+}
+static int mlua_feed_shader(lua_State* L)
+{
+	Shader* shader = (Shader*) lua_touserdata(L, -3);
+	const char* name = lua_tostring(L, -2);
+	float value = lua_tonumber(L, -1);
+	engine->display->feed_shader(shader, name, value);
+	return 0;
+}
+static int mlua_free_shader(lua_State* L)
+{
+	Shader* shader = (Shader*) lua_touserdata(L, -1);
+	engine->display->free_shader(shader);
+	return 0;
+}
+
+
 static int mlua_connect(lua_State* L)
 {
 	const char* host = lua_tostring(L, -2);
@@ -354,6 +384,11 @@ void Engine::send_globals()
 	lua_register(L, "text_surface", mlua_text_surface);
 	lua_register(L, "text_size", mlua_text_size);
 	lua_register(L, "surface_size", mlua_surface_size);
+
+	lua_register(L, "new_shader", mlua_new_shader);
+	lua_register(L, "use_shader", mlua_use_shader);
+	lua_register(L, "feed_shader", mlua_feed_shader);
+	lua_register(L, "free_shader", mlua_free_shader);
 
 	lua_register(L, "connect", mlua_connect);
 	lua_register(L, "send", mlua_send);

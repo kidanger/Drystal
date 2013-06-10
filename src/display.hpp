@@ -21,6 +21,13 @@ struct Surface
 	GLuint resizeh;
 };
 
+struct Shader
+{
+	GLuint prog;
+	GLuint vert;
+	GLuint frag;
+};
+
 struct Sprite;
 
 class Display
@@ -82,6 +89,11 @@ class Display
 		Surface* text_surface(const char*);
 		void text_size(const char* text, int *w, int *h);
 		void surface_size(Surface* surface, int *w, int *h);
+
+		Shader* new_shader(const char* strvert, const char* strfrag);
+		void use_shader(Shader*);
+		void feed_shader(Shader*, const char*, float);
+		void free_shader(Shader*);
 
 		void flip();
 };

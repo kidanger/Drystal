@@ -59,7 +59,7 @@ void Display::resize(int w, int h)
 	if (current == old)
 		draw_on(screen);
 
-	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+	// glHint(GL_LINE_SMOOTH_HINT, GL_NICEST); // incompatible with GLES2
 	glEnable(GL_BLEND);
 	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_DEPTH_TEST);
@@ -211,6 +211,7 @@ void Display::free_surface(Surface* surface)
 	}
 	glDeleteTextures(1, &surface->tex);
 	glDeleteFramebuffers(1, &surface->fbo);
+	delete surface;
 }
 
 void Display::set_color(int r, int g, int b)
@@ -471,6 +472,7 @@ void Display::draw_circle(int cx, int cy, int rad)
 void Display::draw_arc(int cx, int cy, int radius, int rad1, int rad2)
 {
 	assert(current);
+	cx = cy = radius = rad1 = rad2;
 }
 
 void Display::draw_line(int x, int y, int x2, int y2)
@@ -527,5 +529,98 @@ void Display::surface_size(Surface* surface, int *w, int *h)
 	assert(h);
 	*w = surface->w;
 	*h = surface->h;
+}
+
+
+static void printLog(GLuint obj)
+{
+	int infologLength = 0;
+	int maxLength;
+
+	if(glIsShader(obj))
+		glGetShaderiv(obj,GL_INFO_LOG_LENGTH,&maxLength);
+	else
+		glGetProgramiv(obj,GL_INFO_LOG_LENGTH,&maxLength);
+
+	char infoLog[maxLength];
+
+	if (glIsShader(obj))
+		glGetShaderInfoLog(obj, maxLength, &infologLength, infoLog);
+	else
+		glGetProgramInfoLog(obj, maxLength, &infologLength, infoLog);
+
+	if (infologLength > 0)
+		printf("Err %s\n",infoLog);
+}
+Shader* Display::new_shader(const char* strvert, const char* strfrag)
+{
+	GLuint vert = 0;
+	GLuint frag = 0;
+	GLuint prog;
+
+	if (strvert and *strvert)
+	{
+		vert = glCreateShader(GL_VERTEX_SHADER);
+		assert(vert);
+		glShaderSource(vert, 1, &strvert, NULL);
+		glCompileShader(vert);
+	}
+
+	if (strfrag and *strfrag)
+	{
+		frag = glCreateShader(GL_FRAGMENT_SHADER);
+		assert(frag);
+		glShaderSource(frag, 1, &strfrag, NULL);
+		glCompileShader(frag);
+	}
+
+	prog = glCreateProgram();
+	assert(prog);
+	if (vert)
+		glAttachShader(prog, vert);
+	if (frag)
+		glAttachShader(prog, frag);
+	glLinkProgram(prog);
+
+	GLint status;
+	glGetProgramiv(prog, GL_LINK_STATUS, &status);
+	if (status != GL_TRUE)
+	{
+		printLog(vert);
+		printLog(frag);
+		printLog(prog);
+		return NULL;
+	}
+
+	Shader* shader = new Shader;
+	shader->prog = prog;
+	shader->vert = vert;
+	shader->frag = frag;
+	return shader;
+}
+
+void Display::use_shader(Shader* shader)
+{
+	glUseProgram(shader ? shader->prog : 0);
+}
+void Display::feed_shader(Shader* shader, const char* name, float value)
+{
+	GLint prog;
+	glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
+	glUseProgram(shader->prog);
+	GLuint loc = glGetUniformLocation(shader->prog, name);
+	if (not glGetError())
+		glUniform1f(loc, value);
+	else
+		printf("no location for %s\n", name);
+	glUseProgram(prog);
+}
+
+void Display::free_shader(Shader* shader)
+{
+	glDeleteShader(shader->vert);
+	glDeleteShader(shader->frag);
+	glDeleteProgram(shader->prog);
+	delete shader;
 }
 
