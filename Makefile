@@ -1,7 +1,7 @@
 EXT=.o
 EEXT=
 ARGS=
-EXEC=drystal$(EEXT)
+EXEC=build-native/drystal$(EEXT)
 
 DEBUG=no
 
@@ -51,13 +51,14 @@ OBJ:=$(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%$(EXT),$(SRC))
 
 all: compile
 
-compile: $(OBJDIR) depend $(EXEC) server
+compile: #$(OBJDIR) depend $(EXEC)
+	tup upd
 
 run: compile
 	./$(EXEC) $(ARGS)
 
 debug: compile
-	gdb -ex run $(EXEC) $(ARGS) -silent
+	gdb -d $(SRCDIR) -ex run $(EXEC) $(ARGS) -silent
 
 valgrind: compile
 	valgrind --db-attach=yes --leak-check=yes --tool=memcheck --num-callers=16 --leak-resolution=high ./$(EXEC) $(ARGS)
@@ -82,7 +83,8 @@ $(OBJDIR):
 
 clean:
 	-rm .depend
-	-rm -fr $(OBJDIR)
+	-rm $(OBJ)
+	-rm -r $(OBJDIR)
 	-rm $(EXEC)
 
 runserver:

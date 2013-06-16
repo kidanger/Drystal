@@ -16,6 +16,7 @@ class Engine
 {
 	private:
 		unsigned int target_fps;
+		bool run;
 		lua_State* L;
 #ifndef EMSCRIPTEN
 		time_t last_load;

@@ -4,6 +4,35 @@
 #include <SDL/SDL_ttf.h>
 #include <SDL/SDL_opengl.h>
 
+#ifndef EMSCRIPTEN
+#define DODEBUG
+#endif
+
+#ifdef DODEBUG
+#include <cstdio>
+#define DEBUG(fmt)\
+	do { fprintf(stderr, "%10.10s:%d\t%s()\t" fmt "\n", __FILE__, \
+			__LINE__, __func__); } while (0)
+#define DEBUGV(fmt, ...)\
+	do { fprintf(stderr, "%10.10s:%d\t%s()\t" fmt "\n", __FILE__, \
+			__LINE__, __func__, __VA_ARGS__); } while (0)
+
+#define GLDEBUG(x) \
+	x; \
+{ \
+	GLenum e; \
+	while( (e=glGetError()) != GL_NO_ERROR) \
+	{ \
+		fprintf(stderr, "Error at line number %d, in file %s. glGetError() returned %s for call %s\n",__LINE__, __FILE__, gluErrorString(e), #x ); \
+	} \
+}
+#else
+#define DEBUG(fmt)
+#define DEBUGV(fmt, ...)
+#define GLDEBUG(x) \
+	x;
+#endif
+
 const int MAX_OFFSETS = 16;
 
 struct SDL_Surface;
@@ -13,12 +42,39 @@ struct Surface
 	GLuint fbo;
 	GLuint w;
 	GLuint h;
-	GLuint texw;
-	GLuint texh;
+};
 
-	GLfloat angle;
-	GLuint resizew;
-	GLuint resizeh;
+enum BufferType
+{
+	LINE_BUFFER,
+	TRIANGLE_BUFFER,
+	IMAGE_BUFFER,
+};
+struct Buffer
+{
+private:
+	BufferType type;
+	unsigned size;
+
+	GLfloat* positions;
+	GLfloat* colors;
+	GLfloat* texCoords; // only if IMAGE_BUFFER
+	size_t current_position;
+	size_t current_color;
+	size_t current_texCoord;
+
+	void assert_not_full();
+	void flush();
+	void reset();
+
+public:
+	Buffer();
+	void push_vertex(GLfloat, GLfloat);
+	void push_color(GLfloat, GLfloat, GLfloat, GLfloat);
+	void push_texCoord(GLfloat, GLfloat);
+
+	void assert_type(BufferType);
+	void assert_empty();
 };
 
 struct Shader
@@ -28,63 +84,60 @@ struct Shader
 	GLuint frag;
 };
 
-struct Sprite;
+struct Sprite
+{
+	int x, y;
+	int w, h;
+};
 
 class Display
 {
 	private:
+		Buffer buffer;
 		int size_x;
 		int size_y;
 		bool resizable;
 		SDL_Surface * sdl_screen;
 		Surface * screen;
+
+		Shader* default_shader;
+
 		Surface * current;
 		Surface * current_from;
-		TTF_Font* fonts[128];
 
 		TTF_Font* font;
-		int16_t round;
+		TTF_Font* fonts[128];
 
-		int offsetsx[MAX_OFFSETS];
-		int offsetsy[MAX_OFFSETS];
-		int offset_current;
-		int offx, offy;
 		float r, g, b;
 		float alpha;
-		bool fill;
 
 		Surface* surface_from_sdl(SDL_Surface* surf);
+		Shader* create_default_shader();
+		void update_shader_uniforms();
+
 	public:
 		void init();
 		void show_cursor(bool);
 		void set_resizable(bool);
 		void resize(int w, int h);
 
-		void push_offset(int, int);
-		void pop_offset();
-
 		void set_color(int r, int g, int b);
 		void set_alpha(uint8_t a);
 		void set_font(const char*, int size);
-		void set_round(uint16_t round);
-		void set_fill(bool fill);
 
 		Surface* get_screen();
 		Surface* new_surface(uint32_t, uint32_t);
 		Surface* load_surface(const char *);
 		void free_surface(Surface*);
-		void rotate_surface(Surface*, double);
-		void resize_surface(Surface*, int, int);
 		void draw_on(Surface*);
 		void draw_from(Surface*);
 
+
 		void draw_background();
-		void draw_surface(Surface*, int x, int y);
-		void draw_sprite(const Sprite& sp, int x, int y);
-		void draw_rect(int x, int y, int w, int h);
-		void draw_circle(int x, int y, int rad);
-		void draw_arc(int x, int y, int radius, int rad1, int rad2);
-		void draw_line(int x, int y, int x2, int y2);
+		void draw_triangle(int x1, int y1, int x2, int y2, int x3, int y3);
+		void draw_line(int x1, int y1, int x2, int y2);
+		void draw_surface(int, int, int, int, int, int, int, int,
+							int, int, int, int, int, int, int, int);
 
 		Surface* text_surface(const char*);
 		void text_size(const char* text, int *w, int *h);

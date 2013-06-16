@@ -3,11 +3,12 @@
 #include <ctime>
 #include <sys/time.h> /* for usleep in set_main_loop */
 
+#ifdef EMSCRIPTEN
 #include "emscripten.h"
+#endif
 
 #include "engine.hpp"
 #include "display.hpp"
-#include "drawable.hpp"
 #include "event.hpp"
 #include "network.hpp"
 
@@ -44,77 +45,12 @@ static int mlua_engine_stop(lua_State*)
 	return 0;
 }
 
-static int mlua_draw_sprite(lua_State* L)
-{
-#ifndef EMSCRIPTEN
-	if (not lua_istable(L, -3))
-		printf("sprite is not a table\n");
-	if (not lua_isnumber(L, -2))
-		printf("y is not a number\n");
-	if (not lua_isnumber(L, -1))
-		printf("x is not a number\n");
-#endif
-	Sprite sp;
-	// get x
-	lua_pushstring(L, "x");
-	lua_gettable(L, -4);
-	sp.x = lua_tointeger(L, -1);
-	lua_pop(L, 1);
-	// get y
-	lua_pushstring(L, "y");
-	lua_gettable(L, -4);
-	sp.y = lua_tointeger(L, -1);
-	lua_pop(L, 1);
-	// get w
-	lua_pushstring(L, "w");
-	lua_gettable(L, -4);
-	sp.w = lua_tointeger(L, -1);
-	lua_pop(L, 1);
-	// get h
-	lua_pushstring(L, "h");
-	lua_gettable(L, -4);
-	sp.h = lua_tointeger(L, -1);
-	lua_pop(L, 1);
-	// unload table
-	int destx = lua_tointeger(L, -2);
-	int desty = lua_tointeger(L, -1);
-	engine->display->draw_sprite(sp, destx, desty);
-	return 0;
-}
-
 static int mlua_set_color(lua_State* L)
 {
-#ifndef EMSCRIPTEN
-	if (not lua_istable(L, -1))
-	{
-		printf("color is not a table\n");
-		return 0;
-	}
-#endif
-	lua_pushnil(L);
-	lua_next(L, -2);
-	int r = lua_tointeger(L, -1);
-	lua_pop(L, 1);
-	lua_next(L, -2);
-	int g = lua_tointeger(L, -1);
-	lua_pop(L, 1);
-	lua_next(L, -2);
+	int r = lua_tointeger(L, -3);
+	int g = lua_tointeger(L, -2);
 	int b = lua_tointeger(L, -1);
-	lua_pop(L, 1);
-	lua_pop(L, 1);
 	engine->display->set_color(r, g, b);
-	return 0;
-}
-static int mlua_push_offset(lua_State* L)
-{
-	int ox = lua_tointeger(L, -2);
-	int oy = lua_tointeger(L, -1);
-	engine->display->push_offset(ox, oy);
-	return 0;
-}
-static int mlua_pop_offset(lua_State*)
-{
-	engine->display->pop_offset();
 	return 0;
 }
 static int mlua_set_font(lua_State* L)
@@ -122,18 +58,6 @@ static int mlua_set_font(lua_State* L)
 	const char * name = lua_tostring(L, -2);
 	int size = lua_tointeger(L, -1);
 	engine->display->set_font(name, size);
-	return 0;
-}
-static int mlua_set_round(lua_State* L)
-{
-	int round = lua_tointeger(L, -1);
-	engine->display->set_round(round);
-	return 0;
-}
-static int mlua_set_fill(lua_State* L)
-{
-	int fill = lua_toboolean(L, -1);
-	engine->display->set_fill(fill);
 	return 0;
 }
 static int mlua_set_alpha(lua_State* L)
@@ -209,21 +133,6 @@ static int mlua_free_surface(lua_State* L)
 	engine->display->free_surface(surface);
 	return 0;
 }
-static int mlua_rotate_surface(lua_State* L)
-{
-	Surface* surface = (Surface*) lua_touserdata(L, -2);
-	double angle = lua_tonumber(L, -1);
-	engine->display->rotate_surface(surface, angle);
-	return 0;
-}
-static int mlua_resize_surface(lua_State* L)
-{
-	Surface* surface = (Surface*) lua_touserdata(L, -3);
-	int sx = lua_tointeger(L, -2);
-	int sy = lua_tointeger(L, -1);
-	engine->display->resize_surface(surface, sx, sy);
-	return 0;
-}
 static int mlua_draw_on(lua_State* L)
 {
 	Surface* surface = (Surface*) lua_touserdata(L, -1);
@@ -242,23 +151,6 @@ static int mlua_draw_background(lua_State*)
 	engine->display->draw_background();
 	return 0;
 }
-static int mlua_draw_rect(lua_State* L)
-{
-	int x = lua_tointeger(L, -4);
-	int y = lua_tointeger(L, -3);
-	int w = lua_tointeger(L, -2);
-	int h = lua_tointeger(L, -1);
-	engine->display->draw_rect(x, y, w, h);
-	return 0;
-}
-static int mlua_draw_surface(lua_State* L)
-{
-	Surface* surface = (Surface*) lua_touserdata(L, -3);
-	int x = lua_tointeger(L, -2);
-	int y = lua_tointeger(L, -1);
-	engine->display->draw_surface(surface, x, y);
-	return 0;
-}
 static int mlua_text_surface(lua_State* L)
 {
 	const char* text = lua_tostring(L, -1);
@@ -266,33 +158,49 @@ static int mlua_text_surface(lua_State* L)
 	lua_pushlightuserdata(L, surface);
 	return 1;
 }
-static int mlua_draw_circle(lua_State* L)
+static int mlua_draw_triangle(lua_State* L)
 {
-	int x = lua_tointeger(L, -3);
-	int y = lua_tointeger(L, -2);
-	int r = lua_tointeger(L, -1);
-	engine->display->draw_circle(x, y, r);
-	return 0;
-}
-static int mlua_draw_arc(lua_State* L)
-{
-	int x = lua_tointeger(L, -5);
-	int y = lua_tointeger(L, -4);
-	int radius = lua_tointeger(L, -3);
-	int r1 = lua_tointeger(L, -2);
-	int r2 = lua_tointeger(L, -1);
-	engine->display->draw_arc(x, y, radius, r1, r2);
+	int x1 = lua_tonumber(L, -6);
+	int y1 = lua_tonumber(L, -5);
+	int x2 = lua_tonumber(L, -4);
+	int y2 = lua_tonumber(L, -3);
+	int x3 = lua_tonumber(L, -2);
+	int y3 = lua_tonumber(L, -1);
+	engine->display->draw_triangle(x1, y1, x2, y2, x3, y3);
 	return 0;
 }
 static int mlua_draw_line(lua_State* L)
 {
-	int x = lua_tointeger(L, -4);
-	int y = lua_tointeger(L, -3);
-	int x2 = lua_tointeger(L, -2);
-	int y2 = lua_tointeger(L, -1);
-	engine->display->draw_line(x, y, x2, y2);
+	int x1 = lua_tonumber(L, -4);
+	int y1 = lua_tonumber(L, -3);
+	int x2 = lua_tonumber(L, -2);
+	int y2 = lua_tonumber(L, -1);
+	engine->display->draw_line(x1, y1, x2, y2);
 	return 0;
 }
+static int mlua_draw_surface(lua_State* L)
+{
+	int i1 = lua_tonumber(L, -16);
+	int i2 = lua_tonumber(L, -15);
+	int i3 = lua_tonumber(L, -14);
+	int i4 = lua_tonumber(L, -13);
+	int i5 = lua_tonumber(L, -12);
+	int i6 = lua_tonumber(L, -11);
+	int i7 = lua_tonumber(L, -10);
+	int i8 = lua_tonumber(L, -9);
+	int o1 = lua_tonumber(L, -8);
+	int o2 = lua_tonumber(L, -7);
+	int o3 = lua_tonumber(L, -6);
+	int o4 = lua_tonumber(L, -5);
+	int o5 = lua_tonumber(L, -4);
+	int o6 = lua_tonumber(L, -3);
+	int o7 = lua_tonumber(L, -2);
+	int o8 = lua_tonumber(L, -1);
+	engine->display->draw_surface(i1, i2, i3, i4, i5, i6, i7, i8,
+								o1, o2, o3, o4, o5, o6, o7, o8);
+	return 0;
+}
+
 
 static int mlua_new_shader(lua_State* L)
 {
@@ -350,6 +258,9 @@ static int mlua_disconnect(lua_State*)
 
 void Engine::send_globals()
 {
+	lua_pushlightuserdata(L, display->get_screen());
+	lua_setglobal(L, "screen");
+
 	lua_register(L, "engine_stop", mlua_engine_stop);
 	lua_register(L, "show_cursor", mlua_show_cursor);
 
@@ -360,26 +271,17 @@ void Engine::send_globals()
 	lua_register(L, "load_surface", mlua_load_surface);
 	lua_register(L, "new_surface", mlua_new_surface);
 	lua_register(L, "free_surface", mlua_free_surface);
-	lua_register(L, "rotate_surface", mlua_rotate_surface);
-	lua_register(L, "resize_surface", mlua_resize_surface);
 	lua_register(L, "draw_on", mlua_draw_on);
 	lua_register(L, "draw_from", mlua_draw_from);
 
 	lua_register(L, "draw_background", mlua_draw_background);
-	lua_register(L, "draw_rect", mlua_draw_rect);
-	lua_register(L, "draw_surface", mlua_draw_surface);
-	lua_register(L, "draw_sprite", mlua_draw_sprite);
-	lua_register(L, "draw_circle", mlua_draw_circle);
-	lua_register(L, "draw_arc", mlua_draw_arc);
+	lua_register(L, "draw_triangle", mlua_draw_triangle);
 	lua_register(L, "draw_line", mlua_draw_line);
+	lua_register(L, "draw_surface", mlua_draw_surface);
 
-	lua_register(L, "push_offset", mlua_push_offset);
-	lua_register(L, "pop_offset", mlua_pop_offset);
 	lua_register(L, "set_color", mlua_set_color);
 	lua_register(L, "set_alpha", mlua_set_alpha);
 	lua_register(L, "set_font", mlua_set_font);
-	lua_register(L, "set_round", mlua_set_round);
-	lua_register(L, "set_fill", mlua_set_fill);
 
 	lua_register(L, "text_surface", mlua_text_surface);
 	lua_register(L, "text_size", mlua_text_size);
@@ -428,7 +330,31 @@ void Engine::reload()
 
 void Engine::loop()
 {
+#ifdef EMSCRIPTEN
 	emscripten_set_main_loop([]() { engine->update(); }, this->target_fps, true);
+#else
+	run = true;
+	while (run)
+	{
+		unsigned long at_start = get_now();
+
+		// update everything (network, event, game, display)
+		update();
+
+		// wait few millis to stay at the targeted fps value
+		unsigned long now = get_now();
+		if ((now - at_start)/1000 < 1000/target_fps)
+		{
+			long sleep_time = 1000/target_fps - (now - at_start)/1000;
+			if (sleep_time > 0)
+			{
+				SDL_Delay(sleep_time);
+			}
+		}
+	}
+	net->disconnect();
+	clean_up();
+#endif
 }
 
 long unsigned get_now() // in microsecond
@@ -440,7 +366,6 @@ long unsigned get_now() // in microsecond
 
 void Engine::update()
 {
-	unsigned long at_start = get_now();
 	static int tick = 0;
 	event->poll();
 	net->poll();
@@ -451,6 +376,7 @@ void Engine::update()
 #endif
 
 	double dt = (get_now() - last_update) / 1000;
+	last_update = get_now();
 	lua_getglobal(L, "update");
 	if (lua_isfunction(L, -1))
 	{
@@ -460,7 +386,6 @@ void Engine::update()
 	}
 	else
 		lua_pop(L, 1);
-	last_update = get_now();
 
 	lua_getglobal(L, "draw");
 	if (lua_isfunction(L, -1))
@@ -471,18 +396,6 @@ void Engine::update()
 	else
 		lua_pop(L, 1);
 	tick += 1;
-
-#ifndef EMSCRIPTEN
-	unsigned long now = get_now();
-	if ((now - at_start)/1000 < 1000/target_fps)
-	{
-		long sleep_time = 1000/target_fps - (now - at_start)/1000;
-		if (sleep_time > 0)
-		{
-			SDL_Delay(sleep_time);
-		}
-	}
-#endif
 }
 
 //
@@ -640,10 +553,9 @@ void Engine::clean_up()
 
 void Engine::stop()
 {
-	net->disconnect();
-#ifndef EMSCRIPTEN
-	clean_up();
-#endif
+	run = false;
+#ifdef EMSCRIPTEN
 	emscripten_cancel_main_loop();
+#endif
 }
 

@@ -176,3 +176,32 @@ function lin(p, p2, t)
 		p[2] + t * (p2[2] - p[2]),
 	}
 end
+
+
+
+Sprite = {}
+Sprite.__index = Sprite
+
+function Sprite.new()
+	local s = setmetatable({}, Sprite)
+	s.surf = nil
+	s.angle = 0
+	s.w, s.h = 0, 0
+	s.__gc = function()
+		print 'endoflife'
+		s.surf = nil
+	end
+	return s
+end
+
+function Sprite:set_surface(surf)
+	self.surface = surf
+	self.w, self.h = surface_size(surf)
+end
+
+function Sprite:draw()
+	rotate_surface(self.surface, self.angle)
+	resize_surface(self.surface, self.w, self.h)
+	draw_surface(self.surface, self.x, self.y)
+end
+

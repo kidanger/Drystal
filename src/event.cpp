@@ -5,7 +5,7 @@
 
 typedef Sint32 SDL_Keycode;
 
-static const char *keynames[SDLK_LAST];
+static const char *keynames[0x8000];
 
 /** from https://code.google.com/r/kyberneticist-webport/source/browse/project_files/web_exp/pas2c_build/emcc/patches/sdl_patch.c */
 static void initKeys()
@@ -257,10 +257,7 @@ const char * mySDL_GetKeyName(SDL_Keycode key)
 {
 	const char *keyname;
 
-	keyname = NULL;
-	if (key < SDLK_LAST) {
-		keyname = keynames[key];
-	}
+	keyname = keynames[key];
 	if (keyname == NULL) {
 		keyname = "unknown key";
 	}
@@ -270,6 +267,7 @@ const char * mySDL_GetKeyName(SDL_Keycode key)
 EventManager::EventManager(Engine& eng) : engine(eng)
 {
 	initKeys();
+	SDL_EnableKeyRepeat(0, 0);
 }
 
 void EventManager::handle_event(const SDL_Event& event)

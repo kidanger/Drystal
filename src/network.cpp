@@ -16,7 +16,9 @@
 int (*_connect)(int, const struct sockaddr*, socklen_t) = connect;
 ssize_t (*_send)(int, const void*, size_t, int) = send;
 
+#ifdef EMSCRIPTEN
 #include "emscripten.h"
+#endif
 
 #include "engine.hpp"
 #include "network.hpp"
