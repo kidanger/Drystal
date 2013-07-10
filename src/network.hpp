@@ -10,12 +10,13 @@ class Network
 		int sockfd;
 
 	public:
-		Network(Engine&);
+		Network(Engine &engine);
+		~Network();
 
 		void poll();
 		bool connect(const char* hostname, int port);
 		void disconnect();
-		void send(const void* data, int len);
+		void send(const void* data, size_t len);
 		void flush();
 };
 

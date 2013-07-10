@@ -38,40 +38,39 @@ void Network::poll()
 	tv.tv_usec = 0;
 
 	int ret = select(64, &sett, NULL, NULL, &tv);
-	if (ret == -1) {
+	if (ret < 0)
+	{
 		disconnect();
 		engine.net_disconnected();
 		perror("Error message");
+		return;
 	}
-	else if (ret > 0) // the socket is ready to read
+	else if (ret == 0)
+		return;
+
+	int n = recv(sockfd, buff, sizeof(buff)-1, 0);
+	if (n == 0)
 	{
-		int n = recv(sockfd, buff, sizeof(buff)-1, 0);
-		if (n == 0)
-		{
-			perror("No message to read");
-			disconnect();
-			engine.net_disconnected();
-		}
-		else
-		{
-			buff[n] = 0;
-			//printf("received n=%d %s\n", n, buff);
-			const char *last = buff;
-			while(1)
-			{
-				char *str = strstr((char*) last, "\n");
-				if(str)
-				{
-					*str = 0;
-					engine.net_recv(last);
-					last = str+1;
-				}
-				else
-					break;
-			}
-			poll();
-		}
+		perror("No message to read");
+		disconnect();
+		engine.net_disconnected();
+		return;
 	}
+	buff[n] = 0;
+	//printf("received n=%d %s\n", n, buff);
+	const char *last = buff;
+	char *str = NULL;
+	do
+	{
+		str = strstr((char*) last, "\n");
+		if(str)
+		{
+			*str = 0;
+			engine.net_recv(last);
+			last = str+1;
+		}
+	} while(str);
+	poll();
 }
 
 bool Network::connect(const char* hostname, int port)
@@ -89,7 +88,8 @@ bool Network::connect(const char* hostname, int port)
 	printf("connecting to %s\n", hostname);
 
 	server = gethostbyname(hostname);
-	if (server == NULL) {
+	if (server == NULL)
+	{
 		fprintf(stderr,"ERROR, no such host\n");
 		disconnect();
 		return false;
@@ -113,26 +113,38 @@ bool Network::connect(const char* hostname, int port)
 	return true;
 }
 
-Network::Network(Engine& e) : engine(e), sockfd(-1)
+Network::Network(Engine& e)
+	: engine(e),
+	  sockfd(-1)
 {
+}
+
+Network::~Network()
+{
+	disconnect();
 }
 
 void Network::disconnect()
 {
-	close(sockfd);
+	int ret = close(sockfd);
+	if (ret < 0)
+	{
+		perror("cannot close connection");
+	}
 	sockfd = -1;
-	printf("closed connection\n");
+	printf("connection closed");
 }
 
-void Network::send(const void* data, int len)
+void Network::send(const void* data, size_t len)
 {
-	char buff[256];
+	char *buff = new char[len+1];
 	memcpy(buff, data, len);
 	buff[len] = '\n';
-	int n = _send(sockfd, buff, len+1, 0);
+	ssize_t n = _send(sockfd, buff, len+1, 0);
+	delete buff;
 	if (n < 0)
 	{
-		printf("unable to send %s\n", (char*)data);
+		printf("unable to send: %s\n", (char*)data);
 		disconnect();
 		engine.net_disconnected();
 	}
@@ -140,5 +152,6 @@ void Network::send(const void* data, int len)
 
 void Network::flush()
 {
+	//TODO implement
 }
 

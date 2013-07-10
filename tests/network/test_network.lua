@@ -28,6 +28,7 @@ function do_connect()
 	if ok == 0 then
 		net_status.info = 'connection failed'
 	end
+	send('test test test')
 end
 
 function receive(str)
