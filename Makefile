@@ -87,8 +87,11 @@ clean:
 	-rm -r $(OBJDIR)
 	-rm $(EXEC)
 
-runserver:
-	python server/Server.py
+runtestnetwork: compile
+	./$(EXEC) tests/network/test_network.lua
+
+runtestnetwork_server:
+	python2.7 tests/network/server/Server.py
 
 depend:
 	-@makedepend -f- -Ysrc -- $(CCFLAGS) -- $(SRC) 2>/dev/null | \
