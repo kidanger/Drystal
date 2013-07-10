@@ -6,3 +6,6 @@ index.html
 index.data
 drystal
 obj/
+build-*/
+.tup
+*.pyc
