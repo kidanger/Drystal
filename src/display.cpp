@@ -14,7 +14,10 @@
 
 
 const char* DEFAULT_VERTEX_SHADER = R"(
-#version 120
+#version 100
+#ifdef GL_ES
+precision highp float;
+#endif
 
 attribute vec2 position;	// position of the vertice (0,0) is topleft, frameSize is bottomright
 attribute vec4 color;		// color of the vertice
@@ -29,23 +32,26 @@ varying vec2 fTexCoord;
 vec2 transform_coords(vec2 pos)
 {
 	pos /= frameSize;
-	pos *= 2;
-	pos -= vec2(1, 1);
+	pos *= 2.0;
+	pos -= vec2(1.0, 1.0);
 	if (yFlip)
-		pos.y *= -1;
+		pos.y *= -1.0;
 
 	return pos;
 }
 
 void main()
 {
-	gl_Position = vec4(transform_coords(position), 0, 1);
+	gl_Position = vec4(transform_coords(position), 0.0, 1.0);
 	fColor = color;
 	fTexCoord = texCoord / textureSize;
 }
 )";
 
 const char* DEFAULT_FRAGMENT_SHADER = R"(
+#ifdef GL_ES
+precision mediump float;
+#endif
 
 uniform sampler2D tex;
 uniform int useTex; // TODO: replace it with two fragment shaders
@@ -60,7 +66,7 @@ void main()
 		vec4 texval = texture2D(tex, vec2(fTexCoord));
 		if (texval.a == 0.0)
 			discard; // don't process transparent pixels
-		color.rgb = mix(texval.rgb, fColor.rgb, 1.-fColor.rgb);
+		color.rgb = mix(texval.rgb, fColor.rgb, vec3(1.)-fColor.rgb);
 		color.a = fColor.a;
 	} else {
 		color = fColor;
@@ -103,7 +109,9 @@ void Display::resize(int w, int h)
 		SDL_FreeSurface(sdl_screen);
 	sdl_screen = SDL_SetVideoMode(size_x, size_y, 32,
 			SDL_OPENGL| (resizable ? SDL_VIDEORESIZE : 0));
+#ifndef EMSCRIPTEN
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+#endif
 	assert(sdl_screen);
 
 	if (screen)
@@ -500,6 +508,9 @@ Shader* Display::new_shader(const char* strvert, const char* strfrag)
 
 	prog = glCreateProgram();
 	assert(prog);
+	glBindAttribLocation(prog, ATTR_POSITION_INDEX, "position");
+	glBindAttribLocation(prog, ATTR_COLOR_INDEX, "color");
+	glBindAttribLocation(prog, ATTR_TEXCOORD_INDEX, "texCoord");
 	glAttachShader(prog, vert);
 	glAttachShader(prog, frag);
 	glLinkProgram(prog);
@@ -559,6 +570,9 @@ void Display::update_shader_uniforms()
 {
 	GLint prog;
 	glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
+
+	if (!prog)
+		return;
 
 	// send size of target FBO and flip if needed
 	glUniform2f(glGetUniformLocation(prog, "frameSize"), current->w, current->h);

@@ -35,6 +35,10 @@
 
 const int MAX_OFFSETS = 16;
 
+const GLuint ATTR_POSITION_INDEX = 0; // WebGL wants 0 as an attribute, so here it is
+const GLuint ATTR_COLOR_INDEX = 1;
+const GLuint ATTR_TEXCOORD_INDEX = 2;
+
 struct SDL_Surface;
 struct Surface
 {

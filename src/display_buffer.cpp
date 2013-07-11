@@ -82,40 +82,26 @@ void Buffer::flush()
 	GLint prog;
 	glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
 
-	int vertexAttr = glGetAttribLocation(prog, "position");
-	glVertexAttribPointer(vertexAttr, 2, GL_FLOAT, GL_FALSE, 0, positions);
-	GLDEBUG();
-	glEnableVertexAttribArray(vertexAttr);
-	GLDEBUG();
+	glVertexAttribPointer(ATTR_POSITION_INDEX, 2, GL_FLOAT, GL_FALSE, 0, positions);
+	glEnableVertexAttribArray(ATTR_POSITION_INDEX);
 
-	int colorAttr = glGetAttribLocation(prog, "color");
-	glVertexAttribPointer(colorAttr, 4, GL_FLOAT, GL_FALSE, 0, colors);
-	GLDEBUG();
-	glEnableVertexAttribArray(colorAttr);
-	GLDEBUG();
+	glVertexAttribPointer(ATTR_COLOR_INDEX, 4, GL_FLOAT, GL_FALSE, 0, colors);
+	glEnableVertexAttribArray(ATTR_COLOR_INDEX);
 
-	int texCoordAttrib = glGetAttribLocation(prog, "texCoord");
 	if (type == IMAGE_BUFFER) {
-		glVertexAttribPointer(texCoordAttrib, 2, GL_FLOAT, GL_FALSE, 0, texCoords);
-		GLDEBUG();
-		glEnableVertexAttribArray(texCoordAttrib);
-		GLDEBUG();
-
-		glEnable(GL_TEXTURE_2D);
+		glVertexAttribPointer(ATTR_TEXCOORD_INDEX, 2, GL_FLOAT, GL_FALSE, 0, texCoords);
+		glEnableVertexAttribArray(ATTR_TEXCOORD_INDEX);
 	}
 	glUniform1i(glGetUniformLocation(prog, "useTex"), type == IMAGE_BUFFER);
 
-	GLDEBUG (glDrawArrays(type == LINE_BUFFER ? GL_LINES : GL_TRIANGLES, 0, used));
+	glDrawArrays(type == LINE_BUFFER ? GL_LINES : GL_TRIANGLES, 0, used);
+	GLDEBUG();
 
-	glDisableVertexAttribArray(vertexAttr);
-	glDisableVertexAttribArray(colorAttr);
+	glDisableVertexAttribArray(ATTR_POSITION_INDEX);
+	glDisableVertexAttribArray(ATTR_COLOR_INDEX);
 	if (type == IMAGE_BUFFER) {
-		glDisableVertexAttribArray(texCoordAttrib);
-		glDisable(GL_TEXTURE_2D);
-		GLDEBUG();
+		glDisableVertexAttribArray(ATTR_TEXCOORD_INDEX);
 	}
-
-	DEBUGV("%zu %d %d %d", used, prog, vertexAttr, colorAttr);
 
 	reset();
 }
