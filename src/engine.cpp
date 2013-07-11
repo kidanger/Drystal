@@ -223,8 +223,12 @@ static int mlua_new_shader(lua_State* L)
 }
 static int mlua_use_shader(lua_State* L)
 {
-	Shader* shader = (Shader*) lua_touserdata(L, -1);
-	engine->display->use_shader(shader);
+	if (lua_gettop(L) == 0) { // use defaut shader
+		engine->display->use_shader(nullptr);
+	} else {
+		Shader* shader = (Shader*) lua_touserdata(L, -1);
+		engine->display->use_shader(shader);
+	}
 	return 0;
 }
 static int mlua_feed_shader(lua_State* L)
