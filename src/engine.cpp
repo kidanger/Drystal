@@ -31,6 +31,7 @@ void Engine::setup(const char* filename, int target_fps)
 	this->target_fps = target_fps;
 	L = luaL_newstate();
 	luaL_openlibs(L);
+	run = true;
 	reload();
 	last_update = get_now();
 }
@@ -337,7 +338,6 @@ void Engine::loop()
 #ifdef EMSCRIPTEN
 	emscripten_set_main_loop([]() { engine->update(); }, this->target_fps, true);
 #else
-	run = true;
 	while (run)
 	{
 		unsigned long at_start = get_now();
