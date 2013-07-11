@@ -533,6 +533,8 @@ Shader* Display::new_shader(const char* strvert, const char* strfrag)
 
 void Display::use_shader(Shader* shader)
 {
+	buffer.assert_empty();
+
 	glUseProgram(shader ? shader->prog : default_shader->prog);
 
 	update_shader_uniforms();
