@@ -207,7 +207,11 @@ static int mlua_new_shader(lua_State* L)
 	const char* vert = lua_tostring(L, -2);
 	const char* frag = lua_tostring(L, -1);
 	Shader* shader = engine->display->new_shader(vert, frag);
-	lua_pushlightuserdata(L, shader);
+	if (shader) {
+		lua_pushlightuserdata(L, shader);
+	} else {
+		lua_pushnil(L);
+	}
 	return 1;
 }
 static int mlua_use_shader(lua_State* L)
