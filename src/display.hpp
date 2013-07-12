@@ -5,7 +5,7 @@
 #include <SDL/SDL_opengl.h>
 
 #ifndef EMSCRIPTEN
-#define DODEBUG
+//#define DODEBUG
 #endif
 
 #ifdef DODEBUG
@@ -115,9 +115,10 @@ class Display
 		float r, g, b;
 		float alpha;
 
+		void convert_coords(int x, int y, float *dx, float *dy);
+		void convert_texcoords(int x, int y, float *dx, float *dy);
 		Surface* surface_from_sdl(SDL_Surface* surf);
 		Shader* create_default_shader();
-		void update_shader_uniforms();
 
 	public:
 		void init();

@@ -22,29 +22,15 @@ precision highp float;
 attribute vec2 position;	// position of the vertice (0,0) is topleft, frameSize is bottomright
 attribute vec4 color;		// color of the vertice
 attribute vec2 texCoord;	// texture coordinates
-uniform vec2 frameSize;		// size of the target FBO
-uniform vec2 textureSize;	// size of the texture
-uniform bool yFlip;			// if we draw on screen, we flip Y coordinate
 
 varying vec4 fColor;
 varying vec2 fTexCoord;
 
-vec2 transform_coords(vec2 pos)
-{
-	pos /= frameSize;
-	pos *= 2.0;
-	pos -= vec2(1.0, 1.0);
-	if (yFlip)
-		pos.y *= -1.0;
-
-	return pos;
-}
-
 void main()
 {
-	gl_Position = vec4(transform_coords(position), 0.0, 1.0);
+	gl_Position = vec4(position, 0.0, 1.0);
 	fColor = color;
-	fTexCoord = texCoord / textureSize;
+	fTexCoord = texCoord;
 }
 )";
 
@@ -189,7 +175,6 @@ void Display::draw_from(Surface* surf)
 		buffer.assert_empty();
 		this->current_from = surf;
 		glBindTexture(GL_TEXTURE_2D, current_from->tex);
-		update_shader_uniforms();
 	}
 }
 
@@ -205,7 +190,6 @@ void Display::draw_on(Surface* surf)
 		int w = surf->w;
 		int h = surf->h;
 		glViewport(0, 0, w, h);
-		update_shader_uniforms();
 	}
 }
 
@@ -362,14 +346,32 @@ void Display::surface_size(Surface* surface, int *w, int *h)
 /**
  * Primitive drawing
  */
+void Display::convert_coords(int x, int y, float *dx, float *dy)
+{
+	*dx = (2.0 * x / current->w) - 1;
+	*dy = (2.0 * y / current->h) - 1;
+	if (current == screen)
+		*dy *= -1.0;
+}
+void Display::convert_texcoords(int x, int y, float *dx, float *dy)
+{
+	*dx = (float) x / current_from->w;
+	*dy = (float) y / current_from->h;
+}
 
 void Display::draw_triangle(int x1, int y1, int x2, int y2, int x3, int y3)
 {
 	DEBUG("");
+	float xx1, xx2, xx3;
+	float yy1, yy2, yy3;
+	convert_coords(x1, y1, &xx1, &yy1);
+	convert_coords(x2, y2, &xx2, &yy2);
+	convert_coords(x3, y3, &xx3, &yy3);
+
 	buffer.assert_type(TRIANGLE_BUFFER);
-	buffer.push_vertex(x1, y1);
-	buffer.push_vertex(x2, y2);
-	buffer.push_vertex(x3, y3);
+	buffer.push_vertex(xx1, yy1);
+	buffer.push_vertex(xx2, yy2);
+	buffer.push_vertex(xx3, yy3);
 	for (int i = 0; i < 3; i++)
 		buffer.push_color(r, g, b, alpha);
 }
@@ -377,9 +379,14 @@ void Display::draw_triangle(int x1, int y1, int x2, int y2, int x3, int y3)
 void Display::draw_line(int x1, int y1, int x2, int y2)
 {
 	DEBUG("");
+	float xx1, xx2;
+	float yy1, yy2;
+	convert_coords(x1, y1, &xx1, &yy1);
+	convert_coords(x2, y2, &xx2, &yy2);
+
 	buffer.assert_type(LINE_BUFFER);
-	buffer.push_vertex(x1, y1);
-	buffer.push_vertex(x2, y2);
+	buffer.push_vertex(xx1, yy1);
+	buffer.push_vertex(xx2, yy2);
 	for (int i = 0; i < 2; i++)
 		buffer.push_color(r, g, b, alpha);
 }
@@ -388,22 +395,36 @@ void Display::draw_surface(int xi1, int yi1, int xi2, int yi2, int xi3, int yi3,
 		int xo1, int yo1, int xo2, int yo2, int xo3, int yo3, int xo4, int yo4)
 {
 	DEBUG("");
+	float xxi1, xxi2, xxi3, xxi4;
+	float yyi1, yyi2, yyi3, yyi4;
+	convert_texcoords(xi1, yi1, &xxi1, &yyi1);
+	convert_texcoords(xi2, yi2, &xxi2, &yyi2);
+	convert_texcoords(xi3, yi3, &xxi3, &yyi3);
+	convert_texcoords(xi4, yi4, &xxi4, &yyi4);
+
+	float xxo1, xxo2, xxo3, xxo4;
+	float yyo1, yyo2, yyo3, yyo4;
+	convert_coords(xo1, yo1, &xxo1, &yyo1);
+	convert_coords(xo2, yo2, &xxo2, &yyo2);
+	convert_coords(xo3, yo3, &xxo3, &yyo3);
+	convert_coords(xo4, yo4, &xxo4, &yyo4);
+
 	buffer.assert_type(IMAGE_BUFFER);
-	buffer.push_texCoord(xi1, yi1);
-	buffer.push_texCoord(xi3, yi3);
-	buffer.push_texCoord(xi4, yi4);
+	buffer.push_texCoord(xxi1, yyi1);
+	buffer.push_texCoord(xxi3, yyi3);
+	buffer.push_texCoord(xxi4, yyi4);
 
-	buffer.push_texCoord(xi1, yi1);
-	buffer.push_texCoord(xi2, yi2);
-	buffer.push_texCoord(xi3, yi3);
+	buffer.push_texCoord(xxi1, yyi1);
+	buffer.push_texCoord(xxi2, yyi2);
+	buffer.push_texCoord(xxi3, yyi3);
 
-	buffer.push_vertex(xo1, yo1);
-	buffer.push_vertex(xo3, yo3);
-	buffer.push_vertex(xo4, yo4);
+	buffer.push_vertex(xxo1, yyo1);
+	buffer.push_vertex(xxo3, yyo3);
+	buffer.push_vertex(xxo4, yyo4);
 
-	buffer.push_vertex(xo1, yo1);
-	buffer.push_vertex(xo2, yo2);
-	buffer.push_vertex(xo3, yo3);
+	buffer.push_vertex(xxo1, yyo1);
+	buffer.push_vertex(xxo2, yyo2);
+	buffer.push_vertex(xxo3, yyo3);
 
 	for (int i = 0; i < 6; i++)
 		buffer.push_color(r, g, b, alpha);
@@ -533,11 +554,10 @@ Shader* Display::new_shader(const char* strvert, const char* strfrag)
 
 void Display::use_shader(Shader* shader)
 {
+	DEBUG();
 	buffer.assert_empty();
 
 	glUseProgram(shader ? shader->prog : default_shader->prog);
-
-	update_shader_uniforms();
 }
 
 void Display::feed_shader(Shader* shader, const char* name, float value)
@@ -557,8 +577,8 @@ void Display::feed_shader(Shader* shader, const char* name, float value)
 
 void Display::free_shader(Shader* shader)
 {
-	GLint prog;
-	glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
+	GLuint prog;
+	glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*)&prog);
 	if (prog == shader->prog)
 		use_shader(default_shader);
 
@@ -566,25 +586,5 @@ void Display::free_shader(Shader* shader)
 	glDeleteShader(shader->frag);
 	glDeleteProgram(shader->prog);
 	delete shader;
-}
-
-void Display::update_shader_uniforms()
-{
-	GLint prog;
-	glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
-
-	if (!prog)
-		return;
-
-	// send size of target FBO and flip if needed
-	glUniform2f(glGetUniformLocation(prog, "frameSize"), current->w, current->h);
-	glUniform1i(glGetUniformLocation(prog, "yFlip"), current == screen);
-
-	// send size of origin texture
-	if (current_from) {
-		glUniform2f(glGetUniformLocation(prog, "textureSize"),
-				current_from->w, current_from->h);
-	}
-	GLDEBUG();
 }
 
