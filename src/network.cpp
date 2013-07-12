@@ -126,6 +126,9 @@ Network::~Network()
 
 void Network::disconnect()
 {
+	if (sockfd < 0)
+		return;
+
 	int ret = close(sockfd);
 	if (ret < 0)
 	{
