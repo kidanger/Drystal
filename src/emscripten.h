@@ -1,1 +1,0 @@
-/home/anger/dev/emscripten/system/include/emscripten/emscripten.h
