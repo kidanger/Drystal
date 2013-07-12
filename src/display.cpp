@@ -105,6 +105,8 @@ void Display::resize(int w, int h)
 	screen = new Surface;
 	screen->w = w;
 	screen->h = h;
+	screen->texw = w;
+	screen->texh = h;
 	screen->fbo = 0; // back buffer
 
 	if (current == old) {
@@ -234,13 +236,6 @@ Surface* Display::surface_from_sdl(SDL_Surface* surf)
 	assert(surf->w == w);
 	assert(surf->h == h);
 
-
-	GLenum texture_format;
-	if (surf->format->Rmask == 0x000000ff)
-		texture_format = GL_RGBA;
-	else
-		texture_format = GL_BGRA;
-
 	// gen texture
 	GLuint tex;
 	glGenTextures(1, &tex);
@@ -275,6 +270,8 @@ Surface* Display::surface_from_sdl(SDL_Surface* surf)
 	surface->tex = tex;
 	surface->w = ow;
 	surface->h = oh;
+	surface->texw = surf->w;
+	surface->texh = surf->h;
 	surface->fbo = fbo;
 	glBindFramebuffer(GL_FRAMEBUFFER, current->fbo);
 	glBindTexture(GL_TEXTURE_2D, current_from ? current_from->tex : 0);
@@ -321,6 +318,7 @@ void Display::free_surface(Surface* surface)
 {
 	assert(surface);
 	if (surface == current_from) {
+		buffer.assert_empty(); // TODO: check if IMAGE_BUFFER
 		glBindTexture(GL_TEXTURE_2D, 0);
 		current_from = NULL;
 	}
@@ -355,8 +353,8 @@ void Display::convert_coords(int x, int y, float *dx, float *dy)
 }
 void Display::convert_texcoords(int x, int y, float *dx, float *dy)
 {
-	*dx = (float) x / current_from->w;
-	*dy = (float) y / current_from->h;
+	*dx = (float) x / current_from->texw;
+	*dy = (float) y / current_from->texh;
 }
 
 void Display::draw_triangle(int x1, int y1, int x2, int y2, int x3, int y3)

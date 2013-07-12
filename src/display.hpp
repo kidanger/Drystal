@@ -46,6 +46,8 @@ struct Surface
 	GLuint fbo;
 	GLuint w;
 	GLuint h;
+	GLuint texw;
+	GLuint texh;
 };
 
 enum BufferType
