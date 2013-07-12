@@ -2,37 +2,39 @@
 #include <lua.hpp>
 #include <sys/time.h>
 
-#ifdef EMSCRIPTEN
-#include "emscripten.h"
-#endif
-
 #include "engine.hpp"
 #include "display.hpp"
 #include "event.hpp"
 #include "network.hpp"
 
-#ifndef EMSCRIPTEN
+#ifdef EMSCRIPTEN
+#include "emscripten.h"
+#else
 #include "file.hpp"
 #endif
 
 long unsigned get_now();
 
 static Engine* engine;
-
-void Engine::setup(const char* filename, int target_fps)
+Engine::Engine(const char* filename, int target_fps)
+	: target_fps(target_fps),
+	  run(true),
+	  L(luaL_newstate()),
+#ifndef EMSCRIPTEN
+	  last_load(0),
+#endif
+	  last_update(get_now()),
+	  filename(filename),
+	  event(*this),
+	  net(*this)
 {
 	engine = this;
-	this->filename = filename;
-	this->display = new Display();
-	this->event = new EventManager(*this);
-	this->net = new Network(*this);
-	this->display->init();
-	this->target_fps = target_fps;
-	L = luaL_newstate();
 	luaL_openlibs(L);
-	run = true;
-	reload();
-	last_update = get_now();
+}
+
+Engine::~Engine()
+{
+	lua_close(L);
 }
 
 //
@@ -50,20 +52,20 @@ static int mlua_set_color(lua_State* L)
 	int r = lua_tointeger(L, -3);
 	int g = lua_tointeger(L, -2);
 	int b = lua_tointeger(L, -1);
-	engine->display->set_color(r, g, b);
+	engine->display.set_color(r, g, b);
 	return 0;
 }
 static int mlua_set_font(lua_State* L)
 {
 	const char * name = lua_tostring(L, -2);
 	int size = lua_tointeger(L, -1);
-	engine->display->set_font(name, size);
+	engine->display.set_font(name, size);
 	return 0;
 }
 static int mlua_set_alpha(lua_State* L)
 {
 	int alpha = lua_tointeger(L, -1);
-	engine->display->set_alpha(alpha);
+	engine->display.set_alpha(alpha);
 	return 0;
 }
 
@@ -71,7 +73,7 @@ static int mlua_text_size(lua_State* L)
 {
 	const char* str = lua_tostring(L, -1);
 	int w, h;
-	engine->display->text_size(str, &w, &h);
+	engine->display.text_size(str, &w, &h);
 	lua_pushnumber(L, w);
 	lua_pushnumber(L, h);
 	return 2;
@@ -80,7 +82,7 @@ static int mlua_surface_size(lua_State* L)
 {
 	Surface* surface = (Surface *) lua_touserdata(L, -1);
 	int w, h;
-	engine->display->surface_size(surface, &w, &h);
+	engine->display.surface_size(surface, &w, &h);
 	lua_pushnumber(L, w);
 	lua_pushnumber(L, h);
 	return 2;
@@ -89,33 +91,33 @@ static int mlua_surface_size(lua_State* L)
 static int mlua_show_cursor(lua_State* L)
 {
 	int show = lua_toboolean(L, -1);
-	engine->display->show_cursor(show);
+	engine->display.show_cursor(show);
 	return 0;
 }
 static int mlua_set_resizable(lua_State* L)
 {
 	int r = lua_toboolean(L, -1);
-	engine->display->set_resizable(r);
+	engine->display.set_resizable(r);
 	return 0;
 }
 static int mlua_resize(lua_State* L)
 {
 	int w = lua_tointeger(L, -2);
 	int h = lua_tointeger(L, -1);
-	engine->display->resize(w, h);
-	lua_pushlightuserdata(L, engine->display->get_screen());
+	engine->display.resize(w, h);
+	lua_pushlightuserdata(L, engine->display.get_screen());
 	lua_setglobal(L, "screen");
 	return 0;
 }
 static int mlua_flip(lua_State*)
 {
-	engine->display->flip();
+	engine->display.flip();
 	return 0;
 }
 static int mlua_load_surface(lua_State* L)
 {
 	const char * filename = lua_tostring(L, -1);
-	void* surface = engine->display->load_surface(filename);
+	void* surface = engine->display.load_surface(filename);
 	lua_pushlightuserdata(L, surface);
 	return 1;
 }
@@ -123,38 +125,38 @@ static int mlua_new_surface(lua_State* L)
 {
 	int w = lua_tointeger(L, -2);
 	int h = lua_tointeger(L, -1);
-	void* surface = engine->display->new_surface(w, h);
+	void* surface = engine->display.new_surface(w, h);
 	lua_pushlightuserdata(L, surface);
 	return 1;
 }
 static int mlua_free_surface(lua_State* L)
 {
 	Surface* surface = (Surface*) lua_touserdata(L, -1);
-	engine->display->free_surface(surface);
+	engine->display.free_surface(surface);
 	return 0;
 }
 static int mlua_draw_on(lua_State* L)
 {
 	Surface* surface = (Surface*) lua_touserdata(L, -1);
-	engine->display->draw_on(surface);
+	engine->display.draw_on(surface);
 	return 0;
 }
 static int mlua_draw_from(lua_State* L)
 {
 	Surface* surface = (Surface*) lua_touserdata(L, -1);
-	engine->display->draw_from(surface);
+	engine->display.draw_from(surface);
 	return 0;
 }
 
 static int mlua_draw_background(lua_State*)
 {
-	engine->display->draw_background();
+	engine->display.draw_background();
 	return 0;
 }
 static int mlua_text_surface(lua_State* L)
 {
 	const char* text = lua_tostring(L, -1);
-	Surface* surface = engine->display->text_surface(text);
+	Surface* surface = engine->display.text_surface(text);
 	lua_pushlightuserdata(L, surface);
 	return 1;
 }
@@ -166,7 +168,7 @@ static int mlua_draw_triangle(lua_State* L)
 	int y2 = lua_tonumber(L, -3);
 	int x3 = lua_tonumber(L, -2);
 	int y3 = lua_tonumber(L, -1);
-	engine->display->draw_triangle(x1, y1, x2, y2, x3, y3);
+	engine->display.draw_triangle(x1, y1, x2, y2, x3, y3);
 	return 0;
 }
 static int mlua_draw_line(lua_State* L)
@@ -175,7 +177,7 @@ static int mlua_draw_line(lua_State* L)
 	int y1 = lua_tonumber(L, -3);
 	int x2 = lua_tonumber(L, -2);
 	int y2 = lua_tonumber(L, -1);
-	engine->display->draw_line(x1, y1, x2, y2);
+	engine->display.draw_line(x1, y1, x2, y2);
 	return 0;
 }
 static int mlua_draw_surface(lua_State* L)
@@ -196,7 +198,7 @@ static int mlua_draw_surface(lua_State* L)
 	int o6 = lua_tonumber(L, -3);
 	int o7 = lua_tonumber(L, -2);
 	int o8 = lua_tonumber(L, -1);
-	engine->display->draw_surface(i1, i2, i3, i4, i5, i6, i7, i8,
+	engine->display.draw_surface(i1, i2, i3, i4, i5, i6, i7, i8,
 								o1, o2, o3, o4, o5, o6, o7, o8);
 	return 0;
 }
@@ -213,7 +215,7 @@ static int mlua_new_shader(lua_State* L)
 		frag = lua_tostring(L, -1);
 	}
 	// null code will be set to defaut shader
-	Shader* shader = engine->display->new_shader(vert, frag);
+	Shader* shader = engine->display.new_shader(vert, frag);
 	if (shader) {
 		lua_pushlightuserdata(L, shader);
 		return 1;
@@ -223,25 +225,26 @@ static int mlua_new_shader(lua_State* L)
 static int mlua_use_shader(lua_State* L)
 {
 	if (lua_gettop(L) == 0) { // use defaut shader
-		engine->display->use_shader(nullptr);
+		engine->display.use_shader(nullptr);
 	} else {
 		Shader* shader = (Shader*) lua_touserdata(L, -1);
-		engine->display->use_shader(shader);
+		engine->display.use_shader(shader);
 	}
 	return 0;
 }
+
 static int mlua_feed_shader(lua_State* L)
 {
 	Shader* shader = (Shader*) lua_touserdata(L, -3);
 	const char* name = lua_tostring(L, -2);
 	float value = lua_tonumber(L, -1);
-	engine->display->feed_shader(shader, name, value);
+	engine->display.feed_shader(shader, name, value);
 	return 0;
 }
 static int mlua_free_shader(lua_State* L)
 {
 	Shader* shader = (Shader*) lua_touserdata(L, -1);
-	engine->display->free_shader(shader);
+	engine->display.free_shader(shader);
 	return 0;
 }
 
@@ -250,19 +253,19 @@ static int mlua_connect(lua_State* L)
 {
 	const char* host = lua_tostring(L, -2);
 	int port = lua_tointeger(L, -1);
-	bool ok = engine->net->connect(host, port);
+	bool ok = engine->net.connect(host, port);
 	lua_pushnumber(L, ok);
 	return 1;
 }
 static int mlua_send(lua_State* L)
 {
 	const char* message = lua_tostring(L, -1);
-	engine->net->send(message, strlen(message));
+	engine->net.send(message, strlen(message));
 	return 0;
 }
 static int mlua_disconnect(lua_State*)
 {
-	engine->net->disconnect();
+	engine->net.disconnect();
 	return 0;
 }
 
@@ -270,9 +273,9 @@ static int mlua_disconnect(lua_State*)
 // LUA load
 //
 
-void Engine::send_globals()
+void Engine::send_globals() const
 {
-	lua_pushlightuserdata(L, display->get_screen());
+	lua_pushlightuserdata(L, display.get_screen());
 	lua_setglobal(L, "screen");
 
 	lua_register(L, "engine_stop", mlua_engine_stop);
@@ -365,13 +368,13 @@ void Engine::loop()
 			}
 		}
 	}
-	net->disconnect();
-	clean_up();
+	net.disconnect();
 #endif
 }
 
-long unsigned get_now() // in microsecond
+long unsigned Engine::get_now() const
 {
+	// in microsecond
 	struct timeval stTimeVal;
 	gettimeofday(&stTimeVal, NULL);
 	return stTimeVal.tv_sec * 1000000ll + stTimeVal.tv_usec;
@@ -380,8 +383,8 @@ long unsigned get_now() // in microsecond
 void Engine::update()
 {
 	static int tick = 0;
-	event->poll();
-	net->poll();
+	event.poll();
+	net.poll();
 
 #ifndef EMSCRIPTEN
 	if (tick % 30 == 0)
@@ -415,7 +418,7 @@ void Engine::update()
 // Events
 //
 
-void Engine::mouse_motion(int mx, int my)
+void Engine::mouse_motion(int mx, int my) const
 {
 	lua_getglobal(L, "mouse_motion");
 	if (not lua_isfunction(L, -1))
@@ -431,7 +434,7 @@ void Engine::mouse_motion(int mx, int my)
 	}
 }
 
-void Engine::mouse_press(int mx, int my, int button)
+void Engine::mouse_press(int mx, int my, int button) const
 {
 	lua_getglobal(L, "mouse_press");
 	if (not lua_isfunction(L, -1))
@@ -448,7 +451,7 @@ void Engine::mouse_press(int mx, int my, int button)
 	}
 }
 
-void Engine::mouse_release(int mx, int my, int button)
+void Engine::mouse_release(int mx, int my, int button) const
 {
 	lua_getglobal(L, "mouse_release");
 	if (not lua_isfunction(L, -1))
@@ -465,7 +468,7 @@ void Engine::mouse_release(int mx, int my, int button)
 	}
 }
 
-void Engine::key_press(const char* key_string)
+void Engine::key_press(const char* key_string) const
 {
 	lua_getglobal(L, "key_press");
 	if (not lua_isfunction(L, -1))
@@ -480,7 +483,7 @@ void Engine::key_press(const char* key_string)
 	}
 }
 
-void Engine::key_release(const char* key_string)
+void Engine::key_release(const char* key_string) const
 {
 	lua_getglobal(L, "key_release");
 	if (not lua_isfunction(L, -1))
@@ -495,7 +498,7 @@ void Engine::key_release(const char* key_string)
 	}
 }
 
-void Engine::event_resize(int w, int h)
+void Engine::event_resize(int w, int h) const
 {
 	lua_getglobal(L, "resize_event");
 	if (not lua_isfunction(L, -1))
@@ -511,7 +514,7 @@ void Engine::event_resize(int w, int h)
 	}
 }
 
-void Engine::net_recv(const char* str)
+void Engine::net_recv(const char* str) const
 {
 	lua_getglobal(L, "receive");
 	if (not lua_isfunction(L, -1))
@@ -526,7 +529,7 @@ void Engine::net_recv(const char* str)
 	}
 }
 
-void Engine::net_connected()
+void Engine::net_connected() const
 {
 	lua_getglobal(L, "connected");
 	if (not lua_isfunction(L, -1))
@@ -539,7 +542,7 @@ void Engine::net_connected()
 		luaL_error(L, "error calling receive: %s", lua_tostring(L, -1));
 	}
 }
-void Engine::net_disconnected()
+void Engine::net_disconnected() const
 {
 	lua_getglobal(L, "disconnected");
 	if (not lua_isfunction(L, -1))
@@ -551,17 +554,6 @@ void Engine::net_disconnected()
 	{
 		luaL_error(L, "error calling receive: %s", lua_tostring(L, -1));
 	}
-}
-
-//
-// Clean
-//
-
-void Engine::clean_up()
-{
-	delete event;
-	delete display;
-	// lua_close(L);
 }
 
 void Engine::stop()

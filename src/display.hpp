@@ -56,7 +56,7 @@ enum BufferType
 	TRIANGLE_BUFFER,
 	IMAGE_BUFFER,
 };
-struct Buffer
+class Buffer
 {
 private:
 	BufferType type;
@@ -74,6 +74,8 @@ private:
 
 public:
 	Buffer();
+	~Buffer();
+
 	void push_vertex(GLfloat, GLfloat);
 	void push_color(GLfloat, GLfloat, GLfloat, GLfloat);
 	void push_texCoord(GLfloat, GLfloat);
@@ -113,16 +115,20 @@ class Display
 		TTF_Font* font;
 		TTF_Font* fonts[128];
 
-		float r, g, b;
+		float r;
+		float g;
+		float b;
 		float alpha;
 
 		void convert_coords(int x, int y, float *dx, float *dy);
 		void convert_texcoords(int x, int y, float *dx, float *dy);
-		Surface* surface_from_sdl(SDL_Surface* surf);
+		Surface* surface_from_sdl(SDL_Surface* surf) const;
+
 		Shader* create_default_shader();
 
 	public:
-		void init();
+		Display();
+
 		void show_cursor(bool);
 		void set_resizable(bool);
 		void resize(int w, int h);
@@ -131,22 +137,21 @@ class Display
 		void set_alpha(uint8_t a);
 		void set_font(const char*, int size);
 
-		Surface* get_screen();
-		Surface* new_surface(uint32_t, uint32_t);
-		Surface* load_surface(const char *);
+		Surface* get_screen() const;
+		Surface* new_surface(uint32_t, uint32_t) const;
+		Surface* load_surface(const char *) const;
 		void free_surface(Surface*);
 		void draw_on(Surface*);
 		void draw_from(Surface*);
 
-
-		void draw_background();
+		void draw_background() const;
 		void draw_triangle(int x1, int y1, int x2, int y2, int x3, int y3);
 		void draw_line(int x1, int y1, int x2, int y2);
 		void draw_surface(int, int, int, int, int, int, int, int,
 							int, int, int, int, int, int, int, int);
 
-		Surface* text_surface(const char*);
-		void text_size(const char* text, int *w, int *h);
+		Surface* text_surface(const char*) const;
+		void text_size(const char* text, int *w, int *h) const;
 		void surface_size(Surface* surface, int *w, int *h);
 
 		Shader* new_shader(const char* strvert, const char* strfrag);

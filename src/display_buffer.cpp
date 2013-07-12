@@ -10,13 +10,20 @@
 const size_t BUFFER_DEFAULT_SIZE = 2 * 3 * 1024;
 
 Buffer::Buffer()
+  	: positions(new GLfloat[BUFFER_DEFAULT_SIZE * 2]),
+	  colors(new GLfloat[BUFFER_DEFAULT_SIZE * 4]),
+	  texCoords(new GLfloat[BUFFER_DEFAULT_SIZE * 2]),
+	  current_position(0),
+	  current_color(0),
+	  current_texCoord(0)
 {
-	size_t size = BUFFER_DEFAULT_SIZE;
-	positions = new GLfloat[size * 2];
-	colors = new GLfloat[size * 4];
-	texCoords = new GLfloat[size * 2];
+}
 
-	reset();
+Buffer::~Buffer()
+{
+	delete positions;
+	delete colors;
+	delete texCoords;
 }
 
 void Buffer::assert_type(BufferType atype)

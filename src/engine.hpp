@@ -5,10 +5,9 @@
 #include <ctime>
 #endif
 
-class Display;
-class EventManager;
-class Network;
-struct Sprite;
+#include "display.hpp"
+#include "network.hpp"
+#include "event.hpp"
 
 struct lua_State;
 
@@ -24,31 +23,33 @@ class Engine
 		long unsigned last_update;
 		const char* filename;
 
+		long unsigned get_now() const;
+
 	public:
-		Display *display;
-		EventManager *event;
-		Network *net;
+		Display display;
+		EventManager event;
+		Network net;
 
-		void setup(const char* filename, int target_fps);
+		Engine(const char* filename, int target_fps);
+		~Engine();
 
-		void send_globals();
+		void send_globals() const;
 		void reload();
 
 		void loop();
 		void update();
 
-		void mouse_motion(int, int);
-		void mouse_press(int, int, int);
-		void mouse_release(int, int, int);
-		void key_press(const char* key_string);
-		void key_release(const char* key_string);
-		void event_resize(int w, int h);
+		void mouse_motion(int, int) const;
+		void mouse_press(int, int, int) const;
+		void mouse_release(int, int, int) const;
+		void key_press(const char* key_string) const;
+		void key_release(const char* key_string) const;
+		void event_resize(int w, int h) const;
 
-		void net_recv(const char* str);
-		void net_connected();
-		void net_disconnected();
+		void net_recv(const char* str) const;
+		void net_connected() const;
+		void net_disconnected() const;
 
-		void clean_up();
 		void stop();
 };
 

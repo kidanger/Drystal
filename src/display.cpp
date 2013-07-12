@@ -61,7 +61,15 @@ void main()
 }
 )";
 
-void Display::init()
+Display::Display()
+	: resizable(false),
+	  sdl_screen(NULL),
+	  screen(NULL),
+	  default_shader(NULL),
+	  current(NULL),
+	  current_from(NULL),
+	  font(NULL)
+
 {
 	DEBUG("");
 	int err = SDL_Init(SDL_INIT_EVERYTHING);
@@ -115,7 +123,8 @@ void Display::resize(int w, int h)
 	}
 
 	// regenerate shader (lost with the GL context)
-	if (default_shader) free_shader(default_shader);
+	if (default_shader)
+		free_shader(default_shader);
 	default_shader = create_default_shader();
 	use_shader(default_shader);
 
@@ -130,13 +139,13 @@ void Display::show_cursor(bool b)
 	SDL_ShowCursor(b);
 }
 
-void Display::draw_background()
+void Display::draw_background() const
 {
 	glClearColor(r, g, b, alpha);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void Display::flip()
+void Display::flip() 
 {
 	DEBUG("");
 	buffer.assert_empty();
@@ -147,11 +156,10 @@ void Display::flip()
 	DEBUG("end");
 }
 
-Surface* Display::get_screen()
+Surface* Display::get_screen() const
 {
-	return this->screen;
+	return screen;
 }
-
 
 /**
  * State
@@ -200,7 +208,7 @@ void Display::draw_on(Surface* surf)
  * Surface
  */
 
-Surface* Display::surface_from_sdl(SDL_Surface* surf)
+Surface* Display::surface_from_sdl(SDL_Surface* surf) const
 {
 	DEBUG("");
 	assert(surf);
@@ -279,7 +287,7 @@ Surface* Display::surface_from_sdl(SDL_Surface* surf)
 	return surface;
 }
 
-Surface* Display::load_surface(const char * filename)
+Surface* Display::load_surface(const char * filename) const
 {
 	assert(filename);
 	SDL_Surface *surf = IMG_Load(filename);
@@ -290,7 +298,7 @@ Surface* Display::load_surface(const char * filename)
 	return surface;
 }
 
-Surface* Display::new_surface(uint32_t w, uint32_t h)
+Surface* Display::new_surface(uint32_t w, uint32_t h) const
 {
 	assert(w > 0);
 	assert(h > 0);
@@ -339,7 +347,6 @@ void Display::surface_size(Surface* surface, int *w, int *h)
 	*w = surface->w;
 	*h = surface->h;
 }
-
 
 /**
  * Primitive drawing
@@ -444,7 +451,7 @@ void Display::set_font(const char* name, int size)
 	assert(font);
 }
 
-Surface* Display::text_surface(const char* text)
+Surface* Display::text_surface(const char* text) const
 {
 	assert(current);
 	assert(font);
@@ -457,7 +464,7 @@ Surface* Display::text_surface(const char* text)
 	return surface;
 }
 
-void Display::text_size(const char* text, int *w, int *h)
+void Display::text_size(const char* text, int *w, int *h) const
 {
 	assert(w);
 	assert(h);
@@ -585,4 +592,3 @@ void Display::free_shader(Shader* shader)
 	glDeleteProgram(shader->prog);
 	delete shader;
 }
-
