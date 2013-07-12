@@ -1,7 +1,6 @@
 #include <cstring>
 #include <lua.hpp>
-#include <ctime>
-#include <sys/time.h> /* for usleep in set_main_loop */
+#include <sys/time.h>
 
 #ifdef EMSCRIPTEN
 #include "emscripten.h"
