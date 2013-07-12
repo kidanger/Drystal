@@ -7,7 +7,7 @@
 #include "display.hpp"
 
 // should be multiple of 2 (for GL_LINES) and of 3 (GL_TRIANGLES)
-const size_t BUFFER_DEFAULT_SIZE = 2 * 3 * 64;
+const size_t BUFFER_DEFAULT_SIZE = 2 * 3 * 1024;
 
 Buffer::Buffer()
 {
@@ -29,16 +29,14 @@ void Buffer::assert_type(BufferType atype)
 
 void Buffer::assert_not_full()
 {
-	if (current_color == BUFFER_DEFAULT_SIZE)
-	{
+	if (current_color == BUFFER_DEFAULT_SIZE) {
 		flush(); // implicit reset
 	}
 }
 
 void Buffer::assert_empty()
 {
-	if (current_color != 0)
-	{
+	if (current_color != 0) {
 		flush(); // implicit reset
 	}
 }

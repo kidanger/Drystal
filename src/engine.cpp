@@ -37,7 +37,7 @@ void Engine::setup(const char* filename, int target_fps)
 }
 
 //
-// LUA functions
+// Lua functions
 //
 
 static int mlua_engine_stop(lua_State*)
