@@ -60,7 +60,6 @@ struct Buffer
 {
 private:
 	BufferType type;
-	unsigned size;
 
 	GLfloat* positions;
 	GLfloat* colors;

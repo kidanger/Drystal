@@ -11,7 +11,7 @@ const size_t BUFFER_DEFAULT_SIZE = 2 * 3 * 1024;
 
 Buffer::Buffer()
 {
-	size = BUFFER_DEFAULT_SIZE;
+	size_t size = BUFFER_DEFAULT_SIZE;
 	positions = new GLfloat[size * 2];
 	colors = new GLfloat[size * 4];
 	texCoords = new GLfloat[size * 2];
@@ -71,7 +71,7 @@ void Buffer::push_texCoord(GLfloat x, GLfloat y)
 
 void Buffer::flush()
 {
-	DEBUG("");
+	DEBUG();
 	assert(current_color == current_position);
 	assert(type != IMAGE_BUFFER or current_color == current_texCoord);
 

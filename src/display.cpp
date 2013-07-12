@@ -251,14 +251,14 @@ Surface* Display::surface_from_sdl(SDL_Surface* surf)
 #endif
 			surf->w, surf->h, 0, GL_RGBA,
 			GL_UNSIGNED_BYTE, surf->pixels);
-	//GLenum err = glGetError();
-	//printf("%d %d\n", err, GL_INVALID_OPERATION);
+	GLDEBUG();
 
 	// gen framebuffer object
 	GLuint fbo;
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
+	GLDEBUG();
 
 	GLenum status;
 	status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
