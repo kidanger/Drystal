@@ -72,7 +72,7 @@ Display::Display()
 
 {
 	DEBUG("");
-	int err = SDL_Init(SDL_INIT_EVERYTHING);
+	int err = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 	err |= TTF_Init();
 	assert(not err);
 	alpha = 1;
