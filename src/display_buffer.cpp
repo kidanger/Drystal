@@ -4,6 +4,7 @@
 #include <GLES2/gl2.h>
 #endif
 
+#include "log.hpp"
 #include "display.hpp"
 
 // should be multiple of 2 (for GL_LINES) and of 3 (GL_TRIANGLES)

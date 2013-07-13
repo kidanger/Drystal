@@ -10,8 +10,8 @@
 #include <cassert>
 #include <cmath>
 
+#include "log.hpp"
 #include "display.hpp"
-
 
 const char* DEFAULT_VERTEX_SHADER = R"(
 #version 100

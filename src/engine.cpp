@@ -2,6 +2,7 @@
 #include <lua.hpp>
 #include <sys/time.h>
 
+#include "log.hpp"
 #include "engine.hpp"
 #include "display.hpp"
 #include "event.hpp"
