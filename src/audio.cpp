@@ -73,7 +73,7 @@ void Audio::play_music_queued(char *filepath)
 	SDL_mutexV(_mutex);
 }
 
-void Audio::play_music(const char *filepath)
+void Audio::play_music(const char *filepath, int times)
 {
 	SDL_mutexP(_mutex);
 	Mix_HaltMusic();
@@ -89,7 +89,7 @@ void Audio::play_music(const char *filepath)
 		return;
 	}
 
-	if (Mix_PlayMusic(_music, 1) != 0)
+	if (Mix_PlayMusic(_music, times) != 0)
 	{
 		std::cerr << "cannot play music: `" << filepath << "': " << Mix_GetError() << std::endl;
 	}
@@ -111,9 +111,9 @@ void Audio::free_sound(Mix_Chunk *chunk)
 	Mix_FreeChunk(chunk);
 }
 
-void Audio::play_sound(Mix_Chunk *chunk)
+void Audio::play_sound(Mix_Chunk *chunk, int times)
 {
-	if (Mix_PlayChannel(-1, chunk, 0) == -1)
+	if (Mix_PlayChannel(-1, chunk, times - 1) == -1)
 	{
 		std::cerr << "[ERROR] cannot play sound: " << Mix_GetError() << std::endl;
 	}

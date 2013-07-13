@@ -13,9 +13,9 @@ class Audio
 
 		Mix_Chunk *load_sound(const char *filepath);
 		void free_sound(Mix_Chunk *chunk);
-		void play_sound(Mix_Chunk *chunk);
+		void play_sound(Mix_Chunk *chunk, int times = 1);
 
-		static void play_music(const char *filepath);
+		static void play_music(const char *filepath, int times = 1);
 		static void play_music_queued(char *filepath);
 	private:
 		static void music_finished();

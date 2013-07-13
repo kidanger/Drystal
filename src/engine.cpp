@@ -279,8 +279,13 @@ static int mlua_load_sound(lua_State *L)
 
 static int mlua_play_sound(lua_State *L)
 {
-	Mix_Chunk *chunk = (Mix_Chunk *) lua_touserdata(L, -1);
-	engine->audio.play_sound(chunk);
+	Mix_Chunk *chunk = (Mix_Chunk *) lua_touserdata(L, 1);
+	int times = lua_tonumber(L, 2);
+	if (times == -1)
+		times = 0;
+	else if (times == 0)
+		times = 1;
+	engine->audio.play_sound(chunk, times);
 	return 0;
 }
 
@@ -300,8 +305,11 @@ static int mlua_play_music_queued(lua_State *L)
 
 static int mlua_play_music(lua_State *L)
 {
-	const char *filepath = lua_tostring(L, -1);
-	engine->audio.play_music(filepath);
+	const char *filepath = lua_tostring(L, 1);
+	int times = lua_tonumber(L, 2);
+	if (times == 0)
+		times = 1;
+	engine->audio.play_music(filepath, times);
 	return 0;
 }
 
