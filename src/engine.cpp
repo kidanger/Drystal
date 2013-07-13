@@ -1,6 +1,7 @@
 #include <cstring>
 #include <lua.hpp>
 #include <sys/time.h>
+#include <iostream>
 
 #include "log.hpp"
 #include "engine.hpp"
@@ -31,6 +32,7 @@ Engine::Engine(const char* filename, int target_fps)
 {
 	engine = this;
 	luaL_openlibs(L);
+	reload();
 }
 
 Engine::~Engine()
@@ -321,7 +323,7 @@ void Engine::reload()
 	time_t last = last_modified(filename);
 	if (last == 0)
 	{
-		fprintf(stderr, "file %s does not exist\n", filename);
+		std::cerr << "[ERROR] file `" << filename << "' does not exist" << std::endl;
 	}
 	if (last_load < last) {
 #endif
@@ -333,8 +335,16 @@ void Engine::reload()
 		}
 
 		lua_getglobal(L, "init");
-		if (lua_pcall(L, 0, 0, 0))
-			luaL_error(L, "error calling init: %s", lua_tostring(L, -1));
+		if (not lua_isfunction(L, -1))
+		{
+			lua_pop(L, 1);
+			std::cerr << "[ERROR] cannot find init function in `" << filename << "'" << std::endl;
+		}
+		else
+		{
+			if (lua_pcall(L, 0, 0, 0))
+				luaL_error(L, "error calling init: %s", lua_tostring(L, -1));
+		}
 
 #ifndef EMSCRIPTEN
 		last_load = last;
