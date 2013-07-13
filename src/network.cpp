@@ -41,7 +41,7 @@ void Network::poll()
 	if (ret < 0)
 	{
 		disconnect();
-		engine.net_disconnected();
+		engine.disconnected();
 		perror("Error message");
 		return;
 	}
@@ -53,7 +53,7 @@ void Network::poll()
 	{
 		perror("No message to read");
 		disconnect();
-		engine.net_disconnected();
+		engine.disconnected();
 		return;
 	}
 	buff[n] = 0;
@@ -66,7 +66,7 @@ void Network::poll()
 		if(str)
 		{
 			*str = 0;
-			engine.net_recv(last);
+			engine.receive(last);
 			last = str+1;
 		}
 	} while(str);
@@ -109,7 +109,7 @@ bool Network::connect(const char* hostname, int port)
 		disconnect();
 		return false;
 	}
-	engine.net_connected();
+	engine.connected();
 	return true;
 }
 
@@ -149,7 +149,7 @@ void Network::send(const void* data, size_t len)
 	{
 		printf("unable to send: %s\n", (char*)data);
 		disconnect();
-		engine.net_disconnected();
+		engine.disconnected();
 	}
 }
 
