@@ -11,8 +11,12 @@ class Audio
 		Audio();
 		~Audio();
 
-		static void play_sound(const char *filepath);
-		static void play_sound_queued(char *filepath);
+		Mix_Chunk *load_sound(const char *filepath);
+		void free_sound(Mix_Chunk *chunk);
+		void play_sound(Mix_Chunk *chunk);
+
+		static void play_music(const char *filepath);
+		static void play_music_queued(char *filepath);
 	private:
 		static void music_finished();
 

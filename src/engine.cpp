@@ -5,9 +5,6 @@
 
 #include "log.hpp"
 #include "engine.hpp"
-#include "display.hpp"
-#include "event.hpp"
-#include "network.hpp"
 
 #ifdef EMSCRIPTEN
 #include "emscripten.h"
@@ -272,17 +269,39 @@ static int mlua_disconnect(lua_State*)
 	return 0;
 }
 
-static int mlua_play_sound(lua_State *L)
+static int mlua_load_sound(lua_State *L)
 {
 	const char *filepath = lua_tostring(L, -1);
-	engine->audio.play_sound(filepath);
+	void *chunk = engine->audio.load_sound(filepath);
+	lua_pushlightuserdata(L, chunk);
+	return 1;
+}
+
+static int mlua_play_sound(lua_State *L)
+{
+	Mix_Chunk *chunk = (Mix_Chunk *) lua_touserdata(L, -1);
+	engine->audio.play_sound(chunk);
 	return 0;
 }
 
-static int mlua_play_sound_queued(lua_State *L)
+static int mlua_free_sound(lua_State *L)
+{
+	Mix_Chunk *chunk = (Mix_Chunk *) lua_touserdata(L, -1);
+	engine->audio.free_sound(chunk);
+	return 0;
+}
+
+static int mlua_play_music_queued(lua_State *L)
 {
 	const char *filepath = lua_tostring(L, -1);
-	engine->audio.play_sound_queued(strdup(filepath));
+	engine->audio.play_music_queued(strdup(filepath));
+	return 0;
+}
+
+static int mlua_play_music(lua_State *L)
+{
+	const char *filepath = lua_tostring(L, -1);
+	engine->audio.play_music(filepath);
 	return 0;
 }
 
@@ -330,8 +349,11 @@ void Engine::send_globals() const
 	lua_register(L, "send", mlua_send);
 	lua_register(L, "disconnect", mlua_disconnect);
 
+	lua_register(L, "play_music", mlua_play_music);
+	lua_register(L, "play_music_queued", mlua_play_music_queued);
 	lua_register(L, "play_sound", mlua_play_sound);
-	lua_register(L, "play_sound_queued", mlua_play_sound_queued);
+	lua_register(L, "load_sound", mlua_load_sound);
+	lua_register(L, "free_sound", mlua_free_sound);
 }
 
 void Engine::reload()

@@ -8,13 +8,22 @@ std::queue<char *> Audio::_musicQueue;
 
 Audio::Audio()
 {
-	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) < 0)
-		std::cerr << "[ERROR] open audio: " << Mix_GetError() << std::endl;
+	int init_flags = MIX_INIT_FLAC | MIX_INIT_MOD | MIX_INIT_MP3 | MIX_INIT_OGG;
+	int ret = Mix_Init(init_flags);
+	if ((init_flags & ret) != init_flags)
+		std::cerr << "[ERROR] cannot init audio: " << Mix_GetError() << std::endl;
+
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) == -1)
+		std::cerr << "[ERROR] cannot open audio: " << Mix_GetError() << std::endl;
+
+	Mix_AllocateChannels(200);
 	Mix_HookMusicFinished(music_finished);
 }
 
 Audio::~Audio()
 {
+	while(Mix_Init(0))
+		Mix_Quit();
 	if (_music)
 		Mix_FreeMusic(_music);
 	Mix_CloseAudio();
@@ -26,13 +35,15 @@ void Audio::music_finished()
 	SDL_mutexP(_mutex);
 	if (!_musicQueue.empty())
 	{
-		play_sound_queued(_musicQueue.front());
+		SDL_mutexV(_mutex);
+		play_music_queued(_musicQueue.front());
+		SDL_mutexP(_mutex);
 		_musicQueue.pop();
 	}
 	SDL_mutexV(_mutex);
 }
 
-void Audio::play_sound_queued(char *filepath)
+void Audio::play_music_queued(char *filepath)
 {
 	SDL_mutexP(_mutex);
 	if (Mix_PlayingMusic() != 0)
@@ -62,7 +73,7 @@ void Audio::play_sound_queued(char *filepath)
 	SDL_mutexV(_mutex);
 }
 
-void Audio::play_sound(const char *filepath)
+void Audio::play_music(const char *filepath)
 {
 	SDL_mutexP(_mutex);
 	Mix_HaltMusic();
@@ -83,4 +94,27 @@ void Audio::play_sound(const char *filepath)
 		std::cerr << "cannot play music: `" << filepath << "': " << Mix_GetError() << std::endl;
 	}
 	SDL_mutexV(_mutex);
+}
+
+Mix_Chunk *Audio::load_sound(const char *filepath)
+{
+	Mix_Chunk *chunk = Mix_LoadWAV(filepath);
+	if (chunk == nullptr)
+	{
+		std::cerr << "[ERROR] cannot load sound file: `" << filepath << "': " << Mix_GetError() << std::endl;
+	}
+	return chunk;
+}
+
+void Audio::free_sound(Mix_Chunk *chunk)
+{
+	Mix_FreeChunk(chunk);
+}
+
+void Audio::play_sound(Mix_Chunk *chunk)
+{
+	if (Mix_PlayChannel(-1, chunk, 0) == -1)
+	{
+		std::cerr << "[ERROR] cannot play sound: " << Mix_GetError() << std::endl;
+	}
 }
