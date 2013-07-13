@@ -8,11 +8,11 @@ DEBUG=no
 LUADIR=$(HOME)/dev/lua-5.2.2/install
 
 CC=clang++
-CCFLAGS=-std=c++11 -I$(SRCDIR) -I$(LUADIR)/include
+CCFLAGS=-std=c++11 -I$(SRCDIR) -I$(LUADIR)/include `sdl-config --cflags`
 CCFLAGS+=-Wall -Wextra
 
 LD=clang++
-SDL_OPTIONS=`sdl-config --libs` -lSDL_image -lSDL_ttf -lSDL_gfx -lGL -lGLU
+SDL_OPTIONS=`sdl-config --libs` -lSDL_image -lSDL_ttf -lSDL_gfx -lSDL_mixer -lGL -lGLU
 LUA_OPTIONS=-llua
 LDFLAGS+=$(SDL_OPTIONS) $(LUA_OPTIONS)
 
@@ -86,6 +86,9 @@ clean:
 	-rm $(OBJ)
 	-rm -r $(OBJDIR)
 	-rm $(EXEC)
+
+runtestaudio: compile
+	./$(EXEC) tests/audio/test_play.lua
 
 runtestnetwork: compile
 	./$(EXEC) tests/network/test_network.lua

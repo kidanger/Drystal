@@ -8,6 +8,7 @@
 #include "display.hpp"
 #include "network.hpp"
 #include "event.hpp"
+#include "audio.hpp"
 
 struct lua_State;
 
@@ -29,6 +30,7 @@ class Engine
 		Display display;
 		EventManager event;
 		Network net;
+		Audio audio;
 
 		Engine(const char* filename, int target_fps);
 		~Engine();

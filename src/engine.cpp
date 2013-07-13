@@ -272,6 +272,20 @@ static int mlua_disconnect(lua_State*)
 	return 0;
 }
 
+static int mlua_play_sound(lua_State *L)
+{
+	const char *filepath = lua_tostring(L, -1);
+	engine->audio.play_sound(filepath);
+	return 0;
+}
+
+static int mlua_play_sound_queued(lua_State *L)
+{
+	const char *filepath = lua_tostring(L, -1);
+	engine->audio.play_sound_queued(strdup(filepath));
+	return 0;
+}
+
 //
 // LUA load
 //
@@ -315,6 +329,9 @@ void Engine::send_globals() const
 	lua_register(L, "connect", mlua_connect);
 	lua_register(L, "send", mlua_send);
 	lua_register(L, "disconnect", mlua_disconnect);
+
+	lua_register(L, "play_sound", mlua_play_sound);
+	lua_register(L, "play_sound_queued", mlua_play_sound_queued);
 }
 
 void Engine::reload()
