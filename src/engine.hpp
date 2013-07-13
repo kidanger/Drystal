@@ -36,7 +36,8 @@ class Engine
 		~Engine();
 
 		void send_globals() const;
-		void reload();
+		void load_lua();
+		void reload_lua();
 
 		void loop();
 		void update();

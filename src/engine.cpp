@@ -12,9 +12,8 @@
 #include "file.hpp"
 #endif
 
-long unsigned get_now();
-
 static Engine* engine;
+
 Engine::Engine(const char* filename, int target_fps)
 	: target_fps(target_fps),
 	  run(true),
@@ -29,7 +28,6 @@ Engine::Engine(const char* filename, int target_fps)
 {
 	engine = this;
 	luaL_openlibs(L);
-	reload();
 }
 
 Engine::~Engine()
@@ -314,7 +312,7 @@ static int mlua_play_music(lua_State *L)
 }
 
 //
-// LUA load
+// Lua load
 //
 
 void Engine::send_globals() const
@@ -364,40 +362,39 @@ void Engine::send_globals() const
 	lua_register(L, "free_sound", mlua_free_sound);
 }
 
-void Engine::reload()
+void Engine::load_lua()
+{
+	if (luaL_dofile(L, filename)) {
+		luaL_error(L, "error running script: %s", lua_tostring(L, -1));
+	}
+
+	lua_getglobal(L, "init");
+	if (not lua_isfunction(L, -1)) {
+		lua_pop(L, 1);
+		std::cerr << "[ERROR] cannot find init function in `" << filename << "'" << std::endl;
+		run = false;
+	} else if (lua_pcall(L, 0, 0, 0)) {
+		luaL_error(L, "error calling init: %s", lua_tostring(L, -1));
+		run = false; // stop/don't start execution
+	}
+}
+
+void Engine::reload_lua()
 {
 #ifndef EMSCRIPTEN
 	time_t last = last_modified(filename);
-	if (last == 0)
-	{
+	if (last == 0) {
 		std::cerr << "[ERROR] file `" << filename << "' does not exist" << std::endl;
 	}
 	if (last_load < last) {
-#endif
-		send_globals();
+		// reload the code
+		load_lua();
 
-		if (luaL_dofile(L, filename))
-		{
-			luaL_error(L, "error running script: %s", lua_tostring(L, -1));
-		}
-
-		lua_getglobal(L, "init");
-		if (not lua_isfunction(L, -1))
-		{
-			lua_pop(L, 1);
-			std::cerr << "[ERROR] cannot find init function in `" << filename << "'" << std::endl;
-		}
-		else
-		{
-			if (lua_pcall(L, 0, 0, 0))
-				luaL_error(L, "error calling init: %s", lua_tostring(L, -1));
-		}
-
-#ifndef EMSCRIPTEN
 		last_load = last;
 	}
 #endif
 }
+
 
 //
 // Main loop
@@ -405,8 +402,12 @@ void Engine::reload()
 
 void Engine::loop()
 {
+	send_globals();
+
+	load_lua();
 #ifdef EMSCRIPTEN
-	emscripten_set_main_loop([]() { engine->update(); }, this->target_fps, true);
+	if (run)
+		emscripten_set_main_loop([]() { engine->update(); }, this->target_fps, true);
 #else
 	while (run)
 	{
@@ -446,7 +447,7 @@ void Engine::update()
 
 #ifndef EMSCRIPTEN
 	if (tick % 30 == 0)
-		reload();
+		reload_lua();
 #endif
 
 	double dt = (get_now() - last_update) / 1000;
