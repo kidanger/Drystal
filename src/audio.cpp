@@ -111,10 +111,42 @@ void Audio::free_sound(Mix_Chunk *chunk)
 	Mix_FreeChunk(chunk);
 }
 
-void Audio::play_sound(Mix_Chunk *chunk, int times)
+void Audio::play_sound(Mix_Chunk *chunk, int times, float volume)
 {
-	if (Mix_PlayChannel(-1, chunk, times - 1) == -1)
+	if (volume != -1 && volume < 0 && volume > 1)
+	{
+		fprintf(stderr, "[ERROR] cannot play sound: invalid volume value\n");
+		return;
+	}
+
+	int channel = -1;
+	if ((channel = Mix_PlayChannel(-1, chunk, times - 1)) == -1)
 	{
 		std::cerr << "[ERROR] cannot play sound: " << Mix_GetError() << std::endl;
+		return;
 	}
+	if (volume != -1)
+		Mix_Volume(channel, volume * MIX_MAX_VOLUME);
+	else
+		Mix_Volume(channel, Mix_Volume(-1, -1));
+}
+
+void Audio::set_music_volume(float volume)
+{
+	if (volume < 0 && volume > 1)
+	{
+		fprintf(stderr, "[ERROR] cannot set music volume: invalid value\n");
+		return;
+	}
+	Mix_VolumeMusic(volume * MIX_MAX_VOLUME);
+}
+
+void Audio::set_sound_volume(float volume)
+{
+	if (volume < 0 && volume > 1)
+	{
+		fprintf(stderr, "[ERROR] cannot set sound volume: invalid value\n");
+		return;
+	}
+	Mix_Volume(-1, volume * MIX_MAX_VOLUME);
 }

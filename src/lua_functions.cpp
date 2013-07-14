@@ -470,12 +470,17 @@ static int mlua_load_sound(lua_State *L)
 static int mlua_play_sound(lua_State *L)
 {
 	Mix_Chunk *chunk = (Mix_Chunk *) lua_touserdata(L, 1);
-	int times = lua_tonumber(L, 2);
+	int times = 1;
+	if (!lua_isnone(L, 2))
+		times = lua_tonumber(L, 2);
 	if (times == -1)
 		times = 0;
-	else if (times == 0)
-		times = 1;
-	engine->audio.play_sound(chunk, times);
+
+	float volume = -1;
+	if (!lua_isnone(L, 3))
+		volume = lua_tonumber(L, 3);
+
+	engine->audio.play_sound(chunk, times, volume);
 	return 0;
 }
 
@@ -496,13 +501,26 @@ static int mlua_play_music_queued(lua_State *L)
 static int mlua_play_music(lua_State *L)
 {
 	const char *filepath = lua_tostring(L, 1);
-	int times = lua_tonumber(L, 2);
-	if (times == 0)
-		times = 1;
+	int times = 1;
+	if (!lua_isnone(L, 2))
+		times = lua_tonumber(L, 2);
 	engine->audio.play_music(filepath, times);
 	return 0;
 }
 
+static int mlua_set_sound_volume(lua_State *L)
+{
+	float volume = lua_tonumber(L, 1);
+	engine->audio.set_sound_volume(volume);
+	return 0;
+}
+
+static int mlua_set_music_volume(lua_State *L)
+{
+	float volume = lua_tonumber(L, 1);
+	engine->audio.set_music_volume(volume);
+	return 0;
+}
 //
 // Lua load
 //
@@ -552,5 +570,7 @@ void LuaFunctions::send_globals() const
 	lua_register(L, "play_sound", mlua_play_sound);
 	lua_register(L, "load_sound", mlua_load_sound);
 	lua_register(L, "free_sound", mlua_free_sound);
+	lua_register(L, "set_sound_volume", mlua_set_sound_volume);
+	lua_register(L, "set_music_volume", mlua_set_music_volume);
 }
 
