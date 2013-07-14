@@ -68,16 +68,17 @@ Display::Display()
 	  default_shader(NULL),
 	  current(NULL),
 	  current_from(NULL),
-	  font(NULL)
+	  font(NULL),
+	  r(1),g(1),b(1),alpha(1)
 
 {
 	DEBUG("");
 	int err = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 	err |= TTF_Init();
 	assert(not err);
-	alpha = 1;
 
-	resize(680, 680);
+	for (size_t i = 0; i < sizeof(fonts)/sizeof(fonts[0]); i++)
+		fonts[i] = NULL;
 }
 
 /**
@@ -86,15 +87,17 @@ Display::Display()
 
 void Display::set_resizable(bool b)
 {
-	if (b != resizable)
-	{
+	if (b != resizable) {
 		resizable = b;
-		resize(size_x, size_y);
+		if (screen)
+			resize(size_x, size_y);
 	}
 }
 
 void Display::resize(int w, int h)
 {
+	w = w > 0 ? w : 1;
+	h = h > 0 ? h : 1;
 	DEBUG("");
 	Surface* old = screen;
 	size_x = w;
@@ -145,7 +148,7 @@ void Display::draw_background() const
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void Display::flip() 
+void Display::flip()
 {
 	DEBUG("");
 	buffer.assert_empty();
@@ -453,7 +456,7 @@ void Display::set_font(const char* name, int size)
 
 Surface* Display::text_surface(const char* text) const
 {
-	assert(current);
+	assert(text);
 	assert(font);
 
 	SDL_Color color = { (uint8_t) (r*255), (uint8_t) (g*255), (uint8_t) (b*255), (uint8_t) (alpha*255) };
