@@ -17,17 +17,42 @@ local offsets = {{x=0,y=0}}
 local ox = 0
 local oy = 0
 
-function draw_sprite(sprite, x, y)
+local notransform = {
+	angle=0, -- in radians
+	wfactor=1, hfactor=1 -- can be negative to flip
+}
+function draw_sprite(sprite, x, y, transform)
+	transform = transform or notransform
+	local cos = math.cos
+	local sin = math.sin
+
+	local w = sprite.w * transform.wfactor
+	local h = sprite.h * transform.hfactor
+	local angle = transform.angle
+
+	function rot(_x, _y)
+		return x + _x*cos(angle) - _y*sin(angle) + w/2,
+				y + _y*cos(angle) + _x*sin(angle) + h/2
+	end
+	local x1, y1 = rot(-w/2, -h/2)
+	local x2, y2 = rot(w/2, -h/2)
+	local x3, y3 = rot(w/2, h/2)
+	local x4, y4 = rot(-w/2, h/2)
+
 	local xi = sprite.x
-	local yi = sprite.x
-	local w = sprite.w
-	local h = sprite.h
-	local xi2 = xi + sprite.w
-	local yi2 = yi + sprite.h
-	local xd2 = x + w
-	local yd2 = y + w
+	local yi = sprite.y
+	local xi2 = sprite.x + sprite.w
+	local yi2 = sprite.y + sprite.h
+
 	_draw_surface(xi, yi, xi2, yi, xi2, yi2, xi, yi2,
-				 x,  y,  xd2, y,  xd2, yd2, x,  yd2)
+				  x1, y1, x2,  y2, x3,  y3,  x4, y4)
+end
+function draw_sprite_rotated(sprite, x, y, angle)
+	local transform = {
+		angle=angle,
+		wfactor=1, hfactor=1
+	}
+	draw_sprite(sprite, x, y, transform)
 end
 
 local current_from = nil
@@ -37,6 +62,7 @@ function draw_from(surf)
 end
 
 function draw_surface(surf, x, y)
+	print('using draw surface is slow as hell')
 	local old = current_from
 
 	draw_from(surf)
