@@ -21,14 +21,36 @@ local notransform = {
 	angle=0, -- in radians
 	wfactor=1, hfactor=1 -- can be negative to flip
 }
+function draw_sprite_simple(sprite, x, y)
+	x = x + ox
+	y = y + oy
+	local w = sprite.w
+	local h = sprite.h
+	local x1, y1 = x, y
+	local x2, y2 = x+w, y+h
+
+	local xi = sprite.x
+	local yi = sprite.y
+	local xi2 = sprite.x + sprite.w
+	local yi2 = sprite.y + sprite.h
+
+	_draw_surface(xi, yi, xi2, yi, xi2, yi2, xi, yi2,
+				  x1, y1, x2,  y1, x2,  y2,  x1, y2)
+end
 function draw_sprite(sprite, x, y, transform)
-	transform = transform or notransform
+	if not transform then
+		draw_sprite_simple(sprite, x, y)
+		return
+	end
 	local cos = math.cos
 	local sin = math.sin
 
 	local w = sprite.w * transform.wfactor
 	local h = sprite.h * transform.hfactor
 	local angle = transform.angle
+
+	x = x + ox
+	y = y + oy
 
 	function rot(_x, _y)
 		return x + _x*cos(angle) - _y*sin(angle) + w/2,
@@ -90,7 +112,7 @@ function draw_circle(cx, cy, r)
 
 	local oldx, oldy
 	local nx, ny
-	for ii = 0, num_segments+1 do
+	for ii = 0, num_segments do
 		oldx = nx
 		oldy = ny
 
