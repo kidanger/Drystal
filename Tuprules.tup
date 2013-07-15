@@ -1,18 +1,13 @@
-ifdef LUA_DIRECTORY
-    CFLAGS += -I@(LUA_DIRECTORY)/include
-endif
-
-CFLAGS+=-g
-LDFLAGS+=-g
+CFLAGS += @(CFLAGS)
 CFLAGS += -Wall -Wextra
 CFLAGS += -O2
 CFLAGS += -std=c++11
 CFLAGS += `sdl-config --cflags`
 
-LDFLAGS = @(LDFLAGS) @(SDL_OPTIONS) @(GL_OPTIONS) @(LUA_OPTIONS)
-ifdef COMPRESS_DIRECTORY
-    LDFLAGS+=--compression @(COMPRESS_DIRECTORY)/lzma.js/lzma-native,@(COMPRESS_DIRECTORY)/lzma.js/lzma-decoder.js,LZMA.decompress
-endif
+LDFLAGS += @(LDFLAGS) @(SDL_OPTIONS) @(GL_OPTIONS) @(LUA_OPTIONS)
+
+CFLAGS += -g
+LDFLAGS += -g
 
 !cc = |> @(CC) $(CFLAGS) -c %f -o %o |> %B.o
 !ld = |> @(LD) $(LDFLAGS) %f -o @(TARGET) |> @(TARGET) @(OTHER_TARGETS)

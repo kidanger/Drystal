@@ -114,10 +114,10 @@ void Display::resize(int w, int h)
 	if (screen)
 		free(screen);
 	screen = new Surface;
-	screen->w = w;
-	screen->h = h;
-	screen->texw = w;
-	screen->texh = h;
+	screen->w = sdl_screen->w;
+	screen->h = sdl_screen->h;
+	screen->texw = sdl_screen->w;
+	screen->texh = sdl_screen->h;
 	screen->fbo = 0; // back buffer
 
 	if (current == old) {
