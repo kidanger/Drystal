@@ -112,7 +112,7 @@ void Display::resize(int w, int h)
 	assert(sdl_screen);
 
 	if (screen)
-		free(screen);
+		delete screen;
 	screen = new Surface;
 	screen->w = sdl_screen->w;
 	screen->h = sdl_screen->h;
