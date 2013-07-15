@@ -6,6 +6,8 @@
 #include "log.hpp"
 #include "engine.hpp"
 
+#define STATS
+
 #ifdef EMSCRIPTEN
 #include "emscripten.h"
 #else
@@ -76,11 +78,62 @@ long unsigned Engine::get_now() const
 	return stTimeVal.tv_sec * 1000000ll + stTimeVal.tv_usec;
 }
 
+#ifdef STATS
+struct Stats
+{
+	long unsigned started_at;
+
+	long unsigned event;
+	long unsigned net;
+	long unsigned game;
+	long unsigned display;
+
+	long unsigned total_active;
+	long unsigned slept;
+	int ticks_passed;
+	double average_dt=-1;
+	long unsigned last;
+
+	Stats(long unsigned now) :
+		started_at(now),
+		event(0),
+		net(0),
+		game(0),
+		display(0),
+		total_active(0),
+		slept(0),
+		ticks_passed(0),
+		last(now)
+	{}
+
+	void report()
+	{
+		printf("Stats report, %d ticks\n", ticks_passed);
+		printf("Active/sleep time (ms) %lu/%lu ratio=%.5f\n", total_active, slept, (float)total_active/(slept+total_active));
+		printf(" dt=%.2f fps=%.2f\n", average_dt, 1000/average_dt);
+		printf(" event \t= %-10lu %.1f%%\n", event, 100.*event/total_active);
+		printf(" net \t= %-10lu %.1f%%\n", net, 100.*net/total_active);
+		printf(" game \t= %-10lu %.1f%%\n", game, 100.*game/total_active);
+		printf(" display= %-10lu %.1f%%\n", display, 100.*display/total_active);
+	}
+};
+#define AT(something) long unsigned at_##something = get_now();
+#else
+#define AT(something)
+#endif
+
 void Engine::update()
 {
+#ifdef STATS
+	static Stats stats(get_now());
+#endif
+
 	static int tick = 0;
+	AT(start)
 	event.poll();
+	AT(event)
 	net.poll();
+	AT(net)
 
 #ifndef EMSCRIPTEN
 	if (tick % 30 == 0)
@@ -91,9 +144,28 @@ void Engine::update()
 	last_update = get_now();
 
 	lua.call_update(dt);
+	AT(game);
 	lua.call_draw();
+	AT(display);
 
 	tick += 1;
+
+#ifdef STATS
+	stats.ticks_passed++;
+	stats.event += at_event - at_start;
+	stats.net += at_net - at_event;
+	stats.game += at_game - at_net;
+	stats.display += at_display - at_game;
+	stats.total_active += at_display - at_start;
+
+	if (stats.average_dt == -1)
+		stats.average_dt = dt;
+	stats.average_dt = dt*0.05 + stats.average_dt*0.95;
+	stats.slept += at_start - stats.last;
+	if (stats.ticks_passed % 60 == 0)
+		stats.report();
+	stats.last = get_now();
+#endif
 }
 
 //

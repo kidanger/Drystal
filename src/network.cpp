@@ -140,11 +140,10 @@ void Network::disconnect()
 
 void Network::send(const void* data, size_t len)
 {
-	char *buff = new char[len+1];
+	char buff[len+1];
 	memcpy(buff, data, len);
 	buff[len] = '\n';
 	ssize_t n = _send(sockfd, buff, len+1, 0);
-	delete buff;
 	if (n < 0)
 	{
 		printf("unable to send: %s\n", (char*)data);
