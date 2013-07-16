@@ -294,7 +294,9 @@ Surface* Display::load_surface(const char * filename) const
 {
 	assert(filename);
 	SDL_Surface *surf = IMG_Load(filename);
-	assert(surf);
+
+	if (not surf)
+		return nullptr;
 
 	Surface* surface = surface_from_sdl(surf);
 	SDL_FreeSurface(surf);

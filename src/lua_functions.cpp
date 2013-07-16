@@ -308,8 +308,11 @@ static int mlua_load_surface(lua_State* L)
 {
 	const char * filename = lua_tostring(L, -1);
 	void* surface = engine->display.load_surface(filename);
-	lua_pushlightuserdata(L, surface);
-	return 1;
+	if (surface) {
+		lua_pushlightuserdata(L, surface);
+		return 1;
+	}
+	return 0;
 }
 static int mlua_new_surface(lua_State* L)
 {
