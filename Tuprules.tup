@@ -2,7 +2,6 @@ CFLAGS += @(CFLAGS)
 CFLAGS += -Wall -Wextra
 CFLAGS += -O2
 CFLAGS += -std=c++11
-CFLAGS += `sdl-config --cflags`
 
 LDFLAGS += @(LDFLAGS) @(SDL_OPTIONS) @(GL_OPTIONS) @(LUA_OPTIONS)
 

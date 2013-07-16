@@ -84,7 +84,6 @@ function draw_from(surf)
 end
 
 function draw_surface(surf, x, y)
-	print('using draw surface is slow as hell')
 	local old = current_from
 
 	draw_from(surf)
@@ -133,8 +132,13 @@ end
 function draw_rect(x, y, w, h)
 	_draw_rect(x+ox, y+oy, w, h)
 end
-
-function set_fill(b)
+function draw_square(x, y, w, h)
+	x = x + ox
+	y = y + oy
+	draw_line(x, y, x+w, y)
+	draw_line(x, y+h, x+w, y+h)
+	draw_line(x, y, x, y+h)
+	draw_line(x+w, y, x+w, y+h)
 end
 
 function push_offset(_ox, _oy)

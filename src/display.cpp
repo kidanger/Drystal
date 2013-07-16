@@ -570,6 +570,8 @@ void Display::use_shader(Shader* shader)
 
 void Display::feed_shader(Shader* shader, const char* name, float value)
 {
+	assert(shader);
+	assert(name);
 	GLint prog;
 	glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
 
