@@ -12,16 +12,16 @@ def parent(dir):
     return os.path.abspath(os.path.join(dir, os.pardir))
 
 def copy_files_maybe(from_directory, to_directory):
-    print('copy from', from_directory, 'to', to_directory)
+    print('processing', from_directory)
     already_in = os.listdir(to_directory)
     for f in os.listdir(from_directory):
         fullpath = os.path.join(from_directory, f)
         if os.path.isfile(fullpath):
             if f not in already_in:
-                print('copying', f)
+                print('    copying\t', f)
                 shutil.copy(fullpath, to_directory)
             else:
-                print('already have', f)
+                print('    ignoring\t', f)
 
 def clean():
     if not os.path.exists(DESTINATION_DIRECTORY_TMP):
@@ -60,18 +60,19 @@ else:
 
     # here, if file is not null, it will be renamed to 'main.lua'
     # if it's null, we asume there's already a 'main.lua' in dirpath
+    main = os.path.join(DESTINATION_DIRECTORY, 'main.lua')
 
     dir = os.path.abspath(dirpath)
 
     shutil.copytree(DESTINATION_DIRECTORY, DESTINATION_DIRECTORY_TMP)
+    if os.path.exists(main):
+        os.remove(main)
+
     while len(cw) < len(dir):
         copy_files_maybe(dir, DESTINATION_DIRECTORY)
         dir = parent(dir)
 
     if file and file != 'main.lua':
         print('rename', file, 'to main.lua')
-        main = os.path.join(DESTINATION_DIRECTORY, 'main.lua')
-        if os.path.exists(main):
-            os.remove(main)
         os.rename(os.path.join(DESTINATION_DIRECTORY, file), main)
 
