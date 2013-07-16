@@ -51,11 +51,27 @@ else:
 
     to_be_run = sys.argv[1]
 
-    dirpath, file = os.path.split(to_be_run)
+    if os.path.isdir(to_be_run):
+        # in case the trailing '/' is omitted, because path.split wouldn't behave as we want
+        dirpath = to_be_run
+        file = None
+    else:
+        dirpath, file = os.path.split(to_be_run)
+
+    # here, if file is not null, it will be renamed to 'main.lua'
+    # if it's null, we asume there's already a 'main.lua' in dirpath
+
     dir = os.path.abspath(dirpath)
 
     shutil.copytree(DESTINATION_DIRECTORY, DESTINATION_DIRECTORY_TMP)
     while len(cw) < len(dir):
         copy_files_maybe(dir, DESTINATION_DIRECTORY)
         dir = parent(dir)
+
+    if file and file != 'main.lua':
+        print('rename', file, 'to main.lua')
+        main = os.path.join(DESTINATION_DIRECTORY, 'main.lua')
+        if os.path.exists(main):
+            os.remove(main)
+        os.rename(os.path.join(DESTINATION_DIRECTORY, file), main)
 
