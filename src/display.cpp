@@ -402,6 +402,7 @@ void Display::draw_line(int x1, int y1, int x2, int y2)
 void Display::draw_surface(int xi1, int yi1, int xi2, int yi2, int xi3, int yi3, int xi4, int yi4,
 		int xo1, int yo1, int xo2, int yo2, int xo3, int yo3, int xo4, int yo4)
 {
+	assert(current_from);
 	DEBUG("");
 	float xxi1, xxi2, xxi3, xxi4;
 	float yyi1, yyi2, yyi3, yyi4;
