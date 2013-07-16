@@ -141,6 +141,15 @@ function draw_square(x, y, w, h)
 	draw_line(x+w, y, x+w, y+h)
 end
 
+local _load_surface = load_surface
+function load_surface(filename)
+	local surf = _load_surface(filename)
+	if not surf then
+		print('File', filename, 'not found')
+	end
+	return surf
+end
+
 function push_offset(_ox, _oy)
 	table.insert(offsets, {x=_ox, y=_oy})
 	ox = offsets[#offsets].x
@@ -191,10 +200,9 @@ void main()
 }
 ]]
 
-function display_logo(background)
+function display_logo(sprite, background)
 	background = background or {255, 255, 255}
 	local duration = 6000
-	local logo = load_surface('data/logo2.png')
 	local shader = new_shader(weird_shader_vertex)
 	if shader then
 		use_shader(shader)
@@ -203,26 +211,29 @@ function display_logo(background)
 	local _update = update
 	local _draw = draw
 
-	local w, h = surface_size(logo)
 	local wr, hr = surface_size(screen)
-	local ws = math.min(wr, w) - 50
-	local hs = math.min(hr, h) - 50
+	local ws = math.min(wr, sprite.w) - 50
+	local hs = math.min(hr, sprite.h) - 50
 
 	update = function(dt)
 		time = time + dt
 		if time > duration then
 			update = _update
 			draw = _draw
-			free_surface(logo)
 			if shader then
 				free_shader(shader)
 			end
 			set_alpha(255)
 		end
 	end
-	draw_from(logo)
+	local transform = {
+		angle=0,
+		wfactor=ws/sprite.w,
+		hfactor=hs/sprite.h,
+	}
 	draw = function()
 		if shader then feed_shader(shader, 'tick', time*0.1) end
+
 		set_alpha(255)
 		set_color(unpack(background))
 		draw_background()
@@ -230,7 +241,7 @@ function display_logo(background)
 		set_color(255, 255, 255)
 		local a = 255 - (math.cos(time*math.pi/(duration/2))/2+0.5)*255
 		set_alpha(a)
-		draw_image(0, 0, w, h, (wr-ws)/2, (hr-hs)/2, ws, hs)
+		draw_sprite(sprite, (wr-ws)/2, (hr-hs)/2, transform)
 
 		flip()
 	end
