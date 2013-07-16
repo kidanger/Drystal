@@ -1,6 +1,9 @@
 require 'data/drystal'
 require 'data/draw'
 
+local json = require 'data/dkjson'
+spritesheet = json.decode(io.open('data/image.json'):read('*all'))
+
 math.randomseed(os.time())
 
 width = width or 500
@@ -27,7 +30,7 @@ function Entity.new(type, static)
 	e.dx, e.dy = 0, 0
 	e.speedx, e.speedy = 0.25, 0.09
 	e.dead = 0
-	e.sprite = { x=0, y=type*32, w=32, h=32 }
+	e.sprite = spritesheet.frames[type == HUMAN and 'character.png' or 'block.png'].frame
 	e.type = type
 	e.static = static
 	e.jmp, e.jmp_timer = false, 0
@@ -471,7 +474,7 @@ function reload()
 		end
 		chunkmanager:reset()
 		player = make_human()
-		load_map('data/games/plateform/map')
+		load_map('data/map')
 		chunkmanager:add(player)
 
 		if pp then
@@ -490,6 +493,8 @@ function init()
 	if mscreen then free_surface(mscreen) end
 	mscreen = new_surface(surface_size(screen))
 	set_font('data/arial.ttf', 16)
+	atlas = load_surface('data/image.png')
+	draw_from(atlas)
 end
 
 function resize_event(w, h)

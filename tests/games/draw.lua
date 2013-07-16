@@ -4,6 +4,13 @@ DARK_GRAY = { 90, 90, 90 }
 GRAY = { 150, 150, 150 }
 WHITE = { 240, 240, 240 }
 
+function set_fill()
+	if not _noticed then
+		print('TODO: set_fill')
+		_noticed = true
+	end
+end
+
 function draw_frame(x, y, w, h, border_color, inside_color, border_size)
 	set_color(border_color)
 	draw_rect(x, y, w, h)

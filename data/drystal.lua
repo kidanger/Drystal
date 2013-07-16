@@ -161,6 +161,15 @@ function pop_offset()
 	oy = offsets[#offsets].y
 end
 
+local _set_color = set_color
+function set_color(r, g, b)
+	if g then
+		_set_color(r, g, b)
+	else
+		_set_color(unpack(r))
+	end
+end
+
 function rotate_surface(surf, a)
 end
 function resize_surface(surf, w, h)

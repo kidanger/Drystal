@@ -1,5 +1,8 @@
+require "data/drystal"
 require "data/draw"
-machine = machine or require "data/state"
+
+local json = require 'data/dkjson'
+spritesheet = json.decode(io.open('data/image.json'):read('*all'))
 
 draw_text = draw_text or function(text, x, y)
 	if text ~= nil and #text > 0 then
@@ -9,9 +12,6 @@ draw_text = draw_text or function(text, x, y)
 		free_surface(surf)
 	end
 end
-
-atlas = load_surface('data/image.png')
-draw_from(atlas)
 
 width = 800
 height = 600
@@ -125,7 +125,7 @@ powerup = powerup or {
 	x = 0,
 	y = 0,
 	visible = false,
-	sprite = { x=32, y=32, w=32, h=32 },
+	sprite = spritesheet.frames['bonus.png'].frame
 }
 
 function new_match()
@@ -154,9 +154,9 @@ end
 
 function init()
 	resize(width, height)
-	set_resizable(true)
 	show_cursor(false)
 
+	draw_from(load_surface('data/image.png'))
 	set_font('data/arial.ttf', 14)
 	if not state then
 		new_match()
@@ -171,13 +171,6 @@ end
 function setup_speeds()
 	ball_speed = 8 + 3*width/800
 	speed = 10 + 1*height/600
-end
-
-function resize_event(w, h)
-	width = w
-	height = h
-	reload_game()
-	resize(w, h)
 end
 
 function left_loose()
@@ -280,7 +273,6 @@ font_size = 1
 ticks = 0
 function draw()
 	ticks = ticks + 1
-	set_fill(fill)
 	set_color(GRAY)
 	set_alpha(255)
 	draw_background()
@@ -301,7 +293,6 @@ function draw()
 	bar.ratio = timer / match_duration
 	bar.draw()
 
-	set_fill(fill)
 	set_color(BLACK)
 	draw_rect(left.x, left.y, left.w, left.h)
 	draw_rect(right.x, right.y, right.w, right.h)
@@ -323,16 +314,13 @@ function draw()
 		local message = 'PRESS ENTER'
 		local sx, sy = text_size(message)
 		local x, y = (width - sx) / 2, (height - sy) / 2
-		set_round(font_size/5)
 		draw_frame(x, y, sx + 10, sy + 10, BLACK, DARK_GRAY, 3)
 		set_color({(math.cos(ticks/10)/2+0.5)*50 + 155, 50, 50})
 		draw_text(message, x+5, y+5)
-		set_round(0)
 	end
 
 	if state == 'end' then
 		set_font("data/arial.ttf", 16)
-		set_round(3)
 		---
 		local sx = width / 3
 		local sy = 16 * 3
@@ -350,7 +338,6 @@ function draw()
 		local x, y = (width - sx) / 2, y + sy + 2
 		draw_text(message, x+5, y+5)
 		---
-		set_round(0)
 	end
 
 	if in_message then
@@ -444,10 +431,6 @@ function key_press(key)
 	if key == 't' then
 		in_message = true
 		message = ''
-	end
-	if key == 'f' then
-		fill = not fill
-		set_fill(fill)
 	end
 	if key == 'r' then
 		--do_connect()
