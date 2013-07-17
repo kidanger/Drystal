@@ -39,7 +39,7 @@ ifneq ($(WEB),)
 	LD=$(EMCC) -v
 	EXT=.bc
 	EEXT=.bc
-	DIRCOMP=$(HOME)/dev/emscripten/third_party
+	DIRCOMP=/usr/lib/emscripten/third_party
 	LDFLAGS+=--preload-file data --minify 1 -s ASM_JS=1 -O2  --compression $(DIRCOMP)/lzma.js/lzma-native,$(DIRCOMP)/lzma.js/lzma-decoder.js,LZMA.decompress
 	EXEC=index.html
 	SDL_OPTIONS=

@@ -7,8 +7,8 @@ JS = '.js'
 DATA = '.data'
 COMPRESS = '.compress'
 
-PACKAGER = 'python2 /home/anger/dev/emtest/tools/file_packager.py'
-COMPRESSOR = '/home/anger/dev/emtest/third_party/lzma.js/lzma-native'
+PACKAGER = 'python2 /usr/lib/emscripten/tools/file_packager.py'
+COMPRESSOR = '/usr/lib/emscripten/third_party/lzma.js/lzma-native'
 
 START_TOKEN = "// {{PRE_RUN_ADDITIONS}}\n"
 END_TOKEN = "if (Module['preInit']) {\n"
