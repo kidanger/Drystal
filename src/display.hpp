@@ -62,12 +62,6 @@ struct Shader
 	GLuint frag;
 };
 
-struct Sprite
-{
-	int x, y;
-	int w, h;
-};
-
 class Display
 {
 	private:
