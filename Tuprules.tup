@@ -5,9 +5,6 @@ CFLAGS += -std=c++11
 
 LDFLAGS += @(LDFLAGS) @(SDL_OPTIONS) @(GL_OPTIONS) @(LUA_OPTIONS)
 
-CFLAGS += -g
-LDFLAGS += -g
-
 !cc = |> @(CC) $(CFLAGS) -c %f -o %o |> %B.o
 !ld = |> @(LD) $(LDFLAGS) %f -o @(TARGET) |> @(TARGET) @(OTHER_TARGETS)
 !ar = |> ar crs %o %f |>
