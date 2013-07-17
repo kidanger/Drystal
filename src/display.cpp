@@ -226,17 +226,21 @@ Surface* Display::surface_from_sdl(SDL_Surface* surf) const
 	{
 		DEBUG("convert");
 		// resize and convert
-		SDL_Surface* resized = SDL_CreateRGBSurface(SDL_HWSURFACE, w, h, 32,
-				surf->format->Rmask, surf->format->Gmask, surf->format->Bmask, surf->format->Amask);
-#ifdef EMSCRIPTEN
-		SDL_Surface* newSurface = resized;
+		int rmask, gmask, bmask, amask;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+		rmask = 0xff000000;
+		gmask = 0x00ff0000;
+		bmask = 0x0000ff00;
+		amask = 0x000000ff;
 #else
-		SDL_Surface* newSurface = SDL_DisplayFormatAlpha(resized);
-		SDL_FreeSurface(resized);
-		// fill and copy old surface into the new one
-		SDL_FillRect(newSurface, 0, 0);
+		rmask = 0x000000ff;
+		gmask = 0x0000ff00;
+		bmask = 0x00ff0000;
+		amask = 0xff000000;
 #endif
-
+		SDL_Surface* newSurface = SDL_CreateRGBSurface(SDL_HWSURFACE, w, h, 32,
+				rmask, gmask, bmask, amask);
+		SDL_SetAlpha(surf, 0, 0);
 		SDL_BlitSurface(surf, NULL, newSurface, NULL);
 
 		surf = newSurface;
@@ -263,6 +267,8 @@ Surface* Display::surface_from_sdl(SDL_Surface* surf) const
 	GLDEBUG();
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	// gen framebuffer object
 	GLuint fbo;
@@ -464,7 +470,7 @@ Surface* Display::text_surface(const char* text) const
 
 	SDL_Color color = { (uint8_t) (r*255), (uint8_t) (g*255), (uint8_t) (b*255), (uint8_t) (alpha*255) };
 
-	SDL_Surface *surf = TTF_RenderText_Solid(font, text, color);
+	SDL_Surface *surf = TTF_RenderText_Blended(font, text, color);
 	Surface* surface = surface_from_sdl(surf);
 	SDL_FreeSurface(surf);
 	return surface;
