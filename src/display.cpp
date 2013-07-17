@@ -134,6 +134,8 @@ void Display::resize(int w, int h)
 	glEnable(GL_BLEND);
 	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_DEPTH_TEST);
+
+	buffer.reallocate();
 	DEBUG("end");
 }
 

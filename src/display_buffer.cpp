@@ -18,10 +18,34 @@ Buffer::Buffer()
 	  current_color(0),
 	  current_texCoord(0)
 {
+	buffers[0] = 0;
+	buffers[1] = 0;
+	buffers[2] = 0;
+}
+
+void Buffer::reallocate()
+{
+	DEBUG("");
+	if (buffers[0] > 0)
+	{
+		glDeleteBuffers(3, buffers);
+		buffers[0] = 0;
+		buffers[1] = 0;
+		buffers[2] = 0;
+	}
+	glGenBuffers(3, buffers);
+	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
+	glVertexAttribPointer(ATTR_POSITION_INDEX, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+	glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
+	glVertexAttribPointer(ATTR_COLOR_INDEX, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+	glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
+	glVertexAttribPointer(ATTR_TEXCOORD_INDEX, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 Buffer::~Buffer()
 {
+	glDeleteBuffers(3, buffers);
 	delete positions;
 	delete colors;
 	delete texCoords;
@@ -88,26 +112,30 @@ void Buffer::flush()
 	GLint prog;
 	glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
 
-	glVertexAttribPointer(ATTR_POSITION_INDEX, 2, GL_FLOAT, GL_FALSE, 0, positions);
+	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
+	glBufferData(GL_ARRAY_BUFFER, used * 2 * sizeof(GLfloat), positions, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(ATTR_POSITION_INDEX);
 
-	glVertexAttribPointer(ATTR_COLOR_INDEX, 4, GL_FLOAT, GL_FALSE, 0, colors);
+	glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
+	glBufferData(GL_ARRAY_BUFFER, used * 4 * sizeof(GLfloat), colors, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(ATTR_COLOR_INDEX);
 
 	if (type == IMAGE_BUFFER) {
-		glVertexAttribPointer(ATTR_TEXCOORD_INDEX, 2, GL_FLOAT, GL_FALSE, 0, texCoords);
+		glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
+		glBufferData(GL_ARRAY_BUFFER, used * 2 * sizeof(GLfloat), texCoords, GL_DYNAMIC_DRAW);
 		glEnableVertexAttribArray(ATTR_TEXCOORD_INDEX);
 	}
+
 	glUniform1i(glGetUniformLocation(prog, "useTex"), type == IMAGE_BUFFER);
 
 	glDrawArrays(type == LINE_BUFFER ? GL_LINES : GL_TRIANGLES, 0, used);
-	GLDEBUG();
 
 	glDisableVertexAttribArray(ATTR_POSITION_INDEX);
 	glDisableVertexAttribArray(ATTR_COLOR_INDEX);
 	if (type == IMAGE_BUFFER) {
 		glDisableVertexAttribArray(ATTR_TEXCOORD_INDEX);
 	}
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	reset();
 }

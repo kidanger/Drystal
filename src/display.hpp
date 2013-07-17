@@ -32,6 +32,7 @@ class Buffer
 private:
 	BufferType type;
 
+	GLuint buffers[3]; // first is for positions, second for colors, and third (optional) for texcoords
 	GLfloat* positions;
 	GLfloat* colors;
 	GLfloat* texCoords; // only if IMAGE_BUFFER
@@ -53,6 +54,8 @@ public:
 
 	void assert_type(BufferType);
 	void assert_empty();
+
+	void reallocate();
 };
 
 struct Shader
