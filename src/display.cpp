@@ -585,8 +585,8 @@ void Display::feed_shader(Shader* shader, const char* name, float value)
 	glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
 
 	glUseProgram(shader->prog);
-	GLuint loc = glGetUniformLocation(shader->prog, name);
-	if (not glGetError())
+	GLint loc = glGetUniformLocation(shader->prog, name);
+	if (loc >= 0)
 		glUniform1f(loc, value);
 	else
 		printf("no location for %s\n", name);
