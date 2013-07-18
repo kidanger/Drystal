@@ -1,2 +1,2 @@
 include_rules
-: foreach *.cpp |> !cc |>
+: foreach *.cpp |> !cxx |>

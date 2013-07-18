@@ -2,9 +2,9 @@ CFLAGS += @(CFLAGS)
 CFLAGS += -Wall -Wextra
 CFLAGS += -O2
 CFLAGS += -std=c++11
+CFLAGS += -I../external -I../external/lua/src
 
-LDFLAGS += @(LDFLAGS) @(SDL_OPTIONS) @(GL_OPTIONS) @(LUA_OPTIONS)
+LDFLAGS += @(LDFLAGS)
 
-!cc = |> @(CC) $(CFLAGS) -c %f -o %o |> %B.o
+!cxx = |> @(CXX) $(CFLAGS) -c %f -o %o |> %B.o
 !ld = |> @(LD) $(LDFLAGS) %f -o @(TARGET) |> @(TARGET) @(OTHER_TARGETS)
-!ar = |> ar crs %o %f |>
