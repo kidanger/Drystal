@@ -102,8 +102,6 @@ void Display::resize(int w, int h)
 	Surface* old = screen;
 	size_x = w;
 	size_y = h;
-	if (screen)
-		SDL_FreeSurface(sdl_screen);
 	sdl_screen = SDL_SetVideoMode(size_x, size_y, 32,
 			SDL_OPENGL| (resizable ? SDL_VIDEORESIZE : 0));
 #ifndef EMSCRIPTEN
