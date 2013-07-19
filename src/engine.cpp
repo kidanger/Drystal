@@ -6,7 +6,7 @@
 #include "log.hpp"
 #include "engine.hpp"
 
-#define STATS
+#include "stats.hpp"
 
 #ifdef EMSCRIPTEN
 #include "emscripten.h"
@@ -19,6 +19,10 @@
 static Engine *engine;
 #endif
 
+#ifdef STATS
+Stats stats;
+#endif
+
 Engine::Engine(const char* filename, int target_fps) :
 	target_fps(target_fps),
 	run(true),
@@ -29,6 +33,9 @@ Engine::Engine(const char* filename, int target_fps) :
 {
 #ifdef EMSCRIPTEN
 	engine = this;
+#endif
+#ifdef STATS
+	stats.reset(get_now());
 #endif
 }
 
@@ -78,56 +85,8 @@ long unsigned Engine::get_now() const
 	return stTimeVal.tv_sec * 1000000ll + stTimeVal.tv_usec;
 }
 
-#ifdef STATS
-struct Stats
-{
-	long unsigned started_at;
-
-	long unsigned event;
-	long unsigned net;
-	long unsigned game;
-	long unsigned display;
-
-	long unsigned total_active;
-	long unsigned slept;
-	int ticks_passed;
-	double average_dt=-1;
-	long unsigned last;
-
-	Stats(long unsigned now) :
-		started_at(now),
-		event(0),
-		net(0),
-		game(0),
-		display(0),
-		total_active(0),
-		slept(0),
-		ticks_passed(0),
-		last(now)
-	{}
-
-	void report()
-	{
-		printf("Stats report, %d ticks\n", ticks_passed);
-		printf("Active/sleep time (ms) %lu/%lu ratio=%.5f\n", total_active, slept, (float)total_active/(slept+total_active));
-		printf(" dt=%.2f fps=%.2f\n", average_dt, 1000/average_dt);
-		printf(" event \t= %-10lu %.1f%%\n", event, 100.*event/total_active);
-		printf(" net \t= %-10lu %.1f%%\n", net, 100.*net/total_active);
-		printf(" game \t= %-10lu %.1f%%\n", game, 100.*game/total_active);
-		printf(" display= %-10lu %.1f%%\n", display, 100.*display/total_active);
-	}
-};
-#define AT(something) long unsigned at_##something = get_now();
-#else
-#define AT(something)
-#endif
-
 void Engine::update()
 {
-#ifdef STATS
-	static Stats stats(get_now());
-#endif
-
 	static int tick = 0;
 	AT(start)
 	event.poll();

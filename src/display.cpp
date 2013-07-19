@@ -53,7 +53,7 @@ void main()
 		if (texval.a == 0.0)
 			discard; // don't process transparent pixels
 		color.rgb = mix(texval.rgb, fColor.rgb, vec3(1.)-fColor.rgb);
-		color.a = fColor.a;
+		color.a = texval.a * fColor.a;
 	} else {
 		color = fColor;
 	}

@@ -1,5 +1,6 @@
 local _draw_from = draw_from
 local _draw_surface = draw_surface
+draw_freeshape = _draw_surface
 
 function _draw_rect(x, y, w, h)
 	draw_triangle(x, y, x, y+h, x+w, y)

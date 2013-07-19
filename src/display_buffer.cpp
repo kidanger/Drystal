@@ -5,6 +5,7 @@
 #endif
 
 #include "log.hpp"
+#include "stats.hpp"
 #include "display.hpp"
 
 // should be multiple of 2 (for GL_LINES) and of 3 (GL_TRIANGLES)
@@ -41,6 +42,8 @@ void Buffer::reallocate()
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
 	glVertexAttribPointer(ATTR_TEXCOORD_INDEX, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glEnableVertexAttribArray(ATTR_POSITION_INDEX);
+	glEnableVertexAttribArray(ATTR_COLOR_INDEX);
 }
 
 Buffer::~Buffer()
@@ -114,11 +117,9 @@ void Buffer::flush()
 
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
 	glBufferData(GL_ARRAY_BUFFER, used * 2 * sizeof(GLfloat), positions, GL_DYNAMIC_DRAW);
-	glEnableVertexAttribArray(ATTR_POSITION_INDEX);
 
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
 	glBufferData(GL_ARRAY_BUFFER, used * 4 * sizeof(GLfloat), colors, GL_DYNAMIC_DRAW);
-	glEnableVertexAttribArray(ATTR_COLOR_INDEX);
 
 	if (type == IMAGE_BUFFER) {
 		glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
@@ -126,16 +127,17 @@ void Buffer::flush()
 		glEnableVertexAttribArray(ATTR_TEXCOORD_INDEX);
 	}
 
-	glUniform1i(glGetUniformLocation(prog, "useTex"), type == IMAGE_BUFFER);
-
+	glUniform1i(glGetUniformLocation(prog, "useTex"), true);
 	glDrawArrays(type == LINE_BUFFER ? GL_LINES : GL_TRIANGLES, 0, used);
 
-	glDisableVertexAttribArray(ATTR_POSITION_INDEX);
-	glDisableVertexAttribArray(ATTR_COLOR_INDEX);
 	if (type == IMAGE_BUFFER) {
 		glDisableVertexAttribArray(ATTR_TEXCOORD_INDEX);
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+#ifdef STATS
+	stats.add_flush(used);
+#endif
 
 	reset();
 }
