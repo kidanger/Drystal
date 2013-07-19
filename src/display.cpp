@@ -362,18 +362,6 @@ void Display::surface_size(Surface* surface, int *w, int *h)
 /**
  * Primitive drawing
  */
-void Display::convert_coords(int x, int y, float *dx, float *dy)
-{
-	*dx = (2.0 * x / current->w) - 1;
-	*dy = (2.0 * y / current->h) - 1;
-	if (current == screen)
-		*dy *= -1.0;
-}
-void Display::convert_texcoords(int x, int y, float *dx, float *dy)
-{
-	*dx = (float) x / current_from->texw;
-	*dy = (float) y / current_from->texh;
-}
 
 void Display::draw_triangle(int x1, int y1, int x2, int y2, int x3, int y3)
 {

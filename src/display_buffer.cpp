@@ -127,7 +127,7 @@ void Buffer::flush()
 		glEnableVertexAttribArray(ATTR_TEXCOORD_INDEX);
 	}
 
-	glUniform1i(glGetUniformLocation(prog, "useTex"), true);
+	glUniform1i(glGetUniformLocation(prog, "useTex"), type == IMAGE_BUFFER);
 	glDrawArrays(type == LINE_BUFFER ? GL_LINES : GL_TRIANGLES, 0, used);
 
 	if (type == IMAGE_BUFFER) {

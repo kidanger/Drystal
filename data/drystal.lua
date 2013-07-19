@@ -43,19 +43,19 @@ function draw_sprite(sprite, x, y, transform)
 		draw_sprite_simple(sprite, x, y)
 		return
 	end
-	local cos = math.cos
-	local sin = math.sin
 
 	local w = sprite.w * transform.wfactor
 	local h = sprite.h * transform.hfactor
 	local angle = transform.angle
+	local cos = math.cos(angle)
+	local sin = math.sin(angle)
 
 	x = x + ox
 	y = y + oy
 
 	function rot(_x, _y)
-		return x + _x*cos(angle) - _y*sin(angle) + w/2,
-				y + _y*cos(angle) + _x*sin(angle) + h/2
+		return x + _x*cos - _y*sin + w/2,
+				y + _y*cos + _x*sin + h/2
 	end
 	local x1, y1 = rot(-w/2, -h/2)
 	local x2, y2 = rot(w/2, -h/2)

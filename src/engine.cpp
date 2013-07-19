@@ -104,7 +104,8 @@ void Engine::update()
 
 	lua.call_update(dt);
 	AT(game);
-	lua.call_draw();
+	if (tick % 2)
+		lua.call_draw();
 	AT(display);
 
 	tick += 1;

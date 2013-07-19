@@ -88,8 +88,16 @@ class Display
 		float b;
 		float alpha;
 
-		void convert_coords(int x, int y, float *dx, float *dy);
-		void convert_texcoords(int x, int y, float *dx, float *dy);
+		inline void convert_coords(int x, int y, float *dx, float *dy) {
+			*dx = (2.0 * x / current->w) - 1;
+			*dy = (2.0 * y / current->h) - 1;
+			if (current == screen)
+				*dy *= -1.0;
+		}
+		inline void convert_texcoords(int x, int y, float *dx, float *dy) {
+			*dx = (float) x / current_from->texw;
+			*dy = (float) y / current_from->texh;
+		}
 		Surface* surface_from_sdl(SDL_Surface* surf) const;
 
 		Shader* create_default_shader();
