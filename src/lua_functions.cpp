@@ -29,17 +29,17 @@ LuaFunctions::~LuaFunctions()
 bool LuaFunctions::load_code()
 {
 	if (luaL_dofile(L, filename)) {
-		luaL_error(L, "error running script: %s", lua_tostring(L, -1));
+		fprintf(stderr, "[ERROR] cannot run script: %s\n", lua_tostring(L, -1));
 		return false;
 	}
 
 	lua_getglobal(L, "init");
 	if (not lua_isfunction(L, -1)) {
 		lua_pop(L, 1);
-		printf("[ERROR] cannot find init function in `%s'\n", filename);
+		fprintf(stderr, "[ERROR] cannot find init function in `%s'\n", filename);
 		return false;
 	} else if (lua_pcall(L, 0, 0, 0)) {
-		luaL_error(L, "error calling init: %s", lua_tostring(L, -1));
+		fprintf(stderr, "[ERROR] cannot call init: %s\n", lua_tostring(L, -1));
 		return false;
 	}
 #ifndef EMSCRIPTEN
@@ -54,7 +54,7 @@ bool LuaFunctions::reload_code()
 #ifndef EMSCRIPTEN
 	time_t last = last_modified(filename);
 	if (last == 0) {
-		printf("[ERROR] file `%s' does not exist", filename);
+		fprintf(stderr, "[ERROR] file `%s' does not exist\n", filename);
 		return false;
 	}
 	if (last_load < last) {

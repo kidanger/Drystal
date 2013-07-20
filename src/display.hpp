@@ -87,6 +87,7 @@ class Display
 		float g;
 		float b;
 		float alpha;
+		bool available;
 
 		inline void convert_coords(int x, int y, float *dx, float *dy) {
 			*dx = (2.0 * x / current->w) - 1;
@@ -136,6 +137,7 @@ class Display
 		void free_shader(Shader*);
 
 		void flip();
+		bool is_available() const;
 };
 
 #endif

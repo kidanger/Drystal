@@ -49,6 +49,12 @@ Engine::~Engine()
 
 void Engine::loop()
 {
+	if (!display.is_available())
+	{
+		fprintf(stderr, "[ERROR] cannot run the engine, display isn't available\n");
+		return;
+	}
+
 	bool successful_load = lua.load_code();
 #ifdef EMSCRIPTEN
 	if (successful_load)

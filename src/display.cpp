@@ -69,16 +69,36 @@ Display::Display()
 	  current(NULL),
 	  current_from(NULL),
 	  font(NULL),
-	  r(1),g(1),b(1),alpha(1)
+	  r(1),
+	  g(1),
+	  b(1),
+	  alpha(1),
+	  available(false)
 
 {
-	DEBUG("");
-	int err = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-	err |= TTF_Init();
-	assert(not err);
-
 	for (size_t i = 0; i < sizeof(fonts)/sizeof(fonts[0]); i++)
 		fonts[i] = NULL;
+	int err = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+	if (err)
+	{
+		available = false;
+		fprintf(stderr, "[ERROR] cannot initialize SDL\n");
+		return;
+	}
+	err = TTF_Init();
+	if (err)
+	{
+		available = false;
+		fprintf(stderr, "[ERROR] cannot initialize SDL TTF\n");
+		return;
+	}
+
+	available = true;
+}
+
+bool Display::is_available() const
+{
+	return available;
 }
 
 /**
