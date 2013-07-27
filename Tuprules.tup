@@ -1,10 +1,15 @@
-CFLAGS += @(CFLAGS)
-CFLAGS += -Wall -Wextra
-CFLAGS += -O2
-CFLAGS += -std=c++11
-CFLAGS += -I../external -I../external/lua/src
+CFLAGS+=@(CFLAGS)
+CFLAGS+=-Wall -Wextra
+CFLAGS+=-O2
+CFLAGS+=-std=c++11
+CFLAGS+=-I../external -I../external/lua/src
 
-LDFLAGS += @(LDFLAGS)
+LDFLAGS=@(LDFLAGS)
+
+LDFLAGS_DRYSTAL=@(LDFLAGS_DRYSTAL)
+LDFLAGS_DRYSTAL+=-L external -llua-drystal 
 
 !cxx = |> @(CXX) $(CFLAGS) -c %f -o %o |> %B.o
-!ld = |> @(LD) $(LDFLAGS) %f -o @(TARGET) |> @(TARGET) @(OTHER_TARGETS)
+
+!ld_drystal = |> @(LD) $(LDFLAGS) $(LDFLAGS_DRYSTAL) %f -Lexternal -llua-drystal -o @(TARGET) |> @(TARGET) @(OTHER_TARGETS)
+!ld_shared = |> @(LD) $(LDFLAGS) -shared %f -o %o |>

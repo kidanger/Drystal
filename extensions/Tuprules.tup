@@ -1,0 +1,6 @@
+CFLAGS_EXT+=@(CFLAGS)
+CFLAGS_EXT+=-O2
+CFLAGS_EXT+=-fPIC
+CFLAGS_EXT+=-I../../external -I../../external/lua/src
+
+!cxx = |> @(CXX) $(CFLAGS_EXT) -c %f -o %o |> %B.o

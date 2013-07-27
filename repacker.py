@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# coding: utf-8
+
 INPUT = 'index_nodata'
 OUTPUT = 'index'
 DATADIR = 'data'

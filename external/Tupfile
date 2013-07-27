@@ -1,3 +1,5 @@
+include_rules
+
 CORE_C= lua/src/lapi.c \
         lua/src/lcode.c \
         lua/src/lctype.c \
@@ -17,9 +19,8 @@ CORE_C= lua/src/lapi.c \
         lua/src/ltm.c \
         lua/src/lundump.c \
         lua/src/lvm.c \
-        lua/src/lzio.c \
-\
-        lua/src/lauxlib.c \
+        lua/src/lzio.c
+LIB_C=  lua/src/lauxlib.c \
         lua/src/lbaselib.c \
         lua/src/lbitlib.c \
         lua/src/lcorolib.c \
@@ -32,7 +33,8 @@ CORE_C= lua/src/lapi.c \
         lua/src/loadlib.c \
         lua/src/linit.c
 
-CFLAGS=-O2 -Wall -DLUA_COMPAT_ALL -fPIC -I.
+DEFINES=-DLUA_COMPAT_ALL -DLUA_USE_DLOPEN
+CFLAGS=-O2 -Wall $(DEFINES) -fPIC -I.
 
-: foreach $(CORE_C) |> @(CC) -c %f -o %o $(CFLAGS) |> %B.o
-: *.o |> @(AR) %o %f |> liblua.so ../<lua>
+: foreach $(CORE_C) $(LIB_C) |> @(CC) -c %f -o %o $(CFLAGS) |> %B.o
+: *.o |> !ld_shared |> liblua-drystal.so ../<lua>

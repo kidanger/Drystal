@@ -524,6 +524,7 @@ static int mlua_set_music_volume(lua_State *L)
 	engine->audio.set_music_volume(volume);
 	return 0;
 }
+
 //
 // Lua load
 //

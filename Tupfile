@@ -1,6 +1,6 @@
 include_rules
 
-: src/*.o external/liblua.so | ../external/<lua> |> !ld |>
+: src/*.o | external/liblua-drystal.so ../external/<lua> |> !ld_drystal |>
 
 ifdef REPACK
 : index_nodata.html index_nodata.js |> python repacker.py |> index.data index.data.compress index.js index.html index.js.compress preload.js
