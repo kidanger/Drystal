@@ -257,3 +257,39 @@ function display_logo(sprite, background)
 	end
 end
 
+
+local _wget = wget
+local wget_requests = {}
+function wget(url, file, onload, onerror)
+	if not _wget(url, file) then
+		return
+	end
+	if not onload or not onerror then
+		print('invalid argument', onload, onerror)
+	end
+	wget_requests[#wget_requests + 1] = {
+		file=file,
+		onload=onload,
+		onerror=onerror,
+	}
+end
+
+function on_wget_success(file)
+	for i, r in ipairs(wget_requests) do
+		if r.file == file then
+			r.onload(file)
+			table.remove(wget_requests, i)
+			break
+		end
+	end
+end
+function on_wget_error(file)
+	for i, r in ipairs(wget_requests) do
+		if r.file == file then
+			r.onerror(file)
+			table.remove(wget_requests, i)
+			break
+		end
+	end
+end
+

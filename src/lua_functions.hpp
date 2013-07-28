@@ -31,6 +31,9 @@ class LuaFunctions
 		void call_connected() const;
 		void call_disconnected() const;
 
+		void call_on_wget_success(const char * filename);
+		void call_on_wget_error(const char * filename);
+
 	private:
 		lua_State* L;
 		const char* filename;

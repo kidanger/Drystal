@@ -4,6 +4,10 @@
 #include "file.hpp"
 #endif
 
+#ifdef EMSCRIPTEN
+#include <emscripten.h>
+#endif
+
 #include "engine.hpp"
 
 // used to access some engine's fields from lua callbacks
@@ -525,6 +529,56 @@ static int mlua_set_music_volume(lua_State *L)
 	return 0;
 }
 
+#ifdef EMSCRIPTEN
+static void onsuccess(const char* filename)
+{
+	engine->lua.call_on_wget_success(filename);
+}
+void LuaFunctions::call_on_wget_success(const char * filename)
+{
+	lua_getglobal(L, "on_wget_success");
+	if (not lua_isfunction(L, -1)) {
+		lua_pop(L, 1);
+		return;
+	}
+	lua_pushstring(L, filename);
+	if (lua_pcall(L, 1, 0, 0)) {
+		luaL_error(L, "error calling on_wget_success: %s", lua_tostring(L, -1));
+	}
+}
+static void onerror(const char* filename)
+{
+	engine->lua.call_on_wget_error(filename);
+}
+void LuaFunctions::call_on_wget_error(const char * filename)
+{
+	lua_getglobal(L, "on_wget_error");
+	if (not lua_isfunction(L, -1)) {
+		lua_pop(L, 1);
+		return;
+	}
+	lua_pushstring(L, filename);
+	if (lua_pcall(L, 1, 0, 0)) {
+		luaL_error(L, "error calling on_wget_error: %s", lua_tostring(L, -1));
+	}
+}
+static int mlua_wget(lua_State *L)
+{
+	const char *url = lua_tostring(L, 1);
+	const char *filename = lua_tostring(L, 2);
+	emscripten_async_wget(url, filename, onsuccess, onerror);
+	lua_pushboolean(L, true);
+	return 1;
+}
+
+#else
+static int mlua_wget(lua_State *L)
+{
+	lua_pushboolean(L, false);
+	return 1;
+}
+#endif
+
 //
 // Lua load
 //
@@ -576,5 +630,7 @@ void LuaFunctions::send_globals() const
 	lua_register(L, "free_sound", mlua_free_sound);
 	lua_register(L, "set_sound_volume", mlua_set_sound_volume);
 	lua_register(L, "set_music_volume", mlua_set_music_volume);
+
+	lua_register(L, "wget", mlua_wget);
 }
 
