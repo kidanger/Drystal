@@ -26,17 +26,22 @@ BROWSERS = 'chromium', 'firefox'
 def parent(dir):
     return os.path.abspath(os.path.join(dir, os.pardir))
 
-def copy_files_maybe(from_directory):
+def copy_files_maybe(from_directory, get_subdir=False):
     print('- processing', from_directory)
     already_in = os.listdir(DESTINATION_DIRECTORY)
     for f in os.listdir(from_directory):
-        fullpath = os.path.join(from_directory, f)
-        if os.path.isfile(fullpath):
-            if f not in already_in:
+        if f in ('.', '..'):
+            continue
+        if f not in already_in:
+            fullpath = os.path.join(from_directory, f)
+            if os.path.isfile(fullpath):
                 print('    copying\t', f)
                 shutil.copy(fullpath, DESTINATION_DIRECTORY)
-            else:
-                print('    ignoring\t', f)
+            if os.path.isdir(fullpath) and get_subdir:
+                print('    copying dir\t', f)
+                shutil.copytree(fullpath, os.path.join(DESTINATION_DIRECTORY, f))
+        else:
+            print('    ignoring\t', f)
 
 def copy_extensions(from_dir, ext_list, mainfilename):
     for extension in ext_list:
@@ -101,9 +106,11 @@ else:
     if os.path.exists(main):
         os.remove(main)
 
+    first = True
     while len(cw) < len(dir):
-        copy_files_maybe(dir)
+        copy_files_maybe(dir, get_subdir=first)
         dir = parent(dir)
+        first = False
 
     if file and file != 'main.lua':
         print('rename', file, 'to main.lua')
@@ -119,7 +126,7 @@ else:
         os.system('./build-native/drystal')
     elif run_arg == 'web':
         # TODO extensions (wait for emscripten to support it)
-        # TODO repack
+        os.system('tup upd') # TODO: use repacker directly
         from http.server import HTTPServer, SimpleHTTPRequestHandler
         addr, port = '127.0.0.1', 8000
         httpd = HTTPServer((addr, port), SimpleHTTPRequestHandler)
