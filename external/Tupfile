@@ -30,11 +30,14 @@ LIB_C=  lua/src/lauxlib.c \
         lua/src/loslib.c \
         lua/src/lstrlib.c \
         lua/src/ltablib.c \
-        lua/src/loadlib.c \
+        loadlib_patched.c \
         lua/src/linit.c
 
 DEFINES=-DLUA_COMPAT_ALL -DLUA_USE_DLOPEN
-CFLAGS=-O2 -Wall $(DEFINES) -fPIC -I.
+CFLAGS=-O2 -Wall $(DEFINES) -fPIC -I. -Ilua/src
+
+# patch lua's dlopen usage
+: lua/src/loadlib.c |> patch %f dlopen_emscripten.patch -o %o |> loadlib_patched.c
 
 : foreach $(CORE_C) $(LIB_C) |> @(CC) -c %f -o %o $(CFLAGS) |> %B.o
 : *.o |> !ld_shared |> liblua-drystal.so ../<lua>
