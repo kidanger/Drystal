@@ -10,8 +10,10 @@ Audio::Audio()
 {
 	int init_flags = MIX_INIT_FLAC | MIX_INIT_MOD | MIX_INIT_MP3 | MIX_INIT_OGG;
 	int ret = Mix_Init(init_flags);
+#ifndef EMSCRIPTEN
 	if ((init_flags & ret) != init_flags)
 		std::cerr << "[ERROR] cannot init audio: " << Mix_GetError() << std::endl;
+#endif
 
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) == -1)
 		std::cerr << "[ERROR] cannot open audio: " << Mix_GetError() << std::endl;

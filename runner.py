@@ -30,7 +30,7 @@ def copy_files_maybe(from_directory, get_subdir=False):
     print('- processing', from_directory)
     already_in = os.listdir(DESTINATION_DIRECTORY)
     for f in os.listdir(from_directory):
-        if f in ('.', '..'):
+        if f in ('.', '..') or f.startswith('.'):
             continue
         if f not in already_in:
             fullpath = os.path.join(from_directory, f)
@@ -117,10 +117,10 @@ else:
         os.rename(os.path.join(DESTINATION_DIRECTORY, file), main)
 
     if run_arg == 'native':
-        copy_extensions(EXTENSIONS_DIRECTORY_NATIVE,
-                        [f for f in os.listdir(EXTENSIONS_DIRECTORY)
-                           if os.path.isdir(os.path.join(EXTENSIONS_DIRECTORY, f))],
-                        EXTENSIONS_NATIVE)
+#        copy_extensions(EXTENSIONS_DIRECTORY_NATIVE,
+#                        [f for f in os.listdir(EXTENSIONS_DIRECTORY)
+#                           if os.path.isdir(os.path.join(EXTENSIONS_DIRECTORY, f))],
+#                        EXTENSIONS_NATIVE)
 
         os.environ['LD_LIBRARY_PATH'] = LIB_PATH
         os.system('./build-native/drystal')
