@@ -107,8 +107,9 @@ else:
         os.remove(main)
 
     first = True
-    while len(cw) < len(dir):
-        copy_files_maybe(dir, get_subdir=first)
+    while cw != dir:
+        last = parent(dir) == cw
+        copy_files_maybe(dir, get_subdir=first and not last)
         dir = parent(dir)
         first = False
 
@@ -117,10 +118,10 @@ else:
         os.rename(os.path.join(DESTINATION_DIRECTORY, file), main)
 
     if run_arg == 'native':
-#        copy_extensions(EXTENSIONS_DIRECTORY_NATIVE,
-#                        [f for f in os.listdir(EXTENSIONS_DIRECTORY)
-#                           if os.path.isdir(os.path.join(EXTENSIONS_DIRECTORY, f))],
-#                        EXTENSIONS_NATIVE)
+        copy_extensions(EXTENSIONS_DIRECTORY_NATIVE,
+                        [f for f in os.listdir(EXTENSIONS_DIRECTORY)
+                           if os.path.isdir(os.path.join(EXTENSIONS_DIRECTORY, f))],
+                        EXTENSIONS_NATIVE)
 
         os.environ['LD_LIBRARY_PATH'] = LIB_PATH
         os.system('./build-native/drystal')
