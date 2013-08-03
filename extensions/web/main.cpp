@@ -12,11 +12,6 @@ int is_web(lua_State* L)
 	return 1;
 }
 
-int wget(lua_State* L)
-{
-	return 0;
-}
-
 int run_js(lua_State* L)
 {
 	return 0;
@@ -25,7 +20,6 @@ int run_js(lua_State* L)
 static const luaL_Reg lib[] =
 {
 	{"is_web", is_web},
-	{"wget", wget},
 	{"run_js", run_js},
 	{NULL, NULL}
 };
