@@ -10,6 +10,7 @@
 
 unsigned char file_content[1<<20];
 unsigned char pixels[512*512];
+unsigned char pixels_colored[512*512*4];
 
 struct Font {
 	Surface* surface;
@@ -45,9 +46,14 @@ Font* load_font(const char* filename, float size, int first_char=32, int num_cha
 
 	stbtt_BakeFontBitmap(file_content, 0, size, pixels, surf->w, surf->h,
 						first_char, num_chars, font->char_data);
-	// TODO: fixme
+
+	memset(pixels_colored, 0xff, 512*512*4);
+	for (int i = 0; i < 512*512; i++) {
+		pixels_colored[i*4+3] = pixels[i];
+	}
+	// FIXME: don't overwrite texture, let display.cpp do this
 	glBindTexture(GL_TEXTURE_2D, surf->tex);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, surf->w, surf->h, 0, GL_ALPHA, GL_UNSIGNED_BYTE, pixels);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, surf->w, surf->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels_colored);
 	GLDEBUG();
 
 	return font;
