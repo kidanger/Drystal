@@ -1,12 +1,13 @@
 #pragma once
-#include <SDL/SDL_opengl.h>
 
 #ifndef EMSCRIPTEN
 //#define DODEBUG
 #endif
 
 #ifdef DODEBUG
+#include <SDL/SDL_opengl.h>
 #include <cstdio>
+
 #define DEBUG(fmt)\
 	do { fprintf(stderr, "%10.10s:%d\t%s()\t" fmt "\n", __FILE__, \
 			__LINE__, __func__); } while (0)

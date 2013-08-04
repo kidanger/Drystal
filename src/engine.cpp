@@ -14,10 +14,9 @@
 #include "file.hpp"
 #endif
 
-#ifdef EMSCRIPTEN
 // needed to call engine->update from emscripten library
+// and for extensions (get_engine)
 static Engine *engine;
-#endif
 
 #ifdef STATS
 Stats stats;
@@ -31,9 +30,7 @@ Engine::Engine(const char* filename, int target_fps) :
 	net(*this),
 	lua(*this, filename)
 {
-#ifdef EMSCRIPTEN
 	engine = this;
-#endif
 #ifdef STATS
 	stats.reset(get_now());
 #endif
@@ -189,5 +186,10 @@ void Engine::stop()
 #ifdef EMSCRIPTEN
 	emscripten_cancel_main_loop();
 #endif
+}
+
+Engine &get_engine()
+{
+	return *engine;
 }
 

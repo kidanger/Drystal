@@ -48,4 +48,8 @@ class Engine
 		void stop();
 };
 
+#ifdef DRYSTAL_EXTENSION
+Engine &get_engine();
+#endif
+
 #endif
