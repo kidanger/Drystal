@@ -22,8 +22,9 @@ function draw()
 	tt.draw('abcdefghijklmopqrstuvwxyz', (512 - w) / 2, 100)
 
 	tt.use(font_big)
-	local w, h = tt.sizeof('abcdefghijklmopqrstuvwxyz')
-	tt.draw('abcdefghijklmopqrstuvwxyz', (512 - w) / 2, (512-h)/2)
+	local text = 'abd {r0|b150|bla} {small|test} {big|50%|defghi}'
+	local w, h = tt.sizeof(text)
+	tt.draw_color(text, (512 - w) / 2, (512-h)/2)
 
 	flip()
 end

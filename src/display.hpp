@@ -114,6 +114,9 @@ class Display
 		void set_alpha(uint8_t a);
 		void set_font(const char*, int size);
 
+		void get_color(int *r, int *g, int *b) { *r = this->r*255; *g = this->g*255; *b = this->b*255; };
+		void get_alpha(uint8_t *a) { *a = this->alpha*255; };
+
 		Surface* get_screen() const;
 		Surface* new_surface(uint32_t, uint32_t) const;
 		Surface* load_surface(const char *) const;

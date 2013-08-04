@@ -59,6 +59,22 @@ Font* load_font(const char* filename, float size, int first_char=32, int num_cha
 	return font;
 }
 
+static inline void draw_quad(Engine& engine, const stbtt_aligned_quad& q)
+{
+	engine.display.draw_surface(
+			// texture coordinates
+			q.s0, q.t0,
+			q.s1, q.t0,
+			q.s1, q.t1,
+			q.s0, q.t1,
+			// screen coordinates
+			q.x0, q.y0,
+			q.x1, q.y0,
+			q.x1, q.y1,
+			q.x0, q.y1
+	);
+}
+
 void draw_text(const unsigned char* text, float x, float y)
 {
 	assert(current_font);
@@ -72,20 +88,80 @@ void draw_text(const unsigned char* text, float x, float y)
 		if (*text >= start && *text < end) {
 			stbtt_aligned_quad q;
 			stbtt_GetBakedQuad(current_font->char_data, *text - start, &x, &y, &q);
-			engine.display.draw_surface(
-					// texture coordinates
-					q.s0, q.t0,
-					q.s1, q.t0,
-					q.s1, q.t1,
-					q.s0, q.t1,
-					// screen coordinates
-					q.x0, q.y0,
-					q.x1, q.y0,
-					q.x1, q.y1,
-					q.x0, q.y1
-			);
+			draw_quad(engine, q);
 		}
 		++text;
+	}
+}
+
+void draw_text_color(const unsigned char* text, float x, float y)
+{
+	assert(current_font);
+	int start = current_font->first_char;
+	int end = start + current_font->num_chars;
+	y += current_font->size;
+
+	Engine& engine = get_engine();
+	engine.display.draw_from(current_font->surface);
+	while (*text) {
+		float size = 1.0;
+		int r, g, b;
+		unsigned char alpha;
+		engine.display.get_color(&r, &g, &b);
+		engine.display.get_alpha(&alpha);
+		int oldr = r, oldg = g, oldb = b;
+		unsigned char oldalpha = alpha;
+		if (*text == '{') {
+			text++;
+token:
+			const unsigned char * start_text = text;
+			while (*text != '|' and *text != '}') {
+				text++;
+			}
+			if (*text == '|') {
+				if (*(text - 1) == '%')
+					alpha = atoi((const char*) start_text) / 100. * 255;
+				else if (*start_text == 'r')
+					r = atoi((const char*) start_text + 1);
+				else if (*start_text == 'g')
+					g = atoi((const char*) start_text + 1);
+				else if (*start_text == 'b' and *(start_text+1) != 'i') // ignore 'big'
+					b = atoi((const char*) start_text + 1);
+				else if (!strncmp((const char*) start_text, (const char*) "big", text - start_text))
+					size = 1.2;
+				else if (!strncmp((const char*) start_text, (const char*) "small", text - start_text))
+					size = 0.8;
+				else if (!strncmp((const char*) start_text, (const char*) "tiny", text - start_text))
+					size = 0.6;
+				else {
+					printf("truetype.draw_color: unknown command %.*s\n", (int)(text - start_text), start_text);
+				}
+				text++;
+				goto token;
+			} else {
+				// end of command, start_text -> text is the text to render
+				engine.display.set_color(r, g, b);
+				engine.display.set_alpha(alpha);
+				int i = 0;
+				while (start_text + i < text) {
+					unsigned char chr = *(start_text + i);
+					if (chr >= start && chr < end) {
+						stbtt_aligned_quad q;
+						stbtt_GetBakedQuad(current_font->char_data, chr - start, &x, &y, &q, size);
+						draw_quad(engine, q);
+					}
+					i++;
+				}
+				engine.display.set_color(oldr, oldg, oldb);
+				engine.display.set_alpha(oldalpha);
+			}
+		}
+		else if (*text >= start && *text < end) {
+			stbtt_aligned_quad q;
+			stbtt_GetBakedQuad(current_font->char_data, *text - start, &x, &y, &q);
+			draw_quad(engine, q);
+		}
+		text++;
 	}
 }
 
@@ -96,7 +172,10 @@ void text_size(const unsigned char* text, int* w, int* h)
 	int start = current_font->first_char;
 	int end = start + current_font->num_chars;
 	while (*text) {
-		if (*text >= start && *text < end) {
+		if (*text == '{') {
+			while (*text and *text != '}')
+				text++;
+		} else if (*text >= start && *text < end) {
 			stbtt_aligned_quad q;
 			stbtt_GetBakedQuad(current_font->char_data, *text - start, &x, &y, &q);
 		}
@@ -127,6 +206,14 @@ int draw_text_wrap(lua_State* L)
 	lua_Number x = lua_tonumber(L, 2);
 	lua_Number y = lua_tonumber(L, 3);
 	draw_text((const unsigned char*)text, x, y);
+	return 0;
+}
+int draw_text_color_wrap(lua_State* L)
+{
+	const char* text = lua_tostring(L, 1);
+	lua_Number x = lua_tonumber(L, 2);
+	lua_Number y = lua_tonumber(L, 3);
+	draw_text_color((const unsigned char*)text, x, y);
 	return 0;
 }
 
@@ -169,6 +256,7 @@ int free_font_wrap(lua_State* L)
 static const luaL_Reg lib[] =
 {
 	{"draw", draw_text_wrap},
+	{"draw_color", draw_text_color_wrap},
 	{"load", load_font_wrap},
 	{"use", use_font_wrap},
 	{"sizeof", text_size_wrap},

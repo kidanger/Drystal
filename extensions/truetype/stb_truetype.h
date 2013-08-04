@@ -433,7 +433,7 @@ typedef struct
 extern void stbtt_GetBakedQuad(stbtt_bakedchar *chardata,
                                int char_index,             // character to display
                                float *xpos, float *ypos,   // pointers to current position in screen pixel space
-                               stbtt_aligned_quad *q);
+                               stbtt_aligned_quad *q, float factor=1.0);
 // Call GetBakedQuad with char_index = 'character - first_char', and it
 // creates the quad you need to draw and advances the current position.
 //
@@ -1350,6 +1350,7 @@ float stbtt_ScaleForMappingEmToPixels(const stbtt_fontinfo *info, float pixels)
 
 void stbtt_FreeShape(const stbtt_fontinfo *info, stbtt_vertex *v)
 {
+   (void)info;
    STBTT_free(v, info->userdata);
 }
 
@@ -1403,6 +1404,7 @@ typedef struct stbtt__active_edge
 
 static stbtt__active_edge *new_active(stbtt__edge *e, int off_x, float start_point, void *userdata)
 {
+   (void)userdata;
    stbtt__active_edge *z = (stbtt__active_edge *) STBTT_malloc(sizeof(*z), userdata); // @TODO: make a pool of these!!!
    float dxdy = (e->x1 - e->x0) / (e->y1 - e->y0);
    STBTT_assert(e->y0 <= start_point);
@@ -1662,6 +1664,7 @@ static int stbtt__tesselate_curve(stbtt__point *points, int *num_points, float x
 // returns number of contours
 stbtt__point *stbtt_FlattenCurves(stbtt_vertex *vertices, int num_verts, float objspace_flatness, int **contour_lengths, int *num_contours, void *userdata)
 {
+   (void)userdata;
    stbtt__point *points=0;
    int num_points=0;
 
@@ -1743,6 +1746,7 @@ void stbtt_Rasterize(stbtt__bitmap *result, float flatness_in_pixels, stbtt_vert
 
 void stbtt_FreeBitmap(unsigned char *bitmap, void *userdata)
 {
+   (void)userdata;
    STBTT_free(bitmap, userdata);
 }
 
@@ -1882,23 +1886,23 @@ extern int stbtt_BakeFontBitmap(const unsigned char *data, int offset,  // font 
    return bottom_y;
 }
 
-void stbtt_GetBakedQuad(stbtt_bakedchar *chardata, int char_index, float *xpos, float *ypos, stbtt_aligned_quad *q)
+void stbtt_GetBakedQuad(stbtt_bakedchar *chardata, int char_index, float *xpos, float *ypos, stbtt_aligned_quad *q, float factor)
 {
    stbtt_bakedchar *b = chardata + char_index;
-   int round_x = STBTT_ifloor((*xpos + b->xoff) + 0.5);
-   int round_y = STBTT_ifloor((*ypos + b->yoff) + 0.5);
+   int round_x = STBTT_ifloor((*xpos + b->xoff*factor) + 0.5);
+   int round_y = STBTT_ifloor((*ypos + b->yoff*factor) + 0.5);
 
    q->x0 = round_x;
    q->y0 = round_y;
-   q->x1 = round_x + b->x1 - b->x0;
-   q->y1 = round_y + b->y1 - b->y0;
+   q->x1 = round_x + (b->x1 - b->x0) * factor;
+   q->y1 = round_y + (b->y1 - b->y0) * factor;
 
    q->s0 = b->x0;
    q->t0 = b->y0;
    q->s1 = b->x1;
    q->t1 = b->y1;
 
-   *xpos += b->xadvance;
+   *xpos += b->xadvance * factor;
 }
 
 //////////////////////////////////////////////////////////////////////////////
