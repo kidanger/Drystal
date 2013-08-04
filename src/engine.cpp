@@ -93,6 +93,11 @@ void Engine::update()
 	static int tick = 0;
 	AT(start)
 	event.poll();
+
+	// check if an event provocked a stop
+	if (not run)
+		return;
+
 	AT(event)
 	net.poll();
 	AT(net)
