@@ -13,6 +13,7 @@ unsigned char pixels[512*512];
 
 struct Font {
 	Surface* surface;
+	float size;
 	int first_char;
 	int num_chars;
 	stbtt_bakedchar* char_data;
@@ -37,6 +38,7 @@ Font* load_font(const char* filename, float size, int first_char=32, int num_cha
 	font->first_char = first_char;
 	font->num_chars = num_chars;
 	font->char_data = new stbtt_bakedchar[num_chars];
+	font->size = size;
 
 	assert(fread(file_content, 1, 1<<20, file));
 	fclose(file);
@@ -56,6 +58,7 @@ void draw_text(const unsigned char* text, float x, float y)
 	assert(current_font);
 	int start = current_font->first_char;
 	int end = start + current_font->num_chars;
+	y += current_font->size;
 
 	Engine& engine = get_engine();
 	engine.display.draw_from(current_font->surface);
