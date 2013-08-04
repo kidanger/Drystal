@@ -1,0 +1,150 @@
+#define LUA_API extern
+
+#include <lua.hpp>
+#include <SDL/SDL_opengl.h>
+
+#define STB_TRUETYPE_IMPLEMENTATION
+#include "stb_truetype.h"
+
+#include "engine.hpp"
+
+unsigned char file_content[1<<20];
+unsigned char pixels[512*512];
+
+struct Font {
+	Surface* surface;
+	int first_char;
+	int num_chars;
+	stbtt_bakedchar* char_data;
+};
+
+static Font* current_font;
+
+Font* load_font(const char* filename, float size, int first_char=32, int num_chars=96)
+{
+	Engine& engine = get_engine();
+
+	FILE* file = fopen(filename, "rb");
+	if (not file)
+		return nullptr;
+
+	// TODO: compute texture size
+	Surface* surf = engine.display.new_surface(512, 512);
+
+	Font* font = new Font;
+	font->surface = surf;
+
+	font->first_char = first_char;
+	font->num_chars = num_chars;
+	font->char_data = new stbtt_bakedchar[num_chars];
+
+	assert(fread(file_content, 1, 1<<20, file));
+	fclose(file);
+
+	stbtt_BakeFontBitmap(file_content, 0, size, pixels, surf->w, surf->h,
+						first_char, num_chars, font->char_data);
+	// TODO: fixme
+	glBindTexture(GL_TEXTURE_2D, surf->tex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, surf->w, surf->h, 0, GL_ALPHA, GL_UNSIGNED_BYTE, pixels);
+	GLDEBUG();
+
+	return font;
+}
+
+void draw_text(const unsigned char* text, float x, float y)
+{
+	assert(current_font);
+
+	Engine& engine = get_engine();
+	engine.display.draw_from(current_font->surface);
+	while (*text) {
+		if (*text >= 32 && *text < 128) {
+			stbtt_aligned_quad q;
+			stbtt_GetBakedQuad(current_font->char_data, 512, 512, *text-32, &x, &y, &q);
+			engine.display.draw_surface(
+					// texture coordinates
+					q.s0, q.t0,
+					q.s1, q.t0,
+					q.s1, q.t1,
+					q.s0, q.t1,
+					// screen coordinates
+					q.x0, q.y0,
+					q.x1, q.y0,
+					q.x1, q.y1,
+					q.x0, q.y1
+			);
+		}
+		++text;
+	}
+}
+
+void use_font(Font* font)
+{
+	current_font = font;
+}
+
+void free_font(Font* font)
+{
+	if (font == current_font)
+		current_font = nullptr;
+
+	Engine& engine = get_engine();
+	engine.display.free_surface(font->surface);
+	delete[] font->char_data;
+}
+
+int draw_text_wrap(lua_State* L)
+{
+	const char* text = lua_tostring(L, 1);
+	lua_Number x = lua_tonumber(L, 2);
+	lua_Number y = lua_tonumber(L, 3);
+	draw_text((const unsigned char*)text, x, y);
+	return 0;
+}
+
+int load_font_wrap(lua_State* L)
+{
+	const char* filename = lua_tostring(L, 1);
+	lua_Number size = lua_tonumber(L, 2);
+	Font* font = load_font(filename, size);
+	if (font) {
+		lua_pushlightuserdata(L, font);
+		return 1;
+	}
+	return 0;
+}
+
+int use_font_wrap(lua_State* L)
+{
+	Font* font = (Font*) lua_touserdata(L, 1);
+	use_font(font);
+	return 0;
+}
+
+int free_font_wrap(lua_State* L)
+{
+	Font* font = (Font*) lua_touserdata(L, 1);
+	free_font(font);
+	return 0;
+}
+
+static const luaL_Reg lib[] =
+{
+	{"draw_text", draw_text_wrap},
+	{"load_font", load_font_wrap},
+	{"use_font", use_font_wrap},
+	{"free_font", free_font_wrap},
+	{NULL, NULL}
+};
+
+LUA_API "C" int luaopen_truetype(lua_State *L)
+{
+	lua_pushglobaltable(L);
+
+	luaL_setfuncs(L, lib, 0);
+
+	lua_pushliteral(L, LUA_VERSION);
+	lua_setfield(L, -2, "_VERSION");
+	return 1;
+}
+

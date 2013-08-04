@@ -164,7 +164,7 @@ end
 
 local _set_color = set_color
 function set_color(r, g, b)
-	if g then
+	if g ~= nil then
 		_set_color(r, g, b)
 	else
 		_set_color(unpack(r))
@@ -293,3 +293,9 @@ function on_wget_error(file)
 	end
 end
 
+if draw_text then
+	local _draw_text = draw_text
+	function draw_text(text, x, y)
+		_draw_text(text, x+ox, y+oy)
+	end
+end
