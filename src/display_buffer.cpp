@@ -14,11 +14,11 @@ const size_t BUFFER_DEFAULT_SIZE = 2 * 3 * 1024;
 Buffer::Buffer()
   	: positions(new GLfloat[BUFFER_DEFAULT_SIZE * 2]),
 	  colors(new GLfloat[BUFFER_DEFAULT_SIZE * 4]),
-	  texCoords(new GLfloat[BUFFER_DEFAULT_SIZE * 2]),
-	  current_position(0),
-	  current_color(0),
-	  current_texCoord(0)
+	  texCoords(new GLfloat[BUFFER_DEFAULT_SIZE * 2])
 {
+	current_position = 0;
+	current_color = 0;
+	current_texCoord = 0;
 	buffers[0] = 0;
 	buffers[1] = 0;
 	buffers[2] = 0;
@@ -27,6 +27,7 @@ Buffer::Buffer()
 void Buffer::reallocate()
 {
 	DEBUG("");
+	reset();
 	if (buffers[0] > 0)
 	{
 		glDeleteBuffers(3, buffers);
@@ -44,6 +45,7 @@ void Buffer::reallocate()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glEnableVertexAttribArray(ATTR_POSITION_INDEX);
 	glEnableVertexAttribArray(ATTR_COLOR_INDEX);
+	type = TRIANGLE_BUFFER;
 }
 
 Buffer::~Buffer()
