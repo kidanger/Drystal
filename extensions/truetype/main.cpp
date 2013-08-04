@@ -54,13 +54,15 @@ Font* load_font(const char* filename, float size, int first_char=32, int num_cha
 void draw_text(const unsigned char* text, float x, float y)
 {
 	assert(current_font);
+	int start = current_font->first_char;
+	int end = start + current_font->num_chars;
 
 	Engine& engine = get_engine();
 	engine.display.draw_from(current_font->surface);
 	while (*text) {
-		if (*text >= 32 && *text < 128) {
+		if (*text >= start && *text < end) {
 			stbtt_aligned_quad q;
-			stbtt_GetBakedQuad(current_font->char_data, 512, 512, *text-32, &x, &y, &q);
+			stbtt_GetBakedQuad(current_font->char_data, *text - start, &x, &y, &q);
 			engine.display.draw_surface(
 					// texture coordinates
 					q.s0, q.t0,
@@ -76,6 +78,23 @@ void draw_text(const unsigned char* text, float x, float y)
 		}
 		++text;
 	}
+}
+
+void text_size(const unsigned char* text, int* w, int* h)
+{
+	assert(current_font);
+	float x = 0, y = 0;
+	int start = current_font->first_char;
+	int end = start + current_font->num_chars;
+	while (*text) {
+		if (*text >= start && *text < end) {
+			stbtt_aligned_quad q;
+			stbtt_GetBakedQuad(current_font->char_data, *text - start, &x, &y, &q);
+		}
+		++text;
+	}
+	*w = x;
+	*h = y;
 }
 
 void use_font(Font* font)
@@ -121,6 +140,16 @@ int use_font_wrap(lua_State* L)
 	return 0;
 }
 
+int text_size_wrap(lua_State* L)
+{
+	const char* text = lua_tostring(L, 1);
+	int w, h;
+	text_size((const unsigned char*)text, &w, &h);
+	lua_pushnumber(L, w);
+	lua_pushnumber(L, h);
+	return 2;
+}
+
 int free_font_wrap(lua_State* L)
 {
 	Font* font = (Font*) lua_touserdata(L, 1);
@@ -130,21 +159,18 @@ int free_font_wrap(lua_State* L)
 
 static const luaL_Reg lib[] =
 {
-	{"draw_text", draw_text_wrap},
-	{"load_font", load_font_wrap},
-	{"use_font", use_font_wrap},
-	{"free_font", free_font_wrap},
+	{"draw", draw_text_wrap},
+	{"load", load_font_wrap},
+	{"use", use_font_wrap},
+	{"sizeof", text_size_wrap},
+	{"free", free_font_wrap},
 	{NULL, NULL}
 };
 
 LUA_API "C" int luaopen_truetype(lua_State *L)
 {
-	lua_pushglobaltable(L);
-
-	luaL_setfuncs(L, lib, 0);
-
-	lua_pushliteral(L, LUA_VERSION);
-	lua_setfield(L, -2, "_VERSION");
+    luaL_newlibtable(L, lib);
+    luaL_setfuncs(L, lib, 0);
 	return 1;
 }
 

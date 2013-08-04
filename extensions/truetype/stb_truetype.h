@@ -430,7 +430,7 @@ typedef struct
    float x1,y1,s1,t1; // bottom-right
 } stbtt_aligned_quad;
 
-extern void stbtt_GetBakedQuad(stbtt_bakedchar *chardata, int pw, int ph,  // same data as above
+extern void stbtt_GetBakedQuad(stbtt_bakedchar *chardata,
                                int char_index,             // character to display
                                float *xpos, float *ypos,   // pointers to current position in screen pixel space
                                stbtt_aligned_quad *q);
@@ -1882,7 +1882,7 @@ extern int stbtt_BakeFontBitmap(const unsigned char *data, int offset,  // font 
    return bottom_y;
 }
 
-void stbtt_GetBakedQuad(stbtt_bakedchar *chardata, int pw, int ph, int char_index, float *xpos, float *ypos, stbtt_aligned_quad *q)
+void stbtt_GetBakedQuad(stbtt_bakedchar *chardata, int char_index, float *xpos, float *ypos, stbtt_aligned_quad *q)
 {
    stbtt_bakedchar *b = chardata + char_index;
    int round_x = STBTT_ifloor((*xpos + b->xoff) + 0.5);

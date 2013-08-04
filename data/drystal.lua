@@ -18,6 +18,10 @@ local offsets = {{x=0,y=0}}
 local ox = 0
 local oy = 0
 
+function get_offset()
+	return ox, oy
+end
+
 local notransform = {
 	angle=0, -- in radians
 	wfactor=1, hfactor=1 -- can be negative to flip
@@ -293,9 +297,3 @@ function on_wget_error(file)
 	end
 end
 
-if draw_text then
-	local _draw_text = draw_text
-	function draw_text(text, x, y)
-		_draw_text(text, x+ox, y+oy)
-	end
-end

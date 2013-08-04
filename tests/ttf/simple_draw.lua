@@ -2,13 +2,13 @@ package.path = 'data/?.lua;' .. package.path
 package.cpath = 'data/?.so;' .. package.cpath
 
 require 'drystal'
-require 'truetype'
+local tt = require 'truetype'
 
 function init()
 	resize(512, 512)
 
-	font = load_font('data/arial.ttf', 16)
-	font_big = load_font('data/arial.ttf', 42)
+	font = tt.load('data/arial.ttf', 16)
+	font_big = tt.load('data/arial.ttf', 42)
 end
 
 function draw()
@@ -17,17 +17,19 @@ function draw()
 	draw_background()
 
 	set_color(255, 0, 0)
-	use_font(font)
-	draw_text('abcdefghijklmopqrstuvwxyz', 50, 100)
+	tt.use(font)
+	local w = tt.sizeof('abcdefghijklmopqrstuvwxyz')
+	tt.draw('abcdefghijklmopqrstuvwxyz', (512 - w) / 2, 100)
 
-	use_font(font_big)
-	draw_text('abcdefghijklmopqrstuvwxyz', 50, 150)
+	tt.use(font_big)
+	local w, h = tt.sizeof('abcdefghijklmopqrstuvwxyz')
+	tt.draw('abcdefghijklmopqrstuvwxyz', (512 - w) / 2, (512-h)/2)
 
 	flip()
 end
 
 function key_press(k)
-	free_font(font)
+	tt.free(font)
 	engine_stop()
 end
 
