@@ -529,6 +529,12 @@ static int mlua_set_music_volume(lua_State *L)
 	return 0;
 }
 
+static int mluad_stop_music(lua_State* L)
+{
+	engine->audio.stop_music();
+	return 0;
+}
+
 #ifdef EMSCRIPTEN
 static void onsuccess(const char* filename)
 {
@@ -625,6 +631,7 @@ void LuaFunctions::send_globals() const
 
 	lua_register(L, "play_music", mlua_play_music);
 	lua_register(L, "play_music_queued", mlua_play_music_queued);
+	lua_register(L, "stop_music", mluad_stop_music);
 	lua_register(L, "play_sound", mlua_play_sound);
 	lua_register(L, "load_sound", mlua_load_sound);
 	lua_register(L, "free_sound", mlua_free_sound);

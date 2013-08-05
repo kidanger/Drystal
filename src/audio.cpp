@@ -26,8 +26,10 @@ Audio::~Audio()
 {
 	while(Mix_Init(0))
 		Mix_Quit();
-	if (_music)
+	if (_music) {
 		Mix_FreeMusic(_music);
+		_music = NULL;
+	}
 	Mix_CloseAudio();
 	SDL_DestroyMutex(_mutex);
 }
@@ -95,6 +97,16 @@ void Audio::play_music(const char *filepath, int times)
 	{
 		std::cerr << "cannot play music: `" << filepath << "': " << Mix_GetError() << std::endl;
 	}
+	SDL_mutexV(_mutex);
+}
+
+void Audio::stop_music()
+{
+	SDL_mutexP(_mutex);
+	Mix_HaltMusic();
+	if (_music)
+		Mix_FreeMusic(_music);
+	_music = NULL;
 	SDL_mutexV(_mutex);
 }
 

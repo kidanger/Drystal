@@ -20,6 +20,7 @@ class Audio
 
 		static void play_music(const char *filepath, int times = 1);
 		static void play_music_queued(char *filepath);
+		static void stop_music();
 	private:
 		static void music_finished();
 
