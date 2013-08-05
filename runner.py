@@ -5,7 +5,8 @@ import sys
 import os
 import shutil
 
-DESTINATION_DIRECTORY = os.path.abspath('data')
+DESTINATION_DIRECTORY_REL = 'data'
+DESTINATION_DIRECTORY = os.path.abspath(DESTINATION_DIRECTORY_REL)
 DESTINATION_DIRECTORY_TMP = os.path.abspath('.data')
 
 BUILD_NATIVE = os.path.abspath('build-native')
@@ -23,10 +24,12 @@ LIB_PATH = os.path.join(BUILD_NATIVE, 'external')
 
 BROWSERS = 'chromium', 'firefox'
 
+WGET_FILES = '.wav',
+
 def parent(dir):
     return os.path.abspath(os.path.join(dir, os.pardir))
 
-def copy_files_maybe(from_directory, get_subdir=False):
+def copy_files_maybe(from_directory, get_subdir=False, ignore_wget=True):
     print('- processing', from_directory)
     already_in = os.listdir(DESTINATION_DIRECTORY)
     for f in os.listdir(from_directory):
@@ -35,13 +38,38 @@ def copy_files_maybe(from_directory, get_subdir=False):
         if f not in already_in:
             fullpath = os.path.join(from_directory, f)
             if os.path.isfile(fullpath):
-                print('    copying\t', f)
-                shutil.copy(fullpath, DESTINATION_DIRECTORY)
+                if os.path.splitext(fullpath)[1] not in WGET_FILES or ignore_wget:
+                    print('    copying\t', f)
+                    shutil.copy(fullpath, DESTINATION_DIRECTORY)
+                else:
+                    print('    ignoring\t', f)
             if os.path.isdir(fullpath) and get_subdir:
                 print('    copying dir\t', f)
                 shutil.copytree(fullpath, os.path.join(DESTINATION_DIRECTORY, f))
         else:
             print('    ignoring\t', f)
+
+def remove_old_wget():
+    destination = os.path.join(BUILD_WEB, DESTINATION_DIRECTORY_REL)
+    print('- remove old wget: ', destination)
+    for f in os.listdir(destination):
+        os.remove(os.path.join(destination, f))
+
+
+def copy_wget_files(from_directory):
+    print('- processing for wget: ', from_directory)
+    destination = os.path.join(BUILD_WEB, DESTINATION_DIRECTORY_REL)
+    already_in = os.listdir(destination)
+    for f in os.listdir(from_directory):
+        if f in ('.', '..') or f.startswith('.'):
+            continue
+        if f not in already_in:
+            fullpath = os.path.join(from_directory, f)
+            if os.path.isfile(fullpath) and os.path.splitext(fullpath)[1] in WGET_FILES:
+                print('    wget\t', f)
+                shutil.copy(fullpath, destination)
+        else:
+            print('    ignoring wget', f)
 
 def copy_extensions(from_dir, ext_list, mainfilename):
     for extension in ext_list:
@@ -109,7 +137,7 @@ else:
     first = True
     while cw != dir:
         last = parent(dir) == cw
-        copy_files_maybe(dir, get_subdir=first and not last)
+        copy_files_maybe(dir, get_subdir=first and not last, ignore_wget=run_arg != 'web')
         dir = parent(dir)
         first = False
 
@@ -127,7 +155,10 @@ else:
         os.system('./build-native/drystal')
     elif run_arg == 'web':
         # TODO extensions (wait for emscripten to support it)
+        remove_old_wget()
         os.system('tup upd') # TODO: use repacker directly
+        copy_wget_files(os.path.abspath(dirpath))
+
         from http.server import HTTPServer, SimpleHTTPRequestHandler
         addr, port = '127.0.0.1', 8000
         httpd = HTTPServer((addr, port), SimpleHTTPRequestHandler)
