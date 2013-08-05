@@ -128,7 +128,9 @@ token:
 				else if (*start_text == 'b' and *(start_text+1) != 'i') // ignore 'big'
 					b = atoi((const char*) start_text + 1);
 				else if (!strncmp((const char*) start_text, (const char*) "big", text - start_text))
-					size = 1.2;
+					size = 1.3;
+				else if (!strncmp((const char*) start_text, (const char*) "BIG", text - start_text))
+					size = 1.7;
 				else if (!strncmp((const char*) start_text, (const char*) "small", text - start_text))
 					size = 0.8;
 				else if (!strncmp((const char*) start_text, (const char*) "tiny", text - start_text))
