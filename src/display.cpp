@@ -3,7 +3,6 @@
 #endif
 
 #include <SDL/SDL.h>
-#include <SDL/SDL_ttf.h>
 
 #include <iostream>
 #include <cassert>
@@ -72,7 +71,6 @@ Display::Display()
 	  default_shader(NULL),
 	  current(NULL),
 	  current_from(NULL),
-	  font(NULL),
 	  r(1),
 	  g(1),
 	  b(1),
@@ -80,20 +78,11 @@ Display::Display()
 	  available(false)
 
 {
-	for (size_t i = 0; i < sizeof(fonts)/sizeof(fonts[0]); i++)
-		fonts[i] = NULL;
 	int err = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 	if (err)
 	{
 		available = false;
 		fprintf(stderr, "[ERROR] cannot initialize SDL\n");
-		return;
-	}
-	err = TTF_Init();
-	if (err)
-	{
-		available = false;
-		fprintf(stderr, "[ERROR] cannot initialize SDL TTF\n");
 		return;
 	}
 
@@ -199,7 +188,7 @@ void Display::set_color(int r, int g, int b)
 	this->b = b / 255.;
 }
 
-void Display::set_alpha(uint8_t a)
+void Display::set_alpha(int a)
 {
 	this->alpha = a / 255.;
 }
@@ -229,7 +218,6 @@ void Display::draw_on(Surface* surf)
 		glViewport(0, 0, w, h);
 	}
 }
-
 
 /**
  * Surface
@@ -271,55 +259,6 @@ Surface* Display::create_surface(int w, int h, int texw, int texh, unsigned char
 
 	glBindFramebuffer(GL_FRAMEBUFFER, current->fbo);
 	glBindTexture(GL_TEXTURE_2D, current_from ? current_from->tex : 0);
-	DEBUG("end");
-	return surface;
-}
-
-Surface* Display::surface_from_sdl(SDL_Surface* surf) const
-{
-	DEBUG("");
-	assert(surf);
-
-	int ow = surf->w;
-	int oh = surf->h;
-	int w = pow(2, ceil(log(surf->w)/log(2)));
-	int h = pow(2, ceil(log(surf->h)/log(2)));
-
-	bool should_free = false;
-	if (w != surf->w or h != surf->h or surf->format->BytesPerPixel != 4)
-	{
-		DEBUG("convert");
-		// resize and convert
-		int rmask, gmask, bmask, amask;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-		rmask = 0xff000000;
-		gmask = 0x00ff0000;
-		bmask = 0x0000ff00;
-		amask = 0x000000ff;
-#else
-		rmask = 0x000000ff;
-		gmask = 0x0000ff00;
-		bmask = 0x00ff0000;
-		amask = 0xff000000;
-#endif
-		SDL_Surface* newSurface = SDL_CreateRGBSurface(SDL_HWSURFACE, w, h, 32,
-				rmask, gmask, bmask, amask);
-		SDL_SetAlpha(surf, 0, 0);
-		SDL_BlitSurface(surf, NULL, newSurface, NULL);
-
-		surf = newSurface;
-		should_free = true;
-	}
-	assert(surf);
-	assert(surf->format->BytesPerPixel == 4);
-	assert(surf->w == w);
-	assert(surf->h == h);
-
-	Surface* surface = create_surface(ow, oh, surf->w, surf->h, (unsigned char*) surf->pixels);
-
-	if (should_free)
-		SDL_FreeSurface(surf);
-
 	DEBUG("end");
 	return surface;
 }
@@ -455,47 +394,6 @@ void Display::draw_surface(int xi1, int yi1, int xi2, int yi2, int xi3, int yi3,
 
 	for (int i = 0; i < 6; i++)
 		buffer.push_color(r, g, b, alpha);
-}
-
-/**
- * Text
- */
-
-void Display::set_font(const char* name, int size)
-{
-	assert(name);
-	assert(size > 0);
-	if (not fonts[size])
-	{
-		fonts[size] = TTF_OpenFont(name, size);
-	}
-	font = fonts[size];
-	assert(font);
-}
-
-Surface* Display::text_surface(const char* text) const
-{
-	assert(text);
-	assert(font);
-
-	SDL_Color color = { (uint8_t) (r*255), (uint8_t) (g*255), (uint8_t) (b*255), (uint8_t) (alpha*255) };
-
-	SDL_Surface *surf = TTF_RenderText_Blended(font, text, color);
-	Surface* surface = surface_from_sdl(surf);
-	SDL_FreeSurface(surf);
-	return surface;
-}
-
-void Display::text_size(const char* text, int *w, int *h) const
-{
-	assert(w);
-	assert(h);
-	if (not font)
-		return;
-	if (not text or not text[0])
-		*w = *h = 0;
-	else
-		TTF_SizeText(font, text, w, h);
 }
 
 

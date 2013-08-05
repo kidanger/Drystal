@@ -94,6 +94,7 @@ def clean():
     shutil.rmtree(DESTINATION_DIRECTORY)
     shutil.copytree(DESTINATION_DIRECTORY_TMP, DESTINATION_DIRECTORY)
     shutil.rmtree(DESTINATION_DIRECTORY_TMP)
+    remove_old_wget()
     return True
 
 cw = os.getcwd()

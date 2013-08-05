@@ -7,9 +7,10 @@
 #include "log.hpp"
 #include "stats.hpp"
 #include "display.hpp"
+#include "display_buffer.hpp"
 
 // should be multiple of 2 (for GL_LINES) and of 3 (GL_TRIANGLES)
-const size_t BUFFER_DEFAULT_SIZE = 2 * 3 * 1024;
+const unsigned int BUFFER_DEFAULT_SIZE = 2 * 3 * 1024;
 
 Buffer::Buffer()
   	: positions(new GLfloat[BUFFER_DEFAULT_SIZE * 2]),

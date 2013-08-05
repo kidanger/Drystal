@@ -249,37 +249,11 @@ static int mlua_set_color(lua_State* L)
 	engine->display.set_color(r, g, b);
 	return 0;
 }
-static int mlua_set_font(lua_State* L)
-{
-	const char * name = lua_tostring(L, -2);
-	int size = lua_tointeger(L, -1);
-	engine->display.set_font(name, size);
-	return 0;
-}
 static int mlua_set_alpha(lua_State* L)
 {
 	int alpha = lua_tointeger(L, -1);
 	engine->display.set_alpha(alpha);
 	return 0;
-}
-
-static int mlua_text_size(lua_State* L)
-{
-	const char* str = lua_tostring(L, -1);
-	int w, h;
-	engine->display.text_size(str, &w, &h);
-	lua_pushnumber(L, w);
-	lua_pushnumber(L, h);
-	return 2;
-}
-static int mlua_surface_size(lua_State* L)
-{
-	Surface* surface = (Surface *) lua_touserdata(L, -1);
-	int w, h;
-	engine->display.surface_size(surface, &w, &h);
-	lua_pushnumber(L, w);
-	lua_pushnumber(L, h);
-	return 2;
 }
 
 static int mlua_show_cursor(lua_State* L)
@@ -332,6 +306,15 @@ static int mlua_free_surface(lua_State* L)
 	engine->display.free_surface(surface);
 	return 0;
 }
+static int mlua_surface_size(lua_State* L)
+{
+	Surface* surface = (Surface *) lua_touserdata(L, -1);
+	int w, h;
+	engine->display.surface_size(surface, &w, &h);
+	lua_pushnumber(L, w);
+	lua_pushnumber(L, h);
+	return 2;
+}
 static int mlua_draw_on(lua_State* L)
 {
 	Surface* surface = (Surface*) lua_touserdata(L, -1);
@@ -349,13 +332,6 @@ static int mlua_draw_background(lua_State*)
 {
 	engine->display.draw_background();
 	return 0;
-}
-static int mlua_text_surface(lua_State* L)
-{
-	const char* text = lua_tostring(L, -1);
-	Surface* surface = engine->display.text_surface(text);
-	lua_pushlightuserdata(L, surface);
-	return 1;
 }
 static int mlua_draw_triangle(lua_State* L)
 {
@@ -529,8 +505,9 @@ static int mlua_set_music_volume(lua_State *L)
 	return 0;
 }
 
-static int mluad_stop_music(lua_State* L)
+static int mlua_stop_music(lua_State* L)
 {
+	(void) L;
 	engine->audio.stop_music();
 	return 0;
 }
@@ -595,8 +572,8 @@ void LuaFunctions::send_globals() const
 	lua_setglobal(L, "screen");
 
 	lua_register(L, "engine_stop", mlua_engine_stop);
-	lua_register(L, "show_cursor", mlua_show_cursor);
 
+	lua_register(L, "show_cursor", mlua_show_cursor);
 	lua_register(L, "set_resizable", mlua_set_resizable);
 	lua_register(L, "resize", mlua_resize);
 	lua_register(L, "flip", mlua_flip);
@@ -604,7 +581,9 @@ void LuaFunctions::send_globals() const
 	lua_register(L, "load_surface", mlua_load_surface);
 	lua_register(L, "new_surface", mlua_new_surface);
 	lua_register(L, "free_surface", mlua_free_surface);
+	lua_register(L, "surface_size", mlua_surface_size);
 	lua_register(L, "draw_on", mlua_draw_on);
+
 	lua_register(L, "draw_from", mlua_draw_from);
 
 	lua_register(L, "draw_background", mlua_draw_background);
@@ -614,11 +593,6 @@ void LuaFunctions::send_globals() const
 
 	lua_register(L, "set_color", mlua_set_color);
 	lua_register(L, "set_alpha", mlua_set_alpha);
-	lua_register(L, "set_font", mlua_set_font);
-
-	lua_register(L, "text_surface", mlua_text_surface);
-	lua_register(L, "text_size", mlua_text_size);
-	lua_register(L, "surface_size", mlua_surface_size);
 
 	lua_register(L, "new_shader", mlua_new_shader);
 	lua_register(L, "use_shader", mlua_use_shader);
@@ -631,7 +605,7 @@ void LuaFunctions::send_globals() const
 
 	lua_register(L, "play_music", mlua_play_music);
 	lua_register(L, "play_music_queued", mlua_play_music_queued);
-	lua_register(L, "stop_music", mluad_stop_music);
+	lua_register(L, "stop_music", mlua_stop_music);
 	lua_register(L, "play_sound", mlua_play_sound);
 	lua_register(L, "load_sound", mlua_load_sound);
 	lua_register(L, "free_sound", mlua_free_sound);

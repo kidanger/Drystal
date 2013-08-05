@@ -3,6 +3,10 @@
 #include <sys/time.h>
 #include <iostream>
 
+#ifndef EMSCRIPTEN
+#include <SDL/SDL.h> // SDL_Delay
+#endif
+
 #include "log.hpp"
 #include "engine.hpp"
 

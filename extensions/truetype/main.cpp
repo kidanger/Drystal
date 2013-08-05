@@ -106,7 +106,7 @@ void draw_text_color(const unsigned char* text, float x, float y)
 		if (*text == '{') {
 			float size = 1.0;
 			int r, g, b;
-			unsigned char alpha;
+			int alpha;
 			engine.display.get_color(&r, &g, &b);
 			engine.display.get_alpha(&alpha);
 			int oldr = r, oldg = g, oldb = b;
