@@ -3,8 +3,10 @@
 #include <lua.hpp>
 #include <SDL/SDL_opengl.h>
 
+extern "C" {
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "stb_truetype.h"
+}
 
 #include "engine.hpp"
 
@@ -31,10 +33,9 @@ Font* load_font(const char* filename, float size, int first_char=32, int num_cha
 		return nullptr;
 
 	// TODO: compute texture size
-	Surface* surf = engine.display.new_surface(512, 512);
-
+	int w = 512;
+	int h = 512;
 	Font* font = new Font;
-	font->surface = surf;
 
 	font->first_char = first_char;
 	font->num_chars = num_chars;
@@ -44,17 +45,15 @@ Font* load_font(const char* filename, float size, int first_char=32, int num_cha
 	assert(fread(file_content, 1, 1<<20, file));
 	fclose(file);
 
-	stbtt_BakeFontBitmap(file_content, 0, size, pixels, surf->w, surf->h,
+	stbtt_BakeFontBitmap(file_content, 0, size, pixels, w, h,
 						first_char, num_chars, font->char_data);
 
-	memset(pixels_colored, 0xff, 512*512*4);
-	for (int i = 0; i < 512*512; i++) {
+	memset(pixels_colored, 0xff, w*h*4);
+	for (int i = 0; i < w*h; i++) {
 		pixels_colored[i*4+3] = pixels[i];
 	}
-	// FIXME: don't overwrite texture, let display.cpp do this
-	glBindTexture(GL_TEXTURE_2D, surf->tex);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, surf->w, surf->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels_colored);
-	GLDEBUG();
+
+	font->surface = engine.display.create_surface(w, h, w, h, pixels_colored);
 
 	return font;
 }

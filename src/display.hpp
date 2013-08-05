@@ -118,7 +118,8 @@ class Display
 		void get_alpha(uint8_t *a) { *a = this->alpha*255; };
 
 		Surface* get_screen() const;
-		Surface* new_surface(uint32_t, uint32_t) const;
+		Surface* create_surface(int w, int h, int texw, int texh, unsigned char* pixels) const;
+		Surface* new_surface(int w, int h) const;
 		Surface* load_surface(const char *) const;
 		void free_surface(Surface*);
 		void draw_on(Surface*);

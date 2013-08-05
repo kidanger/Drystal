@@ -53,7 +53,11 @@ def remove_old_wget():
     destination = os.path.join(BUILD_WEB, DESTINATION_DIRECTORY_REL)
     print('- remove old wget: ', destination)
     for f in os.listdir(destination):
-        os.remove(os.path.join(destination, f))
+        fullpath = os.path.join(destination, f)
+        if os.path.isfile(fullpath):
+            os.remove(fullpath)
+        else:
+            shutil.rmtree(fullpath)
 
 
 def copy_wget_files(from_directory):
@@ -156,7 +160,7 @@ else:
     elif run_arg == 'web':
         # TODO extensions (wait for emscripten to support it)
         remove_old_wget()
-        os.system('tup upd') # TODO: use repacker directly
+        assert(not os.system('tup upd')) # TODO: use repacker directly
         copy_wget_files(os.path.abspath(dirpath))
 
         from http.server import HTTPServer, SimpleHTTPRequestHandler

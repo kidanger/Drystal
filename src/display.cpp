@@ -3,12 +3,16 @@
 #endif
 
 #include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
 #include <SDL/SDL_ttf.h>
 
 #include <iostream>
 #include <cassert>
 #include <cmath>
+
+extern "C" {
+#define STB_NO_HDR
+#include "stb_image.c"
+}
 
 #include "log.hpp"
 #include "display.hpp"
@@ -231,6 +235,46 @@ void Display::draw_on(Surface* surf)
  * Surface
  */
 
+Surface* Display::create_surface(int w, int h, int texw, int texh, unsigned char* pixels) const
+{
+	// gen texture
+	GLuint tex;
+	glGenTextures(1, &tex);
+	glBindTexture(GL_TEXTURE_2D, tex);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texw, texh, 0,
+				 GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+	GLDEBUG();
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	// gen framebuffer object
+	GLuint fbo;
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
+	GLDEBUG();
+
+	GLenum status;
+	status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	assert(status == GL_FRAMEBUFFER_COMPLETE);
+
+	Surface* surface = new Surface;
+	surface->tex = tex;
+	surface->w = w;
+	surface->h = h;
+	surface->texw = texw;
+	surface->texh = texh;
+	surface->fbo = fbo;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, current->fbo);
+	glBindTexture(GL_TEXTURE_2D, current_from ? current_from->tex : 0);
+	DEBUG("end");
+	return surface;
+}
+
 Surface* Display::surface_from_sdl(SDL_Surface* surf) const
 {
 	DEBUG("");
@@ -271,41 +315,11 @@ Surface* Display::surface_from_sdl(SDL_Surface* surf) const
 	assert(surf->w == w);
 	assert(surf->h == h);
 
-	// gen texture
-	GLuint tex;
-	glGenTextures(1, &tex);
-	glBindTexture(GL_TEXTURE_2D, tex);
+	Surface* surface = create_surface(ow, oh, surf->w, surf->h, (unsigned char*) surf->pixels);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, surf->w, surf->h, 0,
-				GL_RGBA, GL_UNSIGNED_BYTE, surf->pixels);
-	GLDEBUG();
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	// gen framebuffer object
-	GLuint fbo;
-	glGenFramebuffers(1, &fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
-	GLDEBUG();
-
-	GLenum status;
-	status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	assert(status == GL_FRAMEBUFFER_COMPLETE);
 	if (should_free)
 		SDL_FreeSurface(surf);
 
-	Surface* surface = new Surface;
-	surface->tex = tex;
-	surface->w = ow;
-	surface->h = oh;
-	surface->texw = surf->w;
-	surface->texh = surf->h;
-	surface->fbo = fbo;
-	glBindFramebuffer(GL_FRAMEBUFFER, current->fbo);
-	glBindTexture(GL_TEXTURE_2D, current_from ? current_from->tex : 0);
 	DEBUG("end");
 	return surface;
 }
@@ -313,37 +327,31 @@ Surface* Display::surface_from_sdl(SDL_Surface* surf) const
 Surface* Display::load_surface(const char * filename) const
 {
 	assert(filename);
-	SDL_Surface *surf = IMG_Load(filename);
+	int w, h;
+	int n;
+	unsigned char *data = stbi_load(filename, &w, &h, &n, 4);
+	assert(n == 4);
 
-	if (not surf)
+	if (not data)
 		return nullptr;
 
-	Surface* surface = surface_from_sdl(surf);
-	SDL_FreeSurface(surf);
+	Surface* surface = create_surface(w, h, w, h, data);
+	stbi_image_free(data);
 	return surface;
 }
 
-Surface* Display::new_surface(uint32_t w, uint32_t h) const
+Surface* Display::new_surface(int w, int h) const
 {
 	assert(w > 0);
 	assert(h > 0);
-	int rmask, gmask, bmask, amask;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	rmask = 0xff000000;
-	gmask = 0x00ff0000;
-	bmask = 0x0000ff00;
-	amask = 0x000000ff;
-#else
-	rmask = 0x000000ff;
-	gmask = 0x0000ff00;
-	bmask = 0x00ff0000;
-	amask = 0xff000000;
-#endif
-	SDL_Surface* surf = SDL_CreateRGBSurface(SDL_HWSURFACE, w, h, 32,
-			rmask, gmask, bmask, amask);
-	assert(surf);
-	Surface* surface = surface_from_sdl(surf);
-	SDL_FreeSurface(surf);
+	int potw = pow(2, ceil(log(w)/log(2)));
+	int poth = pow(2, ceil(log(h)/log(2)));
+
+	unsigned char *pixels = new unsigned char[potw * poth * 4];
+	memset(pixels, 0, potw * poth * 4);
+
+	Surface *surface = create_surface(w, h, potw, poth, pixels);
+	delete[] pixels;
 	return surface;
 }
 

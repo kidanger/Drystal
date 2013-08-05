@@ -1,3 +1,6 @@
+package.path = 'data/?.lua;' .. package.path
+package.cpath = 'data/?.so;' .. package.cpath
+
 local _draw_from = draw_from
 local _draw_surface = draw_surface
 draw_freeshape = _draw_surface
