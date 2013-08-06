@@ -40,4 +40,8 @@ CFLAGS=-O2 -Wall $(DEFINES) -fPIC -I. -Ilua/src
 : lua/src/loadlib.c |> patch %f dlopen_emscripten.patch -o %o |> loadlib_patched.c
 
 : foreach $(CORE_C) $(LIB_C) |> @(CC) -c %f -o %o $(CFLAGS) |> %B.o
+ifdef FAST_LINK
+: *.o |> !ld_shared |> liblua.js
+else
 : *.o |> !ld_shared |> liblua-drystal.so ../<lua>
+endif

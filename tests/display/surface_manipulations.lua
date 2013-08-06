@@ -1,7 +1,7 @@
-require "data/drystal"
+require "drystal"
 
-local json = require 'data/dkjson'
-spritesheet = json.decode(io.open('data/image.json'):read('*all'))
+local json = require 'dkjson'
+spritesheet = json.decode(io.open('image.json'):read('*all'))
 
 vert = [[
 #version 100
@@ -45,7 +45,7 @@ function init()
 	print("initialized from lua")
 	resize(600, 400)
 	set_resizable(false)
-	image = load_surface('data/' .. spritesheet.meta.image)
+	image = load_surface(spritesheet.meta.image)
 	draw_from(image)
 	set_alpha(0)
 	surf = new_surface(64, 32)

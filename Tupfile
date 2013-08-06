@@ -1,3 +1,20 @@
 include_rules
 
-: src/*.o | @(LD_EXTENSIONS) external/liblua-drystal.so ../external/<lua> |> !ld_drystal |>
+ifdef EMSCRIPTEN
+tt=extensions/truetype/@(EXTENSION_FILE)
+web=extensions/web/@(EXTENSION_FILE)
+ifdef FAST_LINK
+: src/*.o |> !ld_drystal |> drystal_nolua.js
+: drystal_nolua.js external/liblua.js |> @(EMLINK) %f %o |> drystal.js
+: drystal.js $(tt) |> @(EMLINK) %f %o |> drystal_truetype.js
+: drystal_truetype.js $(web) |> @(EMLINK) %f %o |> drystal_truetype_web.js
+: drystal_truetype_web.js |> cp %f %o |> index_nodata.js
+else
+EXTENSIONS=$(tt) $(web)
+: src/*.o | $(EXTENSIONS) external/liblua-drystal.so ../external/<lua> |> !ld_drystal $(EXTENSIONS) |> index_nodata.js
+endif
+
+else
+: src/*.o | external/liblua-drystal.so ../external/<lua> |> !ld_drystal |> drystal
+endif
+

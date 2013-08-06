@@ -6,11 +6,18 @@ CFLAGS+=-I../external -I../external/lua/src
 
 LDFLAGS=@(LDFLAGS)
 
-LDFLAGS_DRYSTAL=@(LDFLAGS_DRYSTAL)
+LDFLAGS_DRYSTAL=@(LDFLAGS) @(LDFLAGS_DRYSTAL)
+
+ifdef FAST_LINK
+LDFLAGS+=-s SIDE_MODULE=1
+LDFLAGS_DRYSTAL+=-s MAIN_MODULE=1 -s EMCC_FORCE_STDLIBS=1
+else
 LDFLAGS_DRYSTAL+=-Lexternal -llua-drystal
+endif
 
 !cxx = |> @(CXX) $(CFLAGS) -c %f -o %o |> %B.o
 
-!ld_drystal = |> @(LD) $(LDFLAGS) $(LDFLAGS_DRYSTAL) %f @(LD_EXTENSIONS) -o @(TARGET) |> @(TARGET)
+!ld_drystal = |> @(LD) $(LDFLAGS_DRYSTAL) %f -o %o |>
+
 !ld_shared = |> @(LD) $(LDFLAGS) -shared %f -o %o |>
 

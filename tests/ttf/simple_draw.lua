@@ -4,8 +4,8 @@ local tt = require 'truetype'
 function init()
 	resize(512, 512)
 
-	font = tt.load('data/arial.ttf', 16)
-	font_big = tt.load('data/arial.ttf', 42)
+	font = tt.load('arial.ttf', 16)
+	font_big = tt.load('arial.ttf', 42)
 end
 
 time = 0
