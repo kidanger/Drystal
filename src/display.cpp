@@ -269,10 +269,11 @@ Surface* Display::load_surface(const char * filename) const
 	int w, h;
 	int n;
 	unsigned char *data = stbi_load(filename, &w, &h, &n, 4);
-	assert(n == 4);
 
 	if (not data)
 		return nullptr;
+
+	assert(n == 4);
 
 	Surface* surface = create_surface(w, h, w, h, data);
 	stbi_image_free(data);
