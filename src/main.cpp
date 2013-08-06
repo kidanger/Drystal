@@ -2,7 +2,7 @@
 
 int main(int argc, const char* argv[])
 {
-	const char* filename = "data/main.lua";
+	const char* filename = "main.lua";
 	if (argc == 2) {
 		filename = argv[1];
 	}
