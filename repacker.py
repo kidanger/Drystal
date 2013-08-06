@@ -1,24 +1,27 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
-INPUT = 'index_nodata'
-OUTPUT = 'index'
+INPUT   = 'index_nodata'
+OUTPUT  = 'index'
 DATADIR = 'gamedata'
 
-HTML = '.html'
-JS = '.js'
-DATA = '.data'
-COMPRESS = '.compress'
+JS      = '.js'
+HTML    = '.html'
+DATA    = '.data'
+COMPRESS= '.compress'
 
-PACKAGER = 'python2 /usr/lib/emscripten/tools/file_packager.py'
-COMPRESSOR = '/usr/lib/emscripten/third_party/lzma.js/lzma-native'
+PACKAGER        = 'python2 /usr/lib/emscripten/tools/file_packager.py'
+COMPRESSOR      = '/usr/lib/emscripten/third_party/lzma.js/lzma-native'
+DECOMPRESS_JS   = '/usr/lib/emscripten/third_party/lzma.js/lzma-decoder.js'
+DECOMPRESS_NAME = 'LZMA.decompress'
 
 START_TOKEN = "// {{PRE_RUN_ADDITIONS}}\n"
-END_TOKEN = "if (Module['preInit']) {\n"
+END_TOKEN   = "if (Module['preInit']) {\n"
 
 DO_CLOSURE = False
 
 import os
+import shutil
 
 def replace_in_file(filename_src, start_token, new_lines, end_token, filename_dst):
     lines = open(filename_src, 'r').readlines()
@@ -27,33 +30,45 @@ def replace_in_file(filename_src, start_token, new_lines, end_token, filename_ds
     lines[start:end] = new_lines
     open(filename_dst, 'w').write("".join(lines))
 
-def repack():
+def repack(index_html_path):
     tmp_file = 'preload.js'
+
     # compression has to be done by the packager
     cmd = PACKAGER + " " + OUTPUT+DATA + " --preload " + DATADIR+"@/" + " --compress " + COMPRESSOR + " > " + tmp_file
     print(cmd)
     assert(not os.system(cmd))
 
-    # update index.js
+    # update javascript
     print('composing ' + OUTPUT+JS + ' from ' + INPUT+JS + ' and ' + tmp_file)
     new_part = open(tmp_file).readlines()
     replace_in_file(INPUT+JS, START_TOKEN, new_part, END_TOKEN, OUTPUT+JS)
     if DO_CLOSURE:
-        pass
+        filename = OUTPUT+JS
+        cmd = 'java -jar /usr/lib/emscripten/third_party/closure-compiler/compiler.jar ' +\
+                '--compilation_level ADVANCED_OPTIMIZATIONS ' +\
+                '--language_in ECMASCRIPT5 ' + \
+                '--js ' + filename + ' --js_output_file ' + filename+'_' +\
+                '; mv ' + filename+'_' + ' ' + filename
+        print(cmd)
+        assert(not os.system(cmd))
 
-    # and recompress it
+    # copy index.html
+    print('copying index.html from', index_html_path)
+    shutil.copy(index_html_path, OUTPUT+HTML)
+
+    # create decompress.js (see emcc.py)
+    print('generating decompress.js')
+    decompressor = open('decompress.js', 'w')
+    decompressor.write(open(DECOMPRESS_JS).read())
+    decompressor.write('''
+                       onmessage = function(event) {
+                       postMessage({ data: %s(event.data.data), id: event.data.id });
+                       };
+                       ''' % DECOMPRESS_NAME)
+    decompressor.close()
+
+    # recompress javascript
     cmd = COMPRESSOR + " < " + OUTPUT+JS + " > " + OUTPUT+JS+COMPRESS
     print(cmd)
     assert(not os.system(cmd))
 
-    # create a new index.html (need to modify 'index_nodata' to 'index')
-    input = open(INPUT+HTML).read()
-    output = input.replace(INPUT, OUTPUT)
-    open(OUTPUT+HTML, 'w').write(output)
-
-
-# here, we should have :
-# index_nodata.html, index_nodata.js,
-# index_nodata.js.compress (not used, but generated to have compression handled)
-if __name__ == '__main__':
-    repack()

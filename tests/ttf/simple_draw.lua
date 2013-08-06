@@ -1,6 +1,3 @@
-package.path = 'data/?.lua;' .. package.path
-package.cpath = 'data/?.so;' .. package.cpath
-
 require 'drystal'
 local tt = require 'truetype'
 

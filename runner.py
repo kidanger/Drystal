@@ -25,6 +25,7 @@ LIB_PATH = os.path.join(BUILD_NATIVE, 'external')
 BROWSERS = 'chromium', 'firefox'
 
 WGET_FILES = '.wav',
+IGNORE_FILES = 'index.html'
 
 def parent(dir):
     return os.path.abspath(os.path.join(dir, os.pardir))
@@ -33,7 +34,7 @@ def copy_files_maybe(from_directory, get_subdir=False):
     print('- processing', from_directory)
     already_in = os.listdir(DESTINATION_DIRECTORY)
     for f in os.listdir(from_directory):
-        if f in ('.', '..') or f.startswith('.'):
+        if f in ('.', '..') or f.startswith('.') or f in IGNORE_FILES:
             continue
         if f not in already_in:
             fullpath = os.path.join(from_directory, f)
@@ -113,9 +114,9 @@ run_arg = len(sys.argv) == 3 and sys.argv[2] or ''
 if (len(sys.argv) < 2
     or not (os.path.exists(main_arg)
             or main_arg == 'clean')
-    or not run_arg in ('', 'native', 'web')
+    or not run_arg in ('', 'native', 'web', 'repack')
         ):
-    print('usage:', sys.argv[0], '<directory>[/filename.lua] [native|web]')
+    print('usage:', sys.argv[0], '<directory>[/filename.lua] [native|web|repack]')
     print('      ', sys.argv[0], 'clean')
     sys.exit(1)
 
@@ -149,7 +150,7 @@ else:
         first = False
 
     if file and file != 'main.lua':
-        print('rename', file, 'to main.lua')
+        print('- rename', file, 'to main.lua')
         os.rename(os.path.join(DESTINATION_DIRECTORY, file), main)
 
     if run_arg == 'native':
@@ -160,9 +161,11 @@ else:
                         EXTENSIONS_NATIVE)
 
         os.environ['LD_LIBRARY_PATH'] = LIB_PATH
-        os.system('cd ' + DESTINATION_DIRECTORY + '; ../build-native/drystal')
+        cmd = 'cd ' + DESTINATION_DIRECTORY + '; ../build-native/drystal'
+        print(cmd)
+        os.system(cmd)
 
-    elif run_arg == 'web':
+    elif run_arg in ('web', 'repack'):
         assert(not os.system('tup upd build-web')) # TODO: use repacker directly
         # TODO: link extensions
         remove_old_wget()
@@ -170,19 +173,20 @@ else:
         import repacker
         os.chdir(BUILD_WEB)
         repacker.DATADIR = '../' + repacker.DATADIR
-        repacker.repack()
+        repacker.repack('../tests/index.html')
         os.chdir('..')
 
-        from http.server import HTTPServer, SimpleHTTPRequestHandler
-        addr, port = '127.0.0.1', 8000
-        httpd = HTTPServer((addr, port), SimpleHTTPRequestHandler)
-        for b in BROWSERS:
-            if not os.system(b + ' ' + addr + ':' + str(port) + '/' + BUILD_WEB_REL + ' >/dev/null'):
-                print('- page opened in', b)
-                break
-        else:
-            print('! unable to open a browser')
-        httpd.serve_forever()
+        if run_arg == 'web':
+            from http.server import HTTPServer, SimpleHTTPRequestHandler
+            addr, port = '127.0.0.1', 8000
+            httpd = HTTPServer((addr, port), SimpleHTTPRequestHandler)
+            for b in BROWSERS:
+                if not os.system(b + ' ' + addr + ':' + str(port) + '/' + BUILD_WEB_REL + ' >/dev/null'):
+                    print('- page opened in', b)
+                    break
+            else:
+                print('! unable to open a browser')
+            httpd.serve_forever()
 
 
 
