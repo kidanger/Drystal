@@ -2,10 +2,6 @@ tags
 *.so
 .depend
 .vim_syntax
-index.html
-index.data
-drystal
-obj/
 build-*/
 .tup
 *.pyc
