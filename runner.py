@@ -109,8 +109,9 @@ def clean_all():
 
 cw = os.getcwd()
 
-main_arg = sys.argv[1]
+main_arg = len(sys.argv) > 1 and sys.argv[1] or ''
 run_arg = len(sys.argv) == 3 and sys.argv[2] or ''
+
 if (len(sys.argv) < 2
     or not (os.path.exists(main_arg)
             or main_arg == 'clean')
