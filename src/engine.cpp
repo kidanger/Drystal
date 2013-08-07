@@ -32,7 +32,9 @@ Engine::Engine(const char* filename, int target_fps) :
 	last_update(get_now()),
 	event(*this),
 	net(*this),
-	lua(*this, filename)
+	lua(*this, filename),
+	update_activated(true),
+	draw_activated(true)
 {
 	engine = this;
 #ifdef STATS
@@ -114,9 +116,10 @@ void Engine::update()
 	double dt = (get_now() - last_update) / 1000;
 	last_update = get_now();
 
-	lua.call_update(dt);
+	if (update_activated)
+		lua.call_update(dt);
 	AT(game);
-	if (tick % 2)
+	if (tick % 2 and draw_activated)
 		lua.call_draw();
 	AT(display);
 
@@ -195,6 +198,16 @@ void Engine::stop()
 #ifdef EMSCRIPTEN
 	emscripten_cancel_main_loop();
 #endif
+}
+
+void Engine::toggle_draw()
+{
+	draw_activated = not draw_activated;
+}
+
+void Engine::toggle_update()
+{
+	update_activated = not update_activated;
 }
 
 Engine &get_engine()

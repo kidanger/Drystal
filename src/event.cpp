@@ -281,7 +281,13 @@ void EventManager::handle_event(const SDL_Event& event)
 			engine.key_release(mySDL_GetKeyName(event.key.keysym.sym));
 			break;
 		case SDL_KEYDOWN:
-			engine.key_press(mySDL_GetKeyName(event.key.keysym.sym));
+			if (event.key.keysym.sym == SDLK_F1) {
+				engine.toggle_update();
+			} else if (event.key.keysym.sym == SDLK_F2) {
+				engine.toggle_draw();
+			} else {
+				engine.key_press(mySDL_GetKeyName(event.key.keysym.sym));
+			}
 			break;
 		case SDL_MOUSEMOTION:
 			engine.mouse_motion(event.button.x, event.button.y);

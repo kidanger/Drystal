@@ -21,6 +21,9 @@ class Engine
 		long unsigned last_update;
 		long unsigned get_now() const;
 
+		bool update_activated;
+		bool draw_activated;
+
 	public:
 		Display display;
 		EventManager event;
@@ -44,6 +47,9 @@ class Engine
 		void receive(const char* str) const;
 		void connected() const;
 		void disconnected() const;
+
+		void toggle_update();
+		void toggle_draw();
 
 		void stop();
 };
