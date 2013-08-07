@@ -32,12 +32,12 @@ def parent(dir):
 
 def copy_files_maybe(from_directory, get_subdir=False):
     print('- processing', from_directory)
-    already_in = os.listdir(DESTINATION_DIRECTORY)
     for f in os.listdir(from_directory):
-        if f in ('.', '..') or f.startswith('.') or f in IGNORE_FILES:
+        if f.startswith('.') or f in IGNORE_FILES:
             continue
-        if f not in already_in:
-            fullpath = os.path.join(from_directory, f)
+        old = os.path.join(DESTINATION_DIRECTORY, f)
+        fullpath = os.path.join(from_directory, f)
+        if not os.path.exists(old) or os.path.getmtime(fullpath) > os.path.getmtime(old):
             if os.path.isfile(fullpath):
                 if os.path.splitext(fullpath)[1]:
                     print('    copying\t', f)
@@ -125,9 +125,19 @@ if sys.argv[1] == 'clean':
     clean_all()
 
 else:
-    clean_all()
-
     to_be_run = main_arg
+
+    token = os.path.join(DESTINATION_DIRECTORY, '.' + to_be_run.replace('/', '\\'))
+    if not os.path.exists(token):
+        clean_all()
+    else:
+        print('- token exists, don\'t clean')
+
+    if not os.path.exists(DESTINATION_DIRECTORY):
+        print('- create', DESTINATION_DIRECTORY)
+        os.mkdir(DESTINATION_DIRECTORY)
+        print('- add token', token)
+        open(token, 'w').close()
 
     if os.path.isdir(to_be_run):
         # in case the trailing '/' is omitted, because path.split wouldn't behave as we want
@@ -141,7 +151,7 @@ else:
     main = os.path.join(DESTINATION_DIRECTORY, 'main.lua')
     dir = os.path.abspath(dirpath)
 
-    shutil.copytree(INCLUDE_DIRECTORY, DESTINATION_DIRECTORY)
+    copy_files_maybe(INCLUDE_DIRECTORY, get_subdir=True)
 
     first = True
     while cw != dir:
@@ -155,7 +165,7 @@ else:
         os.rename(os.path.join(DESTINATION_DIRECTORY, file), main)
 
     if run_arg == 'native':
-        assert(not os.system('tup upd build-native')) # TODO: use repacker directly
+        assert(not os.system('tup upd build-native'))
         copy_extensions(EXTENSIONS_DIRECTORY_NATIVE,
                         [f for f in os.listdir(EXTENSIONS_DIRECTORY)
                            if os.path.isdir(os.path.join(EXTENSIONS_DIRECTORY, f))],
@@ -167,7 +177,7 @@ else:
         os.system(cmd)
 
     elif run_arg in ('web', 'repack'):
-        assert(not os.system('tup upd build-web')) # TODO: use repacker directly
+        assert(not os.system('tup upd build-web'))
         # TODO: link extensions
         remove_old_wget()
         move_wget_files(DESTINATION_DIRECTORY, os.path.join(BUILD_WEB, DESTINATION_DIRECTORY_REL))
