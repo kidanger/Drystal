@@ -1,4 +1,5 @@
 local _draw_from = draw_from
+local _draw_on = draw_on
 local _draw_surface = draw_surface
 draw_freeshape = _draw_surface
 
@@ -87,6 +88,11 @@ function draw_from(surf)
 	_draw_from(surf)
 	current_from = surf
 end
+local current_on = nil
+function draw_on(surf)
+	_draw_on(surf)
+	current_on = surf
+end
 
 function draw_surface(surf, x, y)
 	local old = current_from
@@ -103,6 +109,15 @@ end
 function draw_circle(cx, cy, r)
 	cx = cx + ox;
 	cy = cy + oy;
+	
+	
+	local width, height = surface_size(current_on)
+	if cx + r < 0 or cx - r > width then
+		return
+	end
+	if cy + r < 0 or cy - r > height then
+		return
+	end
 	-- http://slabode.exofire.net/circle_draw.shtml
 
 	local num_segments = math.floor(10*math.sqrt(r))
