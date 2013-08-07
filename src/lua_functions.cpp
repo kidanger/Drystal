@@ -58,11 +58,12 @@ bool LuaFunctions::reload_code()
 #ifndef EMSCRIPTEN
 	time_t last = last_modified(filename);
 	if (last == 0) {
-		fprintf(stderr, "[ERROR] file `%s' does not exist\n", filename);
+		perror("can't reload");
 		return false;
 	}
 	if (last_load < last) {
 		// reload the code
+		printf("Reloading code...\n");
 		return load_code();
 	}
 #endif
