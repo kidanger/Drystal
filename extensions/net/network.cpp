@@ -1,3 +1,4 @@
+#include <cassert>
 #include <cstdio>
 #include <cstring>
 
@@ -22,75 +23,23 @@ ssize_t (*_send)(int, const void*, size_t, int) = send;
 
 #include "network.hpp"
 
-static char buff[1024*11];
+const int UNDEFINED_SOCKET = -1;
 
-void Network::poll()
-{
-	if (sockfd < 0)
-		return;
-	fd_set sett;
-	FD_ZERO(&sett);
-	FD_SET(sockfd, &sett);
-
-	struct timeval tv;
-	tv.tv_sec = 0;
-	tv.tv_usec = 0;
-
-	int ret = select(64, &sett, NULL, NULL, &tv);
-	if (ret < 0)
-	{
-		disconnect();
-		//engine.disconnected();
-		perror("Error message");
-		return;
-	}
-	else if (ret == 0)
-		return;
-
-	int n = recv(sockfd, buff, sizeof(buff)-1, 0);
-	if (n == 0)
-	{
-		perror("No message to read");
-		disconnect();
-		//engine.disconnected();
-		return;
-	}
-	buff[n] = 0;
-	const char *last = buff;
-	char *str = NULL;
-	do
-	{
-		str = strstr((char*) last, "\n");
-		if(str)
-		{
-			*str = 0;
-			//engine.receive(last);
-			last = str+1;
-		}
-	} while(str);
-	poll();
-}
-
-bool Network::connect(const char* hostname, int port)
+ErrorCode Network::connect(const char* hostname, int port)
 {
 	struct sockaddr_in serv_addr;
 	struct hostent *server;
 
 	sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (sockfd < 0)
-	{
-		perror("ERROR opening socket");
-		disconnect();
-		return false;
+	if (sockfd == -1) {
+		sockfd = UNDEFINED_SOCKET;
+		return UNABLE_TO_OPEN_SOCKET;
 	}
-	printf("connecting to %s\n", hostname);
 
 	server = gethostbyname(hostname);
-	if (server == NULL)
-	{
-		fprintf(stderr,"ERROR, no such host\n");
-		disconnect();
-		return false;
+	if (server == NULL) {
+		sockfd = UNDEFINED_SOCKET;
+		return UNABLE_TO_GET_HOST;
 	}
 
 	memset(&serv_addr, 0, sizeof(serv_addr));
@@ -103,15 +52,13 @@ bool Network::connect(const char* hostname, int port)
 
 	if (_connect(sockfd, (const struct sockaddr*) &serv_addr, sizeof(serv_addr)) < 0)
 	{
-		perror("ERROR connecting");
-		disconnect();
-		return false;
+		sockfd = UNDEFINED_SOCKET;
+		return UNABLE_TO_CONNECT;
 	}
-	//engine.connected();
-	return true;
+	return NO_ERROR;
 }
 
-Network::Network() : sockfd(-1)
+Network::Network() : sockfd(UNDEFINED_SOCKET)
 {
 }
 
@@ -120,36 +67,69 @@ Network::~Network()
 	disconnect();
 }
 
-void Network::disconnect()
+long Network::send(const char* data, unsigned long len)
 {
-	if (sockfd < 0)
-		return;
-
-	int ret = close(sockfd);
-	if (ret < 0)
-	{
-		perror("cannot close connection");
+	if (sockfd == UNDEFINED_SOCKET) {
+		return NOT_CONNECTED;
 	}
-	sockfd = -1;
-	printf("connection closed");
+
+	int n = _send(sockfd, data, len, 0);
+	if (n < 0) {
+		sockfd = UNDEFINED_SOCKET;
+		return CONNECTION_LOST;
+	}
+
+#ifndef EMSCRIPTEN
+	// XXX: emscripten add a buffer, so it will never blocks
+	// that not true in native. Add something to handle this case
+#endif
+
+	return n;
 }
 
-void Network::send(const void* data, size_t len)
+long Network::receive(char* buffer, unsigned long len)
 {
-	char buff[len+1];
-	memcpy(buff, data, len);
-	buff[len] = '\n';
-	ssize_t n = _send(sockfd, buff, len+1, 0);
-	if (n < 0)
-	{
-		printf("unable to send: %s\n", (char*)data);
-		disconnect();
-		//engine.disconnected();
+	if (sockfd == UNDEFINED_SOCKET) {
+		return NOT_CONNECTED;
 	}
+	fd_set sett;
+	FD_ZERO(&sett);
+	FD_SET(sockfd, &sett);
+
+	struct timeval tv;
+	tv.tv_sec = 0;
+	tv.tv_usec = 0;
+
+	int ret = select(64, &sett, NULL, NULL, &tv);
+	if (ret < 0) {
+		sockfd = UNDEFINED_SOCKET;
+		return CONNECTION_LOST;
+	} else if (ret == 0) {
+		buffer[0] = 0;
+		return 0;
+	}
+
+	int n = recv(sockfd, buffer, len - 1, 0);
+	if (n == 0) {
+		sockfd = UNDEFINED_SOCKET;
+		return CONNECTION_LOST;
+	}
+	assert(n > 0);
+	buffer[n] = 0;
+	return n;
 }
 
-void Network::flush()
+ErrorCode Network::disconnect()
 {
-	//TODO implement
+	if (sockfd == UNDEFINED_SOCKET) {
+		return ALREADY_DISCONNECTED;
+	}
+
+	ErrorCode error = NO_ERROR;
+	if (close(sockfd) < 0) {
+		error = CANNOT_CLOSE_SOCKET;
+	}
+	sockfd = UNDEFINED_SOCKET;
+	return error;
 }
 

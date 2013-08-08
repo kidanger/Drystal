@@ -87,8 +87,7 @@ class Server:
                     print "Too many errors! from " + client.nick
                     client.close()
 
-            for c in self.clients:
-                self.send("lol")
+            self.send("lol")
 
             # flush clients
             [c.flush() for c in self.clients if c]

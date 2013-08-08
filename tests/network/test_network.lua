@@ -1,45 +1,34 @@
-net_status = {
-	hostname = 'localhost',
-	port = '1234',
-	status = '',
-	last_received = '',
-}
+local net = require 'net'
+
+local hostname = 'localhost'
+local port = '1234'
 
 function init()
-	print("initialized from lua")
 	resize(40, 40)
-	set_resizable(true)
 
-	do_connect()
+	local err = net.connect(hostname, port)
+	if err ~= net.NO_ERROR then
+		error('connection failed ' .. err)
+	else
+		print'connected'
+	end
+	print('send', net.send('test test test'))
 end
 
 function key_press(key)
 	if key == 'escape' then
+		net.disconnect();
 		engine_stop()
 	end
 end
 
-function key_release(key)
-end
-
-function do_connect()
-	net_status.info = 'connecting'
-	local ok = connect(net_status.hostname, net_status.port)
-	if ok == 0 then
-		net_status.info = 'connection failed'
+function update(dt)
+	local code, str = net.receive()
+	if code == 0 then
+	elseif code > 0 then
+		print('received:', str)
+	else
+		error('err receiving ' .. code)
 	end
-	send('test test test')
 end
 
-function receive(str)
-	print('-> ' .. str)
-end
-
-function connected()
-	print('Connected.')
-	net_status.info = 'connected'
-end
-function disconnected()
-	print('Disconnected from the server.')
-	net_status.info = 'disconnected'
-end
