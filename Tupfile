@@ -11,7 +11,7 @@ ifdef FAST_LINK
 : drystal_truetype_web.js |> cp %f %o |> index_nodata.js
 else
 EXTENSIONS=$(tt) $(web)
-: src/*.o | $(EXTENSIONS) external/liblua-drystal.so ../external/<lua> |> !ld_drystal $(EXTENSIONS) |> index_nodata.js
+: src/*.o $(EXTENSIONS) | external/liblua-drystal.so ../external/<lua> |> !ld_drystal |> index_nodata.js
 endif
 
 else
