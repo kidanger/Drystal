@@ -31,7 +31,6 @@ Engine::Engine(const char* filename, int target_fps) :
 	run(true),
 	last_update(get_now()),
 	event(*this),
-	net(*this),
 	lua(*this, filename),
 	update_activated(true),
 	draw_activated(true)
@@ -68,7 +67,7 @@ void Engine::loop()
 	{
 		unsigned long at_start = get_now();
 
-		// update everything (network, event, game, display)
+		// update everything (event, game, display)
 		update();
 
 		// wait few millis to stay at the targeted fps value
@@ -82,7 +81,6 @@ void Engine::loop()
 			}
 		}
 	}
-	net.disconnect();
 #endif
 }
 
@@ -105,8 +103,6 @@ void Engine::update()
 		return;
 
 	AT(event)
-	net.poll();
-	AT(net)
 
 #ifndef EMSCRIPTEN
 	if (tick % 30 == 0)
@@ -128,8 +124,7 @@ void Engine::update()
 #ifdef STATS
 	stats.ticks_passed++;
 	stats.event += at_event - at_start;
-	stats.net += at_net - at_event;
-	stats.game += at_game - at_net;
+	stats.game += at_game - at_event;
 	stats.display += at_display - at_game;
 	stats.total_active += at_display - at_start;
 
@@ -175,21 +170,6 @@ void Engine::key_press(const char* key_string) const
 void Engine::key_release(const char* key_string) const
 {
 	lua.call_key_release(key_string);
-}
-
-void Engine::receive(const char* str) const
-{
-	lua.call_receive(str);
-}
-
-void Engine::connected() const
-{
-	lua.call_connected();
-}
-
-void Engine::disconnected() const
-{
-	lua.call_disconnected();
 }
 
 void Engine::stop()

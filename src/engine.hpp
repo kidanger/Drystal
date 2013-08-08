@@ -6,7 +6,6 @@
 #endif
 
 #include "display.hpp"
-#include "network.hpp"
 #include "event.hpp"
 #include "audio.hpp"
 #include "lua_functions.hpp"
@@ -27,7 +26,6 @@ class Engine
 	public:
 		Display display;
 		EventManager event;
-		Network net;
 		Audio audio;
 		LuaFunctions lua;
 
@@ -43,10 +41,6 @@ class Engine
 		void mouse_release(int, int, int) const;
 		void key_press(const char* key_string) const;
 		void key_release(const char* key_string) const;
-
-		void receive(const char* str) const;
-		void connected() const;
-		void disconnected() const;
 
 		void toggle_update();
 		void toggle_draw();

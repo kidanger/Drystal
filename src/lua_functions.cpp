@@ -168,48 +168,6 @@ void LuaFunctions::call_resize_event(int w, int h) const
 	}
 }
 
-void LuaFunctions::call_receive(const char* str) const
-{
-	lua_getglobal(L, "receive");
-	if (not lua_isfunction(L, -1))
-	{
-		lua_pop(L, 1);
-		return;
-	}
-	lua_pushstring(L, str);
-	if (lua_pcall(L, 1, 0, 0))
-	{
-		luaL_error(L, "error calling receive: %s", lua_tostring(L, -1));
-	}
-}
-
-void LuaFunctions::call_connected() const
-{
-	lua_getglobal(L, "connected");
-	if (not lua_isfunction(L, -1))
-	{
-		lua_pop(L, 1);
-		return;
-	}
-	if (lua_pcall(L, 0, 0, 0))
-	{
-		luaL_error(L, "error calling receive: %s", lua_tostring(L, -1));
-	}
-}
-void LuaFunctions::call_disconnected() const
-{
-	lua_getglobal(L, "disconnected");
-	if (not lua_isfunction(L, -1))
-	{
-		lua_pop(L, 1);
-		return;
-	}
-	if (lua_pcall(L, 0, 0, 0))
-	{
-		luaL_error(L, "error calling receive: %s", lua_tostring(L, -1));
-	}
-}
-
 bool LuaFunctions::call_update(double dt)
 {
 	lua_getglobal(L, "update");
@@ -431,26 +389,6 @@ static int mlua_free_shader(lua_State* L)
 }
 
 
-static int mlua_connect(lua_State* L)
-{
-	const char* host = lua_tostring(L, -2);
-	int port = lua_tointeger(L, -1);
-	bool ok = engine->net.connect(host, port);
-	lua_pushnumber(L, ok);
-	return 1;
-}
-static int mlua_send(lua_State* L)
-{
-	const char* message = lua_tostring(L, -1);
-	engine->net.send(message, strlen(message));
-	return 0;
-}
-static int mlua_disconnect(lua_State*)
-{
-	engine->net.disconnect();
-	return 0;
-}
-
 static int mlua_load_sound(lua_State *L)
 {
 	const char *filepath = lua_tostring(L, -1);
@@ -609,10 +547,6 @@ void LuaFunctions::send_globals() const
 	lua_register(L, "use_shader", mlua_use_shader);
 	lua_register(L, "feed_shader", mlua_feed_shader);
 	lua_register(L, "free_shader", mlua_free_shader);
-
-	lua_register(L, "connect", mlua_connect);
-	lua_register(L, "send", mlua_send);
-	lua_register(L, "disconnect", mlua_disconnect);
 
 	lua_register(L, "play_music", mlua_play_music);
 	lua_register(L, "play_music_queued", mlua_play_music_queued);

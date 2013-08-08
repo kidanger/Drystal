@@ -1,0 +1,4 @@
+include_rules
+
+: main.cpp |> !cxx |> main.o
+: main.o |> !ld_shared |> @(EXTENSION_FILE)

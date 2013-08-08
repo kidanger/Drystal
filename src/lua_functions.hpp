@@ -27,9 +27,6 @@ class LuaFunctions
 		void call_mouse_release(int mx, int my, int button) const;
 		void call_key_press(const char* key_string) const;
 		void call_key_release(const char* key_string) const;
-		void call_receive(const char* str) const;
-		void call_connected() const;
-		void call_disconnected() const;
 
 		void call_on_wget_success(const char * filename);
 		void call_on_wget_error(const char * filename);

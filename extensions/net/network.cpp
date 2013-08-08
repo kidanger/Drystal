@@ -20,7 +20,6 @@ ssize_t (*_send)(int, const void*, size_t, int) = send;
 #include "emscripten.h"
 #endif
 
-#include "engine.hpp"
 #include "network.hpp"
 
 static char buff[1024*11];
@@ -41,7 +40,7 @@ void Network::poll()
 	if (ret < 0)
 	{
 		disconnect();
-		engine.disconnected();
+		//engine.disconnected();
 		perror("Error message");
 		return;
 	}
@@ -53,11 +52,10 @@ void Network::poll()
 	{
 		perror("No message to read");
 		disconnect();
-		engine.disconnected();
+		//engine.disconnected();
 		return;
 	}
 	buff[n] = 0;
-	//printf("received n=%d %s\n", n, buff);
 	const char *last = buff;
 	char *str = NULL;
 	do
@@ -66,7 +64,7 @@ void Network::poll()
 		if(str)
 		{
 			*str = 0;
-			engine.receive(last);
+			//engine.receive(last);
 			last = str+1;
 		}
 	} while(str);
@@ -109,13 +107,11 @@ bool Network::connect(const char* hostname, int port)
 		disconnect();
 		return false;
 	}
-	engine.connected();
+	//engine.connected();
 	return true;
 }
 
-Network::Network(Engine& e)
-	: engine(e),
-	  sockfd(-1)
+Network::Network() : sockfd(-1)
 {
 }
 
@@ -148,7 +144,7 @@ void Network::send(const void* data, size_t len)
 	{
 		printf("unable to send: %s\n", (char*)data);
 		disconnect();
-		engine.disconnected();
+		//engine.disconnected();
 	}
 }
 
