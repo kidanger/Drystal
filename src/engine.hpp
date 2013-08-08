@@ -38,7 +38,7 @@ class Engine
 		void update();
 
 		void resize_event(int w, int h) const;
-		void mouse_motion(int, int) const;
+		void mouse_motion(int x, int y, int dx, int dy) const;
 		void mouse_press(int, int, int) const;
 		void mouse_release(int, int, int) const;
 		void key_press(const char* key_string) const;

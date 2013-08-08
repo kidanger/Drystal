@@ -70,7 +70,7 @@ bool LuaFunctions::reload_code()
 	return false;
 }
 
-void LuaFunctions::call_mouse_motion(int mx, int my) const
+void LuaFunctions::call_mouse_motion(int mx, int my, int dx, int dy) const
 {
 	lua_getglobal(L, "mouse_motion");
 	if (not lua_isfunction(L, -1))
@@ -80,7 +80,9 @@ void LuaFunctions::call_mouse_motion(int mx, int my) const
 	}
 	lua_pushnumber(L, mx);
 	lua_pushnumber(L, my);
-	if (lua_pcall(L, 2, 0, 0))
+	lua_pushnumber(L, dx);
+	lua_pushnumber(L, dy);
+	if (lua_pcall(L, 4, 0, 0))
 	{
 		luaL_error(L, "error calling mouse_motion: %s", lua_tostring(L, -1));
 	}
@@ -261,6 +263,12 @@ static int mlua_show_cursor(lua_State* L)
 {
 	int show = lua_toboolean(L, -1);
 	engine->display.show_cursor(show);
+	return 0;
+}
+static int mlua_grab_cursor(lua_State* L)
+{
+	int grab = lua_toboolean(L, -1);
+	engine->event.grab_cursor(grab);
 	return 0;
 }
 static int mlua_set_resizable(lua_State* L)
@@ -575,6 +583,8 @@ void LuaFunctions::send_globals() const
 	lua_register(L, "engine_stop", mlua_engine_stop);
 
 	lua_register(L, "show_cursor", mlua_show_cursor);
+	lua_register(L, "grab_cursor", mlua_grab_cursor);
+
 	lua_register(L, "set_resizable", mlua_set_resizable);
 	lua_register(L, "resize", mlua_resize);
 	lua_register(L, "flip", mlua_flip);

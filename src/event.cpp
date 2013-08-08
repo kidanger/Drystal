@@ -264,10 +264,29 @@ const char * mySDL_GetKeyName(SDL_Keycode key)
 	return keyname;
 }
 
-EventManager::EventManager(Engine& eng) : engine(eng)
+EventManager::EventManager(Engine& eng) : engine(eng), _grab_cursor(false)
 {
 	initKeys();
 	SDL_EnableKeyRepeat(0, 0);
+}
+
+void EventManager::poll()
+{
+	SDL_Event event;
+	while(SDL_PollEvent(&event))
+	{
+		handle_event(event);
+	}
+}
+
+void EventManager::grab_cursor(bool grab)
+{
+#ifdef EMSCRIPTEN
+	SDL_WM_GrabInput(grab ? SDL_GRAB_ON : SDL_GRAB_OFF); // in native, this grabs keyboard too
+#else
+	_grab_cursor = grab;
+	check_grab();
+#endif
 }
 
 void EventManager::handle_event(const SDL_Event& event)
@@ -290,7 +309,15 @@ void EventManager::handle_event(const SDL_Event& event)
 			}
 			break;
 		case SDL_MOUSEMOTION:
-			engine.mouse_motion(event.button.x, event.button.y);
+#ifndef EMSCRIPTEN
+			if (not _warped) {
+#endif
+				engine.mouse_motion(event.motion.x, event.motion.y,
+									event.motion.xrel, event.motion.yrel);
+#ifndef EMSCRIPTEN
+				check_grab();
+			}
+#endif
 			break;
 		case SDL_MOUSEBUTTONDOWN:
 			engine.mouse_press(event.button.x, event.button.y, event.button.button);
@@ -304,14 +331,20 @@ void EventManager::handle_event(const SDL_Event& event)
 		default:
 			break;
 	}
+	_warped = false;
 }
 
-void EventManager::poll()
+void EventManager::check_grab()
 {
-	SDL_Event event;
-	while(SDL_PollEvent(&event))
-	{
-		handle_event(event);
+	if (_grab_cursor) {
+		int x, y;
+		SDL_GetMouseState(&x, &y);
+		int w = SDL_GetVideoInfo()->current_w;
+		int h = SDL_GetVideoInfo()->current_h;
+		if (x < w / 4 || x > w * 3/4 || y < h / 4 || y > h * 3/4) {
+			SDL_WarpMouse(w / 2, h / 2);
+			_warped = true;
+		}
 	}
 }
 

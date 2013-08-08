@@ -152,9 +152,9 @@ void Engine::resize_event(int w, int h) const
 	lua.call_resize_event(w, h);
 }
 
-void Engine::mouse_motion(int mx, int my) const
+void Engine::mouse_motion(int x, int y, int dx, int dy) const
 {
-	lua.call_mouse_motion(mx, my);
+	lua.call_mouse_motion(x, y, dx, dy);
 }
 
 void Engine::mouse_press(int mx, int my, int button) const

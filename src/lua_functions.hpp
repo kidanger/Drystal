@@ -22,7 +22,7 @@ class LuaFunctions
 		bool call_draw();
 
 		void call_resize_event(int w, int h) const;
-		void call_mouse_motion(int mx, int my) const;
+		void call_mouse_motion(int mx, int my, int dx, int dy) const;
 		void call_mouse_press(int mx, int my, int button) const;
 		void call_mouse_release(int mx, int my, int button) const;
 		void call_key_press(const char* key_string) const;
