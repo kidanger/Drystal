@@ -12,7 +12,7 @@ function init()
 	else
 		print'connected'
 	end
-	print('send', net.send('test test test'))
+	print('send', net.send('test test test\n'))
 end
 
 function key_press(key)
@@ -28,7 +28,8 @@ function update(dt)
 	elseif code > 0 then
 		print('received:', str)
 	else
-		error('err receiving ' .. code)
+		print('error receiving ' .. code)
+		engine_stop()
 	end
 end
 
