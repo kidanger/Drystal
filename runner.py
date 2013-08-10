@@ -115,7 +115,7 @@ run_arg = len(sys.argv) == 3 and sys.argv[2] or ''
 if (len(sys.argv) < 2
     or not (os.path.exists(main_arg)
             or main_arg == 'clean')
-    or not run_arg in ('', 'native', 'web', 'repack')
+    or not run_arg in ('', 'native', 'debug', 'web', 'repack')
         ):
     print('usage:', sys.argv[0], '<directory>[/filename.lua] [native|web|repack]')
     print('      ', sys.argv[0], 'clean')
@@ -164,7 +164,7 @@ else:
         print('- rename', file, 'to main.lua')
         os.rename(os.path.join(DESTINATION_DIRECTORY, file), main)
 
-    if run_arg == 'native':
+    if run_arg in ('native', 'debug'):
         assert(not os.system('tup upd build-native'))
         copy_extensions(EXTENSIONS_DIRECTORY_NATIVE,
                         [f for f in os.listdir(EXTENSIONS_DIRECTORY)
@@ -172,13 +172,22 @@ else:
                         EXTENSIONS_NATIVE)
 
         os.environ['LD_LIBRARY_PATH'] = LIB_PATH
-        cmd = 'cd ' + DESTINATION_DIRECTORY + '; ../build-native/drystal'
+        program = '../build-native/drystal'
+        # if debug, run with 'gdb' (and give it path to sources)
+        if run_arg == 'debug':
+            source_directories = ['src', 'external/lua/src']
+            for f in os.listdir(EXTENSIONS_DIRECTORY):
+                path = os.path.join(EXTENSIONS_DIRECTORY, f)
+                if os.path.isdir(path):
+                    source_directories.append(path[len(os.getcwd()) + 1:])
+            source_directories = map(lambda d: '-d ../' + d, source_directories)
+            program = 'gdb ' + ' '.join(source_directories) + ' -ex run ' + program
+        cmd = 'cd ' + DESTINATION_DIRECTORY + '; ' + program
         print(cmd)
         os.system(cmd)
 
     elif run_arg in ('web', 'repack'):
         assert(not os.system('tup upd build-web'))
-        # TODO: link extensions
         remove_old_wget()
         move_wget_files(DESTINATION_DIRECTORY, os.path.join(BUILD_WEB, DESTINATION_DIRECTORY_REL))
         import repacker
