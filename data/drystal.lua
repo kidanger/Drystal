@@ -111,7 +111,7 @@ function draw_circle(cx, cy, r)
 	cy = cy + oy;
 	
 	
-	local width, height = surface_size(current_on)
+	local width, height = surface_size(current_on or screen)
 	if cx + r < 0 or cx - r > width then
 		return
 	end
@@ -160,6 +160,24 @@ function draw_square(x, y, w, h)
 	draw_line(x, y, x, y+h)
 	draw_line(x+w, y, x+w, y+h)
 end
+
+function draw_rect_rotated(x, y, w, h, angle)
+	x = x + ox
+	y = y + oy
+	local cos = math.cos(angle)
+	local sin = math.sin(angle)
+	function rot(_x, _y)
+		return x + _x*cos - _y*sin + w/2,
+				y + _y*cos + _x*sin + h/2
+	end
+	local x1, y1 = rot(-w/2, -h/2)
+	local x2, y2 = rot(w/2, -h/2)
+	local x3, y3 = rot(w/2, h/2)
+	local x4, y4 = rot(-w/2, h/2)
+	draw_triangle(x1, y1, x2, y2, x3, y3)
+	draw_triangle(x1, y1, x4, y4, x3, y3)
+end
+
 
 local _load_surface = load_surface
 function load_surface(filename)

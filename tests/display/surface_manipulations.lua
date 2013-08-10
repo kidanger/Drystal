@@ -44,7 +44,6 @@ height = 0
 function init()
 	print("initialized from lua")
 	resize(600, 400)
-	set_resizable(false)
 	image = load_surface(spritesheet.meta.image)
 	draw_from(image)
 	set_alpha(0)

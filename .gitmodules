@@ -1,3 +1,6 @@
 [submodule "external/lua"]
 	path = external/lua
 	url = https://github.com/LuaDist/lua.git
+[submodule "extensions/physic/box2d"]
+	path = extensions/physic/box2d
+	url = https://github.com/ansman/box2d.git
