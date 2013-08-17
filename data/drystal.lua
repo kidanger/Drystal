@@ -299,37 +299,3 @@ function file_exists(name)
 	if f~=nil then io.close(f) return true else return false end
 end
 
-local _wget = wget
-local wget_requests = {}
-function wget(url, file, onload, onerror)
-	if not onload or not onerror then
-		print('invalid argument', onload, onerror)
-	end
-	if wget_requests.file then
-		table.insert(wget_requests.file.onload, onload)
-		table.insert(wget_requests.file.onerror, onerror)
-		-- already requested
-		return
-	end
-	if not _wget(url, file) then
-		return
-	end
-	wget_requests.file ={
-		onload={onload},
-		onerror={onerror},
-	}
-end
-
-function on_wget_success(file)
-	for _, f in ipairs(wget_requests.file.onload) do
-		f(file)
-	end
-	wget_requests.file = nil
-end
-function on_wget_error(file)
-	for _, f in ipairs(wget_requests.file.onerror) do
-		f(file)
-	end
-	wget_requests.file = nil
-end
-

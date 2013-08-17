@@ -12,6 +12,8 @@
 class LuaFunctions
 {
 	public:
+		lua_State* L;
+
 		LuaFunctions(Engine&, const char *filename);
 		~LuaFunctions();
 
@@ -28,11 +30,7 @@ class LuaFunctions
 		void call_key_press(const char* key_string) const;
 		void call_key_release(const char* key_string) const;
 
-		void call_on_wget_success(const char * filename);
-		void call_on_wget_error(const char * filename);
-
 	private:
-		lua_State* L;
 		const char* filename;
 #ifndef EMSCRIPTEN
 		time_t last_load;

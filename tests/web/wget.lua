@@ -2,13 +2,13 @@ package.path = 'data/?.lua;' .. package.path
 package.cpath = 'data/?.so;' .. package.cpath
 
 require 'drystal'
-require 'web'
+local web = require 'web'
 
 function init()
-	print(is_web())
-	wget('/src/log.hpp', 'lol', onsuccess, onerror)
-	wget('src/log.hpp', 'kk', onsuccess, onerror)
-	wget('http://google.fr', 'k2', onsuccess, onerror)
+	print(web.is_web())
+	web.wget('/src/log.hpp', 'lol', onsuccess, onerror)
+	web.wget('src/log.hpp', 'kk', onsuccess, onerror)
+	web.wget('http://google.fr', 'k2', onsuccess, onerror)
 	print 'boom'
 end
 
