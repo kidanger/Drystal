@@ -4,13 +4,6 @@ DARK_GRAY = { 90, 90, 90 }
 GRAY = { 150, 150, 150 }
 WHITE = { 240, 240, 240 }
 
-function set_fill()
-	if not _noticed then
-		print('TODO: set_fill')
-		_noticed = true
-	end
-end
-
 function draw_frame(x, y, w, h, border_color, inside_color, border_size)
 	set_color(border_color)
 	draw_rect(x, y, w, h)
@@ -37,17 +30,14 @@ function progress(x, y, w, h)
 		local border_size = bar.border_size
 		if bar.type == BAR then
 			if bar.inside_color then
-				set_fill(true)
 				set_color(bar.inside_color)
 				draw_rect(x, y, w, h)
 			end
 			if bar.border_color then
-				set_fill(false)
 				set_color(bar.border_color)
-				draw_rect(x, y, w, h)
+				draw_square(x, y, w, h)
 			end
 			if bar.progress_color then
-				set_fill(true)
 				set_color(bar.progress_color)
 				draw_rect(x + border_size, y + border_size, (w - border_size*2) * bar.ratio, h - border_size*2)
 			end
@@ -59,17 +49,14 @@ function progress(x, y, w, h)
 			assert(h ~= 0, 'elipsis aren\'t supported yet')
 			a = bar.ratio * 360 - 90
 			if bar.inside_color then
-				set_fill(true)
 				set_color(bar.inside_color)
 				draw_circle(x, y, w)
 			end
 			if bar.progress_color then
-				set_fill(true)
 				set_color(bar.progress_color)
 				draw_arc(x, y, w, -90, a)
 			end
 			if bar.border_color then
-				set_fill(false)
 				set_color(bar.border_color)
 				draw_circle(x, y, w)
 			end

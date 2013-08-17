@@ -40,8 +40,8 @@ class Display
 
 		Shader* default_shader;
 
-		Surface * current;
-		Surface * current_from;
+		const Surface * current;
+		const Surface * current_from;
 
 		float r;
 		float g;
@@ -82,8 +82,10 @@ class Display
 		void surface_size(Surface* surface, int *w, int *h);
 		void free_surface(Surface*);
 
-		void draw_on(Surface*);
-		void draw_from(Surface*);
+		void draw_on(const Surface*);
+		void draw_from(const Surface*);
+		const Surface* get_draw_on() const { return current; };
+		const Surface* get_draw_from() const { return current_from; };
 
 		void draw_background() const;
 		void draw_triangle(int x1, int y1, int x2, int y2, int x3, int y3);

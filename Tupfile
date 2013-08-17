@@ -14,7 +14,7 @@ ifdef FAST_LINK
 : drystal_truetype_web_net.js $(physic) |> @(EMLINK) %f %o |> drystal_truetype_web_net_physic.js
 : drystal_truetype_web_net_physic.js |> cp %f %o |> index_nodata.js
 else
-EXTENSIONS=$(tt) $(web) $(web) $(physic)
+EXTENSIONS=$(tt) $(web) $(net) $(physic)
 : src/*.o $(EXTENSIONS) | external/liblua-drystal.so ../external/<lua> |> !ld_drystal |> index_nodata.js
 endif
 

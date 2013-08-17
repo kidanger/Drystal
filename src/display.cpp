@@ -193,7 +193,7 @@ void Display::set_alpha(int a)
 	this->alpha = a / 255.;
 }
 
-void Display::draw_from(Surface* surf)
+void Display::draw_from(const Surface* surf)
 {
 	DEBUG("");
 	assert(surf);
@@ -204,7 +204,7 @@ void Display::draw_from(Surface* surf)
 	}
 }
 
-void Display::draw_on(Surface* surf)
+void Display::draw_on(const Surface* surf)
 {
 	DEBUG("");
 	assert(surf);

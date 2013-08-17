@@ -1,21 +1,17 @@
-require "data/drystal"
-require "data/draw"
+require "drystal"
+local font = require "truetype"
+local net = require "net"
+require "draw"
 
-local json = require 'data/dkjson'
-spritesheet = json.decode(io.open('data/image.json'):read('*all'))
+local json = require 'dkjson'
+spritesheet = json.decode(io.open('image.json'):read('*all'))
 
-draw_text = draw_text or function(text, x, y)
-	if text ~= nil and #text > 0 then
-		local surf = text_surface(text)
-		draw_surface(surf, x, y)
-		set_color(WHITE)
-		free_surface(surf)
-	end
-end
+local width = 800
+local height = 600
 
-width = 800
-height = 600
-fill = true
+local big_font
+local normal_font
+local small_font
 
 timer = timer or 0
 match_duration = 3600
@@ -25,7 +21,7 @@ cheat = false
 net_status = {
 	hostname = 'localhost',
 	port = '1234',
-	status = '',
+	info = '',
 	last_received = '',
 }
 in_message = false
@@ -156,8 +152,11 @@ function init()
 	resize(width, height)
 	show_cursor(false)
 
-	draw_from(load_surface('data/image.png'))
-	set_font('data/arial.ttf', 14)
+	big_font = font.load('arial.ttf', 16)
+	normal_font = font.load('arial.ttf', 14)
+	small_font = font.load('arial.ttf', 12)
+
+	draw_from(load_surface('image.png'))
 	if not state then
 		new_match()
 		state = 'pause'
@@ -169,8 +168,8 @@ function init()
 end
 
 function setup_speeds()
-	ball_speed = 8 + 3*width/800
-	speed = 10 + 1*height/600
+	ball_speed = 8 + 2*width/800
+	speed = 8 + 1*height/600
 end
 
 function left_loose()
@@ -183,7 +182,7 @@ function right_loose()
 	left.points = left.points + 1
 end
 
-function update()
+function update(dt)
 	if state == 'run' then
 		if right.ai then
 			update_ai(right)
@@ -269,7 +268,6 @@ function end_match()
 	state = 'end'
 end
 
-font_size = 1
 ticks = 0
 function draw()
 	ticks = ticks + 1
@@ -278,9 +276,9 @@ function draw()
 	draw_background()
 
 	local score = left:get_name():upper() .. ' ' .. left.points .. ' - ' .. right.points .. ' ' .. right:get_name():upper()
-	set_font("data/arial.ttf", 14)
+	font.use(normal_font)
 	set_color(BLACK)
-	draw_text(score, (width - #score * 8) / 2, 50)
+	font.draw(score, (width - #score * 8) / 2, 50)
 
 	local barw = 200
 	bar = progress(width/2 - barw/2, 25, barw, 20)
@@ -303,24 +301,22 @@ function draw()
 
 	draw_circle(ball.x, ball.y, ball.radius)
 
-	if true or powerup.visible then
+	if powerup.visible then
 		set_color(WHITE)
 		draw_sprite(powerup.sprite, powerup.x, powerup.y)
 	end
 
 	if state == 'pause' then
-		local font_size = 16
-		set_font("data/arial.ttf", font_size)
+		font.use(big_font)
 		local message = 'PRESS ENTER'
-		local sx, sy = text_size(message)
+		local sx, sy = font.sizeof(message)
 		local x, y = (width - sx) / 2, (height - sy) / 2
-		draw_frame(x, y, sx + 10, sy + 10, BLACK, DARK_GRAY, 3)
-		set_color({(math.cos(ticks/10)/2+0.5)*50 + 155, 50, 50})
-		draw_text(message, x+5, y+5)
+		draw_frame(x, y, sx + 10, sy + 10, BLACK, DARK_GRAY, 2)
+		set_color({(math.cos(ticks/10)/2+0.5)*150 + 100, 50, 50})
+		font.draw(message, x+5, y+5)
 	end
 
 	if state == 'end' then
-		set_font("data/arial.ttf", 16)
 		---
 		local sx = width / 3
 		local sy = 16 * 3
@@ -329,14 +325,14 @@ function draw()
 		set_color(BLACK)
 		---
 		local message = "Time's up"
-		local sx, sy = text_size(message)
+		local sx, sy = font.sizeof(message)
 		local x, y = (width - sx) / 2, y + 5
-		draw_text(message, x+5, y+5)
+		font.draw(message, x+5, y+5)
 		---
 		local message = (left.points > right.points and left:get_name() or right:get_name()) .. ' won.'
-		local sx, sy = text_size(message)
+		local sx, sy = font.sizeof(message)
 		local x, y = (width - sx) / 2, y + sy + 2
-		draw_text(message, x+5, y+5)
+		font.draw(message, x+5, y+5)
 		---
 	end
 
@@ -349,26 +345,22 @@ function draw()
 	flip()
 end
 
-function set_font_size(size)
-	set_font('data/arial.ttf', size)
-end
-
 function draw_say()
-	set_font_size(11)
 	set_color(RED)
-	local sx, sy = text_size(message)
-	local x, y = 1, height - sy
-	draw_text(message, x, y)
+	font.use(small_font)
+	local sx, sy = font.sizeof(message)
+	local x, y = 1, height - sy - 1
+	font.draw(message, x, y)
 end
 
 function draw_net_status()
-	set_font_size(11)
 	set_color(BLACK)
+	font.use(small_font)
 	local str = net_status.info
-	local sx, sy = text_size(str)
+	local sx, sy = font.sizeof(str)
 	local x, y = 1, height - sy*2 - 2
-	draw_text(str, x, y)
-	draw_text(net_status.last_received, x, y+sy+1)
+	font.draw(str, x, y)
+	font.draw(net_status.last_received, x, y+sy+1)
 end
 
 function do_connect()
@@ -385,7 +377,7 @@ function key_press(key)
 			in_message = false
 		end
 		if key == 'return' then
-			send(message)
+			net.send(message)
 			in_message = false
 			if message == 'imanoob' then
 				cheat = true
