@@ -79,7 +79,7 @@ void draw_text(const unsigned char* text, float x, float y)
 	assert(current_font);
 	int start = current_font->first_char;
 	int end = start + current_font->num_chars;
-	y += current_font->size / 2;
+	y += current_font->size * 3 / 4;
 
 	Engine& engine = get_engine();
 	const Surface* old_surface = engine.display.get_draw_from();
@@ -101,7 +101,7 @@ void draw_text_color(const unsigned char* text, float x, float y)
 	assert(current_font);
 	int start = current_font->first_char;
 	int end = start + current_font->num_chars;
-	y += current_font->size;
+	y += current_font->size * 3 / 4;
 
 	Engine& engine = get_engine();
 	const Surface* old_surface = engine.display.get_draw_from();
@@ -177,6 +177,7 @@ void text_size(const unsigned char* text, int* w, int* h)
 	assert(current_font);
 	float x = 0, y = 0;
 	int maxy = 0;
+	int maxx = 0;
 	int start = current_font->first_char;
 	int end = start + current_font->num_chars;
 	while (*text) {
@@ -188,11 +189,12 @@ void text_size(const unsigned char* text, int* w, int* h)
 			stbtt_aligned_quad q;
 			stbtt_GetBakedQuad(current_font->char_data, *text - start, &x, &y, &q);
 			maxy = q.y1 - q.y0 > maxy ? q.y1 - q.y0 : maxy;
+			maxx = q.x1;
 		}
 		text++;
 	}
-	*w = x;
-	*h = current_font->size / 2;
+	*w = maxx;
+	*h = maxy;
 }
 
 void use_font(Font* font)

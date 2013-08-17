@@ -1,11 +1,12 @@
-require 'data/drystal'
+require 'drystal'
+local tt = require 'truetype'
 
 w, h = 600, 400
-surf = nil
+text = ''
 
 function init()
     resize(w, h)
-    set_font('data/arial.ttf', 20)
+    tt.use(tt.load('arial.ttf', 20))
     update_surf()
 end
 
@@ -14,7 +15,7 @@ function draw()
     draw_background()
 
     set_color(0, 0, 0)
-    draw_surface(surf, 0, 0)
+    tt.draw(text, 0, 0)
 
     flip()
 end
@@ -37,12 +38,7 @@ end
 
 function update_surf()
     print("screen size", surface_size(screen))
-    if surf then
-        free_surface(surf)
-    end
-    local text = "hjlk to resize, current size is " .. w .. "x" .. h
-    print(text_size(text))
-    surf = text_surface(text)
+    text = "hjlk to resize, current size is " .. w .. "x" .. h
 end
 
 function resize_event(w, h)
