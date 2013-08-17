@@ -1,8 +1,8 @@
-require 'data/drystal'
+require 'drystal'
 
 function init()
 	resize(300, 200)
-	surf = load_surface('data/npot.png')
+	surf = load_surface('npot.png')
 	local w, h = surface_size(surf)
 	assert(w == 200, 'width is not 200, ' .. w)
 	assert(h == 150, 'height is not 150, ' .. h)

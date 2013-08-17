@@ -263,20 +263,40 @@ Surface* Display::create_surface(int w, int h, int texw, int texh, unsigned char
 	return surface;
 }
 
+#define RGBA_SIZE 4
 Surface* Display::load_surface(const char * filename) const
 {
 	assert(filename);
 	int w, h;
 	int n;
-	unsigned char *data = stbi_load(filename, &w, &h, &n, 4);
+	unsigned char *data = stbi_load(filename, &w, &h, &n, RGBA_SIZE);
 
 	if (not data)
 		return nullptr;
 
-	assert(n == 4);
+	int potw = pow(2, ceil(log(w)/log(2)));
+	int poth = pow(2, ceil(log(h)/log(2)));
 
-	Surface* surface = create_surface(w, h, w, h, data);
+	Surface* surface;
+
+	if (potw != w or poth != h) {
+		unsigned char *pixels = new unsigned char[potw * poth * RGBA_SIZE];
+		memset(pixels, 0, potw * poth * RGBA_SIZE);
+		for (int y = 0; y < h; y++) {
+			for (int x = 0; x < w; x++) {
+				int is = (x + y * w) * RGBA_SIZE;
+				int id = (x + y * potw) * RGBA_SIZE;
+				memcpy(pixels + id, data + is, RGBA_SIZE);
+			}
+		}
+		surface = create_surface(w, h, potw, poth, pixels);
+		delete[] pixels;
+	} else {
+		surface = create_surface(w, h, w, h, data);
+	}
+
 	stbi_image_free(data);
+
 	return surface;
 }
 
@@ -287,8 +307,8 @@ Surface* Display::new_surface(int w, int h) const
 	int potw = pow(2, ceil(log(w)/log(2)));
 	int poth = pow(2, ceil(log(h)/log(2)));
 
-	unsigned char *pixels = new unsigned char[potw * poth * 4];
-	memset(pixels, 0, potw * poth * 4);
+	unsigned char *pixels = new unsigned char[potw * poth * RGBA_SIZE];
+	memset(pixels, 0, potw * poth * RGBA_SIZE);
 
 	Surface *surface = create_surface(w, h, potw, poth, pixels);
 	delete[] pixels;
