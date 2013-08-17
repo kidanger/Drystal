@@ -31,17 +31,19 @@ struct Shader
 class Display
 {
 	private:
-		Buffer buffer;
+		Buffer default_buffer;
 		int size_x;
 		int size_y;
 		bool resizable;
 		SDL_Surface * sdl_screen;
 		Surface * screen;
 
-		Shader* default_shader;
+		Shader * default_shader;
 
 		const Surface * current;
 		const Surface * current_from;
+
+		Buffer * current_buffer;
 
 		float r;
 		float g;
@@ -97,6 +99,11 @@ class Display
 		void use_shader(Shader*);
 		void feed_shader(Shader*, const char*, float);
 		void free_shader(Shader*);
+
+		Buffer* new_buffer(unsigned int size=BUFFER_DEFAULT_SIZE);
+		void use_buffer(Buffer*);
+		void draw_buffer(Buffer*);
+		void free_buffer(Buffer*);
 
 		void flip();
 		bool is_available() const;

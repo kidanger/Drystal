@@ -2,6 +2,9 @@
 
 #include <SDL/SDL_opengl.h>
 
+// should be multiple of 2 (for GL_LINES) and of 3 (GL_TRIANGLES)
+const unsigned int BUFFER_DEFAULT_SIZE = 2 * 3 * 4096;
+
 enum BufferType
 {
 	LINE_BUFFER,
@@ -13,6 +16,7 @@ class Buffer
 private:
 	BufferType type;
 
+	unsigned int size;
 	GLuint buffers[3]; // first is for positions, second for colors, and third (optional) for texcoords
 	GLfloat* positions;
 	GLfloat* colors;
@@ -22,16 +26,18 @@ private:
 	unsigned int current_texCoord;
 
 	void assert_not_full();
-	void flush();
+	void flush(bool do_reset=true);
 	void reset();
 
 public:
-	Buffer();
+	Buffer(unsigned int size=BUFFER_DEFAULT_SIZE);
 	~Buffer();
 
 	void push_vertex(GLfloat, GLfloat);
 	void push_color(GLfloat, GLfloat, GLfloat, GLfloat);
 	void push_texCoord(GLfloat, GLfloat);
+
+	void draw();
 
 	void assert_type(BufferType);
 	void assert_empty();

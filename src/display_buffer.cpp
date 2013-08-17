@@ -9,13 +9,11 @@
 #include "display.hpp"
 #include "display_buffer.hpp"
 
-// should be multiple of 2 (for GL_LINES) and of 3 (GL_TRIANGLES)
-const unsigned int BUFFER_DEFAULT_SIZE = 2 * 3 * 1024;
-
-Buffer::Buffer()
-  	: positions(new GLfloat[BUFFER_DEFAULT_SIZE * 2]),
-	  colors(new GLfloat[BUFFER_DEFAULT_SIZE * 4]),
-	  texCoords(new GLfloat[BUFFER_DEFAULT_SIZE * 2])
+Buffer::Buffer(unsigned int size) :
+	size(size),
+	positions(new GLfloat[size * 2]),
+	colors(new GLfloat[size * 4]),
+	texCoords(new GLfloat[size * 2])
 {
 	current_position = 0;
 	current_color = 0;
@@ -67,7 +65,7 @@ void Buffer::assert_type(BufferType atype)
 
 void Buffer::assert_not_full()
 {
-	if (current_color == BUFFER_DEFAULT_SIZE) {
+	if (current_color == size) {
 		flush(); // implicit reset
 	}
 }
@@ -82,32 +80,38 @@ void Buffer::assert_empty()
 
 void Buffer::push_vertex(GLfloat x, GLfloat y)
 {
+	assert_not_full();
 	size_t cur = current_position * 2;
 	positions[cur + 0] = x;
 	positions[cur + 1] = y;
 	current_position += 1;
-	assert_not_full();
 }
 void Buffer::push_color(GLfloat r, GLfloat g, GLfloat b, GLfloat a)
 {
+	assert_not_full();
 	size_t cur = current_color * 4;
 	colors[cur + 0] = r;
 	colors[cur + 1] = g;
 	colors[cur + 2] = b;
 	colors[cur + 3] = a;
 	current_color += 1;
-	assert_not_full();
 }
 void Buffer::push_texCoord(GLfloat x, GLfloat y)
 {
+	assert_not_full();
 	size_t cur = current_texCoord * 2;
 	texCoords[cur + 0] = x;
 	texCoords[cur + 1] = y;
 	current_texCoord += 1;
-	assert_not_full();
 }
 
-void Buffer::flush()
+void Buffer::draw()
+{
+	flush(false);
+}
+
+
+void Buffer::flush(bool do_reset)
 {
 	DEBUG();
 	assert(current_color == current_position);
@@ -142,7 +146,8 @@ void Buffer::flush()
 	stats.add_flush(used);
 #endif
 
-	reset();
+	if (do_reset)
+		reset();
 }
 
 void Buffer::reset()

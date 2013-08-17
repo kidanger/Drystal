@@ -71,12 +71,12 @@ Display::Display()
 	  default_shader(NULL),
 	  current(NULL),
 	  current_from(NULL),
+	  current_buffer(&default_buffer),
 	  r(1),
 	  g(1),
 	  b(1),
 	  alpha(1),
 	  available(false)
-
 {
 	int err = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 	if (err)
@@ -146,7 +146,8 @@ void Display::resize(int w, int h)
 	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_DEPTH_TEST);
 
-	buffer.reallocate();
+	default_buffer.reallocate();
+	// TODO: handle other buffers
 	DEBUG("end");
 }
 
@@ -164,7 +165,7 @@ void Display::draw_background() const
 void Display::flip()
 {
 	DEBUG("");
-	buffer.assert_empty();
+	default_buffer.assert_empty();
 	glBindFramebuffer(GL_FRAMEBUFFER, screen->fbo);
 	glFlush();
 	SDL_GL_SwapBuffers();
@@ -198,7 +199,7 @@ void Display::draw_from(const Surface* surf)
 	DEBUG("");
 	assert(surf);
 	if (current_from != surf) {
-		buffer.assert_empty();
+		default_buffer.assert_empty();
 		this->current_from = surf;
 		glBindTexture(GL_TEXTURE_2D, current_from->tex);
 	}
@@ -209,7 +210,7 @@ void Display::draw_on(const Surface* surf)
 	DEBUG("");
 	assert(surf);
 	if (current != surf) {
-		buffer.assert_empty();
+		default_buffer.assert_empty();
 		this->current = surf;
 		glBindFramebuffer(GL_FRAMEBUFFER, current->fbo);
 
@@ -319,7 +320,7 @@ void Display::free_surface(Surface* surface)
 {
 	assert(surface);
 	if (surface == current_from) {
-		buffer.assert_empty(); // TODO: check if IMAGE_BUFFER
+		default_buffer.assert_empty(); // TODO: check if IMAGE_BUFFER
 		glBindTexture(GL_TEXTURE_2D, 0);
 		current_from = NULL;
 	}
@@ -354,12 +355,12 @@ void Display::draw_triangle(int x1, int y1, int x2, int y2, int x3, int y3)
 	convert_coords(x2, y2, &xx2, &yy2);
 	convert_coords(x3, y3, &xx3, &yy3);
 
-	buffer.assert_type(TRIANGLE_BUFFER);
-	buffer.push_vertex(xx1, yy1);
-	buffer.push_vertex(xx2, yy2);
-	buffer.push_vertex(xx3, yy3);
+	current_buffer->assert_type(TRIANGLE_BUFFER);
+	current_buffer->push_vertex(xx1, yy1);
+	current_buffer->push_vertex(xx2, yy2);
+	current_buffer->push_vertex(xx3, yy3);
 	for (int i = 0; i < 3; i++)
-		buffer.push_color(r, g, b, alpha);
+		current_buffer->push_color(r, g, b, alpha);
 }
 
 void Display::draw_line(int x1, int y1, int x2, int y2)
@@ -370,11 +371,11 @@ void Display::draw_line(int x1, int y1, int x2, int y2)
 	convert_coords(x1, y1, &xx1, &yy1);
 	convert_coords(x2, y2, &xx2, &yy2);
 
-	buffer.assert_type(LINE_BUFFER);
-	buffer.push_vertex(xx1, yy1);
-	buffer.push_vertex(xx2, yy2);
+	current_buffer->assert_type(LINE_BUFFER);
+	current_buffer->push_vertex(xx1, yy1);
+	current_buffer->push_vertex(xx2, yy2);
 	for (int i = 0; i < 2; i++)
-		buffer.push_color(r, g, b, alpha);
+		current_buffer->push_color(r, g, b, alpha);
 }
 
 void Display::draw_surface(int xi1, int yi1, int xi2, int yi2, int xi3, int yi3, int xi4, int yi4,
@@ -396,25 +397,25 @@ void Display::draw_surface(int xi1, int yi1, int xi2, int yi2, int xi3, int yi3,
 	convert_coords(xo3, yo3, &xxo3, &yyo3);
 	convert_coords(xo4, yo4, &xxo4, &yyo4);
 
-	buffer.assert_type(IMAGE_BUFFER);
-	buffer.push_texCoord(xxi1, yyi1);
-	buffer.push_texCoord(xxi3, yyi3);
-	buffer.push_texCoord(xxi4, yyi4);
+	current_buffer->assert_type(IMAGE_BUFFER);
+	current_buffer->push_texCoord(xxi1, yyi1);
+	current_buffer->push_texCoord(xxi3, yyi3);
+	current_buffer->push_texCoord(xxi4, yyi4);
 
-	buffer.push_texCoord(xxi1, yyi1);
-	buffer.push_texCoord(xxi2, yyi2);
-	buffer.push_texCoord(xxi3, yyi3);
+	current_buffer->push_texCoord(xxi1, yyi1);
+	current_buffer->push_texCoord(xxi2, yyi2);
+	current_buffer->push_texCoord(xxi3, yyi3);
 
-	buffer.push_vertex(xxo1, yyo1);
-	buffer.push_vertex(xxo3, yyo3);
-	buffer.push_vertex(xxo4, yyo4);
+	current_buffer->push_vertex(xxo1, yyo1);
+	current_buffer->push_vertex(xxo3, yyo3);
+	current_buffer->push_vertex(xxo4, yyo4);
 
-	buffer.push_vertex(xxo1, yyo1);
-	buffer.push_vertex(xxo2, yyo2);
-	buffer.push_vertex(xxo3, yyo3);
+	current_buffer->push_vertex(xxo1, yyo1);
+	current_buffer->push_vertex(xxo2, yyo2);
+	current_buffer->push_vertex(xxo3, yyo3);
 
 	for (int i = 0; i < 6; i++)
-		buffer.push_color(r, g, b, alpha);
+		current_buffer->push_color(r, g, b, alpha);
 }
 
 
@@ -501,7 +502,7 @@ Shader* Display::new_shader(const char* strvert, const char* strfrag)
 void Display::use_shader(Shader* shader)
 {
 	DEBUG();
-	buffer.assert_empty();
+	current_buffer->assert_empty();
 
 	glUseProgram(shader ? shader->prog : default_shader->prog);
 }
@@ -534,4 +535,27 @@ void Display::free_shader(Shader* shader)
 	glDeleteShader(shader->frag);
 	glDeleteProgram(shader->prog);
 	delete shader;
+}
+
+Buffer* Display::new_buffer(unsigned int size)
+{
+	Buffer* buffer = new Buffer(size);
+	buffer->reallocate();
+	return buffer;
+}
+void Display::use_buffer(Buffer* buffer)
+{
+	if (not buffer) {
+		current_buffer = &default_buffer;
+	} else {
+		current_buffer = buffer;
+	}
+}
+void Display::draw_buffer(Buffer* buffer)
+{
+	buffer->draw();
+}
+void Display::free_buffer(Buffer* buffer)
+{
+	delete buffer;
 }

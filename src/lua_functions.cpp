@@ -384,6 +384,43 @@ static int mlua_free_shader(lua_State* L)
 	return 0;
 }
 
+static int mlua_new_buffer(lua_State* L)
+{
+	Buffer* buffer;
+	if (lua_gettop(L) == 1) {
+		lua_Number size = luaL_checknumber(L, 1);
+		buffer = engine->display.new_buffer(size);
+	} else {
+		buffer = engine->display.new_buffer(); // let Display choose a size
+	}
+	if (buffer) {
+		lua_pushlightuserdata(L, buffer);
+		return 1;
+	}
+	return 0; // returns nil
+}
+static int mlua_use_buffer(lua_State* L)
+{
+	if (lua_gettop(L) == 0) { // use defaut buffer
+		engine->display.use_buffer(nullptr);
+	} else {
+		Buffer* buffer = (Buffer*) lua_touserdata(L, -1);
+		engine->display.use_buffer(buffer);
+	}
+	return 0;
+}
+static int mlua_draw_buffer(lua_State* L)
+{
+	Buffer* buffer = (Buffer*) lua_touserdata(L, -1);
+	engine->display.draw_buffer(buffer);
+	return 0;
+}
+static int mlua_free_buffer(lua_State* L)
+{
+	Buffer* buffer = (Buffer*) lua_touserdata(L, -1);
+	engine->display.free_buffer(buffer);
+	return 0;
+}
 
 static int mlua_load_sound(lua_State *L)
 {
@@ -494,6 +531,11 @@ void LuaFunctions::send_globals() const
 	lua_register(L, "use_shader", mlua_use_shader);
 	lua_register(L, "feed_shader", mlua_feed_shader);
 	lua_register(L, "free_shader", mlua_free_shader);
+
+	lua_register(L, "new_buffer", mlua_new_buffer);
+	lua_register(L, "use_buffer", mlua_use_buffer);
+	lua_register(L, "draw_buffer", mlua_draw_buffer);
+	lua_register(L, "free_buffer", mlua_free_buffer);
 
 	lua_register(L, "play_music", mlua_play_music);
 	lua_register(L, "play_music_queued", mlua_play_music_queued);
