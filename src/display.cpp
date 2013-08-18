@@ -29,9 +29,12 @@ attribute vec2 texCoord;	// texture coordinates
 varying vec4 fColor;
 varying vec2 fTexCoord;
 
+uniform float dx;
+uniform float dy;
+
 void main()
 {
-	gl_Position = vec4(position, 0.0, 1.0);
+	gl_Position = vec4(position - vec2(dx, dy), 0.0, 1.0);
 	fColor = color;
 	fTexCoord = texCoord;
 }
@@ -148,6 +151,7 @@ void Display::resize(int w, int h)
 
 	default_buffer.reallocate();
 	// TODO: handle other buffers
+	// TODO: invalidate surfaces
 	DEBUG("end");
 }
 
@@ -448,6 +452,7 @@ Shader* Display::create_default_shader()
 	const char* strvert = DEFAULT_VERTEX_SHADER;
 	const char* strfrag = DEFAULT_FRAGMENT_SHADER;
 	Shader* shader = new_shader(strvert, strfrag);
+	assert(shader);
 	return shader;
 }
 
@@ -551,11 +556,14 @@ void Display::use_buffer(Buffer* buffer)
 		current_buffer = buffer;
 	}
 }
-void Display::draw_buffer(Buffer* buffer)
+void Display::draw_buffer(Buffer* buffer, float dx, float dy)
 {
-	buffer->draw();
+	dx /= current->w;
+	dy /= current->h;
+	buffer->draw(dx, dy);
 }
 void Display::free_buffer(Buffer* buffer)
 {
 	delete buffer;
 }
+

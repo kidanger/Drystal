@@ -26,7 +26,7 @@ private:
 	unsigned int current_texCoord;
 
 	void assert_not_full();
-	void flush(bool do_reset=true);
+	void flush();
 	void reset();
 
 public:
@@ -37,7 +37,7 @@ public:
 	void push_color(GLfloat, GLfloat, GLfloat, GLfloat);
 	void push_texCoord(GLfloat, GLfloat);
 
-	void draw();
+	void draw(float dx=0, float dy=0);
 
 	void assert_type(BufferType);
 	void assert_empty();

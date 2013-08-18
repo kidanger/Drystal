@@ -3,8 +3,6 @@ require "drystal"
 local json = require 'dkjson'
 spritesheet = json.decode(io.open('image.json'):read('*all'))
 
-width = 0
-height = 0
 function init()
 	resize(600, 400)
 	image = load_surface(spritesheet.meta.image)
@@ -14,7 +12,10 @@ end
 local bufferize = true
 local buffer
 local number = 6000
+local tick = 0
 function draw()
+	tick = tick + 1
+
 	draw_from(image)
 	set_alpha(255)
 	set_color(10, 10, 30)
@@ -30,10 +31,16 @@ function draw()
 			heavy_draw(number)
 			use_buffer()
 		end
-		draw_buffer(buffer)
+		draw_buffer(buffer, math.sin(tick/10)*50)
 	else
 		heavy_draw(number)
 	end
+
+	local sprite = spritesheet.frames['character.png'].frame
+	set_color(255, 0, 0)
+	set_alpha(255)
+	draw_sprite(sprite, 300, 200)
+	draw_line(0, 0, 600, 400)
 
 	flip()
 end

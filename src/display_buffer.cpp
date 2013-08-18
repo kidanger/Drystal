@@ -35,12 +35,7 @@ void Buffer::reallocate()
 		buffers[2] = 0;
 	}
 	glGenBuffers(3, buffers);
-	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
-	glVertexAttribPointer(ATTR_POSITION_INDEX, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-	glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
-	glVertexAttribPointer(ATTR_COLOR_INDEX, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
-	glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
-	glVertexAttribPointer(ATTR_TEXCOORD_INDEX, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glEnableVertexAttribArray(ATTR_POSITION_INDEX);
 	glEnableVertexAttribArray(ATTR_COLOR_INDEX);
@@ -105,13 +100,7 @@ void Buffer::push_texCoord(GLfloat x, GLfloat y)
 	current_texCoord += 1;
 }
 
-void Buffer::draw()
-{
-	flush(false);
-}
-
-
-void Buffer::flush(bool do_reset)
+void Buffer::draw(float dx, float dy)
 {
 	DEBUG();
 	assert(current_color == current_position);
@@ -121,6 +110,17 @@ void Buffer::flush(bool do_reset)
 
 	GLint prog;
 	glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
+
+	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
+	glVertexAttribPointer(ATTR_POSITION_INDEX, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+	glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
+	glVertexAttribPointer(ATTR_COLOR_INDEX, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+	glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
+	glVertexAttribPointer(ATTR_TEXCOORD_INDEX, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+//	glEnableVertexAttribArray(ATTR_POSITION_INDEX);
+//	glEnableVertexAttribArray(ATTR_COLOR_INDEX);
 
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
 	glBufferData(GL_ARRAY_BUFFER, used * 2 * sizeof(GLfloat), positions, GL_DYNAMIC_DRAW);
@@ -135,6 +135,8 @@ void Buffer::flush(bool do_reset)
 	}
 
 	glUniform1i(glGetUniformLocation(prog, "useTex"), type == IMAGE_BUFFER);
+	glUniform1f(glGetUniformLocation(prog, "dx"), dx);
+	glUniform1f(glGetUniformLocation(prog, "dy"), dy);
 	glDrawArrays(type == LINE_BUFFER ? GL_LINES : GL_TRIANGLES, 0, used);
 
 	if (type == IMAGE_BUFFER) {
@@ -145,9 +147,12 @@ void Buffer::flush(bool do_reset)
 #ifdef STATS
 	stats.add_flush(used);
 #endif
+}
 
-	if (do_reset)
-		reset();
+void Buffer::flush()
+{
+	draw();
+	reset();
 }
 
 void Buffer::reset()

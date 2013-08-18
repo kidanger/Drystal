@@ -371,15 +371,15 @@ static int mlua_use_shader(lua_State* L)
 
 static int mlua_feed_shader(lua_State* L)
 {
-	Shader* shader = (Shader*) lua_touserdata(L, -3);
-	const char* name = lua_tostring(L, -2);
-	float value = lua_tonumber(L, -1);
+	Shader* shader = (Shader*) lua_touserdata(L, 1);
+	const char* name = lua_tostring(L, 2);
+	float value = lua_tonumber(L, 3);
 	engine->display.feed_shader(shader, name, value);
 	return 0;
 }
 static int mlua_free_shader(lua_State* L)
 {
-	Shader* shader = (Shader*) lua_touserdata(L, -1);
+	Shader* shader = (Shader*) lua_touserdata(L, 1);
 	engine->display.free_shader(shader);
 	return 0;
 }
@@ -411,8 +411,13 @@ static int mlua_use_buffer(lua_State* L)
 }
 static int mlua_draw_buffer(lua_State* L)
 {
-	Buffer* buffer = (Buffer*) lua_touserdata(L, -1);
-	engine->display.draw_buffer(buffer);
+	Buffer* buffer = (Buffer*) lua_touserdata(L, 1);
+	lua_Number dx = 0, dy = 0;
+	if (lua_gettop(L) >= 2)
+		dx = luaL_checknumber(L, 2);
+	if (lua_gettop(L) >= 3)
+		dy = luaL_checknumber(L, 3);
+	engine->display.draw_buffer(buffer, dx, dy);
 	return 0;
 }
 static int mlua_free_buffer(lua_State* L)

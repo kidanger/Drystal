@@ -102,7 +102,7 @@ class Display
 
 		Buffer* new_buffer(unsigned int size=BUFFER_DEFAULT_SIZE);
 		void use_buffer(Buffer*);
-		void draw_buffer(Buffer*);
+		void draw_buffer(Buffer*, float dx, float dy);
 		void free_buffer(Buffer*);
 
 		void flip();
