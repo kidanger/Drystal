@@ -2,7 +2,7 @@
 
 #include <lua.hpp>
 
-#include "Box2D/Box2D.h"
+#include "box2d/Box2D/Box2D.h"
 
 #define BODY_CLASS "__body_class"
 #define SHAPE_CLASS "__shape_class"
@@ -172,7 +172,7 @@ BODY_GETSET_VEC2(linear_velocity, body->GetLinearVelocity(), body->SetLinearVelo
 	{ \
 		b2Body* body = luam_tobody(L, 1); \
 		lua_Number value = luaL_checknumber(L, 2); \
-		body->SetTransform(body->GetPosition(), value); \
+		set_expr; \
 		return 0; \
 	} \
 	int get_##value(lua_State* L) \
@@ -183,14 +183,45 @@ BODY_GETSET_VEC2(linear_velocity, body->GetLinearVelocity(), body->SetLinearVelo
 		return 1; \
 	}
 
-BODY_GETSET_FLOAT(angle, body->GetAngle(), body->SetTransform(body->GetPosition(), value))
-BODY_GETSET_FLOAT(angular_velocity, body->GetAngularVelocity(), body->SetAngularVelocity(value))
+BODY_GETSET_FLOAT(angle, body->GetAngle(), body->SetTransform(body->GetPosition(), angle))
+BODY_GETSET_FLOAT(angular_velocity, body->GetAngularVelocity(), body->SetAngularVelocity(angular_velocity))
+BODY_GETSET_FLOAT(linear_damping, body->GetLinearDamping(), body->SetLinearDamping(linear_damping))
+
+#define BODY_GETSET_BOOL(value, get_expr, set_expr) \
+	int set_##value(lua_State* L) \
+	{ \
+		b2Body* body = luam_tobody(L, 1); \
+		bool value = lua_toboolean(L, 2); \
+		set_expr; \
+		return 0; \
+	} \
+	int get_##value(lua_State* L) \
+	{ \
+		b2Body* body = luam_tobody(L, 1); \
+		const bool value = get_expr; \
+		lua_pushboolean(L, value); \
+		return 1; \
+	}
+
+BODY_GETSET_BOOL(fixed_rotation, body->IsFixedRotation(), body->SetFixedRotation(fixed_rotation))
+
+static int apply_force(lua_State* L)
+{
+	b2Body* body = luam_tobody(L, 1);
+	lua_Number fx = luaL_checknumber(L, 2);
+	lua_Number fy = luaL_checknumber(L, 3);
+	body->ApplyForce(b2Vec2(fx, fy), body->GetLocalCenter(), true);
+	return 0;
+}
 
 static const luaL_Reg __body_class[] = {
 	DECLARE_GETSET(position),
 	DECLARE_GETSET(angle),
 	DECLARE_GETSET(linear_velocity),
 	DECLARE_GETSET(angular_velocity),
+	DECLARE_GETSET(linear_damping),
+	DECLARE_GETSET(fixed_rotation),
+	{"apply_force", apply_force},
 	{NULL, NULL},
 };
 

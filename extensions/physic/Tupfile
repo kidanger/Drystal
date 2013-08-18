@@ -1,6 +1,6 @@
 include_rules
 
-CFLAGS_BOX2D=-Ibox2d/
+CFLAGS_BOX2D=-Ibox2d/ -Wno-null-conversion
 : foreach box2d/Box2D/*.cpp |> !cxx $(CFLAGS_BOX2D) |> %B.o
 : foreach box2d/Box2D/Common/*.cpp |> !cxx $(CFLAGS_BOX2D) |> %B.o
 : foreach box2d/Box2D/Collision/*.cpp |> !cxx $(CFLAGS_BOX2D) |> %B.o
@@ -10,5 +10,5 @@ CFLAGS_BOX2D=-Ibox2d/
 : foreach box2d/Box2D/Dynamics/Joints/*.cpp |> !cxx $(CFLAGS_BOX2D) |> %B.o
 : foreach box2d/Box2D/Rope/*.cpp |> !cxx $(CFLAGS_BOX2D) |> %B.o
 
-: main.cpp |> !cxx -Ibox2d |> %B.o
+: main.cpp |> !cxx $(CFLAGS_BOX2D) |> %B.o
 : *.o |> !ld_shared |> @(EXTENSION_FILE)
