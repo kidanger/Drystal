@@ -41,6 +41,8 @@ int new_shape(lua_State* L)
 	const char* type = luaL_checkstring(L, 1);
 
 	b2FixtureDef* fixtureDef = new b2FixtureDef;
+	fixtureDef->density = 1.0f;
+
 	if (!strcmp(type, "box")) {
 		b2PolygonShape* polygon = new b2PolygonShape;
 		lua_Number w = luaL_checknumber(L, 2) / 2;
@@ -96,7 +98,6 @@ int shape_gc(lua_State* L)
 	b2FixtureDef* fixtureDef = luam_tofixture(L, 1);
 	delete fixtureDef->shape;
 	delete fixtureDef;
-	printf("[gc] shape\n");
 	return 0;
 }
 
@@ -123,8 +124,9 @@ int new_body(lua_State* L)
 	assert(fixtureDef->shape);
 
 	b2BodyDef def;
-	if (dynamic)
+	if (dynamic) {
 		def.type = b2_dynamicBody;
+	}
 
 	b2Body* body = world->CreateBody(&def);
 	body->CreateFixture(fixtureDef);
@@ -186,6 +188,7 @@ BODY_GETSET_VEC2(linear_velocity, body->GetLinearVelocity(), body->SetLinearVelo
 BODY_GETSET_FLOAT(angle, body->GetAngle(), body->SetTransform(body->GetPosition(), angle))
 BODY_GETSET_FLOAT(angular_velocity, body->GetAngularVelocity(), body->SetAngularVelocity(angular_velocity))
 BODY_GETSET_FLOAT(linear_damping, body->GetLinearDamping(), body->SetLinearDamping(linear_damping))
+BODY_GETSET_FLOAT(angular_damping, body->GetAngularDamping(), body->SetAngularDamping(angular_damping))
 
 #define BODY_GETSET_BOOL(value, get_expr, set_expr) \
 	int set_##value(lua_State* L) \
@@ -210,9 +213,55 @@ static int apply_force(lua_State* L)
 	b2Body* body = luam_tobody(L, 1);
 	lua_Number fx = luaL_checknumber(L, 2);
 	lua_Number fy = luaL_checknumber(L, 3);
-	body->ApplyForce(b2Vec2(fx, fy), body->GetLocalCenter(), true);
+	b2Vec2 pos;
+	if (lua_gettop(L) > 4) {
+		lua_Number dx = luaL_checknumber(L, 4);
+		lua_Number dy = luaL_checknumber(L, 5);
+		body->ApplyForce(b2Vec2(fx, fy), b2Vec2(dx, dy), true);
+	} else {
+		pos = body->GetLocalCenter();
+		body->ApplyForceToCenter(b2Vec2(fx, fy), true);
+	}
 	return 0;
 }
+static int apply_linear_impulse(lua_State* L)
+{
+	b2Body* body = luam_tobody(L, 1);
+	lua_Number fx = luaL_checknumber(L, 2);
+	lua_Number fy = luaL_checknumber(L, 3);
+	b2Vec2 pos;
+	if (lua_gettop(L) > 4) {
+		lua_Number dx = luaL_checknumber(L, 4);
+		lua_Number dy = luaL_checknumber(L, 5);
+		pos = b2Vec2(dx, dy);
+	} else {
+		pos = body->GetLocalCenter();
+	}
+	body->ApplyLinearImpulse(b2Vec2(fx, fy), pos, true);
+	return 0;
+}
+static int apply_angular_impulse(lua_State* L)
+{
+	b2Body* body = luam_tobody(L, 1);
+	lua_Number angle = luaL_checknumber(L, 2);
+	body->ApplyAngularImpulse(angle, true);
+	return 0;
+}
+static int apply_torque(lua_State* L)
+{
+	b2Body* body = luam_tobody(L, 1);
+	lua_Number torque = luaL_checknumber(L, 2);
+	body->ApplyTorque(torque, true);
+	return 0;
+}
+
+static int dump(lua_State* L)
+{
+	b2Body* body = luam_tobody(L, 1);
+	body->Dump();
+	return 0;
+}
+
 
 static const luaL_Reg __body_class[] = {
 	DECLARE_GETSET(position),
@@ -220,8 +269,13 @@ static const luaL_Reg __body_class[] = {
 	DECLARE_GETSET(linear_velocity),
 	DECLARE_GETSET(angular_velocity),
 	DECLARE_GETSET(linear_damping),
+	DECLARE_GETSET(angular_damping),
 	DECLARE_GETSET(fixed_rotation),
 	{"apply_force", apply_force},
+	{"apply_linear_impulse", apply_linear_impulse},
+	{"apply_angular_impulse", apply_angular_impulse},
+	{"apply_torque", apply_torque},
+	{"dump", dump},
 	{NULL, NULL},
 };
 

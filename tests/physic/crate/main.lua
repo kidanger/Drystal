@@ -19,7 +19,6 @@ function makeCrate(x, y)
 	local b = physic.new_body(s, 'dynamic')
 	b:set_position(x*32 + 16, y*32 + 16)
 	b:set_fixed_rotation(true)
-	--b:setMass(5)
 	b:set_linear_damping(4)
 	return {body=b, shape=s}
 end
@@ -28,7 +27,6 @@ function makePlayer()
 	local s = physic.new_shape('circle', 16)
 	local b = physic.new_body(s, 'dynamic')
 	b:set_position(48, 48)
-	--b:setMass(1)
 	return {body=b, shape=s}
 end
 
@@ -127,4 +125,8 @@ function nudgeToSquare(body, sq, acc)
 	local tx = sq.x * 32
 	local f = acc * (tx - x)
 	body:apply_force(f, 0)
+end
+
+function mouse_press(x, y)
+	table.insert(crates, makeCrate(x/32, y/32))
 end
