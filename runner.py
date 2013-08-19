@@ -88,8 +88,14 @@ def copy_extensions(from_dir, ext_list, mainfilename):
         else:
             print('! extension not available: ', src_path)
 
-def link_extensions(from_dir, ext_list, mainfilename):
-    pass
+def locate_index_html(from_dir, to_dir):
+    dir = from_dir
+    while dir != to_dir:
+        files = os.listdir(dir)
+        if 'index.html' in files:
+            return os.path.join(dir, 'index.html')
+        dir = parent(dir)
+    return None
 
 def clean(dir):
     cleaned = False
@@ -190,10 +196,11 @@ else:
         assert(not os.system('tup upd build-web'))
         remove_old_wget()
         move_wget_files(DESTINATION_DIRECTORY, os.path.join(BUILD_WEB, DESTINATION_DIRECTORY_REL))
+        htmlfile = locate_index_html(os.path.abspath(dirpath), os.getcwd())
         import repacker
         os.chdir(BUILD_WEB)
         repacker.DATADIR = '../' + repacker.DATADIR
-        repacker.repack('../tests/index.html')
+        repacker.repack(htmlfile)
         os.chdir('..')
 
         if run_arg == 'web':
