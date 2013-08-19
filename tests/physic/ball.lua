@@ -3,6 +3,8 @@ require 'drystal'
 local physic = require 'physic'
 
 local ground, ground2, ball
+local joint
+local mouse_joint
 
 local R = 64 -- _ pixels = 1 meter
 
@@ -32,6 +34,14 @@ local function create_circle(radius, args, dynamic)
 	end
 	local circle = physic.new_body(shape, dynamic)
 	circle.radius = radius
+	function circle:draw()
+		local angle = self:get_angle()
+		x, y = self:get_position()
+		draw_circle(x * R, y * R, self.radius * R)
+		set_color(150, 150, 150)
+		draw_line(x*R, y*R, x*R + self.radius*math.cos(angle)*R,
+							y*R + ball.radius * math.sin(angle)*R)
+	end
 	return circle
 end
 
@@ -51,6 +61,16 @@ function init()
 	-- create ball
 	ball = create_circle(0.2, {restitution=0.4}, true)
 	ball:set_position(3.5, 0)
+
+	ball2 = create_circle(0.2, {restitution=0.4}, true)
+	ball2:set_position(4, 0)
+
+	joint = physic.new_joint('distance', ball2, ball)
+	joint:set_length(100/R)
+	joint:set_frequency(0.9)
+
+--	joint = physic.new_joint('rope', ball2, ball, true)
+--	joint:set_max_length(100/R)
 end
 
 local dir = ''
@@ -80,12 +100,12 @@ function draw()
 	ground2:draw()
 	set_color(0, 0, 0)
 
-	local angle = ball:get_angle()
-	x, y = ball:get_position()
-	draw_circle(x * R, y * R, ball.radius * R)
-	set_color(150, 150, 150)
-	draw_line(x*R, y*R, x*R + ball.radius*math.cos(angle)*R,
-						y*R + ball.radius * math.sin(angle)*R)
+	ball:draw()
+	ball2:draw()
+
+	local x1, y1 = ball:get_position()
+	local x2, y2 = ball2:get_position()
+	draw_line(x1*R, y1*R, x2*R, y2*R)
 
 	flip()
 end
@@ -109,8 +129,27 @@ function key_release(key)
 	end
 end
 
+function mouse_release(x, y, b)
+	if b == 1 then
+		mouse_joint:destroy()
+		mouse_joint = nil
+	end
+end
+function mouse_motion(x, y)
+	if mouse_joint then
+		mouse_joint:set_target(x/R, y/R)
+	end
+end
 function mouse_press(x, y, b)
-	ball:set_position(x/R, y/R)
-	ball:set_angular_velocity(0)
-	ball:set_linear_velocity(0, 0)
+	if b == 1 then
+		if not mouse_joint then
+			mouse_joint = physic.new_joint('mouse', ground, ball, 7*ball:get_mass(), true)
+		end
+		mouse_joint:set_target(x/R, y/R)
+	end
+	if b == 3 then
+		ball:set_position(x/R, y/R)
+		ball:set_angular_velocity(0)
+		ball:set_linear_velocity(0, 0)
+	end
 end

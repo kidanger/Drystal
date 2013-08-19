@@ -6,6 +6,7 @@
 
 #define BODY_CLASS "__body_class"
 #define SHAPE_CLASS "__shape_class"
+#define JOINT_CLASS "__joint_class"
 
 #define DECLARE_FUNCTION(x) {#x, x}
 #define DECLARE_GETSET(x) DECLARE_FUNCTION(set_##x), DECLARE_FUNCTION(get_##x)
@@ -190,6 +191,14 @@ BODY_GETSET_FLOAT(angular_velocity, body->GetAngularVelocity(), body->SetAngular
 BODY_GETSET_FLOAT(linear_damping, body->GetLinearDamping(), body->SetLinearDamping(linear_damping))
 BODY_GETSET_FLOAT(angular_damping, body->GetAngularDamping(), body->SetAngularDamping(angular_damping))
 
+int get_mass(lua_State* L)
+{
+	b2Body* body = luam_tobody(L, 1);
+	const lua_Number mass = body->GetMass();
+	lua_pushnumber(L, mass);
+	return 1;
+}
+
 #define BODY_GETSET_BOOL(value, get_expr, set_expr) \
 	int set_##value(lua_State* L) \
 	{ \
@@ -271,6 +280,7 @@ static const luaL_Reg __body_class[] = {
 	DECLARE_GETSET(linear_damping),
 	DECLARE_GETSET(angular_damping),
 	DECLARE_GETSET(fixed_rotation),
+	DECLARE_FUNCTION(get_mass),
 	{"apply_force", apply_force},
 	{"apply_linear_impulse", apply_linear_impulse},
 	{"apply_angular_impulse", apply_angular_impulse},
@@ -279,6 +289,129 @@ static const luaL_Reg __body_class[] = {
 	{NULL, NULL},
 };
 
+// Joint methods
+
+int new_joint(lua_State* L)
+{
+	assert(world);
+
+	b2JointDef* joint_def;
+
+	const char * type = luaL_checkstring(L, 1);
+	int i = 2;
+	if (!strcmp(type, "mouse")) {
+		b2MouseJointDef* def = new b2MouseJointDef;
+		def->bodyA = luam_tobody(L, i++);
+		def->bodyB = luam_tobody(L, i++);
+		def->maxForce = lua_tonumber(L, i++);
+		def->target = def->bodyB->GetWorldCenter();
+		joint_def = def;
+	} else if (!strcmp(type, "distance")) {
+		b2DistanceJointDef* def = new b2DistanceJointDef;
+		b2Body* b1 = luam_tobody(L, i++);
+		b2Body* b2 = luam_tobody(L, i++);
+		def->Initialize(b1, b2, b1->GetWorldCenter(), b2->GetWorldCenter());
+		joint_def = def;
+	} else if (!strcmp(type, "rope")) {
+		b2RopeJointDef* def = new b2RopeJointDef;
+		def->bodyA = luam_tobody(L, i++);
+		def->bodyB = luam_tobody(L, i++);
+		joint_def = def;
+	} else {
+		assert(false);
+	}
+
+	if (lua_gettop(L) >= i) {
+		bool collide = lua_toboolean(L, i++);
+		joint_def->collideConnected = collide;
+	}
+
+	assert(joint_def->bodyA);
+	assert(joint_def->bodyB);
+	b2Joint* joint = world->CreateJoint(joint_def);
+
+	delete joint_def;
+
+	lua_newtable(L);
+	lua_pushlightuserdata(L, joint);
+	lua_setfield(L, -2, "__self");
+	luaL_getmetatable(L, JOINT_CLASS);
+	lua_setmetatable(L, -2);
+	return 1;
+}
+
+static b2Joint* luam_tojoint(lua_State* L, int index)
+{
+	luaL_checktype(L, index, LUA_TTABLE);
+	lua_getfield(L, index, "__self");
+	b2Joint* joint = (b2Joint*) lua_touserdata(L, -1);
+	return joint;
+}
+inline static b2MouseJoint* luam_tomousejoint(lua_State* L, int index)
+{
+	return (b2MouseJoint*) luam_tojoint(L, index);
+}
+inline static b2DistanceJoint* luam_todistancejoint(lua_State* L, int index)
+{
+	return (b2DistanceJoint*) luam_tojoint(L, index);
+}
+inline static b2RopeJoint* luam_toropejoint(lua_State* L, int index)
+{
+	return (b2RopeJoint*) luam_tojoint(L, index);
+}
+
+int set_target(lua_State* L)
+{
+	b2MouseJoint* joint = luam_tomousejoint(L, 1);
+	lua_Number x = luaL_checknumber(L, 2);
+	lua_Number y = luaL_checknumber(L, 3);
+	joint->SetTarget(b2Vec2(x, y));
+	return 0;
+}
+
+int set_length(lua_State* L)
+{
+	b2DistanceJoint* joint = luam_todistancejoint(L, 1);
+	lua_Number length = luaL_checknumber(L, 2);
+	joint->SetLength(length);
+	return 0;
+}
+int set_frequency(lua_State* L)
+{
+	b2DistanceJoint* joint = luam_todistancejoint(L, 1);
+	lua_Number freq = luaL_checknumber(L, 2);
+	joint->SetFrequency(freq);
+	return 0;
+}
+
+int set_max_length(lua_State* L)
+{
+	b2RopeJoint* joint = luam_toropejoint(L, 1);
+	lua_Number maxlength = luaL_checknumber(L, 2);
+	joint->SetMaxLength(maxlength);
+	return 0;
+}
+
+
+int destroy(lua_State* L)
+{
+	b2Joint* joint = luam_tojoint(L, 1);
+	world->DestroyJoint(joint);
+	return 0;
+}
+
+static const luaL_Reg __joint_class[] = {
+	// joint
+	DECLARE_FUNCTION(destroy),
+	// mouse joint
+	DECLARE_FUNCTION(set_target),
+	// distance joint
+	DECLARE_FUNCTION(set_length),
+	DECLARE_FUNCTION(set_frequency),
+	// rope joint
+	DECLARE_FUNCTION(set_max_length),
+	{NULL, NULL},
+};
 
 // Physic module
 
@@ -288,6 +421,7 @@ static const luaL_Reg lib[] =
 
 	DECLARE_FUNCTION(new_shape),
 	DECLARE_FUNCTION(new_body),
+	DECLARE_FUNCTION(new_joint),
 
 	DECLARE_FUNCTION(update),
 
@@ -304,7 +438,6 @@ LUA_API "C" int luaopen_physic(lua_State *L)
 	luaL_setfuncs(L, __body_class, 0);
 	lua_pushvalue(L, -1);
 	lua_setfield(L, -2, "__index");
-
 	lua_setfield(L, -2, BODY_CLASS);
 
 	// register SHAPE_CLASS
@@ -312,8 +445,14 @@ LUA_API "C" int luaopen_physic(lua_State *L)
 	luaL_setfuncs(L, __shape_class, 0);
 	lua_pushvalue(L, -1);
 	lua_setfield(L, -2, "__index");
+	lua_setfield(L, -2, SHAPE_CLASS);
 
-	lua_setfield(L, -2, BODY_CLASS);
+	// register JOINT_CLASS
+	luaL_newmetatable(L, JOINT_CLASS);
+	luaL_setfuncs(L, __joint_class, 0);
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -2, "__index");
+	lua_setfield(L, -2, JOINT_CLASS);
 
 	return 1;
 }
