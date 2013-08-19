@@ -544,11 +544,12 @@ void LuaFunctions::send_globals() const
 
 	lua_register(L, "play_music", mlua_play_music);
 	lua_register(L, "play_music_queued", mlua_play_music_queued);
-	lua_register(L, "stop_music", mlua_stop_music);
-	lua_register(L, "play_sound", mlua_play_sound);
-	lua_register(L, "load_sound", mlua_load_sound);
-	lua_register(L, "free_sound", mlua_free_sound);
-	lua_register(L, "set_sound_volume", mlua_set_sound_volume);
 	lua_register(L, "set_music_volume", mlua_set_music_volume);
+	lua_register(L, "stop_music", mlua_stop_music);
+
+	lua_register(L, "load_sound", mlua_load_sound);
+	lua_register(L, "play_sound", mlua_play_sound);
+	lua_register(L, "set_sound_volume", mlua_set_sound_volume);
+	lua_register(L, "free_sound", mlua_free_sound);
 }
 

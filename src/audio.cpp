@@ -1,3 +1,4 @@
+#include <cassert>
 #include <iostream>
 
 #include "audio.hpp"
@@ -5,6 +6,8 @@
 SDL_mutex *Audio::_mutex = SDL_CreateMutex();
 Mix_Music *Audio::_music = NULL;
 std::queue<char *> Audio::_musicQueue;
+
+#define NUM_CHANNELS 64
 
 Audio::Audio()
 {
@@ -18,7 +21,7 @@ Audio::Audio()
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) == -1)
 		std::cerr << "[ERROR] cannot open audio: " << Mix_GetError() << std::endl;
 
-	Mix_AllocateChannels(200);
+	assert(Mix_AllocateChannels(NUM_CHANNELS) == NUM_CHANNELS);
 	Mix_HookMusicFinished(music_finished);
 }
 
@@ -125,6 +128,9 @@ void Audio::free_sound(Mix_Chunk *chunk)
 	Mix_FreeChunk(chunk);
 }
 
+#ifdef EMSCRIPTEN
+static int next_channel = 0;
+#endif
 void Audio::play_sound(Mix_Chunk *chunk, int times, float volume)
 {
 	if (volume != -1 && volume < 0 && volume > 1)
@@ -134,8 +140,11 @@ void Audio::play_sound(Mix_Chunk *chunk, int times, float volume)
 	}
 
 	int channel = -1;
-	if ((channel = Mix_PlayChannel(-1, chunk, times - 1)) == -1)
-	{
+#ifdef EMSCRIPTEN
+	// emscripten does not always handle channel assignation
+	channel = next_channel % NUM_CHANNELS;
+#endif
+	if ((channel = Mix_PlayChannel(channel, chunk, 0)) == -1) {
 		std::cerr << "[ERROR] cannot play sound: " << Mix_GetError() << std::endl;
 		return;
 	}
@@ -143,6 +152,9 @@ void Audio::play_sound(Mix_Chunk *chunk, int times, float volume)
 		Mix_Volume(channel, volume * MIX_MAX_VOLUME);
 	else
 		Mix_Volume(channel, Mix_Volume(-1, -1));
+#ifdef EMSCRIPTEN
+	next_channel = channel + 1;
+#endif
 }
 
 void Audio::set_music_volume(float volume)
