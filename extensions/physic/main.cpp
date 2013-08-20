@@ -33,6 +33,131 @@ int update(lua_State* L)
 	return 0;
 }
 
+class CustomListener : public b2ContactListener
+{
+public:
+	int begin_contact;
+	int end_contact;
+	int presolve;
+	int postsolve;
+	lua_State* L;
+
+	~CustomListener()
+	{
+		luaL_unref(L, LUA_REGISTRYINDEX, begin_contact);
+		luaL_unref(L, LUA_REGISTRYINDEX, end_contact);
+		luaL_unref(L, LUA_REGISTRYINDEX, presolve);
+		luaL_unref(L, LUA_REGISTRYINDEX, postsolve);
+	}
+	virtual void BeginContact(b2Contact* contact)
+	{
+		if (begin_contact == LUA_REFNIL)
+			return;
+		b2Body* bA = contact->GetFixtureA()->GetBody();
+		b2Body* bB = contact->GetFixtureB()->GetBody();
+
+		lua_rawgeti(L, LUA_REGISTRYINDEX, begin_contact);
+
+		// fetch bodies tables
+		int refA = (int) (long) bA->GetUserData();
+		lua_rawgeti(L, LUA_REGISTRYINDEX, refA);
+		int refB = (int) (long) bB->GetUserData();
+		lua_rawgeti(L, LUA_REGISTRYINDEX, refB);
+		// TODO: push contact
+
+		if (lua_pcall(L, 2, 0, 0)) {
+			luaL_error(L, "error calling begin_contact: %s", lua_tostring(L, -1));
+		}
+	}
+	virtual void EndContact(b2Contact* contact)
+	{
+		if (end_contact == LUA_REFNIL)
+			return;
+		b2Body* bA = contact->GetFixtureA()->GetBody();
+		b2Body* bB = contact->GetFixtureB()->GetBody();
+
+		lua_rawgeti(L, LUA_REGISTRYINDEX, end_contact);
+
+		// fetch bodies tables
+		int refA = (int) (long) bA->GetUserData();
+		lua_rawgeti(L, LUA_REGISTRYINDEX, refA);
+		int refB = (int) (long) bB->GetUserData();
+		lua_rawgeti(L, LUA_REGISTRYINDEX, refB);
+		// TODO: push contact
+
+		if (lua_pcall(L, 2, 0, 0)) {
+			luaL_error(L, "error calling end_contact: %s", lua_tostring(L, -1));
+		}
+	}
+
+	virtual void PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
+	{
+		if (presolve == LUA_REFNIL)
+			return;
+		b2Body* bA = contact->GetFixtureA()->GetBody();
+		b2Body* bB = contact->GetFixtureB()->GetBody();
+
+		lua_rawgeti(L, LUA_REGISTRYINDEX, presolve);
+
+		// fetch bodies tables
+		int refA = (int) (long) bA->GetUserData();
+		lua_rawgeti(L, LUA_REGISTRYINDEX, refA);
+		int refB = (int) (long) bB->GetUserData();
+		lua_rawgeti(L, LUA_REGISTRYINDEX, refB);
+		// TODO: push contact
+
+		if (lua_pcall(L, 2, 1, 0)) {
+			luaL_error(L, "error calling presolve: %s", lua_tostring(L, -1));
+		}
+		bool enabled = lua_toboolean(L, -1);
+		contact->SetEnabled(enabled);
+	}
+	virtual void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
+	{
+		if (postsolve == LUA_REFNIL)
+			return;
+		b2Body* bA = contact->GetFixtureA()->GetBody();
+		b2Body* bB = contact->GetFixtureB()->GetBody();
+
+		lua_rawgeti(L, LUA_REGISTRYINDEX, postsolve);
+
+		// fetch bodies tables
+		int refA = (int) (long) bA->GetUserData();
+		lua_rawgeti(L, LUA_REGISTRYINDEX, refA);
+		int refB = (int) (long) bB->GetUserData();
+		lua_rawgeti(L, LUA_REGISTRYINDEX, refB);
+		// TODO: push contact
+
+		if (lua_pcall(L, 2, 1, 0)) {
+			luaL_error(L, "error calling postsolve: %s", lua_tostring(L, -1));
+		}
+	}
+};
+int on_collision(lua_State* L)
+{
+	assert(world);
+
+	if (lua_gettop(L)) {
+		CustomListener* listener = new CustomListener;
+		listener->L = L;
+		lua_pushvalue(L, 1);
+		listener->begin_contact = luaL_ref(L, LUA_REGISTRYINDEX);
+		lua_pushvalue(L, 2);
+		listener->end_contact = luaL_ref(L, LUA_REGISTRYINDEX);
+		lua_pushvalue(L, 3);
+		listener->presolve = luaL_ref(L, LUA_REGISTRYINDEX);
+		lua_pushvalue(L, 4);
+		listener->postsolve = luaL_ref(L, LUA_REGISTRYINDEX);
+		world->SetContactListener(listener);
+	} else {
+		CustomListener* listener = (CustomListener*) world->GetContactManager().m_contactListener;
+		delete listener;
+		world->SetContactListener(nullptr);
+	}
+
+	return 0;
+}
+
 // Shape methods
 
 int new_shape(lua_State* L)
@@ -137,6 +262,9 @@ int new_body(lua_State* L)
 	lua_setfield(L, -2, "__self");
 	luaL_getmetatable(L, BODY_CLASS);
 	lua_setmetatable(L, -2);
+
+	lua_pushvalue(L, -1);
+	body->SetUserData((void*) luaL_ref(L, LUA_REGISTRYINDEX));
 	return 1;
 }
 
@@ -424,6 +552,7 @@ static const luaL_Reg lib[] =
 	DECLARE_FUNCTION(new_joint),
 
 	DECLARE_FUNCTION(update),
+	DECLARE_FUNCTION(on_collision),
 
 	{NULL, NULL}
 };

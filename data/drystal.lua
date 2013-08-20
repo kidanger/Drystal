@@ -109,8 +109,7 @@ end
 function draw_circle(cx, cy, r)
 	cx = cx + ox;
 	cy = cy + oy;
-	
-	
+
 	local width, height = surface_size(current_on or screen)
 	if cx + r < 0 or cx - r > width then
 		return

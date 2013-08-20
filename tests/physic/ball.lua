@@ -8,6 +8,18 @@ local mouse_joint
 
 local R = 64 -- _ pixels = 1 meter
 
+local Body = setmetatable({
+	num_collide=0,
+}, physic.__body_class)
+Body.__index = Body
+
+function Body:begin_collide(other)
+	self.num_collide = self.num_collide + 1
+end
+function Body:end_collide(other)
+	self.num_collide = self.num_collide - 1
+end
+
 local function create_box(w, h, args, dynamic)
 	local shape = physic.new_shape("box", w, h)
 	for k, v in pairs(args) do
@@ -20,12 +32,15 @@ local function create_box(w, h, args, dynamic)
 		local x, y = self:get_position()
 		x = x * R
 		y = y * R
+		if self.num_collide > 0 then
+			set_color(150, 0, 0)
+		end
 		draw_rect_rotated(x - (w / 2) * R,
 						y - (h / 2) * R,
 						w * R, h * R,
 						self:get_angle())
 	end
-	return box
+	return setmetatable(box, Body)
 end
 local function create_circle(radius, args, dynamic)
 	local shape = physic.new_shape("circle", radius)
@@ -37,12 +52,15 @@ local function create_circle(radius, args, dynamic)
 	function circle:draw()
 		local angle = self:get_angle()
 		x, y = self:get_position()
+		if self.num_collide > 0 then
+			set_color(150, 0, 0)
+		end
 		draw_circle(x * R, y * R, self.radius * R)
 		set_color(150, 150, 150)
 		draw_line(x*R, y*R, x*R + self.radius*math.cos(angle)*R,
 							y*R + ball.radius * math.sin(angle)*R)
 	end
-	return circle
+	return setmetatable(circle, Body)
 end
 
 function init()
@@ -64,6 +82,10 @@ function init()
 
 	ball2 = create_circle(0.2, {restitution=0.4}, true)
 	ball2:set_position(4, 0)
+	ball2.immune = false
+	function ball2:collide_with()
+		return not self.immune
+	end
 
 	joint = physic.new_joint('distance', ball2, ball)
 	joint:set_length(100/R)
@@ -71,7 +93,29 @@ function init()
 
 --	joint = physic.new_joint('rope', ball2, ball, true)
 --	joint:set_max_length(100/R)
-end
+
+	function presolve(b1, b2)
+		local collide = true
+		if b1.collide_with and not b1:collide_with(b2) then
+			collide = false
+		elseif b2.collide_with and not b2:collide_with(b1) then
+			collide = false
+		end
+		return collide
+	end
+
+	physic.on_collision(
+		function (b1, b2)
+			if b1.begin_collide then b1:begin_collide(b2) end
+			if b2.begin_collide then b2:begin_collide(b1) end
+		end,
+		function (b1, b2)
+			if b1.end_collide then b1:end_collide(b2) end
+			if b2.end_collide then b2:end_collide(b1) end
+		end,
+		presolve
+	)
+	end
 
 local dir = ''
 local time = 0
@@ -103,6 +147,7 @@ function draw()
 	ball:draw()
 	ball2:draw()
 
+	set_color(0, 0, 0)
 	local x1, y1 = ball:get_position()
 	local x2, y2 = ball2:get_position()
 	draw_line(x1*R, y1*R, x2*R, y2*R)
@@ -113,6 +158,8 @@ end
 function key_press(key)
 	if key == 'space' then
 		ball:apply_linear_impulse(0, -0.3)
+	elseif key == 'a' then
+		ball2.immune = not ball2.immune
 	elseif key == 'q' then
 		ball:apply_angular_impulse(0.02)
 	elseif key == 'left' then
@@ -148,6 +195,7 @@ function mouse_press(x, y, b)
 		mouse_joint:set_target(x/R, y/R)
 	end
 	if b == 3 then
+		physic.on_collision()
 		ball:set_position(x/R, y/R)
 		ball:set_angular_velocity(0)
 		ball:set_linear_velocity(0, 0)
