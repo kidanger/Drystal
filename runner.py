@@ -24,8 +24,8 @@ LIB_PATH = os.path.join(BUILD_NATIVE, 'external')
 
 BROWSERS = 'chromium', 'firefox'
 
-WGET_FILES = '.wav',
-IGNORE_FILES = 'index.html'
+WGET_FILES = []
+IGNORE_FILES = ['index.html', 'drystal.cfg']
 
 def parent(dir):
     return os.path.abspath(os.path.join(dir, os.pardir))
@@ -33,22 +33,25 @@ def parent(dir):
 def copy_files_maybe(from_directory, get_subdir=False):
     print('- processing', from_directory)
     for f in os.listdir(from_directory):
-        if f.startswith('.') or f in IGNORE_FILES:
+        if f.startswith('.'):
+            continue
+        if f in IGNORE_FILES:
+            print('    ignoring\t', f)
             continue
         old = os.path.join(DESTINATION_DIRECTORY, f)
         fullpath = os.path.join(from_directory, f)
         if not os.path.exists(old) or os.path.getmtime(fullpath) > os.path.getmtime(old):
             if os.path.isfile(fullpath):
-                if os.path.splitext(fullpath)[1]:
+                if os.path.splitext(fullpath)[1] not in IGNORE_FILES:
                     print('    copying\t', f)
                     shutil.copy(fullpath, DESTINATION_DIRECTORY)
                 else:
-                    print('    ignoring\t', f)
+                    print('    ignoring ext', f)
             if os.path.isdir(fullpath) and get_subdir:
                 print('    copying dir\t', f)
                 shutil.copytree(fullpath, os.path.join(DESTINATION_DIRECTORY, f))
         else:
-            print('    ignoring\t', f)
+            print('    already\t', f)
 
 def remove_old_wget():
     destination = os.path.join(BUILD_WEB, DESTINATION_DIRECTORY_REL)
@@ -62,6 +65,16 @@ def remove_old_wget():
         else:
             shutil.rmtree(fullpath)
 
+
+def load_config(from_directory):
+    import json
+    cfg = os.path.join(from_directory, 'drystal.cfg')
+    if os.path.exists(cfg):
+        print('- reading configuration from', cfg)
+        config = json.load(open(cfg))
+        global WGET_FILES, IGNORE_FILES
+        WGET_FILES += 'wget' in config and config['wget'] or []
+        IGNORE_FILES += 'ignore' in config and config['ignore'] or []
 
 def move_wget_files(from_directory, destination):
     print('- processing for wget: ', from_directory, 'to', destination)
@@ -156,6 +169,8 @@ else:
     # if it's null, we asume there's already a 'main.lua' in dirpath
     main = os.path.join(DESTINATION_DIRECTORY, 'main.lua')
     dir = os.path.abspath(dirpath)
+
+    load_config(dir)
 
     copy_files_maybe(INCLUDE_DIRECTORY, get_subdir=True)
 
