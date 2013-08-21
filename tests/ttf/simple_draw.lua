@@ -24,14 +24,18 @@ function draw()
 
 	set_color(255, 0, 0)
 	tt.use(font)
-	local w = tt.sizeof('abcdefghijklmopqrstuvwxyz')
-	tt.draw('abcdefghijklmopqrstuvwxyz', (512 - w) / 2, 100)
+	tt.draw_align('abcdefghijklmopqrstuvwxyz', 512 / 2, 100, 'center')
 
 	tt.use(font_big)
+	tt.use_color(true)
+
 	local text = 'abd {r0|big|b150|bla} {small|test} {big|50%|defghi}'
 	text = highlight(text, (math.sin(time/1000)/2+0.5)*#text + 1)
-	local w, h = tt.sizeof_color(text)
-	tt.draw_color(text, (512 - w) / 2, (512-h)/2)
+	tt.draw_align(text, 512 / 2, 512 / 2, 'center')
+
+	tt.use_color(false)
+	tt.use(font)
+	tt.draw_align(text, 512 / 2, 512 * 0.7, 'center')
 
 	flip()
 end

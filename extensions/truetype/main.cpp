@@ -181,11 +181,7 @@ void _sizeof(const unsigned char* text, int* w, int* h)
 	int start = current_font->first_char;
 	int end = start + current_font->num_chars;
 	while (*text) {
-		if (*text == '{') {
-			while (*text and *text != '}')
-				text++;
-			continue;
-		} else if (*text >= start && *text < end) {
+		if (*text >= start && *text < end) {
 			stbtt_aligned_quad q;
 			stbtt_GetBakedQuad(current_font->char_data, *text - start, &x, &y, &q);
 			maxy = q.y1 - q.y0 > maxy ? q.y1 - q.y0 : maxy;
