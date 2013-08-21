@@ -25,6 +25,7 @@ precision highp float;
 attribute vec2 position;	// position of the vertice (0,0) is topleft, frameSize is bottomright
 attribute vec4 color;		// color of the vertice
 attribute vec2 texCoord;	// texture coordinates
+attribute float pointSize;	// size of points
 
 varying vec4 fColor;
 varying vec2 fTexCoord;
@@ -34,6 +35,7 @@ uniform float dy;
 
 void main()
 {
+	gl_PointSize = pointSize;
 	gl_Position = vec4(position - vec2(dx, dy), 0.0, 1.0);
 	fColor = color;
 	fTexCoord = texCoord;
@@ -148,6 +150,7 @@ void Display::resize(int w, int h)
 	glEnable(GL_BLEND);
 	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
 	default_buffer.reallocate();
 	// TODO: handle other buffers
@@ -196,6 +199,11 @@ void Display::set_color(int r, int g, int b)
 void Display::set_alpha(int a)
 {
 	this->alpha = a / 255.;
+}
+
+void Display::set_point_size(float size)
+{
+	this->point_size = size;
 }
 
 void Display::draw_from(const Surface* surf)
@@ -350,6 +358,35 @@ void Display::surface_size(Surface* surface, int *w, int *h)
  * Primitive drawing
  */
 
+void Display::draw_point(int x, int y)
+{
+	DEBUG("");
+	float xx, yy;
+	convert_coords(x, y, &xx, &yy);
+
+	current_buffer->assert_type(POINT_BUFFER);
+
+	current_buffer->push_vertex(xx, yy);
+	current_buffer->push_point_size(point_size);
+	current_buffer->push_color(r, g, b, alpha);
+}
+
+void Display::draw_line(int x1, int y1, int x2, int y2)
+{
+	DEBUG("");
+	// glLineWidth(2);
+	float xx1, xx2;
+	float yy1, yy2;
+	convert_coords(x1, y1, &xx1, &yy1);
+	convert_coords(x2, y2, &xx2, &yy2);
+
+	current_buffer->assert_type(LINE_BUFFER);
+	current_buffer->push_vertex(xx1, yy1);
+	current_buffer->push_vertex(xx2, yy2);
+	for (int i = 0; i < 2; i++)
+		current_buffer->push_color(r, g, b, alpha);
+}
+
 void Display::draw_triangle(int x1, int y1, int x2, int y2, int x3, int y3)
 {
 	DEBUG("");
@@ -364,21 +401,6 @@ void Display::draw_triangle(int x1, int y1, int x2, int y2, int x3, int y3)
 	current_buffer->push_vertex(xx2, yy2);
 	current_buffer->push_vertex(xx3, yy3);
 	for (int i = 0; i < 3; i++)
-		current_buffer->push_color(r, g, b, alpha);
-}
-
-void Display::draw_line(int x1, int y1, int x2, int y2)
-{
-	DEBUG("");
-	float xx1, xx2;
-	float yy1, yy2;
-	convert_coords(x1, y1, &xx1, &yy1);
-	convert_coords(x2, y2, &xx2, &yy2);
-
-	current_buffer->assert_type(LINE_BUFFER);
-	current_buffer->push_vertex(xx1, yy1);
-	current_buffer->push_vertex(xx2, yy2);
-	for (int i = 0; i < 2; i++)
 		current_buffer->push_color(r, g, b, alpha);
 }
 
@@ -402,13 +424,13 @@ void Display::draw_surface(int xi1, int yi1, int xi2, int yi2, int xi3, int yi3,
 	convert_coords(xo4, yo4, &xxo4, &yyo4);
 
 	current_buffer->assert_type(IMAGE_BUFFER);
-	current_buffer->push_texCoord(xxi1, yyi1);
-	current_buffer->push_texCoord(xxi3, yyi3);
-	current_buffer->push_texCoord(xxi4, yyi4);
+	current_buffer->push_tex_coord(xxi1, yyi1);
+	current_buffer->push_tex_coord(xxi3, yyi3);
+	current_buffer->push_tex_coord(xxi4, yyi4);
 
-	current_buffer->push_texCoord(xxi1, yyi1);
-	current_buffer->push_texCoord(xxi2, yyi2);
-	current_buffer->push_texCoord(xxi3, yyi3);
+	current_buffer->push_tex_coord(xxi1, yyi1);
+	current_buffer->push_tex_coord(xxi2, yyi2);
+	current_buffer->push_tex_coord(xxi3, yyi3);
 
 	current_buffer->push_vertex(xxo1, yyo1);
 	current_buffer->push_vertex(xxo3, yyo3);
@@ -484,6 +506,7 @@ Shader* Display::new_shader(const char* strvert, const char* strfrag)
 	glBindAttribLocation(prog, ATTR_POSITION_INDEX, "position");
 	glBindAttribLocation(prog, ATTR_COLOR_INDEX, "color");
 	glBindAttribLocation(prog, ATTR_TEXCOORD_INDEX, "texCoord");
+	glBindAttribLocation(prog, ATTR_POINTSIZE_INDEX, "pointSize");
 	glAttachShader(prog, vert);
 	glAttachShader(prog, frag);
 	glLinkProgram(prog);

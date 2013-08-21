@@ -208,33 +208,39 @@ static int mlua_set_color(lua_State* L)
 }
 static int mlua_set_alpha(lua_State* L)
 {
-	int alpha = lua_tointeger(L, -1);
+	int alpha = lua_tointeger(L, 1);
 	engine->display.set_alpha(alpha);
+	return 0;
+}
+static int mlua_set_point_size(lua_State* L)
+{
+	int point_size = lua_tointeger(L, 1);
+	engine->display.set_point_size(point_size);
 	return 0;
 }
 
 static int mlua_show_cursor(lua_State* L)
 {
-	int show = lua_toboolean(L, -1);
+	int show = lua_toboolean(L, 1);
 	engine->display.show_cursor(show);
 	return 0;
 }
 static int mlua_grab_cursor(lua_State* L)
 {
-	int grab = lua_toboolean(L, -1);
+	int grab = lua_toboolean(L, 1);
 	engine->event.grab_cursor(grab);
 	return 0;
 }
 static int mlua_set_resizable(lua_State* L)
 {
-	int r = lua_toboolean(L, -1);
+	int r = lua_toboolean(L, 1);
 	engine->display.set_resizable(r);
 	return 0;
 }
 static int mlua_resize(lua_State* L)
 {
-	int w = lua_tointeger(L, -2);
-	int h = lua_tointeger(L, -1);
+	int w = lua_tointeger(L, 1);
+	int h = lua_tointeger(L, 2);
 	engine->display.resize(w, h);
 	lua_pushlightuserdata(L, engine->display.get_screen());
 	lua_setglobal(L, "screen");
@@ -296,24 +302,31 @@ static int mlua_draw_background(lua_State*)
 	engine->display.draw_background();
 	return 0;
 }
-static int mlua_draw_triangle(lua_State* L)
+static int mlua_draw_point(lua_State* L)
 {
-	int x1 = lua_tonumber(L, -6);
-	int y1 = lua_tonumber(L, -5);
-	int x2 = lua_tonumber(L, -4);
-	int y2 = lua_tonumber(L, -3);
-	int x3 = lua_tonumber(L, -2);
-	int y3 = lua_tonumber(L, -1);
-	engine->display.draw_triangle(x1, y1, x2, y2, x3, y3);
+	int x = lua_tonumber(L, 1);
+	int y = lua_tonumber(L, 2);
+	engine->display.draw_point(x, y);
 	return 0;
 }
 static int mlua_draw_line(lua_State* L)
 {
-	int x1 = lua_tonumber(L, -4);
-	int y1 = lua_tonumber(L, -3);
-	int x2 = lua_tonumber(L, -2);
-	int y2 = lua_tonumber(L, -1);
+	int x1 = lua_tonumber(L, 1);
+	int y1 = lua_tonumber(L, 2);
+	int x2 = lua_tonumber(L, 3);
+	int y2 = lua_tonumber(L, 4);
 	engine->display.draw_line(x1, y1, x2, y2);
+	return 0;
+}
+static int mlua_draw_triangle(lua_State* L)
+{
+	int x1 = lua_tonumber(L, 1);
+	int y1 = lua_tonumber(L, 2);
+	int x2 = lua_tonumber(L, 3);
+	int y2 = lua_tonumber(L, 4);
+	int x3 = lua_tonumber(L, 5);
+	int y3 = lua_tonumber(L, 6);
+	engine->display.draw_triangle(x1, y1, x2, y2, x3, y3);
 	return 0;
 }
 static int mlua_draw_surface(lua_State* L)
@@ -525,12 +538,14 @@ void LuaFunctions::send_globals() const
 	lua_register(L, "draw_from", mlua_draw_from);
 
 	lua_register(L, "draw_background", mlua_draw_background);
-	lua_register(L, "draw_triangle", mlua_draw_triangle);
+	lua_register(L, "draw_point", mlua_draw_point);
 	lua_register(L, "draw_line", mlua_draw_line);
+	lua_register(L, "draw_triangle", mlua_draw_triangle);
 	lua_register(L, "draw_surface", mlua_draw_surface);
 
 	lua_register(L, "set_color", mlua_set_color);
 	lua_register(L, "set_alpha", mlua_set_alpha);
+	lua_register(L, "set_point_size", mlua_set_point_size);
 
 	lua_register(L, "new_shader", mlua_new_shader);
 	lua_register(L, "use_shader", mlua_use_shader);

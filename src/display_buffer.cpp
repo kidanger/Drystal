@@ -13,14 +13,17 @@ Buffer::Buffer(unsigned int size) :
 	size(size),
 	positions(new GLfloat[size * 2]),
 	colors(new GLfloat[size * 4]),
-	texCoords(new GLfloat[size * 2])
+	tex_coords(new GLfloat[size * 2]),
+	point_sizes(new GLfloat[size])
 {
 	current_position = 0;
 	current_color = 0;
-	current_texCoord = 0;
+	current_tex_coord = 0;
+	current_point_size = 0;
 	buffers[0] = 0;
 	buffers[1] = 0;
 	buffers[2] = 0;
+	buffers[3] = 0;
 }
 
 void Buffer::reallocate()
@@ -29,12 +32,13 @@ void Buffer::reallocate()
 	reset();
 	if (buffers[0] > 0)
 	{
-		glDeleteBuffers(3, buffers);
+		glDeleteBuffers(4, buffers);
 		buffers[0] = 0;
 		buffers[1] = 0;
 		buffers[2] = 0;
+		buffers[3] = 0;
 	}
-	glGenBuffers(3, buffers);
+	glGenBuffers(4, buffers);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glEnableVertexAttribArray(ATTR_POSITION_INDEX);
@@ -44,10 +48,11 @@ void Buffer::reallocate()
 
 Buffer::~Buffer()
 {
-	glDeleteBuffers(3, buffers);
+	glDeleteBuffers(4, buffers);
 	delete positions;
 	delete colors;
-	delete texCoords;
+	delete tex_coords;
+	delete point_sizes;
 }
 
 void Buffer::assert_type(BufferType atype)
@@ -91,20 +96,28 @@ void Buffer::push_color(GLfloat r, GLfloat g, GLfloat b, GLfloat a)
 	colors[cur + 3] = a;
 	current_color += 1;
 }
-void Buffer::push_texCoord(GLfloat x, GLfloat y)
+void Buffer::push_tex_coord(GLfloat x, GLfloat y)
 {
 	assert_not_full();
-	size_t cur = current_texCoord * 2;
-	texCoords[cur + 0] = x;
-	texCoords[cur + 1] = y;
-	current_texCoord += 1;
+	size_t cur = current_tex_coord * 2;
+	tex_coords[cur + 0] = x;
+	tex_coords[cur + 1] = y;
+	current_tex_coord += 1;
+}
+void Buffer::push_point_size(GLfloat s)
+{
+	assert_not_full();
+	size_t cur = current_point_size;
+	point_sizes[cur] = s;
+	current_point_size += 1;
 }
 
 void Buffer::draw(float dx, float dy)
 {
 	DEBUG();
 	assert(current_color == current_position);
-	assert(type != IMAGE_BUFFER or current_color == current_texCoord);
+	assert(type != IMAGE_BUFFER or current_color == current_tex_coord);
+	assert(type != POINT_BUFFER or current_color == current_point_size);
 
 	size_t used = current_color;
 
@@ -117,10 +130,8 @@ void Buffer::draw(float dx, float dy)
 	glVertexAttribPointer(ATTR_COLOR_INDEX, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
 	glVertexAttribPointer(ATTR_TEXCOORD_INDEX, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-//	glEnableVertexAttribArray(ATTR_POSITION_INDEX);
-//	glEnableVertexAttribArray(ATTR_COLOR_INDEX);
+	glBindBuffer(GL_ARRAY_BUFFER, buffers[3]);
+	glVertexAttribPointer(ATTR_POINTSIZE_INDEX, 1, GL_FLOAT, GL_FALSE, 0, nullptr);
 
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
 	glBufferData(GL_ARRAY_BUFFER, used * 2 * sizeof(GLfloat), positions, GL_DYNAMIC_DRAW);
@@ -130,17 +141,32 @@ void Buffer::draw(float dx, float dy)
 
 	if (type == IMAGE_BUFFER) {
 		glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
-		glBufferData(GL_ARRAY_BUFFER, used * 2 * sizeof(GLfloat), texCoords, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, used * 2 * sizeof(GLfloat), tex_coords, GL_DYNAMIC_DRAW);
 		glEnableVertexAttribArray(ATTR_TEXCOORD_INDEX);
+	} else if (type == POINT_BUFFER) {
+		glBindBuffer(GL_ARRAY_BUFFER, buffers[3]);
+		glBufferData(GL_ARRAY_BUFFER, used * sizeof(GLfloat), point_sizes, GL_DYNAMIC_DRAW);
+		glEnableVertexAttribArray(ATTR_POINTSIZE_INDEX);
 	}
 
 	glUniform1i(glGetUniformLocation(prog, "useTex"), type == IMAGE_BUFFER);
 	glUniform1f(glGetUniformLocation(prog, "dx"), dx);
 	glUniform1f(glGetUniformLocation(prog, "dy"), dy);
-	glDrawArrays(type == LINE_BUFFER ? GL_LINES : GL_TRIANGLES, 0, used);
+
+	GLint draw_type;
+	if (type == POINT_BUFFER) {
+		draw_type = GL_POINTS;
+	} else if (type == LINE_BUFFER) {
+		draw_type = GL_LINES;
+	} else {
+		draw_type = GL_TRIANGLES;
+	}
+	glDrawArrays(draw_type, 0, used);
 
 	if (type == IMAGE_BUFFER) {
 		glDisableVertexAttribArray(ATTR_TEXCOORD_INDEX);
+	} else if (type == POINT_BUFFER) {
+		glDisableVertexAttribArray(ATTR_POINTSIZE_INDEX);
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -157,6 +183,6 @@ void Buffer::flush()
 
 void Buffer::reset()
 {
-	current_position = current_color = current_texCoord = 0;
+	current_position = current_color = current_tex_coord = current_point_size = 0;
 }
 

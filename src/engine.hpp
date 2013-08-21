@@ -18,7 +18,6 @@ class Engine
 		unsigned int target_fps;
 		bool run;
 		long unsigned last_update;
-		long unsigned get_now() const;
 
 		bool update_activated;
 		bool draw_activated;
@@ -34,6 +33,7 @@ class Engine
 
 		void loop();
 		void update();
+		long unsigned get_now() const;
 
 		void resize_event(int w, int h) const;
 		void mouse_motion(int x, int y, int dx, int dy) const;

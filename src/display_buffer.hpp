@@ -7,6 +7,7 @@ const unsigned int BUFFER_DEFAULT_SIZE = 2 * 3 * 4096;
 
 enum BufferType
 {
+	POINT_BUFFER,
 	LINE_BUFFER,
 	TRIANGLE_BUFFER,
 	IMAGE_BUFFER,
@@ -17,13 +18,16 @@ private:
 	BufferType type;
 
 	unsigned int size;
-	GLuint buffers[3]; // first is for positions, second for colors, and third (optional) for texcoords
+	GLuint buffers[4]; // first is for positions, second for colors, third (optional) for texcoords, forth (optional) for point sizes
+	// TODO: make so we don't allocate the four arrays (allocate only if needed and keep allocated)
 	GLfloat* positions;
 	GLfloat* colors;
-	GLfloat* texCoords; // only if IMAGE_BUFFER
+	GLfloat* tex_coords; // only if IMAGE_BUFFER
+	GLfloat* point_sizes; // only if POINT_BUFFER
 	unsigned int current_position;
 	unsigned int current_color;
-	unsigned int current_texCoord;
+	unsigned int current_tex_coord;
+	unsigned int current_point_size;
 
 	void assert_not_full();
 	void flush();
@@ -35,7 +39,8 @@ public:
 
 	void push_vertex(GLfloat, GLfloat);
 	void push_color(GLfloat, GLfloat, GLfloat, GLfloat);
-	void push_texCoord(GLfloat, GLfloat);
+	void push_tex_coord(GLfloat, GLfloat);
+	void push_point_size(GLfloat);
 
 	void draw(float dx=0, float dy=0);
 
