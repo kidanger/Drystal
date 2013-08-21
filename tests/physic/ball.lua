@@ -1,8 +1,9 @@
 print = require 'colorprint'
 require 'drystal'
 local physic = require 'physic'
+local particle = require 'particle'
 
-local ground, ground2, ball
+local ground, ground2, ball, ball2
 local joint
 local mouse_joint
 
@@ -60,6 +61,12 @@ local function create_circle(radius, args, dynamic)
 		draw_line(x*R, y*R, x*R + self.radius*math.cos(angle)*R,
 							y*R + ball.radius * math.sin(angle)*R)
 	end
+	circle.p_system = particle.new_system(0, 0)
+	circle.p_system:set_min_initial_acceleration(-5)
+	circle.p_system:set_max_initial_acceleration(-5)
+	circle.p_system:set_min_lifetime(1)
+	circle.p_system:set_max_lifetime(1.5)
+	circle.p_system:start()
 	return setmetatable(circle, Body)
 end
 
@@ -121,6 +128,9 @@ local dir = ''
 local time = 0
 function update(dt)
 	delta = dt / 1000
+	if delta > .6 then
+		delta = .6
+	end
 	physic.update(delta * 2)
 	time = time + delta
 
@@ -131,6 +141,24 @@ function update(dt)
 	else
 		ball:set_angular_velocity(0)
 	end
+
+	local function update_system(ball)
+		local x, y = ball:get_position()
+		ball.p_system:set_position(x*R, y*R)
+		local dx, dy = ball:get_linear_velocity()
+		ball.p_system:set_min_direction(math.atan2(dy, dx) - math.pi/12)
+		ball.p_system:set_max_direction(math.atan2(dy, dx) + math.pi/12)
+		ball.p_system:set_min_initial_velocity((dx+dy)*R)
+		ball.p_system:set_max_initial_velocity((dx+dy)*R)
+		if ball.num_collide > 0 then
+			ball.p_system:set_emission_rate(100)
+		else
+			ball.p_system:set_emission_rate(10)
+		end
+		ball.p_system:update(delta)
+	end
+	update_system(ball)
+	update_system(ball2)
 end
 
 function draw()
@@ -151,6 +179,9 @@ function draw()
 	local x1, y1 = ball:get_position()
 	local x2, y2 = ball2:get_position()
 	draw_line(x1*R, y1*R, x2*R, y2*R)
+
+	ball.p_system:draw()
+	ball2.p_system:draw()
 
 	flip()
 end

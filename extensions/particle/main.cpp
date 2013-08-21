@@ -39,6 +39,8 @@ struct System {
 	Particle* particles;
 	//Buffer* buffer;
 
+	bool running = false;
+
 	int size = 256;
 	int used = 0;
 
@@ -68,15 +70,19 @@ struct System {
 
 	void start()
 	{
+		running = true;
 	}
 	void pause()
 	{
-	}
-	void resume()
-	{
+		running = false;
 	}
 	void stop()
 	{
+		for (int i = 0; i < size; i++) {
+			Particle* p = &particles[i];
+			p->dead = true;
+		}
+		running = false;
 	}
 
 	void allocate()
@@ -145,11 +151,13 @@ struct System {
 			}
 		}
 
-		float rate = 1.0f / emission_rate;
-		emit_counter += dt;
-		if (emit_counter > rate and free_index != -1) {
-			emit(free_index);
-			emit_counter -= rate;
+		if (running) {
+			float rate = 1.0f / emission_rate;
+			emit_counter += dt;
+			if (emit_counter > rate and free_index != -1) {
+				emit(free_index);
+				emit_counter -= rate;
+			}
 		}
 	}
 };
@@ -161,11 +169,11 @@ int particle_new_system(lua_State* L)
 	system->x = luaL_checknumber(L, 1);
 	system->y = luaL_checknumber(L, 2);
 
-	system->min_direction = - M_PI / 2 - M_PI/12;
-	system->max_direction = - M_PI / 2 + M_PI/12;
+	system->min_direction = 0;
+	system->max_direction = M_PI * 2;
 
 	system->min_size = RAND(1, 4);
-	system->max_size = RAND(5, 10);
+	system->max_size = RAND(5, 8);
 	system->min_lifetime = 3;
 	system->max_lifetime = 10;
 
@@ -247,10 +255,31 @@ int particle_update(lua_State* L)
 	return 0;
 }
 
-int particle_draw(lua_State* L)
+#define ACTION(action) \
+	int particle_##action(lua_State* L) \
+	{ \
+		System* system = (System*) lua_touserdata(L, 1); \
+		system->action(); \
+		return 0; \
+	}
+
+ACTION(start)
+ACTION(pause)
+ACTION(stop)
+ACTION(draw)
+
+int particle_is_running(lua_State* L)
 {
 	System* system = (System*) lua_touserdata(L, 1);
-	system->draw();
+	bool running = system->running;
+	lua_pushboolean(L, running);
+	return 1;
+}
+int particle_set_running(lua_State* L)
+{
+	System* system = (System*) lua_touserdata(L, 1);
+	bool running = lua_toboolean(L, 2);
+	system->running = running;
 	return 0;
 }
 
@@ -265,8 +294,14 @@ static const luaL_Reg lib[] =
 {
 	DECLARE_FUNCTION(new_system),
 	DECLARE_FUNCTION(update),
+	DECLARE_FUNCTION(start),
+	DECLARE_FUNCTION(stop),
+	DECLARE_FUNCTION(pause),
 	DECLARE_FUNCTION(draw),
 	DECLARE_FUNCTION(free),
+
+	DECLARE_FUNCTION(is_running),
+	DECLARE_FUNCTION(set_running),
 
 	// yukk
 	DECLARE_FUNCTION(get_position),
