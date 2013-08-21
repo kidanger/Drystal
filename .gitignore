@@ -1,5 +1,4 @@
 tags
-*.so
 .depend
 .vim_syntax
 build-*/
