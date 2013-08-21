@@ -172,7 +172,7 @@ token:
 		engine.display.draw_from(old_surface);
 }
 
-void text_size(const unsigned char* text, int* w, int* h)
+void _sizeof(const unsigned char* text, int* w, int* h)
 {
 	assert(current_font);
 	float x = 0, y = 0;
@@ -186,6 +186,61 @@ void text_size(const unsigned char* text, int* w, int* h)
 				text++;
 			continue;
 		} else if (*text >= start && *text < end) {
+			stbtt_aligned_quad q;
+			stbtt_GetBakedQuad(current_font->char_data, *text - start, &x, &y, &q);
+			maxy = q.y1 - q.y0 > maxy ? q.y1 - q.y0 : maxy;
+			maxx = q.x1;
+		}
+		text++;
+	}
+	*w = maxx;
+	*h = maxy;
+}
+
+void sizeof_color(const unsigned char* text, int* w, int* h)
+{
+	assert(current_font);
+	float x = 0, y = 0;
+	int maxy = 0;
+	int maxx = 0;
+	int start = current_font->first_char;
+	int end = start + current_font->num_chars;
+	while (*text) {
+		if (*text == '{') {
+			float size = 1.0;
+			text++;
+token:
+			const unsigned char * start_text = text;
+			while (*text != '|' and *text != '}') {
+				text++;
+			}
+			if (*text == '|') {
+				if (!strncmp((const char*) start_text, (const char*) "big", text - start_text))
+					size = 1.3;
+				else if (!strncmp((const char*) start_text, (const char*) "BIG", text - start_text))
+					size = 1.7;
+				else if (!strncmp((const char*) start_text, (const char*) "small", text - start_text))
+					size = 0.8;
+				else if (!strncmp((const char*) start_text, (const char*) "tiny", text - start_text))
+					size = 0.6;
+				text++;
+				goto token;
+			} else {
+				// end of command, start_text -> text is the text to render
+				int i = 0;
+				while (start_text + i < text) {
+					unsigned char chr = *(start_text + i);
+					if (chr >= start && chr < end) {
+						stbtt_aligned_quad q;
+						stbtt_GetBakedQuad(current_font->char_data, chr - start, &x, &y, &q, size);
+						maxy = q.y1 - q.y0 > maxy ? q.y1 - q.y0 : maxy;
+						maxx = q.x1;
+					}
+					i++;
+				}
+			}
+		}
+		else if (*text >= start && *text < end) {
 			stbtt_aligned_quad q;
 			stbtt_GetBakedQuad(current_font->char_data, *text - start, &x, &y, &q);
 			maxy = q.y1 - q.y0 > maxy ? q.y1 - q.y0 : maxy;
@@ -248,11 +303,21 @@ int use_font_wrap(lua_State* L)
 	return 0;
 }
 
-int text_size_wrap(lua_State* L)
+int sizeof_wrap(lua_State* L)
 {
 	const char* text = luaL_checkstring(L, 1);
 	int w, h;
-	text_size((const unsigned char*)text, &w, &h);
+	_sizeof((const unsigned char*)text, &w, &h);
+	lua_pushnumber(L, w);
+	lua_pushnumber(L, h);
+	return 2;
+}
+
+int sizeof_color_wrap(lua_State* L)
+{
+	const char* text = luaL_checkstring(L, 1);
+	int w, h;
+	sizeof_color((const unsigned char*)text, &w, &h);
 	lua_pushnumber(L, w);
 	lua_pushnumber(L, h);
 	return 2;
@@ -271,7 +336,8 @@ static const luaL_Reg lib[] =
 	{"draw_color", draw_text_color_wrap},
 	{"load", load_font_wrap},
 	{"use", use_font_wrap},
-	{"sizeof", text_size_wrap},
+	{"sizeof", sizeof_wrap},
+	{"sizeof_color", sizeof_color_wrap},
 	{"free", free_font_wrap},
 	{NULL, NULL}
 };

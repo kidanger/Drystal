@@ -148,6 +148,39 @@ function draw_circle(cx, cy, r)
 	end
 end
 
+function draw_polygon(...)
+	local coords = {...}
+	for i = 1, #coords, 2 do
+		coords[i] = coords[i] + ox
+		coords[i + 1] = coords[i + 1] + oy
+	end
+	local cx, cy = 0, 0
+	for i = 1, #coords, 2 do
+		cx = cx + coords[i]
+		cy = cy + coords[i + 1]
+	end
+	cx = cx / (#coords / 2)
+	cy = cy / (#coords / 2)
+	for i = 1, #coords - 2, 2 do
+		draw_triangle(coords[i], coords[i+1], coords[i+2], coords[i+3], cx, cy)
+	end
+	draw_triangle(coords[#coords - 1], coords[#coords], coords[1], coords[2], cx, cy)
+end
+
+function draw_polyline(loop, ...)
+	local coords = {...}
+	for i = 1, #coords, 2 do
+		coords[i] = coords[i] + ox
+		coords[i + 1] = coords[i + 1] + oy
+	end
+	for i = 1, #coords - 2, 2 do
+		draw_line(coords[i], coords[i+1], coords[i+2], coords[i+3])
+	end
+	if loop then
+		draw_line(coords[1], coords[2], coords[#coords-1], coords[#coords])
+	end
+end
+
 function draw_rect(x, y, w, h)
 	_draw_rect(x+ox, y+oy, w, h)
 end

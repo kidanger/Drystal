@@ -560,6 +560,7 @@ void Display::draw_buffer(Buffer* buffer, float dx, float dy)
 {
 	dx /= current->w;
 	dy /= current->h;
+	current_buffer->assert_empty();
 	buffer->draw(dx, dy);
 }
 void Display::free_buffer(Buffer* buffer)

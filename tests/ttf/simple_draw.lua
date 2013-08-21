@@ -26,20 +26,21 @@ function draw()
 	tt.use(font)
 	local w = tt.sizeof('abcdefghijklmopqrstuvwxyz')
 	tt.draw('abcdefghijklmopqrstuvwxyz', (512 - w) / 2, 100)
-	print('bla', w)
 
 	tt.use(font_big)
 	local text = 'abd {r0|big|b150|bla} {small|test} {big|50%|defghi}'
 	text = highlight(text, (math.sin(time/1000)/2+0.5)*#text + 1)
-	local w, h = tt.sizeof(text)
+	local w, h = tt.sizeof_color(text)
 	tt.draw_color(text, (512 - w) / 2, (512-h)/2)
 
 	flip()
 end
 
 function key_press(k)
-	tt.free(font)
-	tt.free(font_big)
-	engine_stop()
+	if k == 'a' then
+		tt.free(font)
+		tt.free(font_big)
+		engine_stop()
+	end
 end
 

@@ -21,6 +21,11 @@ function draw()
 	set_color(10, 10, 30)
 	draw_background()
 
+	local sprite = spritesheet.frames['character.png'].frame
+	set_color(0, 255, 0)
+	set_alpha(255)
+	draw_sprite(sprite, 300, 200)
+
 	set_color(255, 0, 0)
 	set_alpha(105)
 
@@ -39,7 +44,7 @@ function draw()
 	local sprite = spritesheet.frames['character.png'].frame
 	set_color(255, 0, 0)
 	set_alpha(255)
-	draw_sprite(sprite, 300, 200)
+	draw_sprite(sprite, 332, 200)
 	draw_line(0, 0, 600, 400)
 
 	flip()
