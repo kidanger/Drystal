@@ -1,0 +1,4 @@
+include_rules
+
+: foreach *.cpp |> !cxx |> %B.o
+: *.o |> !ld_shared |> @(EXTENSION_FILE)
