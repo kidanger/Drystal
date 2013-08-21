@@ -1,3 +1,4 @@
+print = require 'colorprint'
 require 'drystal'
 local particle = require 'particle'
 
@@ -12,18 +13,22 @@ function update(dt)
 	if dt > 100 then
 		dt = 100
 	end
-	particle.update(sys1, dt/1000)
-	particle.update(sys2, dt/1000)
+	sys1:update(dt / 1000)
+	sys2:update(dt / 1000)
 end
 
 function draw()
 	set_color(255, 255, 255)
 	draw_background()
 
-	particle.draw(sys1)
-	particle.draw(sys2)
+	sys1:draw()
+	sys2:draw()
 
 	flip()
+end
+
+function mouse_motion(x, y)
+	sys1:set_position(x, y)
 end
 
 function key_press(k)

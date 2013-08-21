@@ -8,6 +8,7 @@
 #include "engine.hpp"
 
 #define DECLARE_FUNCTION(x) {#x, particle_##x}
+#define DECLARE_GETSET(x) DECLARE_FUNCTION(get_##x), DECLARE_FUNCTION(set_##x)
 
 #define RAND(a, b) (((float) rand()/RAND_MAX) * ((b) - (a)) + (a))
 
@@ -50,9 +51,6 @@ struct System {
 
 	float min_initial_acceleration, max_initial_acceleration;
 	float min_initial_velocity, max_initial_velocity;
-
-	float last_emit = 0;
-	float time = 0;
 
 	float min_size, max_size;
 
@@ -133,8 +131,6 @@ struct System {
 
 	void update(float dt)
 	{
-		time += dt;
-
 		int free_index = -1;
 		for (int i = 0; i < size; i++) {
 			Particle* p = &particles[i];
@@ -192,6 +188,57 @@ int particle_new_system(lua_State* L)
 	return 1;
 }
 
+int particle_set_position(lua_State* L)
+{
+	System* system = (System*) lua_touserdata(L, 1);
+	lua_Number x = luaL_checknumber(L, 2);
+	lua_Number y = luaL_checknumber(L, 3);
+	system->x = x;
+	system->y = y;
+	return 0;
+}
+int particle_get_position(lua_State* L)
+{
+	System* system = (System*) lua_touserdata(L, 1);
+	lua_pushnumber(L, system->x);
+	lua_pushnumber(L, system->y);
+	return 2;
+}
+
+#define GETSET(attr) \
+	int particle_get_##attr(lua_State* L) \
+	{ \
+		System* system = (System*) lua_touserdata(L, 1); \
+		lua_pushnumber(L, system->attr); \
+		return 1; \
+	} \
+	int particle_set_##attr(lua_State* L) \
+	{ \
+		System* system = (System*) lua_touserdata(L, 1); \
+		lua_Number attr = luaL_checknumber(L, 2); \
+		system->attr = attr; \
+		return 0; \
+	}
+
+GETSET(min_lifetime)
+GETSET(max_lifetime)
+GETSET(min_direction)
+GETSET(max_direction)
+GETSET(min_initial_acceleration)
+GETSET(max_initial_acceleration)
+GETSET(min_initial_velocity)
+GETSET(max_initial_velocity)
+GETSET(min_size)
+GETSET(max_size)
+GETSET(min_r)
+GETSET(max_r)
+GETSET(min_g)
+GETSET(max_g)
+GETSET(min_b)
+GETSET(max_b)
+GETSET(emission_rate)
+
+
 int particle_update(lua_State* L)
 {
 	System* system = (System*) lua_touserdata(L, 1);
@@ -220,6 +267,28 @@ static const luaL_Reg lib[] =
 	DECLARE_FUNCTION(update),
 	DECLARE_FUNCTION(draw),
 	DECLARE_FUNCTION(free),
+
+	// yukk
+	DECLARE_FUNCTION(get_position),
+	DECLARE_FUNCTION(set_position),
+	DECLARE_GETSET(min_lifetime),
+	DECLARE_GETSET(max_lifetime),
+	DECLARE_GETSET(min_direction),
+	DECLARE_GETSET(max_direction),
+	DECLARE_GETSET(min_initial_acceleration),
+	DECLARE_GETSET(max_initial_acceleration),
+	DECLARE_GETSET(min_initial_velocity),
+	DECLARE_GETSET(max_initial_velocity),
+	DECLARE_GETSET(min_size),
+	DECLARE_GETSET(max_size),
+	DECLARE_GETSET(min_r),
+	DECLARE_GETSET(max_r),
+	DECLARE_GETSET(min_g),
+	DECLARE_GETSET(max_g),
+	DECLARE_GETSET(min_b),
+	DECLARE_GETSET(max_b),
+	DECLARE_GETSET(emission_rate),
+
 	{NULL, NULL}
 };
 
