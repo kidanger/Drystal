@@ -3,7 +3,8 @@
 
 #include <lua.hpp>
 #include <cmath>
-#include <cstdlib>
+#include <cassert>
+#include <cstdlib> // random
 
 #include "engine.hpp"
 
@@ -78,8 +79,9 @@ struct System {
 	}
 	void stop()
 	{
-		for (int i = 0; i < size; i++) {
+		for (int i = 0; i < used; i++) {
 			Particle* p = &particles[i];
+			assert(not p->dead);
 			p->dead = true;
 		}
 		running = false;
@@ -100,14 +102,13 @@ struct System {
 		Engine& engine = get_engine();
 		//engine.display.draw_buffer(buffer, 0, 0);
 
-		for (int i = 0; i < size; i++) {
+		for (int i = 0; i < used; i++) {
 			Particle* p = &particles[i];
-			if (not p->dead) {
-				engine.display.set_color(p->r, p->g, p->b);
-				engine.display.set_alpha(p->a);
-				engine.display.set_point_size(p->size);
-				engine.display.draw_point(p->x, p->y);
-			}
+			assert(not p->dead);
+			engine.display.set_color(p->r, p->g, p->b);
+			engine.display.set_alpha(p->a);
+			engine.display.set_point_size(p->size);
+			engine.display.draw_point(p->x, p->y);
 		}
 	}
 
@@ -137,25 +138,28 @@ struct System {
 
 	void update(float dt)
 	{
-		int free_index = -1;
-		for (int i = 0; i < size; i++) {
+		for (int i = 0; i < used; i++) {
 			Particle* p = &particles[i];
-			if (not p->dead) {
-				p->update(dt);
+			assert(not p->dead);
+			p->update(dt);
+		}
 
-				if (p->life <= 0) {
-					p->dead = true;
-				}
-			} else {
-				free_index = i;
+		for (int i = 0; i < used; i++) {
+			Particle* p = &particles[i];
+			assert(not p->dead);
+			if (p->life <= 0) {
+				p->dead = true;
+				particles[i] = particles[used - 1];
+				used -= 1;
+				i -= 1;
 			}
 		}
 
 		if (running) {
 			float rate = 1.0f / emission_rate;
 			emit_counter += dt;
-			if (emit_counter > rate and free_index != -1) {
-				emit(free_index);
+			if (emit_counter > rate and used < size) {
+				emit(used);
 				emit_counter -= rate;
 			}
 		}
