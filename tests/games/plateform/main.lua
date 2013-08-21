@@ -1,8 +1,8 @@
-require 'data/drystal'
-require 'data/draw'
+require 'drystal'
+require 'draw'
 
-local json = require 'data/dkjson'
-spritesheet = json.decode(io.open('data/image.json'):read('*all'))
+local json = require 'dkjson'
+spritesheet = json.decode(io.open('image.json'):read('*all'))
 
 math.randomseed(os.time())
 
@@ -14,14 +14,6 @@ BLOCK = 1
 
 Entity = Entity or {}
 Entity.__index = Entity
-
-draw_text = draw_text or function(text, x, y)
-	if true then
-		local surf = text_surface(text)
-		draw_surface(surf, x, y)
-		free_surface(surf)
-	end
-end
 
 function Entity.new(type, static)
 	if static == nil then static = true end
@@ -88,9 +80,9 @@ end
 
 function Entity:gojmp()
 	if self.collides.down then
-		self.dy = self.dy - 3.1
+		self.dy = self.dy - 3.9
 		self.jmp = true
-		self.jmp_timer = 7
+		self.jmp_timer = 9
 	end
 end
 function Entity:stopjmp()
@@ -302,12 +294,6 @@ function chunkmanager:render()
 			if c then c:render(); j = j + 1 end
 		end
 	end
-
-	push_offset(0, 0)
-	set_color(WHITE)
-	local text = 'chunks: ' .. tostring(i) .. ', render: ' .. tostring(j)
-	draw_text(text, 3, height - 16)
-	pop_offset()
 end
 
 function chunkmanager:update(dt)
@@ -474,7 +460,7 @@ function reload()
 		end
 		chunkmanager:reset()
 		player = make_human()
-		load_map('data/map')
+		load_map('map')
 		chunkmanager:add(player)
 
 		if pp then
@@ -492,8 +478,7 @@ function init()
 	reload()
 	if mscreen then free_surface(mscreen) end
 	mscreen = new_surface(surface_size(screen))
-	set_font('data/arial.ttf', 16)
-	atlas = load_surface('data/image.png')
+	atlas = load_surface('image.png')
 	draw_from(atlas)
 end
 
@@ -504,7 +489,7 @@ function resize_event(w, h)
 	if mscreen then free_surface(mscreen) end
 	mscreen = new_surface(surface_size(screen))
 	if atlas then free_surface(atlas); end
-	atlas = load_surface('data/image.png')
+	atlas = load_surface('image.png')
 	draw_from(atlas)
 end
 
