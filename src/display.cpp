@@ -150,7 +150,12 @@ void Display::resize(int w, int h)
 	glEnable(GL_BLEND);
 	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_DEPTH_TEST);
+
+#ifdef EMSCRIPTEN
+	//glEnable(0x8642);
+#else
 	glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+#endif
 //	glEnable(GL_POINT_SMOOTH);
 //	glEnable(GL_POINT_SPRITE);
 
@@ -206,6 +211,11 @@ void Display::set_alpha(int a)
 void Display::set_point_size(float size)
 {
 	this->point_size = size;
+}
+
+void Display::set_line_width(float width)
+{
+	glLineWidth(width);
 }
 
 void Display::draw_from(const Surface* surf)
@@ -334,7 +344,7 @@ void Display::free_surface(Surface* surface)
 {
 	assert(surface);
 	if (surface == current_from) {
-		default_buffer.assert_empty(); // TODO: check if IMAGE_BUFFER
+		default_buffer.assert_not_use_texture();
 		glBindTexture(GL_TEXTURE_2D, 0);
 		current_from = NULL;
 	}
@@ -369,6 +379,23 @@ void Display::draw_point(int x, int y)
 	current_buffer->assert_type(POINT_BUFFER);
 
 	current_buffer->push_vertex(xx, yy);
+	current_buffer->push_point_size(point_size);
+	current_buffer->push_color(r, g, b, alpha);
+}
+void Display::draw_point_tex(int xi, int yi, int xd, int yd)
+{
+	DEBUG("");
+	float xxd, yyd;
+	convert_coords(xd, yd, &xxd, &yyd);
+
+	float xxi, yyi;
+	convert_texcoords(xi, yi, &xxi, &yyi);
+
+	current_buffer->assert_type(POINT_BUFFER);
+	current_buffer->assert_use_texture();
+
+	current_buffer->push_vertex(xxd, yyd);
+	current_buffer->push_tex_coord(xxi, yyi);
 	current_buffer->push_point_size(point_size);
 	current_buffer->push_color(r, g, b, alpha);
 }
@@ -425,7 +452,8 @@ void Display::draw_surface(int xi1, int yi1, int xi2, int yi2, int xi3, int yi3,
 	convert_coords(xo3, yo3, &xxo3, &yyo3);
 	convert_coords(xo4, yo4, &xxo4, &yyo4);
 
-	current_buffer->assert_type(IMAGE_BUFFER);
+	current_buffer->assert_type(TRIANGLE_BUFFER);
+	current_buffer->assert_use_texture();
 	current_buffer->push_tex_coord(xxi1, yyi1);
 	current_buffer->push_tex_coord(xxi3, yyi3);
 	current_buffer->push_tex_coord(xxi4, yyi4);

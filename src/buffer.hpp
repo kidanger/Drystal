@@ -10,7 +10,6 @@ enum BufferType
 	POINT_BUFFER,
 	LINE_BUFFER,
 	TRIANGLE_BUFFER,
-	IMAGE_BUFFER,
 };
 class Buffer
 {
@@ -46,6 +45,8 @@ public:
 
 	void assert_type(BufferType);
 	void assert_empty();
+	void assert_use_texture();
+	void assert_not_use_texture();
 
 	void reallocate();
 };

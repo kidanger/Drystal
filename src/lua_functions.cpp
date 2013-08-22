@@ -218,6 +218,12 @@ static int mlua_set_point_size(lua_State* L)
 	engine->display.set_point_size(point_size);
 	return 0;
 }
+static int mlua_set_line_width(lua_State* L)
+{
+	int width = lua_tointeger(L, 1);
+	engine->display.set_line_width(width);
+	return 0;
+}
 
 static int mlua_show_cursor(lua_State* L)
 {
@@ -304,49 +310,58 @@ static int mlua_draw_background(lua_State*)
 }
 static int mlua_draw_point(lua_State* L)
 {
-	int x = lua_tonumber(L, 1);
-	int y = lua_tonumber(L, 2);
+	lua_Number x = lua_tonumber(L, 1);
+	lua_Number y = lua_tonumber(L, 2);
 	engine->display.draw_point(x, y);
+	return 0;
+}
+static int mlua_draw_point_tex(lua_State* L)
+{
+	lua_Number xi = lua_tonumber(L, 1);
+	lua_Number yi = lua_tonumber(L, 2);
+	lua_Number xd = lua_tonumber(L, 3);
+	lua_Number yd = lua_tonumber(L, 4);
+	engine->display.draw_point_tex(xi, yi, xd, yd);
 	return 0;
 }
 static int mlua_draw_line(lua_State* L)
 {
-	int x1 = lua_tonumber(L, 1);
-	int y1 = lua_tonumber(L, 2);
-	int x2 = lua_tonumber(L, 3);
-	int y2 = lua_tonumber(L, 4);
+	lua_Number x1 = lua_tonumber(L, 1);
+	lua_Number y1 = lua_tonumber(L, 2);
+	lua_Number x2 = lua_tonumber(L, 3);
+	lua_Number y2 = lua_tonumber(L, 4);
 	engine->display.draw_line(x1, y1, x2, y2);
 	return 0;
 }
 static int mlua_draw_triangle(lua_State* L)
 {
-	int x1 = lua_tonumber(L, 1);
-	int y1 = lua_tonumber(L, 2);
-	int x2 = lua_tonumber(L, 3);
-	int y2 = lua_tonumber(L, 4);
-	int x3 = lua_tonumber(L, 5);
-	int y3 = lua_tonumber(L, 6);
+	lua_Number x1 = lua_tonumber(L, 1);
+	lua_Number y1 = lua_tonumber(L, 2);
+	lua_Number x2 = lua_tonumber(L, 3);
+	lua_Number y2 = lua_tonumber(L, 4);
+	lua_Number x3 = lua_tonumber(L, 5);
+	lua_Number y3 = lua_tonumber(L, 6);
 	engine->display.draw_triangle(x1, y1, x2, y2, x3, y3);
 	return 0;
 }
 static int mlua_draw_surface(lua_State* L)
 {
-	int i1 = lua_tonumber(L, -16);
-	int i2 = lua_tonumber(L, -15);
-	int i3 = lua_tonumber(L, -14);
-	int i4 = lua_tonumber(L, -13);
-	int i5 = lua_tonumber(L, -12);
-	int i6 = lua_tonumber(L, -11);
-	int i7 = lua_tonumber(L, -10);
-	int i8 = lua_tonumber(L, -9);
-	int o1 = lua_tonumber(L, -8);
-	int o2 = lua_tonumber(L, -7);
-	int o3 = lua_tonumber(L, -6);
-	int o4 = lua_tonumber(L, -5);
-	int o5 = lua_tonumber(L, -4);
-	int o6 = lua_tonumber(L, -3);
-	int o7 = lua_tonumber(L, -2);
-	int o8 = lua_tonumber(L, -1);
+	lua_Number i1 = lua_tonumber(L, -16);
+	lua_Number i2 = lua_tonumber(L, -15);
+	lua_Number i3 = lua_tonumber(L, -14);
+	lua_Number i4 = lua_tonumber(L, -13);
+	lua_Number i5 = lua_tonumber(L, -12);
+	lua_Number i6 = lua_tonumber(L, -11);
+	lua_Number i7 = lua_tonumber(L, -10);
+	lua_Number i8 = lua_tonumber(L, -9);
+	lua_Number o1 = lua_tonumber(L, -8);
+	lua_Number o2 = lua_tonumber(L, -7);
+	lua_Number o3 = lua_tonumber(L, -6);
+	lua_Number o4 = lua_tonumber(L, -5);
+	lua_Number o5 = lua_tonumber(L, -4);
+	lua_Number o6 = lua_tonumber(L, -3);
+	lua_Number o7 = lua_tonumber(L, -2);
+	lua_Number o8 = lua_tonumber(L, -1);
 	engine->display.draw_surface(i1, i2, i3, i4, i5, i6, i7, i8,
 			o1, o2, o3, o4, o5, o6, o7, o8);
 	return 0;
@@ -539,6 +554,7 @@ void LuaFunctions::send_globals() const
 
 	lua_register(L, "draw_background", mlua_draw_background);
 	lua_register(L, "draw_point", mlua_draw_point);
+	lua_register(L, "draw_point_tex", mlua_draw_point_tex);
 	lua_register(L, "draw_line", mlua_draw_line);
 	lua_register(L, "draw_triangle", mlua_draw_triangle);
 	lua_register(L, "draw_surface", mlua_draw_surface);
@@ -546,6 +562,7 @@ void LuaFunctions::send_globals() const
 	lua_register(L, "set_color", mlua_set_color);
 	lua_register(L, "set_alpha", mlua_set_alpha);
 	lua_register(L, "set_point_size", mlua_set_point_size);
+	lua_register(L, "set_line_width", mlua_set_line_width);
 
 	lua_register(L, "new_shader", mlua_new_shader);
 	lua_register(L, "use_shader", mlua_use_shader);

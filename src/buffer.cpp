@@ -66,14 +66,28 @@ void Buffer::assert_type(BufferType atype)
 void Buffer::assert_not_full()
 {
 	if (current_color == size) {
-		flush(); // implicit reset
+		flush();
 	}
 }
 
 void Buffer::assert_empty()
 {
 	if (current_color != 0) {
-		flush(); // implicit reset
+		flush();
+	}
+}
+
+void Buffer::assert_use_texture()
+{
+	if (current_color != 0 and current_tex_coord == 0) {
+		flush();
+	}
+}
+
+void Buffer::assert_not_use_texture()
+{
+	if (current_color != 0 and current_tex_coord != 0) {
+		flush();
 	}
 }
 
@@ -114,12 +128,15 @@ void Buffer::push_point_size(GLfloat s)
 
 void Buffer::draw(float dx, float dy)
 {
+	size_t used = current_color;
+	if (used == 0) {
+		return;
+	}
+
 	DEBUG();
 	assert(current_color == current_position);
-	assert(type != IMAGE_BUFFER or current_color == current_tex_coord);
+	assert(current_tex_coord == 0 or current_color == current_tex_coord);
 	assert(type != POINT_BUFFER or current_color == current_point_size);
-
-	size_t used = current_color;
 
 	GLint prog;
 	glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
@@ -139,7 +156,7 @@ void Buffer::draw(float dx, float dy)
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
 	glBufferData(GL_ARRAY_BUFFER, used * 4 * sizeof(GLfloat), colors, GL_DYNAMIC_DRAW);
 
-	if (type == IMAGE_BUFFER) {
+	if (current_tex_coord > 0) {
 		glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
 		glBufferData(GL_ARRAY_BUFFER, used * 2 * sizeof(GLfloat), tex_coords, GL_DYNAMIC_DRAW);
 		glEnableVertexAttribArray(ATTR_TEXCOORD_INDEX);
@@ -149,7 +166,7 @@ void Buffer::draw(float dx, float dy)
 		glEnableVertexAttribArray(ATTR_POINTSIZE_INDEX);
 	}
 
-	glUniform1i(glGetUniformLocation(prog, "useTex"), type == IMAGE_BUFFER);
+	glUniform1i(glGetUniformLocation(prog, "useTex"), current_tex_coord > 0);
 	glUniform1f(glGetUniformLocation(prog, "dx"), dx);
 	glUniform1f(glGetUniformLocation(prog, "dy"), dy);
 
@@ -163,7 +180,7 @@ void Buffer::draw(float dx, float dy)
 	}
 	glDrawArrays(draw_type, 0, used);
 
-	if (type == IMAGE_BUFFER) {
+	if (current_tex_coord > 0) {
 		glDisableVertexAttribArray(ATTR_TEXCOORD_INDEX);
 	} else if (type == POINT_BUFFER) {
 		glDisableVertexAttribArray(ATTR_POINTSIZE_INDEX);

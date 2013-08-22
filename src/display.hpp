@@ -81,6 +81,7 @@ class Display
 
 		void set_point_size(float size);
 		void get_point_size(float *size) { *size = this->point_size; };
+		void set_line_width(float width);
 
 		Surface* get_screen() const;
 		Surface* create_surface(int w, int h, int texw, int texh, unsigned char* pixels) const;
@@ -95,7 +96,8 @@ class Display
 		const Surface* get_draw_from() const { return current_from; };
 
 		void draw_background() const;
-		void draw_point(int x1, int y1);
+		void draw_point(int x, int y);
+		void draw_point_tex(int xi, int yi, int xd, int yd);
 		void draw_line(int x1, int y1, int x2, int y2);
 		void draw_triangle(int x1, int y1, int x2, int y2, int x3, int y3);
 		void draw_surface(int, int, int, int, int, int, int, int,
