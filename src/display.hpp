@@ -4,7 +4,7 @@
 #include <SDL/SDL_opengl.h>
 struct SDL_Surface;
 
-#include "display_buffer.hpp"
+#include "buffer.hpp"
 
 const GLuint ATTR_POSITION_INDEX = 0; // WebGL wants 0 as an attribute, so here it is
 const GLuint ATTR_COLOR_INDEX = 1;

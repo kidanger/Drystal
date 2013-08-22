@@ -151,6 +151,8 @@ void Display::resize(int w, int h)
 	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+//	glEnable(GL_POINT_SMOOTH);
+//	glEnable(GL_POINT_SPRITE);
 
 	default_buffer.reallocate();
 	// TODO: handle other buffers

@@ -7,7 +7,7 @@
 #include "log.hpp"
 #include "stats.hpp"
 #include "display.hpp"
-#include "display_buffer.hpp"
+#include "buffer.hpp"
 
 Buffer::Buffer(unsigned int size) :
 	size(size),
