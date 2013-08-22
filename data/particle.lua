@@ -28,6 +28,8 @@ local function goes_to_metatable(funcname)
 	return false
 end
 
+local temp_array = {}
+
 for k, v in pairs(particle) do
 	if is_getset(k) then
 		local attr = k:sub(string.len('get_min_') + 1)
@@ -42,18 +44,27 @@ for k, v in pairs(particle) do
 			setmin(data, min)
 			setmax(data, max or min)
 		end
-		particle['get_' .. attr] = get_both
-		particle['set_' .. attr] = set_both
+		temp_array['set_' .. attr] = set_both
+		temp_array['get_' .. attr] = get_both
 	end
 end
+for k, v in pairs(temp_array) do
+	particle[k] = v
+end
+temp_array = {}
 
 for k, v in pairs(particle) do
 	if goes_to_metatable(k) then
 		local f = function(self, ...) return v(self.data, ...) end
-		System[k] = f
-		particle[k] = f
+		temp_array[k] = f
 	end
 end
+
+for k, f in pairs(temp_array) do
+	particle[k] = f
+	System[k] = f
+end
+temp_array = {}
 
 function particle.new_system(...)
 	return setmetatable({data=particle.rawnew_system(...)}, System)
