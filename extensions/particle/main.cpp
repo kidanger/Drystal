@@ -31,7 +31,9 @@ public:
 	float sizeseed;
 
 	int color_state = 0;
-	float colorseed;
+	float rseed;
+	float gseed;
+	float bseed;
 
 	void update(System& sys, float dt);
 };
@@ -139,16 +141,16 @@ public:
 
 				float ratio = (liferatio - cA.at) / (cB.at - cA.at);
 
-				float colrA = p->colorseed * (cA.max_r - cA.min_r) + cA.min_r;
-				float colrB = p->colorseed * (cB.max_r - cB.min_r) + cB.min_r;
+				float colrA = p->rseed * (cA.max_r - cA.min_r) + cA.min_r;
+				float colrB = p->rseed * (cB.max_r - cB.min_r) + cB.min_r;
 				r = colrA * (1 - ratio) + colrB * ratio;
 
-				float colgA = p->colorseed * (cA.max_g - cA.min_g) + cA.min_g;
-				float colgB = p->colorseed * (cB.max_g - cB.min_g) + cB.min_g;
+				float colgA = p->gseed * (cA.max_g - cA.min_g) + cA.min_g;
+				float colgB = p->gseed * (cB.max_g - cB.min_g) + cB.min_g;
 				g = colgA * (1 - ratio) + colgB * ratio;
 
-				float colbA = p->colorseed * (cA.max_b - cA.min_b) + cA.min_b;
-				float colbB = p->colorseed * (cB.max_b - cB.min_b) + cB.min_b;
+				float colbA = p->bseed * (cA.max_b - cA.min_b) + cA.min_b;
+				float colbB = p->bseed * (cB.max_b - cB.min_b) + cB.min_b;
 				b = colbA * (1 - ratio) + colbB * ratio;
 			}
 
@@ -166,7 +168,9 @@ public:
 		p->x = x;
 		p->y = y;
 		p->sizeseed = (float) rand() / RAND_MAX;
-		p->colorseed = (float) rand() / RAND_MAX;
+		p->rseed = (float) rand() / RAND_MAX;
+		p->gseed = (float) rand() / RAND_MAX;
+		p->bseed = (float) rand() / RAND_MAX;
 
 		p->a = 255;
 
@@ -412,8 +416,15 @@ int particle_add_color(lua_State* L)
 		lua_Number g = luaL_checknumber(L, 4);
 		lua_Number b = luaL_checknumber(L, 5);
 		system->add_color(at_lifetime, r, r, g, g, b, b);
-	} // TODO
-	else assert(false);
+	} else {
+		lua_Number minr = luaL_checknumber(L, 3);
+		lua_Number maxr = luaL_checknumber(L, 4);
+		lua_Number ming = luaL_checknumber(L, 5);
+		lua_Number maxg = luaL_checknumber(L, 6);
+		lua_Number minb = luaL_checknumber(L, 7);
+		lua_Number maxb = luaL_checknumber(L, 8);
+		system->add_color(at_lifetime, minr, maxr, ming, maxg, minb, maxb);
+	}
 	return 0;
 }
 
