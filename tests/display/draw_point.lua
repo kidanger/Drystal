@@ -1,7 +1,14 @@
 require 'drystal'
 
+local json = require 'dkjson'
+spritesheet = json.decode(io.open('image.json'):read('*all'))
+
+local mx, my = 0, 0
+
 function init()
 	resize(600, 400)
+	image = load_surface(spritesheet.meta.image)
+	draw_from(image)
 end
 
 local time = 0
@@ -22,11 +29,27 @@ function draw()
 		end
 	end
 
+	set_point_size(32)
+	set_color(0, 255, 0)
+	draw_point(mx, my)
+
+	set_point_size(16)
+	local sprite = spritesheet.frames['character.png'].frame
+	draw_point_tex(sprite.x+sprite.w/2, sprite.y+sprite.h/2, mx, my)
+
+	set_line_width(5)
+	draw_line(0, 0, mx, my)
+
 	flip()
+end
+
+function mouse_motion(x, y)
+	mx = x
+	my = y
 end
 
 function key_press(k)
 	if k == 'a' then
-		stop_engine()
+		engine_stop()
 	end
 end
