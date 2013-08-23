@@ -389,6 +389,7 @@ void Display::draw_point(int x, int y)
 	convert_coords(x, y, &xx, &yy);
 
 	current_buffer->assert_type(POINT_BUFFER);
+	current_buffer->assert_not_use_texture();
 
 	current_buffer->push_vertex(xx, yy);
 	current_buffer->push_point_size(point_size);
@@ -422,6 +423,7 @@ void Display::draw_line(int x1, int y1, int x2, int y2)
 	convert_coords(x2, y2, &xx2, &yy2);
 
 	current_buffer->assert_type(LINE_BUFFER);
+	current_buffer->assert_not_use_texture();
 	current_buffer->push_vertex(xx1, yy1);
 	current_buffer->push_vertex(xx2, yy2);
 	for (int i = 0; i < 2; i++)
@@ -438,6 +440,7 @@ void Display::draw_triangle(int x1, int y1, int x2, int y2, int x3, int y3)
 	convert_coords(x3, y3, &xx3, &yy3);
 
 	current_buffer->assert_type(TRIANGLE_BUFFER);
+	current_buffer->assert_not_use_texture();
 	current_buffer->push_vertex(xx1, yy1);
 	current_buffer->push_vertex(xx2, yy2);
 	current_buffer->push_vertex(xx3, yy3);
