@@ -13,6 +13,10 @@ extern "C" {
 #include "stb_image.c"
 }
 
+#ifdef EMSCRIPTEN
+#include "emscripten.h" // see show_cursor
+#endif
+
 #include "log.hpp"
 #include "display.hpp"
 
@@ -167,7 +171,15 @@ void Display::resize(int w, int h)
 
 void Display::show_cursor(bool b)
 {
+#ifndef EMSCRIPTEN
 	SDL_ShowCursor(b);
+#else
+	if (b) {
+		emscripten_run_script("Module['canvas'].style.cursor='default';");
+	} else {
+		emscripten_run_script("Module['canvas'].style.cursor='none';");
+	}
+#endif
 }
 
 void Display::draw_background() const

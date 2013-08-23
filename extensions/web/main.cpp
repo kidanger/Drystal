@@ -66,7 +66,10 @@ static int wget(lua_State *L)
 
 int run_js(lua_State* L)
 {
-	(void) L;
+#ifdef EMSCRIPTEN
+	const char* script = luaL_checkstring(L, 1);
+	emscripten_run_script(script);
+#endif
 	return 0;
 }
 
