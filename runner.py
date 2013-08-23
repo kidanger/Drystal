@@ -26,6 +26,7 @@ BROWSERS = 'chromium', 'firefox'
 
 WGET_FILES = []
 IGNORE_FILES = ['index.html', 'drystal.cfg']
+SUBDIRS = []
 
 def parent(dir):
     return os.path.abspath(os.path.join(dir, os.pardir))
@@ -47,7 +48,7 @@ def copy_files_maybe(from_directory, get_subdir=False):
                     shutil.copy(fullpath, DESTINATION_DIRECTORY)
                 else:
                     print('    ignoring ext', f)
-            if os.path.isdir(fullpath) and get_subdir:
+            if os.path.isdir(fullpath) and (get_subdir or f in SUBDIRS):
                 print('    copying dir\t', f)
                 shutil.copytree(fullpath, os.path.join(DESTINATION_DIRECTORY, f))
         else:
@@ -72,9 +73,10 @@ def load_config(from_directory):
     if os.path.exists(cfg):
         print('- reading configuration from', cfg)
         config = json.load(open(cfg))
-        global WGET_FILES, IGNORE_FILES
+        global WGET_FILES, IGNORE_FILES, SUBDIRS
         WGET_FILES += 'wget' in config and config['wget'] or []
         IGNORE_FILES += 'ignore' in config and config['ignore'] or []
+        SUBDIRS += 'subdirs' in config and config['subdirs'] or []
 
 def move_wget_files(from_directory, destination):
     print('- processing for wget: ', from_directory, 'to', destination)
