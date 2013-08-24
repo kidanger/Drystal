@@ -83,6 +83,8 @@ function draw_sprite_rotated(sprite, x, y, angle)
 	draw_sprite(sprite, x, y, transform)
 end
 function draw_sprite_resized(sprite, x, y, w, h)
+	x = x + ox
+	y = y + oy
 	draw_image(sprite.x, sprite.y, sprite.w, sprite.h, x, y, w, h)
 end
 

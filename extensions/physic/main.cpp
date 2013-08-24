@@ -225,6 +225,14 @@ SHAPE_GETSET_SOME_VALUE(density)
 SHAPE_GETSET_SOME_VALUE(restitution)
 SHAPE_GETSET_SOME_VALUE(friction)
 
+int set_sensor(lua_State* L)
+{
+	b2FixtureDef* fixtureDef = luam_tofixture(L, 1);
+	bool sensor = lua_toboolean(L, 2);
+	fixtureDef->isSensor = sensor;
+	return 0;
+}
+
 int shape_gc(lua_State* L)
 {
 	b2FixtureDef* fixtureDef = luam_tofixture(L, 1);
@@ -237,6 +245,7 @@ static const luaL_Reg __shape_class[] = {
 	DECLARE_GETSET(density),
 	DECLARE_GETSET(restitution),
 	DECLARE_GETSET(friction),
+	DECLARE_FUNCTION(set_sensor),
 
 	{"__gc", shape_gc},
 	{NULL, NULL},
