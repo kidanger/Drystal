@@ -173,7 +173,13 @@ int new_shape(lua_State* L)
 		b2PolygonShape* polygon = new b2PolygonShape;
 		lua_Number w = luaL_checknumber(L, 2) / 2;
 		lua_Number h = luaL_checknumber(L, 3) / 2;
-		polygon->SetAsBox(w, h);
+		lua_Number centerx = 0;
+		lua_Number centery = 0;
+		if (lua_gettop(L) > 3) {
+			centerx = luaL_checknumber(L, 4);
+			centery = luaL_checknumber(L, 5);
+		}
+		polygon->SetAsBox(w, h, b2Vec2(centerx, centery), 0);
 		fixtureDef->shape = polygon;
 	} else if (!strcmp(type, "circle")) {
 		b2CircleShape* circle = new b2CircleShape;
@@ -327,6 +333,18 @@ int get_mass(lua_State* L)
 	return 1;
 }
 
+int set_mass_center(lua_State* L)
+{
+	b2Body* body = luam_tobody(L, 1);
+	lua_Number cx = luaL_checknumber(L, 2);
+	lua_Number cy = luaL_checknumber(L, 3);
+	b2MassData md;
+	body->GetMassData(&md);
+	md.center = b2Vec2(cx, cy);
+	body->SetMassData(&md);
+	return 0;
+}
+
 #define BODY_GETSET_BOOL(value, get_expr, set_expr) \
 	int set_##value(lua_State* L) \
 	{ \
@@ -356,7 +374,7 @@ static int apply_force(lua_State* L)
 		lua_Number dy = luaL_checknumber(L, 5);
 		body->ApplyForce(b2Vec2(fx, fy), b2Vec2(dx, dy), true);
 	} else {
-		pos = body->GetLocalCenter();
+		pos = body->GetWorldCenter();
 		body->ApplyForceToCenter(b2Vec2(fx, fy), true);
 	}
 	return 0;
@@ -372,7 +390,7 @@ static int apply_linear_impulse(lua_State* L)
 		lua_Number dy = luaL_checknumber(L, 5);
 		pos = b2Vec2(dx, dy);
 	} else {
-		pos = body->GetLocalCenter();
+		pos = body->GetWorldCenter();
 	}
 	body->ApplyLinearImpulse(b2Vec2(fx, fy), pos, true);
 	return 0;
@@ -399,6 +417,13 @@ static int dump(lua_State* L)
 	return 0;
 }
 
+static int body_destroy(lua_State* L)
+{
+	b2Body* body = luam_tobody(L, 1);
+	world->DestroyBody(body);
+	return 0;
+}
+
 
 static const luaL_Reg __body_class[] = {
 	DECLARE_GETSET(position),
@@ -409,11 +434,13 @@ static const luaL_Reg __body_class[] = {
 	DECLARE_GETSET(angular_damping),
 	DECLARE_GETSET(fixed_rotation),
 	DECLARE_FUNCTION(get_mass),
-	{"apply_force", apply_force},
-	{"apply_linear_impulse", apply_linear_impulse},
-	{"apply_angular_impulse", apply_angular_impulse},
-	{"apply_torque", apply_torque},
-	{"dump", dump},
+	DECLARE_FUNCTION(set_mass_center),
+	DECLARE_FUNCTION(apply_force),
+	DECLARE_FUNCTION(apply_linear_impulse),
+	DECLARE_FUNCTION(apply_angular_impulse),
+	DECLARE_FUNCTION(apply_torque),
+	DECLARE_FUNCTION(dump),
+	{"destroy", body_destroy},
 	{NULL, NULL},
 };
 
