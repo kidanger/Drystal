@@ -6,6 +6,7 @@ web=extensions/web/@(EXTENSION_FILE)
 net=extensions/net/@(EXTENSION_FILE)
 physic=extensions/physic/@(EXTENSION_FILE)
 particle=extensions/particle/@(EXTENSION_FILE)
+storage=extensions/storage/@(EXTENSION_FILE)
 ifdef FAST_LINK
 : src/*.o |> !ld_drystal |> drystal_nolua.js
 : drystal_nolua.js external/liblua.js |> @(EMLINK) %f %o |> drystal.js
@@ -14,9 +15,10 @@ ifdef FAST_LINK
 : drystal_truetype_web.js $(net) |> @(EMLINK) %f %o |> drystal_truetype_web_net.js
 : drystal_truetype_web_net.js $(physic) |> @(EMLINK) %f %o |> drystal_truetype_web_net_physic.js
 : drystal_truetype_web_net_physic.js $(physic) |> @(EMLINK) %f %o |> drystal_truetype_web_net_physic_particle.js
-: drystal_truetype_web_net_physic_particle.js |> cp %f %o |> index_nodata.js
+: drystal_truetype_web_net_physic_particle.js $(storage) |> @(EMLINK) %f %o |> drystal_truetype_web_net_physic_particle_storage.js
+: drystal_truetype_web_net_physic_particle_storage.js |> cp %f %o |> index_nodata.js
 else
-EXTENSIONS=$(tt) $(web) $(net) $(physic) $(particle)
+EXTENSIONS=$(tt) $(web) $(net) $(physic) $(particle) $(storage)
 : src/*.o $(EXTENSIONS) | external/liblua-drystal.so ../external/<lua> |> !ld_drystal |> index_nodata.js
 endif
 

@@ -1,0 +1,18 @@
+include_rules
+
+FLAGS=@(CFLAGS)
+FLAGS+=-I../../external
+FLAGS+=-I../../external/lua/src
+FLAGS+=-Ilua-cjson
+FLAGS+=-fPIC
+
+: lua-cjson/lua_cjson.c |> patch %f cjson.patch -o %o |> lua_cjson_patched.c
+
+!cc = |> @(CXX) -x c $(FLAGS) -c %f -o %o |> %B.o
+: lua-cjson/fpconv.c |> !cc |> fpconv.o
+: lua_cjson_patched.c |> !cc |> lua_cjson.o
+: lua-cjson/strbuf.c |> !cc |> strbuf.o
+
+: main.cpp |> !cxx |> main.o
+
+: *.o |> !ld_shared |> @(EXTENSION_FILE)
