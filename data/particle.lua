@@ -21,7 +21,7 @@ local function goes_to_metatable(funcname)
 		or funcname == 'free' or funcname == 'draw' or funcname == 'update'
 		or funcname == 'start' or funcname == 'pause' or funcname == 'stop'
 		or funcname == 'is_running' or funcname == 'add_size'
-		or funcname == 'add_color' then
+		or funcname == 'add_color' or funcname == 'emit' then
 		return true
 	end
 

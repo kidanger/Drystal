@@ -49,8 +49,8 @@ function draw_sprite(sprite, x, y, transform)
 		return
 	end
 
-	local w = sprite.w * transform.wfactor
-	local h = sprite.h * transform.hfactor
+	local w = sprite.w * math.abs(transform.wfactor)
+	local h = sprite.h * math.abs(transform.hfactor)
 	local angle = transform.angle
 	local cos = math.cos(angle)
 	local sin = math.sin(angle)
@@ -71,6 +71,13 @@ function draw_sprite(sprite, x, y, transform)
 	local yi = sprite.y
 	local xi2 = sprite.x + sprite.w
 	local yi2 = sprite.y + sprite.h
+
+	if transform.wfactor < 0 then
+		xi, xi2 = xi2, xi
+	end
+	if transform.hfactor < 0 then
+		yi, yi2 = yi2, yi
+	end
 
 	_draw_surface(xi, yi, xi2, yi, xi2, yi2, xi, yi2,
 				  x1, y1, x2,  y2, x3,  y3,  x4, y4)

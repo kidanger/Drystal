@@ -23,14 +23,12 @@ public:
 	float accel;
 	float dir_angle;
 
-	float a;
-
 	float life, lifetime;
 
-	int size_state = 0;
+	int size_state;
 	float sizeseed;
 
-	int color_state = 0;
+	int color_state;
 	float rseed;
 	float gseed;
 	float bseed;
@@ -69,6 +67,7 @@ public:
 	int used = 0;
 
 	int x, y;
+	int offx, offy;
 	float min_vel;
 	float max_vel;
 
@@ -104,6 +103,7 @@ public:
 			Particle* p = &particles[i];
 			p->dead = true;
 		}
+		used = 0;
 		running = false;
 	}
 
@@ -156,23 +156,22 @@ public:
 
 
 			engine.display.set_color(r, g, b);
-			engine.display.set_alpha(p->a);
 			engine.display.set_point_size(size);
 			engine.display.draw_point(dx + p->x, dy + p->y);
 		}
 	}
 
-	void emit(int index)
+	void emit()
 	{
-		Particle* p = &particles[index];
-		p->x = x;
-		p->y = y;
+		Particle* p = &particles[used];
+		p->x = x + RAND(-offx, offx);
+		p->y = y + RAND(-offy, offy);
 		p->sizeseed = (float) rand() / RAND_MAX;
 		p->rseed = (float) rand() / RAND_MAX;
 		p->gseed = (float) rand() / RAND_MAX;
 		p->bseed = (float) rand() / RAND_MAX;
-
-		p->a = 255;
+		p->color_state = 0;
+		p->size_state = 0;
 
 		p->dir_angle = RAND(min_direction, max_direction);
 		p->accel = RAND(min_initial_acceleration, max_initial_acceleration);
@@ -207,7 +206,7 @@ public:
 			float rate = 1.0f / emission_rate;
 			emit_counter += dt;
 			if (emit_counter > rate and used < size) {
-				emit(used);
+				emit();
 				emit_counter -= rate;
 			}
 		}
@@ -291,6 +290,8 @@ int particle_new_system(lua_State* L)
 	system->colors[0].max_b = system->min_b + RAND(0, 50);
 
 	system->emission_rate = RAND(1, 19);
+	system->offx = 0;
+	system->offy = 0;
 
 	system->allocate();
 	lua_pushlightuserdata(L, system);
@@ -311,6 +312,22 @@ int particle_get_position(lua_State* L)
 	System* system = (System*) lua_touserdata(L, 1);
 	lua_pushnumber(L, system->x);
 	lua_pushnumber(L, system->y);
+	return 2;
+}
+int particle_set_offset(lua_State* L)
+{
+	System* system = (System*) lua_touserdata(L, 1);
+	lua_Number ox = luaL_checknumber(L, 2);
+	lua_Number oy = luaL_checknumber(L, 3);
+	system->offx = ox;
+	system->offy = oy;
+	return 0;
+}
+int particle_get_offset(lua_State* L)
+{
+	System* system = (System*) lua_touserdata(L, 1);
+	lua_pushnumber(L, system->offx);
+	lua_pushnumber(L, system->offy);
 	return 2;
 }
 
@@ -362,6 +379,7 @@ int particle_update(lua_State* L)
 		return 0; \
 	}
 
+ACTION(emit)
 ACTION(start)
 ACTION(pause)
 ACTION(stop)
@@ -442,6 +460,7 @@ static const luaL_Reg lib[] =
 {
 	DECLARE_FUNCTION(new_system),
 	DECLARE_FUNCTION(update),
+	DECLARE_FUNCTION(emit),
 	DECLARE_FUNCTION(start),
 	DECLARE_FUNCTION(stop),
 	DECLARE_FUNCTION(pause),
@@ -456,6 +475,8 @@ static const luaL_Reg lib[] =
 	// yukk
 	DECLARE_FUNCTION(get_position),
 	DECLARE_FUNCTION(set_position),
+	DECLARE_FUNCTION(get_offset),
+	DECLARE_FUNCTION(set_offset),
 	DECLARE_GETSET(min_lifetime),
 	DECLARE_GETSET(max_lifetime),
 	DECLARE_GETSET(min_direction),
