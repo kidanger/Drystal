@@ -1,6 +1,5 @@
 CFLAGS+=@(CFLAGS)
 CFLAGS+=-Wall -Wextra
-CFLAGS+=-O2
 CFLAGS+=-std=c++11
 CFLAGS+=-I../external -I../external/lua/src
 

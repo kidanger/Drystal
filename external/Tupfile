@@ -34,7 +34,7 @@ LIB_C=  lua/src/lauxlib.c \
         lua/src/linit.c
 
 DEFINES=-DLUA_COMPAT_ALL -DLUA_USE_DLOPEN
-CFLAGS=-O2 -Wall $(DEFINES) -fPIC -I. -Ilua/src
+CFLAGS=-Wall $(DEFINES) -fPIC -I. -Ilua/src
 
 # patch lua's dlopen usage
 : lua/src/loadlib.c |> patch %f dlopen_emscripten.patch -o %o |> loadlib_patched.c
