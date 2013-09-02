@@ -1,6 +1,6 @@
 tags
-.depend
 .vim_syntax
 build-*/
 .tup
 *.pyc
+gamedata

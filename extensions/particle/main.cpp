@@ -68,18 +68,12 @@ public:
 
 	int x, y;
 	int offx, offy;
-	float min_vel;
-	float max_vel;
 
 	float min_direction, max_direction;
 	float min_lifetime, max_lifetime;
 
 	float min_initial_acceleration, max_initial_acceleration;
 	float min_initial_velocity, max_initial_velocity;
-
-	int min_r, max_r;
-	int min_g, max_g;
-	int min_b, max_b;
 
 	float emission_rate;
 	float emit_counter = 0;
@@ -272,8 +266,12 @@ int particle_new_system(lua_State* L)
 	system->min_direction = 0;
 	system->max_direction = M_PI * 2;
 
-	system->sizes[0].min = RAND(1, 4);
-	system->sizes[0].min = RAND(5, 8);
+	system->sizes[0].at = 0;
+	system->sizes[0].min = 5;
+	system->sizes[0].max = 5;
+	system->sizes[1].at = 1;
+	system->sizes[1].min = 5;
+	system->sizes[1].max = 5;
 	system->min_lifetime = 3;
 	system->max_lifetime = 10;
 
@@ -282,12 +280,20 @@ int particle_new_system(lua_State* L)
 	system->min_initial_velocity = RAND(10, 100);
 	system->max_initial_velocity = system->min_initial_velocity + RAND(10, 100);
 
+	system->colors[0].at = 0;
 	system->colors[0].min_r = RAND(0, 125);
-	system->colors[0].max_r = system->min_r + RAND(0, 50);
+	system->colors[0].max_r = system->colors[0].min_r + RAND(0, 50);
 	system->colors[0].min_g = RAND(0, 125);
-	system->colors[0].max_g = system->min_g + RAND(0, 50);
+	system->colors[0].max_g = system->colors[0].min_g + RAND(0, 50);
 	system->colors[0].min_b = RAND(0, 125);
-	system->colors[0].max_b = system->min_b + RAND(0, 50);
+	system->colors[0].max_b = system->colors[0].min_b + RAND(0, 50);
+	system->colors[1].at = 1;
+	system->colors[1].min_r = RAND(0, 125);
+	system->colors[1].max_r = system->colors[0].min_r + RAND(0, 50);
+	system->colors[1].min_g = RAND(0, 125);
+	system->colors[1].max_g = system->colors[0].min_g + RAND(0, 50);
+	system->colors[1].min_b = RAND(0, 125);
+	system->colors[1].max_b = system->colors[0].min_b + RAND(0, 50);
 
 	system->emission_rate = RAND(1, 19);
 	system->offx = 0;
@@ -354,12 +360,6 @@ GETSET(min_initial_acceleration)
 GETSET(max_initial_acceleration)
 GETSET(min_initial_velocity)
 GETSET(max_initial_velocity)
-GETSET(min_r)
-GETSET(max_r)
-GETSET(min_g)
-GETSET(max_g)
-GETSET(min_b)
-GETSET(max_b)
 GETSET(emission_rate)
 
 
@@ -485,12 +485,6 @@ static const luaL_Reg lib[] =
 	DECLARE_GETSET(max_initial_acceleration),
 	DECLARE_GETSET(min_initial_velocity),
 	DECLARE_GETSET(max_initial_velocity),
-	DECLARE_GETSET(min_r),
-	DECLARE_GETSET(max_r),
-	DECLARE_GETSET(min_g),
-	DECLARE_GETSET(max_g),
-	DECLARE_GETSET(min_b),
-	DECLARE_GETSET(max_b),
 	DECLARE_GETSET(emission_rate),
 
 	{NULL, NULL}

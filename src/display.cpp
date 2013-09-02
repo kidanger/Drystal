@@ -21,7 +21,6 @@ extern "C" {
 #include "display.hpp"
 
 const char* DEFAULT_VERTEX_SHADER = R"(
-#version 100
 #ifdef GL_ES
 precision highp float;
 #endif
