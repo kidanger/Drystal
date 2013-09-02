@@ -68,6 +68,7 @@ class Display
 
 	public:
 		Display();
+		~Display();
 
 		void show_cursor(bool);
 		void set_resizable(bool);

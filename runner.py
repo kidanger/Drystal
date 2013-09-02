@@ -21,6 +21,7 @@ EXTENSIONS_NATIVE = 'main.so'
 EXTENSIONS_WEB = 'main.so'
 
 LIB_PATH = os.path.join(BUILD_NATIVE, 'external')
+VALGRIND_ARGS = '--tool=callgrind'
 
 BROWSERS = 'chromium', 'firefox'
 
@@ -136,9 +137,9 @@ run_arg = len(sys.argv) == 3 and sys.argv[2] or ''
 if (len(sys.argv) < 2
     or not (os.path.exists(main_arg)
             or main_arg == 'clean')
-    or not run_arg in ('', 'native', 'debug', 'web', 'repack')
+    or not run_arg in ('', 'native', 'debug', 'profile', 'web', 'repack',)
         ):
-    print('usage:', sys.argv[0], '<directory>[/filename.lua] [native|web|repack]')
+    print('usage:', sys.argv[0], '<directory>[/filename.lua] [native|debug|profile||web|repack]')
     print('      ', sys.argv[0], 'clean')
     sys.exit(1)
 
@@ -187,7 +188,7 @@ else:
         print('- rename', file, 'to main.lua')
         os.rename(os.path.join(DESTINATION_DIRECTORY, file), main)
 
-    if run_arg in ('native', 'debug'):
+    if run_arg in ('native', 'debug', 'profile'):
         assert(not os.system('tup upd build-native'))
         copy_extensions(EXTENSIONS_DIRECTORY_NATIVE,
                         [f for f in os.listdir(EXTENSIONS_DIRECTORY)
@@ -205,6 +206,8 @@ else:
                     source_directories.append(path[len(os.getcwd()) + 1:])
             source_directories = map(lambda d: '-d ../' + d, source_directories)
             program = 'gdb ' + ' '.join(source_directories) + ' -ex run ' + program
+        if run_arg == 'profile':
+            program = 'valgrind ' + VALGRIND_ARGS + ' ' + program
         cmd = 'cd ' + DESTINATION_DIRECTORY + '; ' + program
         print(cmd)
         os.system(cmd)

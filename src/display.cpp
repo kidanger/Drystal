@@ -97,6 +97,22 @@ Display::Display()
 	available = true;
 }
 
+Display::~Display()
+{
+	if (sdl_screen) {
+		SDL_FreeSurface(sdl_screen);
+		sdl_screen = nullptr;
+	}
+	if (screen) {
+		delete screen;
+		screen = nullptr;
+	}
+	if (default_shader) {
+		free_shader(default_shader);
+		default_shader = nullptr;
+	}
+}
+
 bool Display::is_available() const
 {
 	return available;

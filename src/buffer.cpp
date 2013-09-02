@@ -49,10 +49,10 @@ void Buffer::reallocate()
 Buffer::~Buffer()
 {
 	glDeleteBuffers(4, buffers);
-	delete positions;
-	delete colors;
-	delete tex_coords;
-	delete point_sizes;
+	delete[] positions;
+	delete[] colors;
+	delete[] tex_coords;
+	delete[] point_sizes;
 }
 
 void Buffer::assert_type(BufferType atype)
