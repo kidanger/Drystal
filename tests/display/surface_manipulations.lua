@@ -4,7 +4,6 @@ local json = require 'dkjson'
 spritesheet = json.decode(io.open('image.json'):read('*all'))
 
 vert = [[
-#version 100
 #ifdef GL_ES
 precision highp float;
 #endif

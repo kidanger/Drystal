@@ -14,7 +14,8 @@ Buffer::Buffer(unsigned int size) :
 	positions(new GLfloat[size * 2]),
 	colors(new GLfloat[size * 4]),
 	tex_coords(new GLfloat[size * 2]),
-	point_sizes(new GLfloat[size])
+	point_sizes(new GLfloat[size]),
+	has_texture(false)
 {
 	current_position = 0;
 	current_color = 0;
@@ -55,6 +56,11 @@ Buffer::~Buffer()
 	delete[] point_sizes;
 }
 
+void Buffer::use_shader(Shader* shader)
+{
+	this->shader = shader;
+}
+
 void Buffer::assert_type(BufferType atype)
 {
 	if (type != atype) {
@@ -79,15 +85,17 @@ void Buffer::assert_empty()
 
 void Buffer::assert_use_texture()
 {
-	if (current_color != 0 and current_tex_coord == 0) {
+	if (not has_texture) {
 		flush();
+		has_texture = true;
 	}
 }
 
 void Buffer::assert_not_use_texture()
 {
-	if (current_color != 0 and current_tex_coord != 0) {
+	if (has_texture) {
 		flush();
+		has_texture = false;
 	}
 }
 
@@ -135,38 +143,38 @@ void Buffer::draw(float dx, float dy)
 
 	DEBUG();
 	assert(current_color == current_position);
-	assert(current_tex_coord == 0 or current_color == current_tex_coord);
+	assert(not has_texture or current_color == current_tex_coord);
 	assert(type != POINT_BUFFER or current_color == current_point_size);
 
 	GLint prog;
-	glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
+	if (has_texture) {
+		prog = shader->prog_tex;
+	} else {
+		prog = shader->prog_color;
+	}
+	glUseProgram(prog);
 
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
 	glVertexAttribPointer(ATTR_POSITION_INDEX, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-	glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
-	glVertexAttribPointer(ATTR_COLOR_INDEX, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
-	glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
-	glVertexAttribPointer(ATTR_TEXCOORD_INDEX, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-	glBindBuffer(GL_ARRAY_BUFFER, buffers[3]);
-	glVertexAttribPointer(ATTR_POINTSIZE_INDEX, 1, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
 	glBufferData(GL_ARRAY_BUFFER, used * 2 * sizeof(GLfloat), positions, GL_DYNAMIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
+	glVertexAttribPointer(ATTR_COLOR_INDEX, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glBufferData(GL_ARRAY_BUFFER, used * 4 * sizeof(GLfloat), colors, GL_DYNAMIC_DRAW);
 
-	if (current_tex_coord > 0) {
+	if (has_texture) {
 		glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
 		glBufferData(GL_ARRAY_BUFFER, used * 2 * sizeof(GLfloat), tex_coords, GL_DYNAMIC_DRAW);
 		glEnableVertexAttribArray(ATTR_TEXCOORD_INDEX);
-	} else if (type == POINT_BUFFER) {
+		glVertexAttribPointer(ATTR_TEXCOORD_INDEX, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+	}
+	if (type == POINT_BUFFER) {
 		glBindBuffer(GL_ARRAY_BUFFER, buffers[3]);
 		glBufferData(GL_ARRAY_BUFFER, used * sizeof(GLfloat), point_sizes, GL_DYNAMIC_DRAW);
 		glEnableVertexAttribArray(ATTR_POINTSIZE_INDEX);
+		glVertexAttribPointer(ATTR_POINTSIZE_INDEX, 1, GL_FLOAT, GL_FALSE, 0, nullptr);
 	}
 
-	glUniform1i(glGetUniformLocation(prog, "useTex"), current_tex_coord > 0);
 	glUniform1f(glGetUniformLocation(prog, "dx"), dx);
 	glUniform1f(glGetUniformLocation(prog, "dy"), dy);
 
@@ -180,9 +188,10 @@ void Buffer::draw(float dx, float dy)
 	}
 	glDrawArrays(draw_type, 0, used);
 
-	if (current_tex_coord > 0) {
+	if (has_texture) {
 		glDisableVertexAttribArray(ATTR_TEXCOORD_INDEX);
-	} else if (type == POINT_BUFFER) {
+	}
+	if (type == POINT_BUFFER) {
 		glDisableVertexAttribArray(ATTR_POINTSIZE_INDEX);
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, 0);

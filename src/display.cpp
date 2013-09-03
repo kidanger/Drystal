@@ -45,7 +45,21 @@ void main()
 }
 )";
 
-const char* DEFAULT_FRAGMENT_SHADER = R"(
+const char* DEFAULT_FRAGMENT_SHADER_COLOR = R"(
+#ifdef GL_ES
+precision mediump float;
+#endif
+
+varying vec4 fColor;
+varying vec2 fTexCoord;
+
+void main()
+{
+	gl_FragColor = fColor;
+}
+)";
+
+const char* DEFAULT_FRAGMENT_SHADER_TEX = R"(
 #ifdef GL_ES
 precision mediump float;
 #endif
@@ -59,15 +73,9 @@ varying vec2 fTexCoord;
 void main()
 {
 	vec4 color;
-	if (useTex == 1) {
-		vec4 texval = texture2D(tex, vec2(fTexCoord));
-		if (texval.a == 0.0)
-			discard; // don't process transparent pixels
-		color.rgb = mix(texval.rgb, fColor.rgb, vec3(1.)-fColor.rgb);
-		color.a = texval.a * fColor.a;
-	} else {
-		color = fColor;
-	}
+	vec4 texval = texture2D(tex, fTexCoord);
+	color.rgb = mix(texval.rgb, fColor.rgb, vec3(1.)-fColor.rgb);
+	color.a = texval.a * fColor.a;
 	gl_FragColor = color;
 }
 )";
@@ -532,23 +540,29 @@ static void printLog(GLuint obj, const char* prefix)
 Shader* Display::create_default_shader()
 {
 	const char* strvert = DEFAULT_VERTEX_SHADER;
-	const char* strfrag = DEFAULT_FRAGMENT_SHADER;
-	Shader* shader = new_shader(strvert, strfrag);
+	const char* strfragcolor = DEFAULT_FRAGMENT_SHADER_COLOR;
+	const char* strfragtex = DEFAULT_FRAGMENT_SHADER_TEX;
+	Shader* shader = new_shader(strvert, strfragcolor, strfragtex);
 	assert(shader);
 	return shader;
 }
 
-Shader* Display::new_shader(const char* strvert, const char* strfrag)
+Shader* Display::new_shader(const char* strvert, const char* strfragcolor, const char* strfragtex)
 {
 	GLuint vert = 0;
-	GLuint frag = 0;
-	GLuint prog;
+	GLuint frag_color = 0;
+	GLuint frag_tex = 0;
+	GLuint prog_color;
+	GLuint prog_tex;
 
 	if (not strvert or not *strvert) {
 		strvert = DEFAULT_VERTEX_SHADER;
 	}
-	if (not strfrag or not *strfrag) {
-		strfrag = DEFAULT_FRAGMENT_SHADER;
+	if (not strfragcolor or not *strfragcolor) {
+		strfragcolor = DEFAULT_FRAGMENT_SHADER_COLOR;
+	}
+	if (not strfragtex or not *strfragtex) {
+		strfragtex = DEFAULT_FRAGMENT_SHADER_TEX;
 	}
 
 	vert = glCreateShader(GL_VERTEX_SHADER);
@@ -556,34 +570,59 @@ Shader* Display::new_shader(const char* strvert, const char* strfrag)
 	glShaderSource(vert, 1, &strvert, NULL);
 	glCompileShader(vert);
 
-	frag = glCreateShader(GL_FRAGMENT_SHADER);
-	assert(frag);
-	glShaderSource(frag, 1, &strfrag, NULL);
-	glCompileShader(frag);
+	frag_color = glCreateShader(GL_FRAGMENT_SHADER);
+	assert(frag_color);
+	glShaderSource(frag_color, 1, &strfragcolor, NULL);
+	glCompileShader(frag_color);
 
-	prog = glCreateProgram();
-	assert(prog);
-	glBindAttribLocation(prog, ATTR_POSITION_INDEX, "position");
-	glBindAttribLocation(prog, ATTR_COLOR_INDEX, "color");
-	glBindAttribLocation(prog, ATTR_TEXCOORD_INDEX, "texCoord");
-	glBindAttribLocation(prog, ATTR_POINTSIZE_INDEX, "pointSize");
-	glAttachShader(prog, vert);
-	glAttachShader(prog, frag);
-	glLinkProgram(prog);
+	frag_tex = glCreateShader(GL_FRAGMENT_SHADER);
+	assert(frag_tex);
+	glShaderSource(frag_tex, 1, &strfragtex, NULL);
+	glCompileShader(frag_tex);
+
+	prog_color = glCreateProgram();
+	assert(prog_color);
+	glBindAttribLocation(prog_color, ATTR_POSITION_INDEX, "position");
+	glBindAttribLocation(prog_color, ATTR_COLOR_INDEX, "color");
+	glBindAttribLocation(prog_color, ATTR_TEXCOORD_INDEX, "texCoord");
+	glBindAttribLocation(prog_color, ATTR_POINTSIZE_INDEX, "pointSize");
+	glAttachShader(prog_color, vert);
+	glAttachShader(prog_color, frag_color);
+	glLinkProgram(prog_color);
+
+	prog_tex = glCreateProgram();
+	assert(prog_tex);
+	glBindAttribLocation(prog_tex, ATTR_POSITION_INDEX, "position");
+	glBindAttribLocation(prog_tex, ATTR_COLOR_INDEX, "color");
+	glBindAttribLocation(prog_tex, ATTR_TEXCOORD_INDEX, "texCoord");
+	glBindAttribLocation(prog_tex, ATTR_POINTSIZE_INDEX, "pointSize");
+	glAttachShader(prog_tex, vert);
+	glAttachShader(prog_tex, frag_tex);
+	glLinkProgram(prog_tex);
 
 	GLint status;
-	glGetProgramiv(prog, GL_LINK_STATUS, &status);
+	glGetProgramiv(prog_color, GL_LINK_STATUS, &status);
 	if (status != GL_TRUE) {
 		printLog(vert, "vertex");
-		printLog(frag, "fragment");
-		printLog(prog, "program");
+		printLog(frag_color, "fragment");
+		printLog(prog_color, "program");
+		return NULL;
+	}
+
+	glGetProgramiv(prog_tex, GL_LINK_STATUS, &status);
+	if (status != GL_TRUE) {
+		printLog(vert, "vertex");
+		printLog(frag_tex, "fragment");
+		printLog(prog_tex, "program");
 		return NULL;
 	}
 
 	Shader* shader = new Shader;
-	shader->prog = prog;
+	shader->prog_color = prog_color;
+	shader->prog_tex = prog_tex;
 	shader->vert = vert;
-	shader->frag = frag;
+	shader->frag_color = frag_color;
+	shader->frag_tex = frag_tex;
 	return shader;
 }
 
@@ -592,18 +631,30 @@ void Display::use_shader(Shader* shader)
 	DEBUG();
 	current_buffer->assert_empty();
 
-	glUseProgram(shader ? shader->prog : default_shader->prog);
+	if (not shader) {
+		shader = default_shader;
+	}
+	current_shader = shader;
+	current_buffer->use_shader(shader);
 }
 
 void Display::feed_shader(Shader* shader, const char* name, float value)
 {
 	assert(shader);
 	assert(name);
+
 	GLint prog;
 	glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
 
-	glUseProgram(shader->prog);
-	GLint loc = glGetUniformLocation(shader->prog, name);
+	glUseProgram(shader->prog_color);
+	GLint loc = glGetUniformLocation(shader->prog_color, name);
+	if (loc >= 0)
+		glUniform1f(loc, value);
+	else
+		printf("no location for %s\n", name);
+
+	glUseProgram(shader->prog_tex);
+	loc = glGetUniformLocation(shader->prog_tex, name);
 	if (loc >= 0)
 		glUniform1f(loc, value);
 	else
@@ -616,12 +667,14 @@ void Display::free_shader(Shader* shader)
 {
 	GLuint prog;
 	glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*)&prog);
-	if (prog == shader->prog)
+	if (prog == shader->prog_color)
 		use_shader(default_shader);
 
 	glDeleteShader(shader->vert);
-	glDeleteShader(shader->frag);
-	glDeleteProgram(shader->prog);
+	glDeleteShader(shader->frag_color);
+	glDeleteShader(shader->frag_tex);
+	glDeleteProgram(shader->prog_color);
+	glDeleteProgram(shader->prog_tex);
 	delete shader;
 }
 
@@ -638,6 +691,7 @@ void Display::use_buffer(Buffer* buffer)
 	} else {
 		current_buffer = buffer;
 	}
+	current_buffer->use_shader(current_shader);
 }
 void Display::draw_buffer(Buffer* buffer, float dx, float dy)
 {

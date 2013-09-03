@@ -2,6 +2,8 @@
 
 #include <SDL/SDL_opengl.h>
 
+struct Shader;
+
 // should be multiple of 2 (for GL_LINES) and of 3 (GL_TRIANGLES)
 const unsigned int BUFFER_DEFAULT_SIZE = 2 * 3 * 4096;
 
@@ -28,6 +30,9 @@ private:
 	unsigned int current_tex_coord;
 	unsigned int current_point_size;
 
+	bool has_texture;
+	Shader* shader;
+
 	void assert_not_full();
 	void flush();
 	void reset();
@@ -41,6 +46,7 @@ public:
 	void push_tex_coord(GLfloat, GLfloat);
 	void push_point_size(GLfloat);
 
+	void use_shader(Shader* shader);
 	void draw(float dx=0, float dy=0);
 
 	void assert_type(BufferType);

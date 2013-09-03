@@ -370,16 +370,18 @@ static int mlua_draw_surface(lua_State* L)
 
 static int mlua_new_shader(lua_State* L)
 {
-	const char *vert, *frag;
-	if (lua_gettop(L) == 1) { // one argument, it's the vertex shader
-		vert = lua_tostring(L, -1);
-		frag = nullptr;
-	} else { // two arguments
-		vert = lua_tostring(L, -2);
-		frag = lua_tostring(L, -1);
+	const char *vert = nullptr, *frag_color = nullptr, *frag_tex = nullptr;
+	if (lua_gettop(L) >= 1) { // one argument, it's the vertex shader
+		vert = lua_tostring(L, 1);
+	}
+	if (lua_gettop(L) >= 2) {
+		frag_color = lua_tostring(L, 2);
+	}
+	if (lua_gettop(L) >= 3) {
+		frag_tex = lua_tostring(L, 3);
 	}
 	// null code will be set to defaut shader
-	Shader* shader = engine->display.new_shader(vert, frag);
+	Shader* shader = engine->display.new_shader(vert, frag_color, frag_tex);
 	if (shader) {
 		lua_pushlightuserdata(L, shader);
 		return 1;

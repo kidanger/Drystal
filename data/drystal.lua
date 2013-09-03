@@ -258,7 +258,6 @@ function resize_surface(surf, w, h)
 end
 
 local weird_shader_vertex = [[
-#version 100
 #ifdef GL_ES
 precision highp float;
 #endif

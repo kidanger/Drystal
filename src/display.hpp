@@ -24,9 +24,11 @@ struct Surface
 
 struct Shader
 {
-	GLuint prog;
+	GLuint prog_color;
+	GLuint prog_tex;
 	GLuint vert;
-	GLuint frag;
+	GLuint frag_color;
+	GLuint frag_tex;
 };
 
 class Display
@@ -40,6 +42,7 @@ class Display
 		Surface * screen;
 
 		Shader * default_shader;
+		Shader * current_shader;
 
 		const Surface * current;
 		const Surface * current_from;
@@ -104,7 +107,7 @@ class Display
 		void draw_surface(int, int, int, int, int, int, int, int,
 							int, int, int, int, int, int, int, int);
 
-		Shader* new_shader(const char* strvert, const char* strfrag);
+		Shader* new_shader(const char* strvert, const char* strfragcolor, const char* strfragtex);
 		void use_shader(Shader*);
 		void feed_shader(Shader*, const char*, float);
 		void free_shader(Shader*);
