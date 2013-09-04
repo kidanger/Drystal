@@ -25,7 +25,7 @@ const char* DEFAULT_VERTEX_SHADER = R"(
 precision highp float;
 #endif
 
-attribute vec2 position;	// position of the vertice (0,0) is topleft, frameSize is bottomright
+attribute vec2 position;	// position of the vertice
 attribute vec4 color;		// color of the vertice
 attribute vec2 texCoord;	// texture coordinates
 attribute float pointSize;	// size of points

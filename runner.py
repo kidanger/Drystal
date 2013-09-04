@@ -32,13 +32,18 @@ SUBDIRS = []
 def parent(dir):
     return os.path.abspath(os.path.join(dir, os.pardir))
 
-def copy_files_maybe(from_directory, get_subdir=False):
-    print('- processing', from_directory)
+def copy_files_maybe(from_directory, get_subdir=False, verbose=True):
+    if verbose:
+        _print = print
+    else:
+        _print = lambda *args, **kargs: None
+
+    _print('- processing', from_directory)
     for f in os.listdir(from_directory):
         if f.startswith('.'):
             continue
         if f in IGNORE_FILES:
-            print('    ignoring\t', f)
+            _print('    ignoring\t', f)
             continue
         old = os.path.join(DESTINATION_DIRECTORY, f)
         fullpath = os.path.join(from_directory, f)
@@ -48,12 +53,12 @@ def copy_files_maybe(from_directory, get_subdir=False):
                     print('    copying\t', f)
                     shutil.copy(fullpath, DESTINATION_DIRECTORY)
                 else:
-                    print('    ignoring ext', f)
+                    _print('    ignoring ext', f)
             if os.path.isdir(fullpath) and (get_subdir or f in SUBDIRS):
-                print('    copying dir\t', f)
+                _print('    copying dir\t', f)
                 shutil.copytree(fullpath, os.path.join(DESTINATION_DIRECTORY, f))
         else:
-            print('    already\t', f)
+            _print('    already\t', f)
 
 def remove_old_wget():
     destination = os.path.join(BUILD_WEB, DESTINATION_DIRECTORY_REL)
@@ -137,9 +142,9 @@ run_arg = len(sys.argv) == 3 and sys.argv[2] or ''
 if (len(sys.argv) < 2
     or not (os.path.exists(main_arg)
             or main_arg == 'clean')
-    or not run_arg in ('', 'native', 'debug', 'profile', 'web', 'repack',)
+    or not run_arg in ('', 'native', 'live', 'debug', 'profile', 'web', 'repack',)
         ):
-    print('usage:', sys.argv[0], '<directory>[/filename.lua] [native|debug|profile||web|repack]')
+    print('usage:', sys.argv[0], '<directory>[/filename.lua] [native|live|debug|profile||web|repack]')
     print('      ', sys.argv[0], 'clean')
     sys.exit(1)
 
@@ -175,20 +180,26 @@ else:
 
     load_config(dir)
 
-    copy_files_maybe(INCLUDE_DIRECTORY, get_subdir=True)
+    def copy_files(verbose=True):
+        dir = os.path.abspath(dirpath)
+        copy_files_maybe(INCLUDE_DIRECTORY, get_subdir=True, verbose=verbose)
 
-    first = True
-    while cw != dir:
-        last = parent(dir) == cw
-        copy_files_maybe(dir, get_subdir=first and not last)
-        dir = parent(dir)
-        first = False
+        first = True
+        while cw != dir:
+            last = parent(dir) == cw
+            copy_files_maybe(dir, get_subdir=first and not last, verbose=verbose)
+            dir = parent(dir)
+            first = False
 
-    if file and file != 'main.lua':
-        print('- rename', file, 'to main.lua')
-        os.rename(os.path.join(DESTINATION_DIRECTORY, file), main)
+        if file and file != 'main.lua':
+            notmain = os.path.join(DESTINATION_DIRECTORY, file)
+            if not os.path.exists(main) or os.path.getmtime(notmain) > os.path.getmtime(main):
+                print('- rename', file, 'to main.lua')
+                shutil.copy(notmain, main)
 
-    if run_arg in ('native', 'debug', 'profile'):
+    copy_files()
+
+    if run_arg in ('native', 'live', 'debug', 'profile'):
         if '.tup' in os.listdir('.'):
             assert(not os.system('tup upd build-native'))
         copy_extensions(EXTENSIONS_DIRECTORY_NATIVE,
@@ -209,9 +220,17 @@ else:
             program = 'gdb ' + ' '.join(source_directories) + ' -ex run ' + program
         if run_arg == 'profile':
             program = 'valgrind ' + VALGRIND_ARGS + ' ' + program
+        if run_arg == 'live':
+            program += ' &'
         cmd = 'cd ' + DESTINATION_DIRECTORY + '; ' + program
         print(cmd)
         os.system(cmd)
+        if run_arg == 'live':
+            print('- settings up live coding')
+            import time
+            while True:
+                copy_files(verbose=False)
+                time.sleep(1)
 
     elif run_arg in ('web', 'repack'):
         if '.tup' in os.listdir('.'):
