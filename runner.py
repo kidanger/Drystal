@@ -189,7 +189,8 @@ else:
         os.rename(os.path.join(DESTINATION_DIRECTORY, file), main)
 
     if run_arg in ('native', 'debug', 'profile'):
-        assert(not os.system('tup upd build-native'))
+        if '.tup' in os.listdir('.'):
+            assert(not os.system('tup upd build-native'))
         copy_extensions(EXTENSIONS_DIRECTORY_NATIVE,
                         [f for f in os.listdir(EXTENSIONS_DIRECTORY)
                            if os.path.isdir(os.path.join(EXTENSIONS_DIRECTORY, f))],
@@ -213,7 +214,8 @@ else:
         os.system(cmd)
 
     elif run_arg in ('web', 'repack'):
-        assert(not os.system('tup upd build-web'))
+        if '.tup' in os.listdir('.'):
+            assert(not os.system('tup upd build-native'))
         remove_old_wget()
         move_wget_files(DESTINATION_DIRECTORY, os.path.join(BUILD_WEB, DESTINATION_DIRECTORY_REL))
         htmlfile = locate_index_html(os.path.abspath(dirpath), os.getcwd())
