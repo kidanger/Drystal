@@ -1,5 +1,5 @@
 print = require 'colorprint'
-require 'drystal'
+local drystal = require 'drystal'
 local physic = require 'physic'
 local particle = require 'particle'
 
@@ -34,12 +34,12 @@ local function create_box(w, h, args, dynamic)
 		x = x * R
 		y = y * R
 		if self.num_collide > 0 then
-			set_color(150, 0, 0)
+			drystal.set_color(150, 0, 0)
 		end
-		draw_rect_rotated(x - (w / 2) * R,
-						y - (h / 2) * R,
-						w * R, h * R,
-						self:get_angle())
+		drystal.draw_rect_rotated(x - (w / 2) * R,
+								y - (h / 2) * R,
+								w * R, h * R,
+								self:get_angle())
 	end
 	return setmetatable(box, Body)
 end
@@ -54,11 +54,11 @@ local function create_circle(radius, args, dynamic)
 		local angle = self:get_angle()
 		x, y = self:get_position()
 		if self.num_collide > 0 then
-			set_color(150, 0, 0)
+			drystal.set_color(150, 0, 0)
 		end
-		draw_circle(x * R, y * R, self.radius * R)
-		set_color(150, 150, 150)
-		draw_line(x*R, y*R, x*R + self.radius*math.cos(angle)*R,
+		drystal.draw_circle(x * R, y * R, self.radius * R)
+		drystal.set_color(150, 150, 150)
+		drystal.draw_line(x*R, y*R, x*R + self.radius*math.cos(angle)*R,
 							y*R + ball.radius * math.sin(angle)*R)
 	end
 	circle.p_system = particle.new_system(0, 0)
@@ -71,7 +71,7 @@ local function create_circle(radius, args, dynamic)
 end
 
 function init()
-	resize(600, 400)
+	drystal.resize(600, 400)
 
 	physic.create_world(0, 0.98)
 
@@ -162,28 +162,28 @@ function update(dt)
 end
 
 function draw()
-	set_color(120, 120, 120)
-	draw_background()
+	drystal.set_color(120, 120, 120)
+	drystal.draw_background()
 
-	set_color(0, 0, 0)
+	drystal.set_color(0, 0, 0)
 
 	ground:draw()
-	set_color(math.sin(time)*120, 120, 102)
+	drystal.set_color(math.sin(time)*120, 120, 102)
 	ground2:draw()
-	set_color(0, 0, 0)
+	drystal.set_color(0, 0, 0)
 
 	ball:draw()
 	ball2:draw()
 
-	set_color(0, 0, 0)
+	drystal.set_color(0, 0, 0)
 	local x1, y1 = ball:get_position()
 	local x2, y2 = ball2:get_position()
-	draw_line(x1*R, y1*R, x2*R, y2*R)
+	drystal.draw_line(x1*R, y1*R, x2*R, y2*R)
 
 	ball.p_system:draw()
 	ball2.p_system:draw()
 
-	flip()
+	drystal.flip()
 end
 
 function key_press(key)

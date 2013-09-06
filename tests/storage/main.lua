@@ -1,3 +1,4 @@
+local drystal = drystal
 local storage = require 'storage'
 
 local data = storage.load('test_storage')
@@ -16,5 +17,5 @@ else
 end
 
 function init()
-	engine_stop()
+	drystal.engine_stop()
 end

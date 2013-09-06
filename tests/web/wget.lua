@@ -1,7 +1,4 @@
-package.path = 'data/?.lua;' .. package.path
-package.cpath = 'data/?.so;' .. package.cpath
-
-require 'drystal'
+local drystal = require 'drystal'
 local web = require 'web'
 
 function init()
@@ -21,5 +18,5 @@ function onerror(filename)
 end
 
 function update()
-	engine_stop()
+	drystal.engine_stop()
 end

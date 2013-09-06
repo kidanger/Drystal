@@ -1,14 +1,16 @@
-local _draw_from = draw_from
-local _draw_on = draw_on
-local _draw_surface = draw_surface
-draw_freeshape = _draw_surface
+local drystal = drystal
+
+local _draw_from = drystal.draw_from
+local _draw_on = drystal.draw_on
+local _draw_surface = drystal.draw_surface
+drystal.draw_freeshape = _draw_surface
 
 function _draw_rect(x, y, w, h)
-	draw_triangle(x, y, x, y+h, x+w, y)
-	draw_triangle(x+w, y, x+w, y+h, x, y+h)
+	drystal.draw_triangle(x, y, x, y+h, x+w, y)
+	drystal.draw_triangle(x+w, y, x+w, y+h, x, y+h)
 end
 
-function draw_image(x, y, w, h, dx, dy, dw, dh)
+function drystal.draw_image(x, y, w, h, dx, dy, dw, dh)
 	dw = dw or w
 	dh = dh or h
 	_draw_surface(x, y,  x+w,   y,  x+w,   y+h,   x,  y+h,
@@ -19,7 +21,7 @@ local offsets = {{x=0,y=0}}
 local ox = 0
 local oy = 0
 
-function get_offset()
+function drystal.get_offset()
 	return ox, oy
 end
 
@@ -27,7 +29,7 @@ local notransform = {
 	angle=0, -- in radians
 	wfactor=1, hfactor=1 -- can be negative to flip
 }
-function draw_sprite_simple(sprite, x, y)
+function drystal.draw_sprite_simple(sprite, x, y)
 	x = x + ox
 	y = y + oy
 	local w = sprite.w
@@ -43,9 +45,9 @@ function draw_sprite_simple(sprite, x, y)
 	_draw_surface(xi, yi, xi2, yi, xi2, yi2, xi, yi2,
 				  x1, y1, x2,  y1, x2,  y2,  x1, y2)
 end
-function draw_sprite(sprite, x, y, transform)
+function drystal.draw_sprite(sprite, x, y, transform)
 	if not transform then
-		draw_sprite_simple(sprite, x, y)
+		drystal.draw_sprite_simple(sprite, x, y)
 		return
 	end
 
@@ -82,47 +84,47 @@ function draw_sprite(sprite, x, y, transform)
 	_draw_surface(xi, yi, xi2, yi, xi2, yi2, xi, yi2,
 				  x1, y1, x2,  y2, x3,  y3,  x4, y4)
 end
-function draw_sprite_rotated(sprite, x, y, angle)
+function drystal.draw_sprite_rotated(sprite, x, y, angle)
 	local transform = {
 		angle=angle,
 		wfactor=1, hfactor=1
 	}
-	draw_sprite(sprite, x, y, transform)
+	drystal.draw_sprite(sprite, x, y, transform)
 end
-function draw_sprite_resized(sprite, x, y, w, h)
+function drystal.draw_sprite_resized(sprite, x, y, w, h)
 	x = x + ox
 	y = y + oy
-	draw_image(sprite.x, sprite.y, sprite.w, sprite.h, x, y, w, h)
+	drystal.draw_image(sprite.x, sprite.y, sprite.w, sprite.h, x, y, w, h)
 end
 
 local current_from = nil
-function draw_from(surf)
+function drystal.draw_from(surf)
 	_draw_from(surf)
 	current_from = surf
 end
 local current_on = nil
-function draw_on(surf)
+function drystal.draw_on(surf)
 	_draw_on(surf)
 	current_on = surf
 end
 
-function draw_surface(surf, x, y)
+function drystal.draw_surface(surf, x, y)
 	local old = current_from
 
-	draw_from(surf)
-	local w, h = surface_size(surf)
-	draw_image(0, 0, w, h, x+ox, y+oy)
+	drystal.draw_from(surf)
+	local w, h = drystal.surface_size(surf)
+	drystal.draw_image(0, 0, w, h, x+ox, y+oy)
 
 	if old then
-		draw_from(old)
+		drystal.draw_from(old)
 	end
 end
 
-function draw_circle(cx, cy, r)
+function drystal.draw_circle(cx, cy, r)
 	cx = cx + ox;
 	cy = cy + oy;
 
-	local width, height = surface_size(current_on or screen)
+	local width, height = drystal.surface_size(current_on or screen)
 	if cx + r < 0 or cx - r > width then
 		return
 	end
@@ -155,12 +157,12 @@ function draw_circle(cx, cy, r)
 		ny = y + cy
 
 		if ii > 0 then
-			draw_triangle(cx, cy, nx, ny, oldx, oldy)
+			drystal.draw_triangle(cx, cy, nx, ny, oldx, oldy)
 		end
 	end
 end
 
-function draw_polygon(...)
+function drystal.draw_polygon(...)
 	local coords = {...}
 	for i = 1, #coords, 2 do
 		coords[i] = coords[i] + ox
@@ -174,38 +176,38 @@ function draw_polygon(...)
 	cx = cx / (#coords / 2)
 	cy = cy / (#coords / 2)
 	for i = 1, #coords - 2, 2 do
-		draw_triangle(coords[i], coords[i+1], coords[i+2], coords[i+3], cx, cy)
+		drystal.draw_triangle(coords[i], coords[i+1], coords[i+2], coords[i+3], cx, cy)
 	end
-	draw_triangle(coords[#coords - 1], coords[#coords], coords[1], coords[2], cx, cy)
+	drystal.draw_triangle(coords[#coords - 1], coords[#coords], coords[1], coords[2], cx, cy)
 end
 
-function draw_polyline(loop, ...)
+function drystal.draw_polyline(loop, ...)
 	local coords = {...}
 	for i = 1, #coords, 2 do
 		coords[i] = coords[i] + ox
 		coords[i + 1] = coords[i + 1] + oy
 	end
 	for i = 1, #coords - 2, 2 do
-		draw_line(coords[i], coords[i+1], coords[i+2], coords[i+3])
+		drystal.draw_line(coords[i], coords[i+1], coords[i+2], coords[i+3])
 	end
 	if loop then
-		draw_line(coords[1], coords[2], coords[#coords-1], coords[#coords])
+		drystal.draw_line(coords[1], coords[2], coords[#coords-1], coords[#coords])
 	end
 end
 
-function draw_rect(x, y, w, h)
+function drystal.draw_rect(x, y, w, h)
 	_draw_rect(x+ox, y+oy, w, h)
 end
-function draw_square(x, y, w, h)
+function drystal.draw_square(x, y, w, h)
 	x = x + ox
 	y = y + oy
-	draw_line(x, y, x+w, y)
-	draw_line(x, y+h, x+w, y+h)
-	draw_line(x, y, x, y+h)
-	draw_line(x+w, y, x+w, y+h)
+	drystal.draw_line(x, y, x+w, y)
+	drystal.draw_line(x, y+h, x+w, y+h)
+	drystal.draw_line(x, y, x, y+h)
+	drystal.draw_line(x+w, y, x+w, y+h)
 end
 
-function draw_rect_rotated(x, y, w, h, angle)
+function drystal.draw_rect_rotated(x, y, w, h, angle)
 	x = x + ox
 	y = y + oy
 	local cos = math.cos(angle)
@@ -218,13 +220,13 @@ function draw_rect_rotated(x, y, w, h, angle)
 	local x2, y2 = rot(w/2, -h/2)
 	local x3, y3 = rot(w/2, h/2)
 	local x4, y4 = rot(-w/2, h/2)
-	draw_triangle(x1, y1, x2, y2, x3, y3)
-	draw_triangle(x1, y1, x4, y4, x3, y3)
+	drystal.draw_triangle(x1, y1, x2, y2, x3, y3)
+	drystal.draw_triangle(x1, y1, x4, y4, x3, y3)
 end
 
 
-local _load_surface = load_surface
-function load_surface(filename)
+local _load_surface = drystal.load_surface
+function drystal.load_surface(filename)
 	local surf = _load_surface(filename)
 	if not surf then
 		print('File', filename, 'not found')
@@ -232,29 +234,24 @@ function load_surface(filename)
 	return surf
 end
 
-function push_offset(_ox, _oy)
+function drystal.push_offset(_ox, _oy)
 	table.insert(offsets, {x=_ox, y=_oy})
 	ox = offsets[#offsets].x
 	oy = offsets[#offsets].y
 end
-function pop_offset()
+function drystal.pop_offset()
 	table.remove(offsets, #offsets)
 	ox = offsets[#offsets].x
 	oy = offsets[#offsets].y
 end
 
-local _set_color = set_color
-function set_color(r, g, b)
+local _set_color = drystal.set_color
+function drystal.set_color(r, g, b)
 	if g ~= nil then
 		_set_color(r, g, b)
 	else
 		_set_color(unpack(r))
 	end
-end
-
-function rotate_surface(surf, a)
-end
-function resize_surface(surf, w, h)
 end
 
 local weird_shader_vertex = [[
@@ -290,18 +287,18 @@ void main()
 }
 ]]
 
-function display_logo(sprite, background)
+function drystal.display_logo(sprite, background)
 	background = background or {255, 255, 255}
 	local duration = 6000
-	local shader = new_shader(weird_shader_vertex)
+	local shader = drystal.new_shader(weird_shader_vertex)
 	if shader then
-		use_shader(shader)
+		drystal.use_shader(shader)
 	end
 	local time = 0
 	local _update = update
 	local _draw = draw
 
-	local wr, hr = surface_size(screen)
+	local wr, hr = drystal.surface_size(screen)
 	local ws = math.min(wr, sprite.w) - 50
 	local hs = math.min(hr, sprite.h) - 50
 
@@ -311,9 +308,9 @@ function display_logo(sprite, background)
 			update = _update
 			draw = _draw
 			if shader then
-				free_shader(shader)
+				drystal.free_shader(shader)
 			end
-			set_alpha(255)
+			drystal.set_alpha(255)
 		end
 	end
 	local transform = {
@@ -322,23 +319,24 @@ function display_logo(sprite, background)
 		hfactor=hs/sprite.h,
 	}
 	draw = function()
-		if shader then feed_shader(shader, 'tick', time*0.1) end
+		if shader then drystal.feed_shader(shader, 'tick', time*0.1) end
 
-		set_alpha(255)
-		set_color(unpack(background))
-		draw_background()
+		drystal.set_alpha(255)
+		drystal.set_color(unpack(background))
+		drystal.draw_background()
 
-		set_color(255, 255, 255)
+		drystal.set_color(255, 255, 255)
 		local a = 255 - (math.cos(time*math.pi/(duration/2))/2+0.5)*255
-		set_alpha(a)
-		draw_sprite(sprite, (wr-ws)/2, (hr-hs)/2, transform)
+		drystal.set_alpha(a)
+		drystal.draw_sprite(sprite, (wr-ws)/2, (hr-hs)/2, transform)
 
-		flip()
+		drystal.flip()
 	end
 end
 
-function file_exists(name)
+function drystal.file_exists(name)
 	local f=io.open(name,"r")
 	if f~=nil then io.close(f) return true else return false end
 end
 
+return drystal

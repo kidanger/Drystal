@@ -1,5 +1,5 @@
 print = require 'colorprint'
-require 'drystal'
+local drystal = require 'drystal'
 local particle = require 'particle'
 
 local sys1 = particle.new_system(100, 550)
@@ -20,7 +20,7 @@ sys1:set_initial_velocity(100)
 sys1:set_initial_acceleration(0)
 
 function init()
-	resize(600, 600)
+	drystal.resize(600, 600)
 	sys1:start()
 end
 
@@ -33,17 +33,17 @@ function update(dt)
 end
 
 function draw()
-	set_color(0, 0, 0)
-	draw_background()
+	drystal.set_color(0, 0, 0)
+	drystal.draw_background()
 
 	sys1:draw()
 
-	flip()
+	drystal.flip()
 end
 
 function key_press(k)
 	if k == 'a' then
-		engine_stop()
+		drystal.engine_stop()
 	end
 end
 

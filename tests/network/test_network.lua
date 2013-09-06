@@ -1,10 +1,11 @@
+local drystal = drystal
 local net = require 'net'
 
 local hostname = 'localhost'
 local port = '1234'
 
 function init()
-	resize(40, 40)
+	drystal.resize(40, 40)
 
 	local err = net.connect(hostname, port)
 	if err ~= net.NO_ERROR then
@@ -18,7 +19,7 @@ end
 function key_press(key)
 	if key == 'escape' then
 		net.disconnect();
-		engine_stop()
+		drystal.engine_stop()
 	end
 end
 
@@ -29,7 +30,7 @@ function update(dt)
 		print('received:', str)
 	else
 		print('error receiving ' .. code)
-		engine_stop()
+		drystal.engine_stop()
 	end
 end
 

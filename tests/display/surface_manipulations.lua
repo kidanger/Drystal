@@ -1,4 +1,4 @@
-require "drystal"
+local drystal = require "drystal"
 
 local json = require 'dkjson'
 spritesheet = json.decode(io.open('image.json'):read('*all'))
@@ -42,27 +42,27 @@ width = 0
 height = 0
 function init()
 	print("initialized from lua")
-	resize(600, 400)
-	image = load_surface(spritesheet.meta.image)
-	draw_from(image)
-	set_alpha(0)
-	surf = new_surface(64, 32)
-	draw_on(surf)
-	set_color(255, 0, 0)
-	set_alpha(105)
-	draw_rect(32, 0, 40, 40)
+	drystal.resize(600, 400)
+	image = drystal.load_surface(spritesheet.meta.image)
+	drystal.draw_from(image)
+	drystal.set_alpha(0)
+	surf = drystal.new_surface(64, 32)
+	drystal.draw_on(surf)
+	drystal.set_color(255, 0, 0)
+	drystal.set_alpha(105)
+	drystal.draw_rect(32, 0, 40, 40)
 
-	set_color(200, 200, 200)
-	set_alpha(255)
+	drystal.set_color(200, 200, 200)
+	drystal.set_alpha(255)
 	local sprite = spritesheet.frames['character.png'].frame
-	draw_sprite(sprite, 0, 0)
-	draw_on(screen)
+	drystal.draw_sprite(sprite, 0, 0)
+	drystal.draw_on(screen)
 
-	shader = new_shader(vert)
+	shader = drystal.new_shader(vert)
 	if not shader then
-		engine_stop()
+		drystal.engine_stop()
 	end
-	display_logo(spritesheet.frames['logo.png'].frame)
+	drystal.display_logo(spritesheet.frames['logo.png'].frame)
 end
 
 tick = 0
@@ -71,40 +71,40 @@ function update(dt)
 end
 
 function draw()
-	draw_from(image)
-	set_alpha(255)
-	set_color(10, 10, 30)
-	draw_background()
+	drystal.draw_from(image)
+	drystal.set_alpha(255)
+	drystal.set_color(10, 10, 30)
+	drystal.draw_background()
 
-	use_shader(shader)
-	feed_shader(shader, 'tick', tick)
-	set_color(255, 0, 0)
-	set_alpha(105)
-	draw_rect(16, 64, 40, 40)
+	drystal.use_shader(shader)
+	drystal.feed_shader(shader, 'tick', tick)
+	drystal.set_color(255, 0, 0)
+	drystal.set_alpha(105)
+	drystal.draw_rect(16, 64, 40, 40)
 
 	local sprite = spritesheet.frames['character.png'].frame
-	set_color(200, 200, 200)
-	set_alpha(255)
-	draw_sprite_rotated(sprite, 16, 16, math.sin(tick/100))
-	use_shader()
+	drystal.set_color(200, 200, 200)
+	drystal.set_alpha(255)
+	drystal.draw_sprite_rotated(sprite, 16, 16, math.sin(tick/100))
+	drystal.use_shader()
 
-	set_color(100, 0, 0)
-	set_alpha(200)
-	draw_sprite(sprite, 16+32, 16)
+	drystal.set_color(100, 0, 0)
+	drystal.set_alpha(200)
+	drystal.draw_sprite(sprite, 16+32, 16)
 
-	set_color(255,255,255)
-	set_alpha((math.sin(tick/500)/2+0.5)*255)
-	draw_from(surf)
+	drystal.set_color(255,255,255)
+	drystal.set_alpha((math.sin(tick/500)/2+0.5)*255)
+	drystal.draw_from(surf)
 
-	draw_image(0, 0, 64, 32, 0, 256)
-	draw_from(image)
+	drystal.draw_image(0, 0, 64, 32, 0, 256)
+	drystal.draw_from(image)
 
-	flip()
+	drystal.flip()
 end
 
 function key_press(key)
 	if key == 'escape' then
-		engine_stop()
+		drystal.engine_stop()
 	end
 end
 
@@ -119,7 +119,7 @@ end
 function _resize_event(w, h)
 	width = w
 	height = h
-	resize(w, h)
-	use_shader(shader)
+	drystal.resize(w, h)
+	drystal.use_shader(shader)
 end
 

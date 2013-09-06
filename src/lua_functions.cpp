@@ -9,6 +9,8 @@
 // used to access some engine's fields from lua callbacks
 static Engine *engine;
 
+static int luaopen_drystal(lua_State*); // defined at the end of this file
+
 LuaFunctions::LuaFunctions(Engine& eng, const char *filename) :
 	L(luaL_newstate()),
 	filename(filename)
@@ -18,7 +20,15 @@ LuaFunctions::LuaFunctions(Engine& eng, const char *filename) :
 {
 	engine = &eng;
 	luaL_openlibs(L);
-	send_globals();
+
+	// add drystal lib
+	luaL_requiref(L, "drystal", luaopen_drystal, 1); // as global
+	lua_pop(L, 1);  /* remove lib */
+	// then remove it from package.loaded, so the drystal.lua can be called if user wants
+	lua_getglobal(L, "package");
+	lua_getfield(L, -1, "loaded");
+	lua_pushnil(L);
+	lua_setfield(L, -2, "drystal");
 }
 
 LuaFunctions::~LuaFunctions()
@@ -532,58 +542,68 @@ static int mlua_stop_music(lua_State* L)
 // Lua load
 //
 
-void LuaFunctions::send_globals() const
+int luaopen_drystal(lua_State* L)
 {
-	lua_pushlightuserdata(L, engine->display.get_screen());
-	lua_setglobal(L, "screen");
+	//lua_pushlightuserdata(L, engine->display.get_screen());
+	//lua_setglobal(L, "screen");
 
-	lua_register(L, "engine_stop", mlua_engine_stop);
+#define DECLARE_FUNCTION(name) {#name, mlua_##name}
+	static const luaL_Reg lib[] =
+	{
+		DECLARE_FUNCTION(engine_stop),
 
-	lua_register(L, "show_cursor", mlua_show_cursor);
-	lua_register(L, "grab_cursor", mlua_grab_cursor);
+		DECLARE_FUNCTION(show_cursor),
+		DECLARE_FUNCTION(grab_cursor),
 
-	lua_register(L, "set_resizable", mlua_set_resizable);
-	lua_register(L, "resize", mlua_resize);
-	lua_register(L, "flip", mlua_flip);
+		DECLARE_FUNCTION(set_resizable),
+		DECLARE_FUNCTION(resize),
+		DECLARE_FUNCTION(flip),
 
-	lua_register(L, "load_surface", mlua_load_surface);
-	lua_register(L, "new_surface", mlua_new_surface);
-	lua_register(L, "free_surface", mlua_free_surface);
-	lua_register(L, "surface_size", mlua_surface_size);
-	lua_register(L, "draw_on", mlua_draw_on);
+		DECLARE_FUNCTION(load_surface),
+		DECLARE_FUNCTION(new_surface),
+		DECLARE_FUNCTION(free_surface),
+		DECLARE_FUNCTION(surface_size),
+		DECLARE_FUNCTION(draw_on),
+		DECLARE_FUNCTION(draw_from),
 
-	lua_register(L, "draw_from", mlua_draw_from);
+		DECLARE_FUNCTION(draw_background),
+		DECLARE_FUNCTION(draw_point),
+		DECLARE_FUNCTION(draw_point_tex),
+		DECLARE_FUNCTION(draw_line),
+		DECLARE_FUNCTION(draw_triangle),
+		DECLARE_FUNCTION(draw_surface),
 
-	lua_register(L, "draw_background", mlua_draw_background);
-	lua_register(L, "draw_point", mlua_draw_point);
-	lua_register(L, "draw_point_tex", mlua_draw_point_tex);
-	lua_register(L, "draw_line", mlua_draw_line);
-	lua_register(L, "draw_triangle", mlua_draw_triangle);
-	lua_register(L, "draw_surface", mlua_draw_surface);
+		DECLARE_FUNCTION(set_color),
+		DECLARE_FUNCTION(set_alpha),
+		DECLARE_FUNCTION(set_point_size),
+		DECLARE_FUNCTION(set_line_width),
 
-	lua_register(L, "set_color", mlua_set_color);
-	lua_register(L, "set_alpha", mlua_set_alpha);
-	lua_register(L, "set_point_size", mlua_set_point_size);
-	lua_register(L, "set_line_width", mlua_set_line_width);
+		DECLARE_FUNCTION(new_shader),
+		DECLARE_FUNCTION(use_shader),
+		DECLARE_FUNCTION(feed_shader),
+		DECLARE_FUNCTION(free_shader),
 
-	lua_register(L, "new_shader", mlua_new_shader);
-	lua_register(L, "use_shader", mlua_use_shader);
-	lua_register(L, "feed_shader", mlua_feed_shader);
-	lua_register(L, "free_shader", mlua_free_shader);
+		DECLARE_FUNCTION(new_buffer),
+		DECLARE_FUNCTION(use_buffer),
+		DECLARE_FUNCTION(draw_buffer),
+		DECLARE_FUNCTION(free_buffer),
 
-	lua_register(L, "new_buffer", mlua_new_buffer);
-	lua_register(L, "use_buffer", mlua_use_buffer);
-	lua_register(L, "draw_buffer", mlua_draw_buffer);
-	lua_register(L, "free_buffer", mlua_free_buffer);
+		DECLARE_FUNCTION(play_music),
+		DECLARE_FUNCTION(play_music_queued),
+		DECLARE_FUNCTION(set_music_volume),
+		DECLARE_FUNCTION(stop_music),
 
-	lua_register(L, "play_music", mlua_play_music);
-	lua_register(L, "play_music_queued", mlua_play_music_queued);
-	lua_register(L, "set_music_volume", mlua_set_music_volume);
-	lua_register(L, "stop_music", mlua_stop_music);
+		DECLARE_FUNCTION(load_sound),
+		DECLARE_FUNCTION(play_sound),
+		DECLARE_FUNCTION(set_sound_volume),
+		DECLARE_FUNCTION(free_sound),
 
-	lua_register(L, "load_sound", mlua_load_sound);
-	lua_register(L, "play_sound", mlua_play_sound);
-	lua_register(L, "set_sound_volume", mlua_set_sound_volume);
-	lua_register(L, "free_sound", mlua_free_sound);
+		{NULL, NULL}
+	};
+
+	luaL_newlib(L, lib);
+	luaL_setfuncs(L, lib, 0);
+
+	return 1;
 }
 

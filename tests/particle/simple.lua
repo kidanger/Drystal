@@ -1,5 +1,5 @@
 print = require 'colorprint'
-require 'drystal'
+local drystal = require 'drystal'
 local particle = require 'particle'
 
 local sys1 = particle.new_system(200, 300)
@@ -16,7 +16,7 @@ local systems = {
 }
 
 function init()
-	resize(600, 600)
+	drystal.resize(600, 600)
 	sys1:start()
 	for _, s in ipairs(systems) do
 		s:start()
@@ -35,15 +35,15 @@ function update(dt)
 end
 
 function draw()
-	set_color(0, 0, 0)
-	draw_background()
+	drystal.set_color(0, 0, 0)
+	drystal.draw_background()
 
 	sys1:draw(scrollx, scrolly)
 	for _, s in ipairs(systems) do
 		s:draw(scrollx, scrolly)
 	end
 
-	flip()
+	drystal.flip()
 end
 
 function mouse_motion(x, y, dx, dy)
@@ -88,6 +88,6 @@ function key_press(k)
 	for _, s in ipairs(systems) do
 		s:free()
 	end
-		engine_stop()
+		drystal.engine_stop()
 	end
 end

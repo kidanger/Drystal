@@ -4,18 +4,18 @@ local mouse_points = {
 }
 
 function init()
-	resize(600, 400)
+	drystal.resize(600, 400)
 end
 
 function update(dt)
 end
 
 function draw()
-	set_alpha(255)
-	set_color(255, 255, 255)
-	draw_background()
+	drystal.set_alpha(255)
+	drystal.set_color(255, 255, 255)
+	drystal.draw_background()
 
-	set_color(0, 0, 0)
+	drystal.set_color(0, 0, 0)
 	local points = {
 		25, 25,
 		50, 25,
@@ -24,19 +24,19 @@ function draw()
 		25, 25
 	}
 
-	draw_polyline(false, unpack(points))
+	drystal.draw_polyline(false, unpack(points))
 
-	push_offset(200, 200)
-	draw_polygon(unpack(points))
-	pop_offset()
+	drystal.push_offset(200, 200)
+	drystal.draw_polygon(unpack(points))
+	drystal.pop_offset()
 
 	if #mouse_points > 2 then
-		draw_polygon(unpack(mouse_points))
-		set_color(255, 0, 0)
-		draw_polyline(true, unpack(mouse_points))
+		drystal.draw_polygon(unpack(mouse_points))
+		drystal.set_color(255, 0, 0)
+		drystal.draw_polyline(true, unpack(mouse_points))
 	end
 
-	flip()
+	drystal.flip()
 end
 
 function mouse_press(x, y, b)
@@ -46,7 +46,7 @@ end
 
 function key_press(key)
 	if key == 'a' then
-		engine_stop()
+		drystal.engine_stop()
 	end
 end
 

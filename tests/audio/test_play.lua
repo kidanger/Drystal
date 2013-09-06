@@ -1,4 +1,7 @@
-piou = load_sound("data/test.wav")
+local drystal = drystal
+
+piou = drystal.load_sound("test.wav")
+
 function init()
 	print("press p to play a wav sound :)")
 	print("press 2 to play two times a wav sound with less volume :)")
@@ -8,28 +11,28 @@ function init()
 	print("press n to play directly a mp3 music :)")
 	print("press l to lower the music volume :)")
 	print("press z to lower the sound volume :)")
-	resize(40, 40)
-	set_resizable(true)
+	drystal.resize(40, 40)
+	drystal.set_resizable(true)
 end
 
 function key_press(key)
 	if key == 'escape' then
-		engine_stop()
+		drystal.engine_stop()
 	elseif key == 'p' then
-		play_sound(piou)
+		drystal.play_sound(piou)
 	elseif key == 'l' then
-		set_music_volume(0.5)
+		drystal.set_music_volume(0.5)
 	elseif key == 'z' then
-		set_sound_volume(0.5)
+		drystal.set_sound_volume(0.5)
 	elseif key == 'q' then
-		play_music_queued("data/test.ogg")
+		drystal.play_music_queued("test.ogg")
 	elseif key == 'n' then
-		play_music("data/test.mp3")
+		drystal.play_music("test.mp3")
 	elseif key == 'i' then
-		play_music("data/test.ogg", -1)
+		drystal.play_music("test.ogg", -1)
 	elseif key == '[2]' then
-		play_sound(piou, 2, 0.2)
+		drystal.play_sound(piou, 2, 0.2)
 	elseif key == '*' then
-		play_sound(piou, -1)
+		drystal.play_sound(piou, -1)
 	end
 end

@@ -1,11 +1,11 @@
-require 'drystal'
+local drystal = require 'drystal'
 local physic = require 'physic'
 
 require 'point'
 
 function init()
 	math.randomseed(os.time())
-	resize(600, 400)
+	drystal.resize(600, 400)
 	physic.create_world(0, 0)
 	-- physic.set_ratio(32)
 
@@ -31,22 +31,22 @@ function makePlayer()
 end
 
 function draw()
-	set_color(64, 120, 64)
-	draw_background()
+	drystal.set_color(64, 120, 64)
+	drystal.draw_background()
 
 	-- Draw player
-	set_color(160, 64, 64)
+	drystal.set_color(160, 64, 64)
 	local x, y = player.body:get_position()
-	draw_circle(x, y, 16)
+	drystal.draw_circle(x, y, 16)
 
 	-- Draw crates
-	set_color(180, 120, 90)
+	drystal.set_color(180, 120, 90)
 	for _, c in ipairs(crates) do
 		x, y = c.body:get_position()
-		draw_rect(x-16, y-16, 32, 32)
+		drystal.draw_rect(x-16, y-16, 32, 32)
 	end
 
-	flip()
+	drystal.flip()
 end
 
 --------------------------------------------------

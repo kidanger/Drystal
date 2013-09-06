@@ -35,8 +35,6 @@ class LuaFunctions
 #ifndef EMSCRIPTEN
 		time_t last_load;
 #endif
-
-		void send_globals() const;
 };
 
 #endif
