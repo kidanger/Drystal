@@ -1,8 +1,7 @@
-#define LUA_API extern
-
+#include <cstring>
 #include <lua.hpp>
 
-#include <cstring>
+#include "engine.hpp"
 
 extern "C" {
 	extern int json_encode(lua_State* L);
@@ -100,7 +99,7 @@ static const luaL_Reg lib[] =
 	{NULL, NULL}
 };
 
-LUA_API "C" int luaopen_storage(lua_State *L)
+DEFINE_EXTENSION(storage)
 {
 	luaL_newlibtable(L, lib);
 	luaL_setfuncs(L, lib, 0);

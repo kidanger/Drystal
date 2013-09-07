@@ -1,3 +1,5 @@
+local drystal = require 'drystal'
+
 RED = { 230, 30, 30 }
 BLACK = { 20, 20, 20 }
 DARK_GRAY = { 90, 90, 90 }
@@ -5,10 +7,10 @@ GRAY = { 150, 150, 150 }
 WHITE = { 240, 240, 240 }
 
 function draw_frame(x, y, w, h, border_color, inside_color, border_size)
-	set_color(border_color)
-	draw_rect(x, y, w, h)
-	set_color(inside_color)
-	draw_rect(x+border_size, y+border_size, w-border_size*2, h-border_size*2)
+	drystal.set_color(border_color)
+	drystal.draw_rect(x, y, w, h)
+	drystal.set_color(inside_color)
+	drystal.draw_rect(x+border_size, y+border_size, w-border_size*2, h-border_size*2)
 end
 
 BAR = 0
@@ -23,54 +25,41 @@ function progress(x, y, w, h)
 		progress_color = RED,
 		text_color = WHITE,
 		type=BAR,
-		draw_ration=false,
 	}
 	bar.draw = function()
 		local x, y, w, h = bar.x, bar.y, bar.w, bar.h
 		local border_size = bar.border_size
 		if bar.type == BAR then
 			if bar.inside_color then
-				set_color(bar.inside_color)
-				draw_rect(x, y, w, h)
+				drystal.set_color(bar.inside_color)
+				drystal.draw_rect(x, y, w, h)
 			end
 			if bar.border_color then
-				set_color(bar.border_color)
-				draw_square(x, y, w, h)
+				drystal.set_color(bar.border_color)
+				drystal.draw_square(x, y, w, h)
 			end
 			if bar.progress_color then
-				set_color(bar.progress_color)
-				draw_rect(x + border_size, y + border_size, (w - border_size*2) * bar.ratio, h - border_size*2)
-			end
-			if bar.draw_ratio then
-				set_color(bar.text_color)
-				draw_centered_text(tostring(math.floor(bar.ratio * 100) .. '%'), x+w/2, y+h/2)
+				drystal.set_color(bar.progress_color)
+				drystal.draw_rect(x + border_size, y + border_size, (w - border_size*2) * bar.ratio, h - border_size*2)
 			end
 		elseif bar.type == CIRCLE then
 			assert(h ~= 0, 'elipsis aren\'t supported yet')
 			a = bar.ratio * 360 - 90
 			if bar.inside_color then
-				set_color(bar.inside_color)
-				draw_circle(x, y, w)
+				drystal.set_color(bar.inside_color)
+				drystal.draw_circle(x, y, w)
 			end
 			if bar.progress_color then
-				set_color(bar.progress_color)
-				draw_arc(x, y, w, -90, a)
+				drystal.set_color(bar.progress_color)
+				drystal.draw_arc(x, y, w, -90, a)
 			end
 			if bar.border_color then
-				set_color(bar.border_color)
-				draw_circle(x, y, w)
+				drystal.set_color(bar.border_color)
+				drystal.draw_circle(x, y, w)
 			end
 		end
 	end
 	return bar
-end
-
-function draw_centered_text(text, x, y, add)
-	local w, h = text_size(text)
-	draw_text(text, x - w/2, y - h/2)
-	if add ~= nil then
-		draw_text(add, x + w/2, y - h/2)
-	end
 end
 
 local bins = {}
@@ -158,7 +147,7 @@ function draw_segments(points, last_index)
 	for i = 1, last_index do
 		local p = points[i]
 		if i ~= 1 then
-			draw_line(last[1], last[2], p[1], p[2])
+			drystal.draw_line(last[1], last[2], p[1], p[2])
 		end
 		last = p
 	end
@@ -169,33 +158,5 @@ function lin(p, p2, t)
 		p[1] + t * (p2[1] - p[1]),
 		p[2] + t * (p2[2] - p[2]),
 	}
-end
-
-
-
-Sprite = {}
-Sprite.__index = Sprite
-
-function Sprite.new()
-	local s = setmetatable({}, Sprite)
-	s.surf = nil
-	s.angle = 0
-	s.w, s.h = 0, 0
-	s.__gc = function()
-		print 'endoflife'
-		s.surf = nil
-	end
-	return s
-end
-
-function Sprite:set_surface(surf)
-	self.surface = surf
-	self.w, self.h = surface_size(surf)
-end
-
-function Sprite:draw()
-	rotate_surface(self.surface, self.angle)
-	resize_surface(self.surface, self.w, self.h)
-	draw_surface(self.surface, self.x, self.y)
 end
 

@@ -1,6 +1,6 @@
-#define LUA_API extern
-
 #include <lua.hpp>
+
+#include "engine.hpp"
 
 #include "box2d/Box2D/Box2D.h"
 
@@ -90,7 +90,7 @@ public:
 		}
 	}
 
-	virtual void PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
+	virtual void PreSolve(b2Contact* contact, const b2Manifold*)
 	{
 		if (presolve == LUA_REFNIL)
 			return;
@@ -112,7 +112,7 @@ public:
 		bool enabled = lua_toboolean(L, -1);
 		contact->SetEnabled(enabled);
 	}
-	virtual void PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
+	virtual void PostSolve(b2Contact* contact, const b2ContactImpulse*)
 	{
 		if (postsolve == LUA_REFNIL)
 			return;
@@ -279,7 +279,7 @@ int new_body(lua_State* L)
 	lua_setmetatable(L, -2);
 
 	lua_pushvalue(L, -1);
-	body->SetUserData((void*) luaL_ref(L, LUA_REGISTRYINDEX));
+	body->SetUserData((void*) (size_t) luaL_ref(L, LUA_REGISTRYINDEX));
 	return 1;
 }
 
@@ -593,7 +593,7 @@ static const luaL_Reg lib[] =
 	{NULL, NULL}
 };
 
-LUA_API "C" int luaopen_physic(lua_State *L)
+DEFINE_EXTENSION(physic)
 {
 	luaL_newlib(L, lib);
 	luaL_setfuncs(L, lib, 0);
@@ -621,5 +621,4 @@ LUA_API "C" int luaopen_physic(lua_State *L)
 
 	return 1;
 }
-
 

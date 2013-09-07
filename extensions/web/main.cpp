@@ -1,12 +1,10 @@
-#define LUA_API extern
-
 #include <lua.hpp>
+
+#include "engine.hpp"
 
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
 #endif
-
-#include "engine.hpp"
 
 int is_web(lua_State* L)
 {
@@ -81,7 +79,7 @@ static const luaL_Reg lib[] =
 	{NULL, NULL}
 };
 
-LUA_API "C" int luaopen_web(lua_State *L)
+DEFINE_EXTENSION(web)
 {
 	luaL_newlibtable(L, lib);
 	luaL_setfuncs(L, lib, 0);

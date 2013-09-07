@@ -1,5 +1,3 @@
-#define LUA_API extern
-
 #include <lua.hpp>
 
 #include "engine.hpp"
@@ -52,7 +50,7 @@ static const luaL_Reg lib[] =
 	{NULL, NULL}
 };
 
-LUA_API "C" int luaopen_net(lua_State *L)
+DEFINE_EXTENSION(net)
 {
 	luaL_newlib(L, lib);
 

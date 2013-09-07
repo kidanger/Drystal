@@ -202,7 +202,7 @@ bool LuaFunctions::call_draw()
 	return true;
 }
 
-static int mlua_engine_stop(lua_State*)
+static int mlua_stop(lua_State*)
 {
 	engine->stop();
 	return 0;
@@ -550,7 +550,8 @@ int luaopen_drystal(lua_State* L)
 #define DECLARE_FUNCTION(name) {#name, mlua_##name}
 	static const luaL_Reg lib[] =
 	{
-		DECLARE_FUNCTION(engine_stop),
+		{"engine_stop", mlua_stop},
+		DECLARE_FUNCTION(stop),
 
 		DECLARE_FUNCTION(show_cursor),
 		DECLARE_FUNCTION(grab_cursor),

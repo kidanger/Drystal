@@ -1,10 +1,8 @@
-#define LUA_API extern
-#define DRYSTAL_EXTENSION 1
-
-#include <lua.hpp>
 #include <cmath>
 #include <cassert>
 #include <cstdlib> // random
+
+#include <lua.hpp>
 
 #include "engine.hpp"
 
@@ -490,7 +488,7 @@ static const luaL_Reg lib[] =
 	{NULL, NULL}
 };
 
-LUA_API "C" int luaopen_particle(lua_State *L)
+DEFINE_EXTENSION(particle)
 {
 	luaL_newlib(L, lib);
 	luaL_setfuncs(L, lib, 0);

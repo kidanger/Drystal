@@ -1,5 +1,3 @@
-#define LUA_API extern
-
 #include <lua.hpp>
 #include <SDL/SDL_opengl.h>
 
@@ -338,10 +336,10 @@ static const luaL_Reg lib[] =
 	{NULL, NULL}
 };
 
-LUA_API "C" int luaopen_truetype(lua_State *L)
+DEFINE_EXTENSION(truetype)
 {
-    luaL_newlibtable(L, lib);
-    luaL_setfuncs(L, lib, 0);
+	luaL_newlibtable(L, lib);
+	luaL_setfuncs(L, lib, 0);
 	return 1;
 }
 

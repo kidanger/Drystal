@@ -1,4 +1,4 @@
-require "drystal"
+local drystal = require "drystal"
 local font = require "truetype"
 local net = require "net"
 require "draw"
@@ -46,18 +46,18 @@ function Pad.new(name, posx)
 	return setmetatable(pad, Pad)
 end
 
-function Pad:update()
+function Pad:update(dt)
 	if cheat and self.bonus_timer == 0 then
 		local h = (math.sin(timer / 10)/2+0.5) * 42 + 21
 		self:grow_to(h)
 	end
-	self:update_bonus()
+	self:update_bonus(dt)
 	if self.diry ~= 0 then
 		self.dy = math.max(math.min(speed, self.dy + self.diry/4), -speed)
 	else
 		self.dy = self.dy * 0.7
 	end
-	self.y = self.y + self.dy
+	self.y = self.y + self.dy * dt
 	if self.y < 0 then
 		self.y = 0
 	elseif self.y+self.h > height then
@@ -76,7 +76,7 @@ function Pad:replace()
 		self.x = self.posx
 	end
 end
-function Pad:update_bonus()
+function Pad:update_bonus(dt)
 	if self.bonus_timer == 0 then
 		return
 	end
@@ -149,14 +149,14 @@ function reload_game()
 end
 
 function init()
-	resize(width, height)
-	show_cursor(false)
+	drystal.resize(width, height)
+	drystal.show_cursor(false)
 
 	big_font = font.load('arial.ttf', 16)
 	normal_font = font.load('arial.ttf', 14)
 	small_font = font.load('arial.ttf', 12)
 
-	draw_from(load_surface('image.png'))
+	drystal.draw_from(drystal.load_surface('image.png'))
 	if not state then
 		new_match()
 		state = 'pause'
@@ -168,8 +168,8 @@ function init()
 end
 
 function setup_speeds()
-	ball_speed = 8 + 2*width/800
-	speed = 8 + 1*height/600
+	ball_speed = 360 + 100*width/800
+	speed = 300 + 50*height/600
 end
 
 function left_loose()
@@ -183,21 +183,22 @@ function right_loose()
 end
 
 function update(dt)
+	dt = dt / 1000
 	if state == 'run' then
 		if right.ai then
-			update_ai(right)
+			update_ai(right, dt)
 		end
 		if left.ai then
-			update_ai(left)
+			update_ai(left, dt)
 		end
 
-		left:update()
-		right:update()
-		update_ball(ball)
+		left:update(dt)
+		right:update(dt)
+		update_ball(dt, ball)
 
 		update_powerup()
 
-		update_timer()
+		update_timer(dt)
 
 		if ball.x <= ball.radius then
 			check_collision(left, left_loose)
@@ -208,11 +209,12 @@ function update(dt)
 	end
 end
 
-function update_ai(pad)
-	if pad.y > ball.y+ball.dy*2 then
-		pad.diry = -1
-	elseif pad.y+pad.h < ball.y+ball.dy*2 then
-		pad.diry = 1
+function update_ai(pad, dt)
+	dt = dt * 2
+	if pad.y > ball.y+ball.dy*dt then
+		pad.diry = -speed
+	elseif pad.y+pad.h < ball.y+ball.dy*dt then
+		pad.diry = speed
 	else
 		pad.diry = 0
 	end
@@ -226,9 +228,9 @@ function update_powerup()
 	end
 end
 
-function update_ball(ball)
-	ball.x = ball.x + ball.dx
-	ball.y = ball.y + ball.dy
+function update_ball(dt, ball)
+	ball.x = ball.x + ball.dx * dt
+	ball.y = ball.y + ball.dy * dt
 	if ball.y <= 0 or ball.y+ball.radius*2 >= height then
 		ball.dy = ball.dy * -1
 	end
@@ -247,8 +249,9 @@ function update_ball(ball)
 	end
 end
 
-function update_timer()
-	timer = timer + 1
+function update_timer(dt)
+	print(dt)
+	timer = timer + dt * 50
 	if timer > match_duration then
 		end_match()
 	end
@@ -258,7 +261,7 @@ function check_collision(pad, callback)
 	local y = ball.y
 	if pad.y < y+ball.radius and pad.y+pad.h > y-ball.radius then
 		ball.dx = ball.dx * -1.001
-		ball.dy = ball.dy * 0.9 + pad.dy * 2 / speed
+		ball.dy = ball.dy * 0.9 + pad.dy * 0.2
 	else
 		callback()
 	end
@@ -271,13 +274,13 @@ end
 ticks = 0
 function draw()
 	ticks = ticks + 1
-	set_color(GRAY)
-	set_alpha(255)
-	draw_background()
+	drystal.set_color(GRAY)
+	drystal.set_alpha(255)
+	drystal.draw_background()
 
 	local score = left:get_name():upper() .. ' ' .. left.points .. ' - ' .. right.points .. ' ' .. right:get_name():upper()
 	font.use(normal_font)
-	set_color(BLACK)
+	drystal.set_color(BLACK)
 	font.draw(score, (width - #score * 8) / 2, 50)
 
 	local barw = 200
@@ -291,19 +294,19 @@ function draw()
 	bar.ratio = timer / match_duration
 	bar.draw()
 
-	set_color(BLACK)
-	draw_rect(left.x, left.y, left.w, left.h)
-	draw_rect(right.x, right.y, right.w, right.h)
+	drystal.set_color(BLACK)
+	drystal.draw_rect(left.x, left.y, left.w, left.h)
+	drystal.draw_rect(right.x, right.y, right.w, right.h)
 
 	if cheat then
-		draw_line(ball.x, ball.y, ball.x+ball.dx*10, ball.y+ball.dy*10)
+		drystal.draw_line(ball.x, ball.y, ball.x+ball.dx*10, ball.y+ball.dy*10)
 	end
 
-	draw_circle(ball.x, ball.y, ball.radius)
+	drystal.draw_circle(ball.x, ball.y, ball.radius)
 
 	if powerup.visible then
-		set_color(WHITE)
-		draw_sprite(powerup.sprite, powerup.x, powerup.y)
+		drystal.set_color(WHITE)
+		drystal.draw_sprite(powerup.sprite, powerup.x, powerup.y)
 	end
 
 	if state == 'pause' then
@@ -312,7 +315,7 @@ function draw()
 		local sx, sy = font.sizeof(message)
 		local x, y = (width - sx) / 2, (height - sy) / 2
 		draw_frame(x, y, sx + 10, sy + 10, BLACK, DARK_GRAY, 2)
-		set_color({(math.cos(ticks/10)/2+0.5)*150 + 100, 50, 50})
+		drystal.set_color({(math.cos(ticks/10)/2+0.5)*150 + 100, 50, 50})
 		font.draw(message, x+5, y+5)
 	end
 
@@ -322,7 +325,7 @@ function draw()
 		local sy = 16 * 3
 		local x, y = (width - sx) / 2, (height - sy) / 2
 		draw_frame(x, y, sx + 10, sy + 10, BLACK, DARK_GRAY, 3)
-		set_color(BLACK)
+		drystal.set_color(BLACK)
 		---
 		local message = "Time's up"
 		local sx, sy = font.sizeof(message)
@@ -342,11 +345,11 @@ function draw()
 		draw_net_status()
 	end
 
-	flip()
+	drystal.flip()
 end
 
 function draw_say()
-	set_color(RED)
+	drystal.set_color(RED)
 	font.use(small_font)
 	local sx, sy = font.sizeof(message)
 	local x, y = 1, height - sy - 1
@@ -354,7 +357,7 @@ function draw_say()
 end
 
 function draw_net_status()
-	set_color(BLACK)
+	drystal.set_color(BLACK)
 	font.use(small_font)
 	local str = net_status.info
 	local sx, sy = font.sizeof(str)
@@ -428,7 +431,7 @@ function key_press(key)
 		--do_connect()
 	end
 	if key == 'escape' then
-		engine_stop()
+		drystal.engine_stop()
 	end
 end
 
