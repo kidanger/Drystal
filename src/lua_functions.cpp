@@ -36,6 +36,25 @@ LuaFunctions::~LuaFunctions()
 	lua_close(L);
 }
 
+/**
+ * Search for a function named 'name' in the drystal table.
+ * Return true if found, and keep the function is the lua stack
+ * Otherwise, return false (stack is cleaned as needed).
+ */
+bool LuaFunctions::get_function(lua_State* L, const char* name) const
+{
+	lua_rawgeti(L, LUA_REGISTRYINDEX, drystal_table_ref);
+	lua_getfield(L, -1, name);
+	if (not lua_isfunction(L, -1)) {
+		lua_pop(L, 1);
+		lua_getglobal(L, name); // fallback api, TOBEREMOVED
+	}
+	if (not lua_isfunction(L, -1)) {
+		lua_pop(L, 1);
+		return false;
+	}
+	return true;
+}
 bool LuaFunctions::load_code()
 {
 	if (luaL_dofile(L, filename)) {
@@ -43,15 +62,14 @@ bool LuaFunctions::load_code()
 		return false;
 	}
 
-	lua_getglobal(L, "init");
-	if (not lua_isfunction(L, -1)) {
-		lua_pop(L, 1);
+	if (not get_function(L, "init")) {
 		fprintf(stderr, "[ERROR] cannot find init function in `%s'\n", filename);
 		return false;
 	} else if (lua_pcall(L, 0, 0, 0)) {
 		fprintf(stderr, "[ERROR] cannot call init: %s\n", lua_tostring(L, -1));
 		return false;
 	}
+
 #ifndef EMSCRIPTEN
 	time_t last = last_modified(filename);
 	last_load = last;
@@ -69,6 +87,7 @@ bool LuaFunctions::reload_code()
 	}
 	if (last_load < last) {
 		// reload the code
+		// TODO: remove stuff from package.loaded
 		printf("Reloading code...\n");
 		return load_code();
 	}
@@ -76,130 +95,86 @@ bool LuaFunctions::reload_code()
 	return false;
 }
 
+#define CALL(num_args) \
+	if (lua_pcall(L, num_args, 0, 0)) { \
+		luaL_error(L, "[ERROR] calling %s: %s", __func__, lua_tostring(L, -1)); \
+	}
+
 void LuaFunctions::call_mouse_motion(int mx, int my, int dx, int dy) const
 {
-	lua_getglobal(L, "mouse_motion");
-	if (not lua_isfunction(L, -1))
-	{
-		lua_pop(L, 1);
-		return;
-	}
-	lua_pushnumber(L, mx);
-	lua_pushnumber(L, my);
-	lua_pushnumber(L, dx);
-	lua_pushnumber(L, dy);
-	if (lua_pcall(L, 4, 0, 0))
-	{
-		luaL_error(L, "error calling mouse_motion: %s", lua_tostring(L, -1));
+	if (get_function(L, "mouse_motion")) {
+		lua_pushnumber(L, mx);
+		lua_pushnumber(L, my);
+		lua_pushnumber(L, dx);
+		lua_pushnumber(L, dy);
+		CALL(4);
 	}
 }
 
 void LuaFunctions::call_mouse_press(int mx, int my, int button) const
 {
-	lua_getglobal(L, "mouse_press");
-	if (not lua_isfunction(L, -1))
-	{
-		lua_pop(L, 1);
-		return;
-	}
-	lua_pushnumber(L, mx);
-	lua_pushnumber(L, my);
-	lua_pushnumber(L, button);
-	if (lua_pcall(L, 3, 0, 0))
-	{
-		luaL_error(L, "error calling mouse_press: %s", lua_tostring(L, -1));
+	if (get_function(L, "mouse_press")) {
+		lua_pushnumber(L, mx);
+		lua_pushnumber(L, my);
+		lua_pushnumber(L, button);
+		CALL(3);
 	}
 }
 
 void LuaFunctions::call_mouse_release(int mx, int my, int button) const
 {
-	lua_getglobal(L, "mouse_release");
-	if (not lua_isfunction(L, -1))
-	{
-		lua_pop(L, 1);
-		return;
-	}
-	lua_pushnumber(L, mx);
-	lua_pushnumber(L, my);
-	lua_pushnumber(L, button);
-	if (lua_pcall(L, 3, 0, 0))
-	{
-		luaL_error(L, "error calling mouse_release: %s", lua_tostring(L, -1));
+	if (get_function(L, "mouse_release")) {
+		lua_pushnumber(L, mx);
+		lua_pushnumber(L, my);
+		lua_pushnumber(L, button);
+		CALL(3);
 	}
 }
 
 void LuaFunctions::call_key_press(const char* key_string) const
 {
-	lua_getglobal(L, "key_press");
-	if (not lua_isfunction(L, -1))
-	{
-		lua_pop(L, 1);
-		return;
-	}
-	lua_pushstring(L, key_string);
-	if (lua_pcall(L, 1, 0, 0))
-	{
-		luaL_error(L, "error calling key_press: %s", lua_tostring(L, -1));
+	if (get_function(L, "key_press")) {
+		lua_pushstring(L, key_string);
+		CALL(1);
 	}
 }
 
 void LuaFunctions::call_key_release(const char* key_string) const
 {
-	lua_getglobal(L, "key_release");
-	if (not lua_isfunction(L, -1))
-	{
-		lua_pop(L, 1);
-		return;
-	}
-	lua_pushstring(L, key_string);
-	if (lua_pcall(L, 1, 0, 0))
-	{
-		luaL_error(L, "error calling key_release: %s", lua_tostring(L, -1));
+	if (get_function(L, "key_release")) {
+		lua_pushstring(L, key_string);
+		CALL(1);
 	}
 }
 
 void LuaFunctions::call_resize_event(int w, int h) const
 {
-	lua_getglobal(L, "resize_event");
-	if (not lua_isfunction(L, -1))
-	{
-		lua_pop(L, 1);
-		return;
-	}
-	lua_pushnumber(L, w);
-	lua_pushnumber(L, h);
-	if (lua_pcall(L, 2, 0, 0))
-	{
-		luaL_error(L, "error calling resize_event: %s", lua_tostring(L, -1));
+	if (get_function(L, "key_release")) {
+		lua_pushnumber(L, w);
+		lua_pushnumber(L, h);
+		CALL(2);
 	}
 }
 
-bool LuaFunctions::call_update(double dt)
+void LuaFunctions::call_update(double dt)
 {
-	lua_getglobal(L, "update");
-	if (not lua_isfunction(L, -1)) {
-		lua_pop(L, 1);
-		return false;
+	if (get_function(L, "update")) {
+		lua_pushnumber(L, dt);
+		CALL(1);
 	}
-	lua_pushnumber(L, dt);
-	if (lua_pcall(L, 1, 0, 0)) {
-		luaL_error(L, "error calling update: %s", lua_tostring(L, -1));
-		return false;
-	}
-	return true;
 }
-bool LuaFunctions::call_draw()
+void LuaFunctions::call_draw()
 {
-	lua_getglobal(L, "draw");
-	if (not lua_isfunction(L, -1)) {
-		lua_pop(L, 1);
-		return false;
+	if (get_function(L, "draw")) {
+		CALL(0);
 	}
-	if (lua_pcall(L, 0, 0, 0)) {
-		luaL_error(L, "error calling draw: %s", lua_tostring(L, -1));
-		return false;
+}
+
+void LuaFunctions::call_atexit() const
+{
+	if (get_function(L, "atexit")) {
+		CALL(0);
 	}
-	return true;
 }
 
 static int mlua_stop(lua_State*)
@@ -604,6 +579,9 @@ int luaopen_drystal(lua_State* L)
 
 	luaL_newlib(L, lib);
 	luaL_setfuncs(L, lib, 0);
+
+	lua_pushvalue(L, -1);
+	engine->lua.drystal_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 
 	return 1;
 }

@@ -59,9 +59,9 @@ public:
 		lua_rawgeti(L, LUA_REGISTRYINDEX, begin_contact);
 
 		// fetch bodies tables
-		int refA = (int) (long) bA->GetUserData();
+		int refA = (int) (size_t) bA->GetUserData();
 		lua_rawgeti(L, LUA_REGISTRYINDEX, refA);
-		int refB = (int) (long) bB->GetUserData();
+		int refB = (int) (size_t) bB->GetUserData();
 		lua_rawgeti(L, LUA_REGISTRYINDEX, refB);
 		// TODO: push contact
 

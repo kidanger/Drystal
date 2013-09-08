@@ -174,6 +174,7 @@ void Engine::key_release(const char* key_string) const
 
 void Engine::stop()
 {
+	lua.call_atexit();
 	run = false;
 #ifdef EMSCRIPTEN
 	emscripten_cancel_main_loop();
