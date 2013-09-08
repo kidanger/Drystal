@@ -77,6 +77,7 @@ void LuaFunctions::remove_userpackages(lua_State* L)
 		LUA_MATHLIBNAME,
 		LUA_DBLIBNAME,
 		LUA_LOADLIBNAME,
+		"drystal",
 	};
 	lua_getglobal(L, "package");
 	lua_getfield(L, -1, "loaded");

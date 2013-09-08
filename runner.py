@@ -50,7 +50,7 @@ def copy_files_maybe(from_directory, get_subdir=False, verbose=True):
         if f.startswith('.'):
             continue
         if f in IGNORE_FILES:
-            _print(G, '    ignoring\t', f)
+            _print(I, '    ignoring\t', f)
             continue
         old = os.path.join(DESTINATION_DIRECTORY, f)
         fullpath = os.path.join(from_directory, f)
@@ -61,13 +61,13 @@ def copy_files_maybe(from_directory, get_subdir=False, verbose=True):
                     shutil.copy(fullpath, DESTINATION_DIRECTORY)
                     did_copy = True
                 else:
-                    _print(G, '    ignoring ext', f)
+                    _print(I, '    ignoring ext', f)
             if os.path.isdir(fullpath) and (get_subdir or f in SUBDIRS):
                 _print(G, '    copying dir\t', f)
                 shutil.copytree(fullpath, os.path.join(DESTINATION_DIRECTORY, f))
                 did_copy = True
         else:
-            _print(G, '    already\t', f)
+            _print(I, '    already\t', f)
     return did_copy
 
 def remove_old_wget():
@@ -204,9 +204,14 @@ else:
 
         mainfile = file or 'main.lua'
         notmain = os.path.join(DESTINATION_DIRECTORY, mainfile)
-        if has_copied_some_files or not os.path.exists(main) or os.path.getmtime(notmain) > os.path.getmtime(main):
-            print(W, '- rename', file, 'to main.lua', N)
-            shutil.copy(notmain, main)
+        if (has_copied_some_files
+        or not os.path.exists(main) or os.path.getmtime(notmain) > os.path.getmtime(main)):
+            if notmain != main:
+                print(W, '- rename', file, 'to main.lua', N)
+                shutil.copy(notmain, main)
+            else:
+                print(W, '- touch', main, N)
+                os.utime(main, None)
 
     copy_files()
 
