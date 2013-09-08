@@ -1,7 +1,7 @@
 #pragma once
 
 #ifndef EMSCRIPTEN
-//#define DODEBUG
+// #define DODEBUG
 #endif
 
 #ifdef DODEBUG

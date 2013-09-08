@@ -5,6 +5,12 @@ import sys
 import os
 import shutil
 
+G = '\033[92m'
+I = '\033[95m'
+W = '\033[93m'
+E = '\033[91m'
+N = '\033[m'
+
 DESTINATION_DIRECTORY_REL = 'gamedata'
 DESTINATION_DIRECTORY = os.path.abspath(DESTINATION_DIRECTORY_REL)
 INCLUDE_DIRECTORY = os.path.abspath('data')
@@ -38,37 +44,37 @@ def copy_files_maybe(from_directory, get_subdir=False, verbose=True):
     else:
         _print = lambda *args, **kargs: None
 
-    _print('- processing', from_directory)
+    _print(G, '- processing', from_directory)
     did_copy = False
     for f in os.listdir(from_directory):
         if f.startswith('.'):
             continue
         if f in IGNORE_FILES:
-            _print('    ignoring\t', f)
+            _print(G, '    ignoring\t', f)
             continue
         old = os.path.join(DESTINATION_DIRECTORY, f)
         fullpath = os.path.join(from_directory, f)
         if not os.path.exists(old) or os.path.getmtime(fullpath) > os.path.getmtime(old):
             if os.path.isfile(fullpath):
                 if os.path.splitext(fullpath)[1] not in IGNORE_FILES:
-                    print('    copying\t', f)
+                    print(G, '    copying\t', f)
                     shutil.copy(fullpath, DESTINATION_DIRECTORY)
                     did_copy = True
                 else:
-                    _print('    ignoring ext', f)
+                    _print(G, '    ignoring ext', f)
             if os.path.isdir(fullpath) and (get_subdir or f in SUBDIRS):
-                _print('    copying dir\t', f)
+                _print(G, '    copying dir\t', f)
                 shutil.copytree(fullpath, os.path.join(DESTINATION_DIRECTORY, f))
                 did_copy = True
         else:
-            _print('    already\t', f)
+            _print(G, '    already\t', f)
     return did_copy
 
 def remove_old_wget():
     destination = os.path.join(BUILD_WEB, DESTINATION_DIRECTORY_REL)
     if not os.path.exists(destination):
         return
-    print('- remove old wget: ', destination)
+    print(G, '- remove old wget: ', destination)
     for f in os.listdir(destination):
         fullpath = os.path.join(destination, f)
         if os.path.isfile(fullpath):
@@ -81,7 +87,7 @@ def load_config(from_directory):
     import json
     cfg = os.path.join(from_directory, 'drystal.cfg')
     if os.path.exists(cfg):
-        print('- reading configuration from', cfg)
+        print(G, '- reading configuration from', cfg)
         config = json.load(open(cfg))
         global WGET_FILES, IGNORE_FILES, SUBDIRS
         WGET_FILES += 'wget' in config and config['wget'] or []
@@ -89,7 +95,7 @@ def load_config(from_directory):
         SUBDIRS += 'subdirs' in config and config['subdirs'] or []
 
 def move_wget_files(from_directory, destination):
-    print('- processing for wget: ', from_directory, 'to', destination)
+    print(G, '- processing for wget: ', from_directory, 'to', destination)
     if not os.path.exists(destination):
         os.mkdir(destination)
     for f in os.listdir(from_directory):
@@ -97,7 +103,7 @@ def move_wget_files(from_directory, destination):
             continue
         fullpath = os.path.join(from_directory, f)
         if os.path.isfile(fullpath) and os.path.splitext(fullpath)[1] in WGET_FILES:
-            print('    wget\t', f)
+            print(G, '    wget\t', f)
             shutil.move(fullpath, destination)
 
 def copy_extensions(from_dir, ext_list, mainfilename):
@@ -109,9 +115,9 @@ def copy_extensions(from_dir, ext_list, mainfilename):
                                 mainfilename.replace('main', extension))
         if os.path.exists(src_path):
             shutil.copy(src_path, dst_path)
-            print('- add extension ', src_path)
+            print(G, '- add extension ', src_path)
         else:
-            print('! extension not available: ', src_path)
+            print(G, '! extension not available: ', src_path)
 
 def locate_index_html(from_dir, to_dir):
     dir = from_dir
@@ -131,12 +137,12 @@ def clean(dir):
 
 def clean_all():
     if clean(DESTINATION_DIRECTORY):
-        print('-', DESTINATION_DIRECTORY, 'deleted')
+        print(G, '-', DESTINATION_DIRECTORY, 'deleted', N)
     else:
-        print('directory isn\'t dirty')
+        print(E, 'directory isn\'t dirty', N)
     webdata = os.path.join(BUILD_WEB, DESTINATION_DIRECTORY_REL)
     if clean(webdata):
-        print('-', webdata, 'deleted')
+        print(G, '-', webdata, 'deleted', N)
 
 cw = os.getcwd()
 
@@ -148,7 +154,7 @@ if (len(sys.argv) < 2
             or main_arg == 'clean')
     or not run_arg in ('', 'native', 'live', 'debug', 'profile', 'web', 'repack',)
         ):
-    print('usage:', sys.argv[0], '<directory>[/filename.lua] [native|live|debug|profile||web|repack]')
+    print('usage:', sys.argv[0], '<directory>[/filename.lua] [native|live|debug|profile|web|repack]')
     print('      ', sys.argv[0], 'clean')
     sys.exit(1)
 
@@ -162,12 +168,12 @@ else:
     if not os.path.exists(token):
         clean_all()
     else:
-        print('- token exists, don\'t clean')
+        print(W, '- token exists, don\'t clean')
 
     if not os.path.exists(DESTINATION_DIRECTORY):
-        print('- create', DESTINATION_DIRECTORY)
+        print(G, '- create', DESTINATION_DIRECTORY)
         os.mkdir(DESTINATION_DIRECTORY)
-        print('- add token', token)
+        print(W, '- add token', token)
         open(token, 'w').close()
 
     if os.path.isdir(to_be_run):
@@ -199,7 +205,7 @@ else:
         mainfile = file or 'main.lua'
         notmain = os.path.join(DESTINATION_DIRECTORY, mainfile)
         if has_copied_some_files or not os.path.exists(main) or os.path.getmtime(notmain) > os.path.getmtime(main):
-            print('- rename', file, 'to main.lua')
+            print(W, '- rename', file, 'to main.lua', N)
             shutil.copy(notmain, main)
 
     copy_files()
@@ -228,17 +234,17 @@ else:
         if run_arg == 'live':
             program += ' &'
         cmd = 'cd ' + DESTINATION_DIRECTORY + '; ' + program
-        print(cmd)
+        print(I, cmd, N)
         os.system(cmd)
         if run_arg == 'live':
-            print('- settings up live coding')
+            print(G, '- settings up live coding', N)
             import time
             try:
                 while True:
                     copy_files(verbose=False)
                     time.sleep(1)
             except KeyboardInterrupt:
-                print('kill drystal')
+                print(I, 'kill drystal', N)
                 os.system('pkill drystal')
                 sys.exit()
 
@@ -260,10 +266,10 @@ else:
             httpd = HTTPServer((addr, port), SimpleHTTPRequestHandler)
             for b in BROWSERS:
                 if not os.system(b + ' ' + addr + ':' + str(port) + '/' + BUILD_WEB_REL + ' >/dev/null'):
-                    print('- page opened in', b)
+                    print(G, '- page opened in', b)
                     break
             else:
-                print('! unable to open a browser')
+                print(W, '! unable to open a browser')
             httpd.serve_forever()
 
 

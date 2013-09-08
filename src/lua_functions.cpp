@@ -51,15 +51,16 @@ bool LuaFunctions::get_function(lua_State* L, const char* name) const
 {
 	lua_rawgeti(L, LUA_REGISTRYINDEX, drystal_table_ref);
 	lua_getfield(L, -1, name);
-	if (not lua_isfunction(L, -1)) {
-		lua_pop(L, 1);
-		lua_getglobal(L, name); // fallback api, TOBEREMOVED
+	if (lua_isfunction(L, -1)) {
+		return true;
 	}
-	if (not lua_isfunction(L, -1)) {
-		lua_pop(L, 1);
-		return false;
+	lua_pop(L, 2);
+	lua_getglobal(L, name); // fallback api, TOBEREMOVED
+	if (lua_isfunction(L, -1)) {
+		return true;
 	}
-	return true;
+	lua_pop(L, 1);
+	return false;
 }
 
 void LuaFunctions::remove_userpackages(lua_State* L)

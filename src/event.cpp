@@ -273,10 +273,10 @@ EventManager::EventManager(Engine& eng) : engine(eng), _grab_cursor(false)
 void EventManager::poll()
 {
 	SDL_Event event;
-	while(SDL_PollEvent(&event))
-	{
+	while (SDL_PollEvent(&event)) {
 		handle_event(event);
 	}
+	_warped = false;
 }
 
 void EventManager::grab_cursor(bool grab)
@@ -331,7 +331,6 @@ void EventManager::handle_event(const SDL_Event& event)
 		default:
 			break;
 	}
-	_warped = false;
 }
 
 void EventManager::check_grab()
