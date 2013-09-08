@@ -39,6 +39,7 @@ def copy_files_maybe(from_directory, get_subdir=False, verbose=True):
         _print = lambda *args, **kargs: None
 
     _print('- processing', from_directory)
+    did_copy = False
     for f in os.listdir(from_directory):
         if f.startswith('.'):
             continue
@@ -52,13 +53,16 @@ def copy_files_maybe(from_directory, get_subdir=False, verbose=True):
                 if os.path.splitext(fullpath)[1] not in IGNORE_FILES:
                     print('    copying\t', f)
                     shutil.copy(fullpath, DESTINATION_DIRECTORY)
+                    did_copy = True
                 else:
                     _print('    ignoring ext', f)
             if os.path.isdir(fullpath) and (get_subdir or f in SUBDIRS):
                 _print('    copying dir\t', f)
                 shutil.copytree(fullpath, os.path.join(DESTINATION_DIRECTORY, f))
+                did_copy = True
         else:
             _print('    already\t', f)
+    return did_copy
 
 def remove_old_wget():
     destination = os.path.join(BUILD_WEB, DESTINATION_DIRECTORY_REL)
@@ -181,21 +185,22 @@ else:
     load_config(dir)
 
     def copy_files(verbose=True):
+        has_copied_some_files = False # main.lua is over
         dir = os.path.abspath(dirpath)
-        copy_files_maybe(INCLUDE_DIRECTORY, get_subdir=True, verbose=verbose)
+        has_copied_some_files = copy_files_maybe(INCLUDE_DIRECTORY, get_subdir=True, verbose=verbose) or has_copied_some_files
 
         first = True
         while cw != dir:
             last = parent(dir) == cw
-            copy_files_maybe(dir, get_subdir=first and not last, verbose=verbose)
+            has_copied_some_files = copy_files_maybe(dir, get_subdir=first and not last, verbose=verbose) or has_copied_some_files
             dir = parent(dir)
             first = False
 
-        if file and file != 'main.lua':
-            notmain = os.path.join(DESTINATION_DIRECTORY, file)
-            if not os.path.exists(main) or os.path.getmtime(notmain) > os.path.getmtime(main):
-                print('- rename', file, 'to main.lua')
-                shutil.copy(notmain, main)
+        mainfile = file or 'main.lua'
+        notmain = os.path.join(DESTINATION_DIRECTORY, mainfile)
+        if has_copied_some_files or not os.path.exists(main) or os.path.getmtime(notmain) > os.path.getmtime(main):
+            print('- rename', file, 'to main.lua')
+            shutil.copy(notmain, main)
 
     copy_files()
 
@@ -228,9 +233,14 @@ else:
         if run_arg == 'live':
             print('- settings up live coding')
             import time
-            while True:
-                copy_files(verbose=False)
-                time.sleep(1)
+            try:
+                while True:
+                    copy_files(verbose=False)
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                print('kill drystal')
+                os.system('pkill drystal')
+                sys.exit()
 
     elif run_arg in ('web', 'repack'):
         if '.tup' in os.listdir('.'):

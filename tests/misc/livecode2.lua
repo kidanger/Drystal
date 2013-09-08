@@ -1,0 +1,3 @@
+return {
+	value=2,
+}

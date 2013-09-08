@@ -39,6 +39,7 @@ class LuaFunctions
 #endif
 
 		bool get_function(lua_State*, const char* name) const;
+		void remove_userpackages(lua_State* L);
 };
 
 #endif

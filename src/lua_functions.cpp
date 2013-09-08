@@ -33,8 +33,14 @@ LuaFunctions::LuaFunctions(Engine& eng, const char *filename) :
 
 LuaFunctions::~LuaFunctions()
 {
+	luaL_unref(L, LUA_REGISTRYINDEX, drystal_table_ref);
 	lua_close(L);
 }
+
+#define CALL(num_args) \
+	if (lua_pcall(L, num_args, 0, 0)) { \
+		luaL_error(L, "[ERROR] calling %s: %s", __func__, lua_tostring(L, -1)); \
+	}
 
 /**
  * Search for a function named 'name' in the drystal table.
@@ -55,6 +61,41 @@ bool LuaFunctions::get_function(lua_State* L, const char* name) const
 	}
 	return true;
 }
+
+void LuaFunctions::remove_userpackages(lua_State* L)
+{
+	printf("Removing old packages: ");
+	const char* kept[] = {
+		"_G",
+		LUA_COLIBNAME,
+		LUA_TABLIBNAME,
+		LUA_IOLIBNAME,
+		LUA_OSLIBNAME,
+		LUA_STRLIBNAME,
+		LUA_BITLIBNAME,
+		LUA_MATHLIBNAME,
+		LUA_DBLIBNAME,
+		LUA_LOADLIBNAME,
+	};
+	lua_getglobal(L, "package");
+	lua_getfield(L, -1, "loaded");
+	lua_pushnil(L);
+	while (lua_next(L, -2)) {
+		bool remove = true;
+		const char* name = lua_tostring(L, -2);
+		for (unsigned long i = 0; i < sizeof(kept)/sizeof(const char*) and remove; i++) {
+			remove = remove and strcmp(name, kept[i]);
+		}
+		if (remove) {
+			lua_pushnil(L);
+			printf("%s ", name);
+			lua_setfield(L, -4, name);
+		}
+		lua_pop(L, 1);
+	}
+	printf("\n");
+}
+
 bool LuaFunctions::load_code()
 {
 	if (luaL_dofile(L, filename)) {
@@ -86,19 +127,14 @@ bool LuaFunctions::reload_code()
 		return false;
 	}
 	if (last_load < last) {
-		// reload the code
-		// TODO: remove stuff from package.loaded
+		remove_userpackages(L);
+
 		printf("Reloading code...\n");
 		return load_code();
 	}
 #endif
 	return false;
 }
-
-#define CALL(num_args) \
-	if (lua_pcall(L, num_args, 0, 0)) { \
-		luaL_error(L, "[ERROR] calling %s: %s", __func__, lua_tostring(L, -1)); \
-	}
 
 void LuaFunctions::call_mouse_motion(int mx, int my, int dx, int dy) const
 {
