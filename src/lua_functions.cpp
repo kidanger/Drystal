@@ -98,6 +98,11 @@ void LuaFunctions::remove_userpackages(lua_State* L)
 
 bool LuaFunctions::load_code()
 {
+#ifndef EMSCRIPTEN
+	time_t last = last_modified(filename);
+	last_load = last;
+#endif
+
 	if (luaL_dofile(L, filename)) {
 		fprintf(stderr, "[ERROR] cannot run script: %s\n", lua_tostring(L, -1));
 		return false;
@@ -110,11 +115,6 @@ bool LuaFunctions::load_code()
 		fprintf(stderr, "[ERROR] cannot call init: %s\n", lua_tostring(L, -1));
 		return false;
 	}
-
-#ifndef EMSCRIPTEN
-	time_t last = last_modified(filename);
-	last_load = last;
-#endif
 	return true;
 }
 
