@@ -1,13 +1,13 @@
 local drystal = drystal
 local web = require 'web'
 
-function init()
+function drystal.init()
 	drystal.resize(400, 400)
 end
 
 local grabbed = false
 local hidden = false
-function key_press(key)
+function drystal.key_press(key)
 	if key == 'a' then
 	elseif key == 'h' then
 		hidden = not hidden

@@ -1,12 +1,12 @@
 local drystal = drystal
 
-function init()
+function drystal.init()
 end
 
-function update(dt)
+function drystal.update(dt)
 end
 
-function draw()
+function drystal.draw()
 end
 
 drystal.engine_stop()

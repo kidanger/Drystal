@@ -3,7 +3,7 @@ local drystal = require "drystal"
 local json = require 'dkjson'
 spritesheet = json.decode(io.open('image.json'):read('*all'))
 
-function init()
+function drystal.init()
 	drystal.resize(600, 400)
 	image = drystal.load_surface(spritesheet.meta.image)
 	drystal.draw_from(image)
@@ -13,7 +13,7 @@ local bufferize = true
 local buffer
 local number = 6000
 local tick = 0
-function draw()
+function drystal.draw()
 	tick = tick + 1
 
 	drystal.draw_from(image)
@@ -59,7 +59,7 @@ function heavy_draw(number)
 	end
 end
 
-function key_press(key)
+function drystal.key_press(key)
 	if key == 'escape' then
 		drystal.engine_stop()
 	elseif key == 'b' then

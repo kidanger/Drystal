@@ -471,7 +471,7 @@ function reload()
 end
 
 
-function init()
+function drystal.init()
 	set_resizable(true)
 	resize(width, height)
 
@@ -482,7 +482,7 @@ function init()
 	draw_from(atlas)
 end
 
-function resize_event(w, h)
+function drystal.resize_event(w, h)
 	width = w
 	height = h
 	resize(w, h)
@@ -496,7 +496,7 @@ end
 local tick = tick or 0
 fps = fps or 0
 
-function update(dt)
+function drystal.update(dt)
 	tick = tick + dt
 	if dt >= 1000 then
 		fps = 0
@@ -506,7 +506,7 @@ function update(dt)
 	chunkmanager:update(dt)
 end
 
-function draw()
+function drystal.draw()
 	draw_on(mscreen)
 	set_color(0,0,0)
 	draw_background()
@@ -528,7 +528,7 @@ function draw()
 	flip()
 end
 
-function mouse_press(x, y, button)
+function drystal.mouse_press(x, y, button)
 	local ox = player.x + 16 - width*0.5
 	local oy = player.y + 16 - height*0.5
 	if button == 1 or button == 3 then
@@ -544,7 +544,7 @@ function mouse_press(x, y, button)
 	end
 end
 
-function key_press(key)
+function drystal.key_press(key)
 	if key == 'q' then
 		player:goleft()
 	end
@@ -571,7 +571,7 @@ function key_press(key)
 	end
 end
 
-function key_release(key)
+function drystal.key_release(key)
 	if key == 'space' then
 		player:stopjmp()
 	elseif key == 'd' then

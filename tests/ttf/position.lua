@@ -1,12 +1,12 @@
 local drystal = require "drystal"
 local font = require "truetype"
 
-function init()
+function drystal.init()
 	drystal.resize(600, 400);
 	font.use(assert(font.load('arial.ttf', 20)))
 end
 
-function draw()
+function drystal.draw()
 	drystal.set_color(255, 255, 255)
 	drystal.draw_background()
 

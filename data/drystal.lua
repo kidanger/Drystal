@@ -124,7 +124,7 @@ function drystal.draw_circle(cx, cy, r)
 	cx = cx + ox;
 	cy = cy + oy;
 
-	local width, height = drystal.surface_size(current_on or screen)
+	local width, height = drystal.surface_size(current_on or drystal.screen)
 	if cx + r < 0 or cx - r > width then
 		return
 	end
@@ -295,18 +295,18 @@ function drystal.display_logo(sprite, background)
 		drystal.use_shader(shader)
 	end
 	local time = 0
-	local _update = update
-	local _draw = draw
+	local _update = drystal.update
+	local _draw = drystal.draw
 
-	local wr, hr = drystal.surface_size(screen)
+	local wr, hr = drystal.surface_size(drystal.screen)
 	local ws = math.min(wr, sprite.w) - 50
 	local hs = math.min(hr, sprite.h) - 50
 
-	update = function(dt)
+	drystal.update = function(dt)
 		time = time + dt
 		if time > duration then
-			update = _update
-			draw = _draw
+			drystal.update = _update
+			drystal.draw = _draw
 			if shader then
 				drystal.free_shader(shader)
 			end
@@ -318,7 +318,7 @@ function drystal.display_logo(sprite, background)
 		wfactor=ws/sprite.w,
 		hfactor=hs/sprite.h,
 	}
-	draw = function()
+	drystal.draw = function()
 		if shader then drystal.feed_shader(shader, 'tick', time*0.1) end
 
 		drystal.set_alpha(255)

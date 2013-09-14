@@ -3,14 +3,14 @@ require "drystal"
 local mouse_points = {
 }
 
-function init()
+function drystal.init()
 	drystal.resize(600, 400)
 end
 
-function update(dt)
+function drystal.update(dt)
 end
 
-function draw()
+function drystal.draw()
 	drystal.set_alpha(255)
 	drystal.set_color(255, 255, 255)
 	drystal.draw_background()
@@ -39,12 +39,12 @@ function draw()
 	drystal.flip()
 end
 
-function mouse_press(x, y, b)
+function drystal.mouse_press(x, y, b)
 	table.insert(mouse_points, x)
 	table.insert(mouse_points, y)
 end
 
-function key_press(key)
+function drystal.key_press(key)
 	if key == 'a' then
 		drystal.engine_stop()
 	end

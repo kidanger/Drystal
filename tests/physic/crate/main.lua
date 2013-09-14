@@ -3,7 +3,7 @@ local physic = require 'physic'
 
 require 'point'
 
-function init()
+function drystal.init()
 	math.randomseed(os.time())
 	drystal.resize(600, 400)
 	physic.create_world(0, 0)
@@ -30,7 +30,7 @@ function makePlayer()
 	return {body=b, shape=s}
 end
 
-function draw()
+function drystal.draw()
 	drystal.set_color(64, 120, 64)
 	drystal.draw_background()
 
@@ -52,16 +52,16 @@ end
 --------------------------------------------------
 
 local keys = {}
-function key_press(k)
+function drystal.key_press(k)
 	keys[k] = true
 end
-function key_release(k)
+function drystal.key_release(k)
 	keys[k] = nil
 end
 local function key_is_down(k)
 	return keys[k] ~= nil
 end
-function update(dt)
+function drystal.update(dt)
 	local k = key_is_down
 	local kd = 0
 	local dir = point(0, 0)
@@ -127,6 +127,6 @@ function nudgeToSquare(body, sq, acc)
 	body:apply_force(f, 0)
 end
 
-function mouse_press(x, y)
+function drystal.mouse_press(x, y)
 	table.insert(crates, makeCrate(x/32, y/32))
 end

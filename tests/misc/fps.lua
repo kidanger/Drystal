@@ -1,14 +1,14 @@
 local drystal = drystal
 
-function init()
+function drystal.init()
 	drystal.resize(400, 400)
 end
 
-function update(dt)
+function drystal.update(dt)
 	print(1000/dt, dt)
 end
 
-function key_press(key)
+function drystal.key_press(key)
 	if key == 'a' then
 		drystal.stop()
 	end

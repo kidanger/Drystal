@@ -5,18 +5,18 @@ spritesheet = json.decode(io.open('image.json'):read('*all'))
 
 local mx, my = 0, 0
 
-function init()
+function drystal.init()
 	drystal.resize(600, 400)
 	image = drystal.load_surface(spritesheet.meta.image)
 	drystal.draw_from(image)
 end
 
 local time = 0
-function update(dt)
+function drystal.update(dt)
 	time = time + dt
 end
 
-function draw()
+function drystal.draw()
 	drystal.set_color(255, 255, 255)
 	drystal.draw_background()
 
@@ -43,12 +43,12 @@ function draw()
 	drystal.flip()
 end
 
-function mouse_motion(x, y)
+function drystal.mouse_motion(x, y)
 	mx = x
 	my = y
 end
 
-function key_press(k)
+function drystal.key_press(k)
 	if k == 'a' then
 		drystal.engine_stop()
 	end

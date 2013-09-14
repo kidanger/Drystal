@@ -70,7 +70,7 @@ local function create_circle(radius, args, dynamic)
 	return setmetatable(circle, Body)
 end
 
-function init()
+function drystal.init()
 	drystal.resize(600, 400)
 
 	physic.create_world(0, 0.98)
@@ -126,7 +126,7 @@ function init()
 
 local dir = ''
 local time = 0
-function update(dt)
+function drystal.update(dt)
 	delta = dt / 1000
 	if delta > .6 then
 		delta = .6
@@ -161,7 +161,7 @@ function update(dt)
 	update_system(ball2)
 end
 
-function draw()
+function drystal.draw()
 	drystal.set_color(120, 120, 120)
 	drystal.draw_background()
 
@@ -186,7 +186,7 @@ function draw()
 	drystal.flip()
 end
 
-function key_press(key)
+function drystal.key_press(key)
 	if key == 'space' then
 		ball:apply_linear_impulse(0, -0.3)
 	elseif key == 'a' then
@@ -199,7 +199,7 @@ function key_press(key)
 		dir = key
 	end
 end
-function key_release(key)
+function drystal.key_release(key)
 	if key == 'left' then
 		dir = ''
 	elseif key == 'right' then
@@ -207,18 +207,18 @@ function key_release(key)
 	end
 end
 
-function mouse_release(x, y, b)
+function drystal.mouse_release(x, y, b)
 	if b == 1 then
 		mouse_joint:destroy()
 		mouse_joint = nil
 	end
 end
-function mouse_motion(x, y)
+function drystal.mouse_motion(x, y)
 	if mouse_joint then
 		mouse_joint:set_target(x/R, y/R)
 	end
 end
-function mouse_press(x, y, b)
+function drystal.mouse_press(x, y, b)
 	if b == 1 then
 		if not mouse_joint then
 			mouse_joint = physic.new_joint('mouse', ground, ball, 7*ball:get_mass(), true)

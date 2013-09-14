@@ -36,11 +36,11 @@ void main()
 }
 ]]
 
-x = 0
-y = 0
-width = 0
-height = 0
-function init()
+local x = 0
+local y = 0
+local width = 0
+local height = 0
+function drystal.init()
 	print("initialized from lua")
 	drystal.resize(600, 400)
 	image = drystal.load_surface(spritesheet.meta.image)
@@ -65,12 +65,12 @@ function init()
 	drystal.display_logo(spritesheet.frames['logo.png'].frame)
 end
 
-tick = 0
-function update(dt)
+local tick = 0
+function drystal.update(dt)
 	tick = tick + dt
 end
 
-function draw()
+function drystal.draw()
 	drystal.draw_from(image)
 	drystal.set_alpha(255)
 	drystal.set_color(10, 10, 30)
@@ -102,16 +102,16 @@ function draw()
 	drystal.flip()
 end
 
-function key_press(key)
+function drystal.key_press(key)
 	if key == 'escape' then
 		drystal.engine_stop()
 	end
 end
 
-function key_release(key)
+function drystal.key_release(key)
 end
 
-function mouse_motion(_x, _y)
+function drystal.mouse_motion(_x, _y)
 	x = _x
 	y = _y
 end

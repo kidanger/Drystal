@@ -1,6 +1,5 @@
 local drystal = require "drystal"
 local font = require "truetype"
-local net = require "net"
 require "draw"
 
 local json = require 'dkjson'
@@ -148,7 +147,7 @@ function reload_game()
 	}
 end
 
-function init()
+function drystal.init()
 	drystal.resize(width, height)
 	drystal.show_cursor(false)
 
@@ -161,7 +160,6 @@ function init()
 		new_match()
 		state = 'pause'
 	end
-	--do_connect()
 	print('Press ENTER to start the game.')
 	print('Player1 uses Z and S keys.')
 	print('Player2 uses Up and Down arrow keys.')
@@ -182,7 +180,7 @@ function right_loose()
 	left.points = left.points + 1
 end
 
-function update(dt)
+function drystal.update(dt)
 	dt = dt / 1000
 	if state == 'run' then
 		if right.ai then
@@ -250,7 +248,6 @@ function update_ball(dt, ball)
 end
 
 function update_timer(dt)
-	print(dt)
 	timer = timer + dt * 50
 	if timer > match_duration then
 		end_match()
@@ -272,7 +269,7 @@ function end_match()
 end
 
 ticks = 0
-function draw()
+function drystal.draw()
 	ticks = ticks + 1
 	drystal.set_color(GRAY)
 	drystal.set_alpha(255)
@@ -366,21 +363,12 @@ function draw_net_status()
 	font.draw(net_status.last_received, x, y+sy+1)
 end
 
-function do_connect()
-	net_status.info = 'connecting'
-	local ok = connect(net_status.hostname, net_status.port) 
-	if ok == 0 then
-		net_status.info = 'connection failed'
-	end
-end
-
-function key_press(key)
+function drystal.key_press(key)
 	if in_message then
 		if key == 'escape' then
 			in_message = false
 		end
 		if key == 'return' then
-			net.send(message)
 			in_message = false
 			if message == 'imanoob' then
 				cheat = true
@@ -427,44 +415,17 @@ function key_press(key)
 		in_message = true
 		message = ''
 	end
-	if key == 'r' then
-		--do_connect()
-	end
 	if key == 'escape' then
 		drystal.engine_stop()
 	end
 end
 
-function key_release(key)
+function drystal.key_release(key)
 	if key == 'up' or key == 'down' then
 		right.diry = 0
 	end
 	if key == 'z' or key == 's' then
 		left.diry = 0
 	end
-end
-
-function receive(str)
-	net_status.last_received = str
-	if state == 'run' then
-		if str == 'up' then
-			right.diry = -1
-		end
-		if str == 'down' then
-			right.diry = 1
-		end
-		if str == 'stop' then
-			right.diry = 0
-		end
-	end
-end
-
-function connected()
-	print('connected to localhost !')
-	net_status.info = 'connected'
-end
-function disconnected()
-	print('disconnected from the server !')
-	net_status.info = 'disconnected'
 end
 

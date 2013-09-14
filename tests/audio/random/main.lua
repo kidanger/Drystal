@@ -26,15 +26,15 @@ for i, s in pairs(sounds) do
 	end
 end
 
-function init()
+function drystal.init()
 	drystal.resize(400, 400)
 end
 
-function mouse_motion()
+function drystal.mouse_motion()
 	drystal.play_sound(loaded[math.random(#loaded)])
 end
 
-function key_press(k)
+function drystal.key_press(k)
 	if k == 'escape' or k == 'a' then
 		drystal.engine_stop()
 	end

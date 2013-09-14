@@ -15,7 +15,7 @@ local systems = {
 	particle.new_system(400, 300),
 }
 
-function init()
+function drystal.init()
 	drystal.resize(600, 600)
 	sys1:start()
 	for _, s in ipairs(systems) do
@@ -23,7 +23,7 @@ function init()
 	end
 end
 
-function update(dt)
+function drystal.update(dt)
 	dt = dt / 1000
 	if dt > .06 then
 		dt = .06
@@ -34,7 +34,7 @@ function update(dt)
 	end
 end
 
-function draw()
+function drystal.draw()
 	drystal.set_color(0, 0, 0)
 	drystal.draw_background()
 
@@ -46,7 +46,7 @@ function draw()
 	drystal.flip()
 end
 
-function mouse_motion(x, y, dx, dy)
+function drystal.mouse_motion(x, y, dx, dy)
 	sys1:set_position(x - scrollx, y - scrolly)
 	if scrolling then
 		scrollx = scrollx + dx
@@ -54,7 +54,7 @@ function mouse_motion(x, y, dx, dy)
 	end
 end
 
-function mouse_press(x, y, b)
+function drystal.mouse_press(x, y, b)
 	if b == 1 then
 		s = particle.new_system(x - scrollx, y - scrolly)
 		s:set_direction(0, math.pi*2)
@@ -73,13 +73,13 @@ function mouse_press(x, y, b)
 	end
 end
 
-function mouse_release(_, _, b)
+function drystal.mouse_release(_, _, b)
 	if b == 3 then
 		scrolling = false
 	end
 end
 
-function key_press(k)
+function drystal.key_press(k)
 	if k == 'space' then
 		sys1:set_running(not sys1:is_running())
 	end

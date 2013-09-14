@@ -16,6 +16,6 @@ else
 	print(data.text)
 end
 
-function init()
+function drystal.init()
 	drystal.engine_stop()
 end

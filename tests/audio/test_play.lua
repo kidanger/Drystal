@@ -2,7 +2,7 @@ local drystal = drystal
 
 piou = drystal.load_sound("test.wav")
 
-function init()
+function drystal.init()
 	print("press p to play a wav sound :)")
 	print("press 2 to play two times a wav sound with less volume :)")
 	print("press * to play indefinetly a wav sound :)")
@@ -15,7 +15,7 @@ function init()
 	drystal.set_resizable(true)
 end
 
-function key_press(key)
+function drystal.key_press(key)
 	if key == 'escape' then
 		drystal.engine_stop()
 	elseif key == 'p' then

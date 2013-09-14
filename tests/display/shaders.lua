@@ -39,16 +39,13 @@ local mx, my
 local width = 1024
 local height = 768
 
-function init()
+function drystal.init()
 	drystal.resize(width, height)
 	shader = drystal.new_shader(vert, fragcolor, fragtex)
 	assert(shader)
 end
 
-function update(dt)
-end
-
-function draw()
+function drystal.draw()
 	drystal.set_alpha(255)
 	drystal.set_color(0, 0, 0)
 	drystal.draw_background()
@@ -66,13 +63,13 @@ function draw()
 	drystal.flip()
 end
 
-function key_press(key)
+function drystal.key_press(key)
 	if key == 'a' then
 		drystal.engine_stop()
 	end
 end
 
-function mouse_motion(x, y)
+function drystal.mouse_motion(x, y)
 	mx, my = x, y
 	drystal.feed_shader(shader, 'mx', (mx/width) * 2 - 1)
 	drystal.feed_shader(shader, 'my', (1-my/height) * 2 - 1)

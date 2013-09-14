@@ -1,7 +1,7 @@
 local drystal = require 'drystal'
 local web = require 'web'
 
-function init()
+function drystal.init()
 	print(web.is_web())
 	web.wget('/src/log.hpp', 'lol', onsuccess, onerror)
 	web.wget('src/log.hpp', 'kk', onsuccess, onerror)
@@ -17,6 +17,6 @@ function onerror(filename)
 	print(filename, 'ko')
 end
 
-function update()
+function drystal.update()
 	drystal.engine_stop()
 end

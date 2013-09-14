@@ -1,6 +1,6 @@
 local drystal = require 'drystal'
 
-function init()
+function drystal.init()
 	drystal.resize(300, 200)
 	surf = drystal.load_surface('npot.png')
 	local w, h = drystal.surface_size(surf)
@@ -9,12 +9,12 @@ function init()
 	drystal.draw_from(surf)
 end
 
-function draw()
+function drystal.draw()
 	local sprite = {x=0,y=0,w=200,h=150}
 	drystal.draw_sprite(sprite, 0, 0)
 	drystal.flip()
 end
 
-function key_press()
+function drystal.key_press()
 	drystal.engine_stop()
 end

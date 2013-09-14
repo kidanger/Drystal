@@ -19,12 +19,12 @@ sys1:set_direction(- math.pi / 2 - math.pi/12, -math.pi/2 + math.pi/12)
 sys1:set_initial_velocity(100)
 sys1:set_initial_acceleration(0)
 
-function init()
+function drystal.init()
 	drystal.resize(600, 600)
 	sys1:start()
 end
 
-function update(dt)
+function drystal.update(dt)
 	dt = dt / 1000
 	if dt > .06 then
 		dt = .06
@@ -32,7 +32,7 @@ function update(dt)
 	sys1:update(dt)
 end
 
-function draw()
+function drystal.draw()
 	drystal.set_color(0, 0, 0)
 	drystal.draw_background()
 
@@ -41,7 +41,7 @@ function draw()
 	drystal.flip()
 end
 
-function key_press(k)
+function drystal.key_press(k)
 	if k == 'a' then
 		drystal.engine_stop()
 	end
