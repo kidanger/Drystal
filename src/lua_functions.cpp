@@ -271,8 +271,10 @@ static int mlua_resize(lua_State* L)
 	int w = lua_tointeger(L, 1);
 	int h = lua_tointeger(L, 2);
 	engine->display.resize(w, h);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, engine->lua.drystal_table_ref);
 	lua_pushlightuserdata(L, engine->display.get_screen());
-	lua_setglobal(L, "screen");
+	lua_setfield(L, -2, "screen");
+	lua_pop(L, 1);
 	return 0;
 }
 static int mlua_flip(lua_State*)
@@ -557,9 +559,6 @@ static int mlua_stop_music(lua_State* L)
 
 int luaopen_drystal(lua_State* L)
 {
-	//lua_pushlightuserdata(L, engine->display.get_screen());
-	//lua_setglobal(L, "screen");
-
 #define DECLARE_FUNCTION(name) {#name, mlua_##name}
 	static const luaL_Reg lib[] =
 	{
@@ -617,6 +616,9 @@ int luaopen_drystal(lua_State* L)
 
 	luaL_newlib(L, lib);
 	luaL_setfuncs(L, lib, 0);
+
+	lua_pushlightuserdata(L, engine->display.get_screen());
+	lua_setfield(L, -2, "screen");
 
 	lua_pushvalue(L, -1);
 	engine->lua.drystal_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
