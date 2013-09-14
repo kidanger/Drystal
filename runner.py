@@ -212,6 +212,7 @@ else:
             else:
                 print(W, '- touch', main, N)
                 os.utime(main, None)
+        return has_copied_some_files
 
     copy_files()
 
@@ -246,7 +247,11 @@ else:
             import time
             try:
                 while True:
-                    copy_files(verbose=False)
+                    c = copy_files(verbose=False)
+                    if c:
+                        cmd = 'pkill -sigusr1 drystal'
+                        print(I, cmd, N)
+                        os.system(cmd)
                     time.sleep(1)
             except KeyboardInterrupt:
                 print(I, 'kill drystal', N)

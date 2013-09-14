@@ -14,8 +14,6 @@
 
 #ifdef EMSCRIPTEN
 #include "emscripten.h"
-#else
-#include "file.hpp"
 #endif
 
 // needed to call engine->update from emscripten library
@@ -103,11 +101,6 @@ void Engine::update()
 		return;
 
 	AT(event)
-
-#ifndef EMSCRIPTEN
-	if (tick % 30 == 0)
-		lua.reload_code();
-#endif
 
 	double dt = (get_now() - last_update) / 1000;
 	last_update = get_now();

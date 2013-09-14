@@ -1,9 +1,5 @@
 #include <lua.hpp>
 
-#ifndef EMSCRIPTEN
-#include "file.hpp"
-#endif
-
 #include "engine.hpp"
 
 // used to access some engine's fields from lua callbacks
@@ -14,9 +10,6 @@ static int luaopen_drystal(lua_State*); // defined at the end of this file
 LuaFunctions::LuaFunctions(Engine& eng, const char *filename) :
 	L(luaL_newstate()),
 	filename(filename)
-#ifndef EMSCRIPTEN
-	, last_load(0)
-#endif
 {
 	engine = &eng;
 	luaL_openlibs(L);
@@ -100,11 +93,6 @@ void LuaFunctions::remove_userpackages(lua_State* L)
 
 bool LuaFunctions::load_code()
 {
-#ifndef EMSCRIPTEN
-	time_t last = last_modified(filename);
-	last_load = last;
-#endif
-
 	if (luaL_dofile(L, filename)) {
 		fprintf(stderr, "[ERROR] cannot run script: %s\n", lua_tostring(L, -1));
 		return false;
@@ -122,20 +110,10 @@ bool LuaFunctions::load_code()
 
 bool LuaFunctions::reload_code()
 {
-#ifndef EMSCRIPTEN
-	time_t last = last_modified(filename);
-	if (last == 0) {
-		perror("can't reload");
-		return false;
-	}
-	if (last_load < last) {
-		remove_userpackages(L);
+	remove_userpackages(L);
 
-		printf("Reloading code...\n");
-		return load_code();
-	}
-#endif
-	return false;
+	printf("Reloading code...\n");
+	return load_code();
 }
 
 void LuaFunctions::call_mouse_motion(int mx, int my, int dx, int dy) const

@@ -34,9 +34,6 @@ class LuaFunctions
 
 	private:
 		const char* filename;
-#ifndef EMSCRIPTEN
-		time_t last_load;
-#endif
 
 		bool get_function(lua_State*, const char* name) const;
 		void remove_userpackages(lua_State* L);

@@ -1,4 +1,16 @@
+#ifndef EMSCRIPTEN
+#include <signal.h>
+#endif
+
 #include "engine.hpp"
+
+#ifndef EMSCRIPTEN
+Engine* engine;
+void reload(int)
+{
+	engine->lua.reload_code();
+}
+#endif
 
 int main(int argc, const char* argv[])
 {
@@ -8,6 +20,13 @@ int main(int argc, const char* argv[])
 	}
 
 	Engine e(filename, 60);
+
+#ifndef EMSCRIPTEN
+	engine = &e;
+	signal(SIGUSR1, reload);
+#endif
+
 	e.loop();
+
 	return 0;
 }
