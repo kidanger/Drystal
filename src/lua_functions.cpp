@@ -226,6 +226,35 @@ static int mlua_set_line_width(lua_State* L)
 	return 0;
 }
 
+static int mlua_camera__newindex(lua_State* L)
+{
+	const char * name = luaL_checkstring(L, 2);
+	if (!strcmp(name, "x")) {
+		lua_Number dx = luaL_checknumber(L, 3);
+		engine->display.set_camera_position(dx, engine->display.get_camera().dy);
+	} else if (!strcmp(name, "y")) {
+		lua_Number dy = luaL_checknumber(L, 3);
+		engine->display.set_camera_position(engine->display.get_camera().dx, dy);
+	} else {
+		lua_rawset(L, 1);
+	}
+	return 0;
+}
+static int mlua_camera__index(lua_State* L)
+{
+	const char * name = luaL_checkstring(L, 2);
+	if (!strcmp(name, "x")) {
+		lua_Number dx = engine->display.get_camera().dx;
+		lua_pushnumber(L, dx);
+		return 1;
+	} else if (!strcmp(name, "y")) {
+		lua_Number dx = engine->display.get_camera().dx;
+		lua_pushnumber(L, dx);
+		return 1;
+	}
+	return 0;
+}
+
 static int mlua_show_cursor(lua_State* L)
 {
 	int show = lua_toboolean(L, 1);
@@ -595,11 +624,27 @@ int luaopen_drystal(lua_State* L)
 	luaL_newlib(L, lib);
 	luaL_setfuncs(L, lib, 0);
 
-	lua_pushlightuserdata(L, engine->display.get_screen());
-	lua_setfield(L, -2, "screen");
+	{ // screen
+		lua_pushlightuserdata(L, engine->display.get_screen());
+		lua_setfield(L, -2, "screen");
+		lua_pushvalue(L, -1);
+		engine->lua.drystal_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+	}
 
-	lua_pushvalue(L, -1);
-	engine->lua.drystal_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+	{ // camera
+		lua_newtable(L);
+		luaL_newmetatable(L, "__camera_class");
+		lua_pushcfunction(L, mlua_camera__newindex);
+		lua_setfield(L, -2, "__newindex");
+		lua_pushcfunction(L, mlua_camera__index);
+		lua_setfield(L, -2, "__index");
+		lua_setmetatable(L, -2);
+
+		// glue it on drystal table
+		lua_setfield(L, -2, "camera");
+		lua_pushvalue(L, -1);
+		engine->lua.drystal_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+	}
 
 	return 1;
 }

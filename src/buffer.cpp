@@ -9,6 +9,7 @@
 #include "display.hpp"
 #include "buffer.hpp"
 
+
 Buffer::Buffer(unsigned int size) :
 	size(size),
 	positions(new GLfloat[size * 2]),
@@ -54,6 +55,11 @@ Buffer::~Buffer()
 	delete[] colors;
 	delete[] tex_coords;
 	delete[] point_sizes;
+}
+
+void Buffer::use_camera(const Camera* camera)
+{
+	this->camera = camera;
 }
 
 void Buffer::use_shader(Shader* shader)
@@ -175,6 +181,8 @@ void Buffer::draw(float dx, float dy)
 		glVertexAttribPointer(ATTR_POINTSIZE_INDEX, 1, GL_FLOAT, GL_FALSE, 0, nullptr);
 	}
 
+	dx += camera->dx_transformed;
+	dy += camera->dy_transformed;
 	glUniform1f(glGetUniformLocation(prog, "dx"), dx);
 	glUniform1f(glGetUniformLocation(prog, "dy"), dy);
 

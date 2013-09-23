@@ -65,7 +65,6 @@ precision mediump float;
 #endif
 
 uniform sampler2D tex;
-uniform int useTex; // TODO: replace it with two fragment shaders
 
 varying vec4 fColor;
 varying vec2 fTexCoord;
@@ -101,6 +100,8 @@ Display::Display()
 		fprintf(stderr, "[ERROR] cannot initialize SDL\n");
 		return;
 	}
+
+	default_buffer.use_camera(&camera);
 
 	available = true;
 }
@@ -251,6 +252,23 @@ void Display::set_point_size(float size)
 void Display::set_line_width(float width)
 {
 	glLineWidth(width);
+}
+
+void Display::set_camera_position(float dx, float dy)
+{
+	assert(current);
+
+	current_buffer->assert_empty();
+
+	camera.dx = dx;
+	camera.dy = dy;
+
+	float ddx = 2 * (- dx / current->w);
+	float ddy = 2 * (- dy / current->h);
+	if (current == screen)
+		ddy *= -1.0;
+	camera.dx_transformed = ddx;
+	camera.dy_transformed = ddy;
 }
 
 void Display::draw_from(const Surface* surf)
@@ -682,6 +700,7 @@ Buffer* Display::new_buffer(unsigned int size)
 {
 	Buffer* buffer = new Buffer(size);
 	buffer->reallocate();
+	buffer->use_camera(&camera);
 	return buffer;
 }
 void Display::use_buffer(Buffer* buffer)

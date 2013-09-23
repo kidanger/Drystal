@@ -31,6 +31,16 @@ struct Shader
 	GLuint frag_tex;
 };
 
+struct Camera
+{
+	float dx = 0;
+	float dy = 0;
+	float dx_transformed = 0;
+	float dy_transformed = 0;
+	float zoom;
+	float angle;
+};
+
 class Display
 {
 	private:
@@ -53,7 +63,11 @@ class Display
 		float g;
 		float b;
 		float alpha;
+
+		Camera camera;
+
 		float point_size;
+
 		bool available;
 
 		inline void convert_coords(int x, int y, float *dx, float *dy) {
@@ -86,6 +100,9 @@ class Display
 		void set_point_size(float size);
 		void get_point_size(float *size) { *size = this->point_size; };
 		void set_line_width(float width);
+
+		void set_camera_position(float dx, float dy);
+		const Camera& get_camera() { return camera; };
 
 		Surface* get_screen() const;
 		Surface* create_surface(int w, int h, int texw, int texh, unsigned char* pixels) const;
