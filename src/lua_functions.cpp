@@ -235,6 +235,12 @@ static int mlua_camera__newindex(lua_State* L)
 	} else if (!strcmp(name, "y")) {
 		lua_Number dy = luaL_checknumber(L, 3);
 		engine->display.set_camera_position(engine->display.get_camera().dx, dy);
+	} else if (!strcmp(name, "angle")) {
+		lua_Number angle = luaL_checknumber(L, 3);
+		engine->display.set_camera_angle(angle);
+	} else if (!strcmp(name, "zoom")) {
+		lua_Number zoom = luaL_checknumber(L, 3);
+		engine->display.set_camera_zoom(zoom);
 	} else {
 		lua_rawset(L, 1);
 	}
@@ -248,10 +254,22 @@ static int mlua_camera__index(lua_State* L)
 		lua_pushnumber(L, dx);
 		return 1;
 	} else if (!strcmp(name, "y")) {
-		lua_Number dx = engine->display.get_camera().dx;
-		lua_pushnumber(L, dx);
+		lua_Number dy = engine->display.get_camera().dx;
+		lua_pushnumber(L, dy);
+		return 1;
+	} else if (!strcmp(name, "angle")) {
+		lua_Number angle = engine->display.get_camera().angle;
+		lua_pushnumber(L, angle);
+	} else if (!strcmp(name, "zoom")) {
+		lua_Number zoom = engine->display.get_camera().zoom;
+		lua_pushnumber(L, zoom);
 		return 1;
 	}
+	return 0;
+}
+static int mlua_camera_reset(lua_State*)
+{
+	engine->display.reset_camera();
 	return 0;
 }
 
@@ -639,6 +657,8 @@ int luaopen_drystal(lua_State* L)
 		lua_pushcfunction(L, mlua_camera__index);
 		lua_setfield(L, -2, "__index");
 		lua_setmetatable(L, -2);
+		lua_pushcfunction(L, mlua_camera_reset);
+		lua_setfield(L, -2, "reset");
 
 		// glue it on drystal table
 		lua_setfield(L, -2, "camera");

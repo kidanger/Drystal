@@ -37,8 +37,9 @@ struct Camera
 	float dy = 0;
 	float dx_transformed = 0;
 	float dy_transformed = 0;
-	float zoom;
-	float angle;
+	float zoom = 1;
+	float angle = 0;
+	float matrix[4];
 };
 
 class Display
@@ -81,6 +82,8 @@ class Display
 			*dy = (float) y / current_from->texh;
 		}
 
+		void update_camera_matrix();
+
 		Shader* create_default_shader();
 
 	public:
@@ -101,7 +104,10 @@ class Display
 		void get_point_size(float *size) { *size = this->point_size; };
 		void set_line_width(float width);
 
+		void reset_camera();
 		void set_camera_position(float dx, float dy);
+		void set_camera_angle(float angle);
+		void set_camera_zoom(float zoom);
 		const Camera& get_camera() { return camera; };
 
 		Surface* get_screen() const;

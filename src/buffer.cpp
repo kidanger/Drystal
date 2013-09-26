@@ -185,6 +185,9 @@ void Buffer::draw(float dx, float dy)
 	dy += camera->dy_transformed;
 	glUniform1f(glGetUniformLocation(prog, "dx"), dx);
 	glUniform1f(glGetUniformLocation(prog, "dy"), dy);
+	glUniform1f(glGetUniformLocation(prog, "zoom"), camera->zoom);
+	glUniformMatrix2fv(glGetUniformLocation(prog, "rotationMatrix"),
+						1, GL_FALSE, camera->matrix);
 
 	GLint draw_type;
 	if (type == POINT_BUFFER) {

@@ -44,7 +44,7 @@ def copy_files_maybe(from_directory, get_subdir=False, verbose=True):
     else:
         _print = lambda *args, **kargs: None
 
-    _print(G, '- processing', from_directory)
+    _print(G, '- processing', from_directory, N)
     did_copy = False
     for f in os.listdir(from_directory):
         if f.startswith('.'):
@@ -95,7 +95,7 @@ def load_config(from_directory):
         SUBDIRS += 'subdirs' in config and config['subdirs'] or []
 
 def move_wget_files(from_directory, destination):
-    print(G, '- processing for wget: ', from_directory, 'to', destination)
+    print(G, '- processing for wget: ', from_directory, 'to', destination, N)
     if not os.path.exists(destination):
         os.mkdir(destination)
     for f in os.listdir(from_directory):

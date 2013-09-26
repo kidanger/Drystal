@@ -28,10 +28,10 @@ Engine::Engine(const char* filename, int target_fps) :
 	target_fps(target_fps),
 	run(true),
 	last_update(get_now()),
-	event(*this),
-	lua(*this, filename),
 	update_activated(true),
-	draw_activated(true)
+	draw_activated(true),
+	event(*this),
+	lua(*this, filename)
 {
 	engine = this;
 #ifdef STATS

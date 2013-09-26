@@ -22,6 +22,7 @@ end
 function mouse_motion(x, y)
 	drystal.camera.x = x
 	drystal.camera.y = y
+	drystal.camera.angle = math.random()*math.pi*2
 	print(drystal.camera.x, drystal.camera.y)
 end
 

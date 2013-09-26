@@ -35,11 +35,15 @@ varying vec2 fTexCoord;
 
 uniform float dx;
 uniform float dy;
+uniform float zoom;
+uniform mat2 rotationMatrix;
+mat2 cameraMatrix = rotationMatrix * zoom;
 
 void main()
 {
-	gl_PointSize = pointSize;
-	gl_Position = vec4(position - vec2(dx, dy), 0.0, 1.0);
+	gl_PointSize = pointSize * zoom;
+	vec2 position2d = cameraMatrix  * (position - vec2(dx, dy));
+	gl_Position = vec4(position2d, 0.0, 1.0);
 	fColor = color;
 	fTexCoord = texCoord;
 }
@@ -254,6 +258,17 @@ void Display::set_line_width(float width)
 	glLineWidth(width);
 }
 
+void Display::reset_camera()
+{
+	current_buffer->assert_empty();
+
+	camera.dx = camera.dy = 0;
+	camera.dx_transformed = camera.dy_transformed = 0;
+	camera.angle = 0;
+	camera.zoom = 1;
+	update_camera_matrix();
+}
+
 void Display::set_camera_position(float dx, float dy)
 {
 	assert(current);
@@ -269,6 +284,35 @@ void Display::set_camera_position(float dx, float dy)
 		ddy *= -1.0;
 	camera.dx_transformed = ddx;
 	camera.dy_transformed = ddy;
+}
+
+void Display::set_camera_angle(float angle)
+{
+	current_buffer->assert_empty();
+
+	camera.angle = angle;
+
+	update_camera_matrix();
+}
+
+void Display::set_camera_zoom(float zoom)
+{
+	current_buffer->assert_empty();
+
+	camera.zoom = zoom;
+}
+
+void Display::update_camera_matrix()
+{
+	assert(current);
+
+	float angle = camera.angle;
+
+	float ratio = (float) current->w / current->h;
+	camera.matrix[0] = cos(angle);
+	camera.matrix[1] = sin(angle) * ratio;
+	camera.matrix[2] = -sin(angle) / ratio;
+	camera.matrix[3] = cos(angle);
 }
 
 void Display::draw_from(const Surface* surf)
@@ -294,6 +338,7 @@ void Display::draw_on(const Surface* surf)
 		int w = surf->w;
 		int h = surf->h;
 		glViewport(0, 0, w, h);
+		update_camera_matrix();
 	}
 }
 
