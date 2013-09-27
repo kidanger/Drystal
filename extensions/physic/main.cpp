@@ -158,6 +158,51 @@ int on_collision(lua_State* L)
 	return 0;
 }
 
+class CustomRayCastCallback : public b2RayCastCallback
+{
+public:
+	lua_State* L;
+
+	virtual float32 ReportFixture(b2Fixture* fixture, const b2Vec2& point,
+								  const b2Vec2& normal, float32 fraction)
+	{
+		this->fixture = fixture;
+		this->point = point;
+		this->normal = normal;
+		this->fraction = fraction;
+		return fraction;
+	}
+
+	b2Fixture* fixture = nullptr;
+	b2Vec2 point;
+	b2Vec2 normal;
+	float32 fraction;
+};
+
+int raycast(lua_State* L)
+{
+	assert(world);
+
+	lua_Number x1 = luaL_checknumber(L, 1);
+	lua_Number y1 = luaL_checknumber(L, 2);
+	lua_Number x2 = luaL_checknumber(L, 3);
+	lua_Number y2 = luaL_checknumber(L, 4);
+
+	CustomRayCastCallback callback;
+	callback.L = L;
+	world->RayCast(&callback, b2Vec2(x1, y1), b2Vec2(x2, y2));
+
+	if (callback.fixture) {
+		int ref = (int) (size_t) callback.fixture->GetBody()->GetUserData();
+		lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
+		lua_pushnumber(L, callback.point.x);
+		lua_pushnumber(L, callback.point.y);
+		return 3;
+	} else {
+		return 0;
+	}
+}
+
 // Shape methods
 
 int new_shape(lua_State* L)
@@ -589,6 +634,8 @@ static const luaL_Reg lib[] =
 
 	DECLARE_FUNCTION(update),
 	DECLARE_FUNCTION(on_collision),
+
+	DECLARE_FUNCTION(raycast),
 
 	{NULL, NULL}
 };
