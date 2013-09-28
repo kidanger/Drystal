@@ -64,7 +64,10 @@ def copy_files_maybe(from_directory, get_subdir=False, verbose=True):
                     _print(I, '    ignoring ext', f)
             if os.path.isdir(fullpath) and (get_subdir or f in SUBDIRS):
                 _print(G, '    copying dir\t', f)
-                shutil.copytree(fullpath, os.path.join(DESTINATION_DIRECTORY, f))
+                newdir = os.path.join(DESTINATION_DIRECTORY, f)
+                if os.path.exists(newdir):
+                    shutil.rmtree(newdir)
+                shutil.copytree(fullpath, newdir)
                 did_copy = True
         else:
             _print(I, '    already\t', f)
