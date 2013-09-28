@@ -124,13 +124,6 @@ function drystal.draw_circle(cx, cy, r)
 	cx = cx + ox;
 	cy = cy + oy;
 
-	local width, height = drystal.surface_size(current_on or drystal.screen)
-	if cx + r < 0 or cx - r > width then
-		return
-	end
-	if cy + r < 0 or cy - r > height then
-		return
-	end
 	-- http://slabode.exofire.net/circle_draw.shtml
 
 	local num_segments = math.floor(10*math.sqrt(r))
