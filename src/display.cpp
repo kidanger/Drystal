@@ -258,6 +258,28 @@ void Display::set_line_width(float width)
 	glLineWidth(width);
 }
 
+void Display::set_blend_mode(BlendMode mode)
+{
+	current_buffer->assert_empty();
+
+	switch (mode) {
+		case ALPHA:
+			glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendEquation(GL_FUNC_ADD);
+			break;
+		case MULT:
+			glBlendFunc(GL_DST_COLOR, GL_ZERO);
+			glBlendEquation(GL_FUNC_ADD);
+			break;
+		case ADD:
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+			glBlendEquation(GL_FUNC_ADD);
+			break;
+		case EXPERIMENTAL:
+			break;
+	}
+}
+
 void Display::reset_camera()
 {
 	current_buffer->assert_empty();

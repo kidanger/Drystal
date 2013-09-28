@@ -225,6 +225,12 @@ static int mlua_set_line_width(lua_State* L)
 	engine->display.set_line_width(width);
 	return 0;
 }
+static int mlua_set_blend_mode(lua_State* L)
+{
+	BlendMode mode = static_cast<BlendMode>(luaL_checknumber(L, 1));
+	engine->display.set_blend_mode(mode);
+	return 0;
+}
 
 static int mlua_camera__newindex(lua_State* L)
 {
@@ -615,6 +621,7 @@ int luaopen_drystal(lua_State* L)
 		DECLARE_FUNCTION(set_alpha),
 		DECLARE_FUNCTION(set_point_size),
 		DECLARE_FUNCTION(set_line_width),
+		DECLARE_FUNCTION(set_blend_mode),
 
 		DECLARE_FUNCTION(new_shader),
 		DECLARE_FUNCTION(use_shader),
@@ -646,7 +653,21 @@ int luaopen_drystal(lua_State* L)
 		lua_pushlightuserdata(L, engine->display.get_screen());
 		lua_setfield(L, -2, "screen");
 		lua_pushvalue(L, -1);
-		engine->lua.drystal_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+	}
+
+	{ // blend modes
+		lua_pushnumber(L, DEFAULT);
+		lua_setfield(L, -2, "BLEND_DEFAULT");
+		lua_pushvalue(L, -1);
+		lua_pushnumber(L, ALPHA);
+		lua_setfield(L, -2, "BLEND_ALPHA");
+		lua_pushvalue(L, -1);
+		lua_pushnumber(L, ADD);
+		lua_setfield(L, -2, "BLEND_ADD");
+		lua_pushvalue(L, -1);
+		lua_pushnumber(L, MULT);
+		lua_setfield(L, -2, "BLEND_MULT");
+		lua_pushvalue(L, -1);
 	}
 
 	{ // camera
@@ -663,8 +684,9 @@ int luaopen_drystal(lua_State* L)
 		// glue it on drystal table
 		lua_setfield(L, -2, "camera");
 		lua_pushvalue(L, -1);
-		engine->lua.drystal_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 	}
+
+	engine->lua.drystal_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 
 	return 1;
 }

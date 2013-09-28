@@ -42,6 +42,17 @@ struct Camera
 	float matrix[4];
 };
 
+enum BlendMode
+{
+	DEFAULT=0,
+	ALPHA=0,
+	ADD,
+	MULT,
+#if 1
+	EXPERIMENTAL,
+#endif
+};
+
 class Display
 {
 	private:
@@ -103,6 +114,7 @@ class Display
 		void set_point_size(float size);
 		void get_point_size(float *size) { *size = this->point_size; };
 		void set_line_width(float width);
+		void set_blend_mode(BlendMode mode);
 
 		void reset_camera();
 		void set_camera_position(float dx, float dy);
