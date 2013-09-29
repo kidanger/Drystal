@@ -268,7 +268,7 @@ void Display::set_blend_mode(BlendMode mode)
 			glBlendEquation(GL_FUNC_ADD);
 			break;
 		case MULT:
-			glBlendFunc(GL_DST_COLOR, GL_ZERO);
+			glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
 			break;
 		case ADD:
@@ -293,19 +293,12 @@ void Display::reset_camera()
 
 void Display::set_camera_position(float dx, float dy)
 {
-	assert(current);
-
 	current_buffer->assert_empty();
 
 	camera.dx = dx;
 	camera.dy = dy;
 
-	float ddx = 2 * (- dx / current->w);
-	float ddy = 2 * (- dy / current->h);
-	if (current == screen)
-		ddy *= -1.0;
-	camera.dx_transformed = ddx;
-	camera.dy_transformed = ddy;
+	update_camera_matrix();
 }
 
 void Display::set_camera_angle(float angle)
@@ -335,6 +328,13 @@ void Display::update_camera_matrix()
 	camera.matrix[1] = sin(angle) * ratio;
 	camera.matrix[2] = -sin(angle) / ratio;
 	camera.matrix[3] = cos(angle);
+
+	float ddx = 2 * (- camera.dx / current->w);
+	float ddy = 2 * (- camera.dy / current->h);
+	if (current == screen)
+		ddy *= -1.0;
+	camera.dx_transformed = ddx;
+	camera.dy_transformed = ddy;
 }
 
 void Display::draw_from(const Surface* surf)
@@ -378,7 +378,7 @@ Surface* Display::create_surface(int w, int h, int texw, int texh, unsigned char
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texw, texh, 0,
 				 GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 	GLDEBUG();
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // TODO: allow toggle to GL_NEAREST
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
