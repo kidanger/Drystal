@@ -162,21 +162,37 @@ class CustomRayCastCallback : public b2RayCastCallback
 {
 public:
 	lua_State* L;
+	int ref;
 
 	virtual float32 ReportFixture(b2Fixture* fixture, const b2Vec2& point,
 								  const b2Vec2& normal, float32 fraction)
 	{
-		this->fixture = fixture;
-		this->point = point;
-		this->normal = normal;
-		this->fraction = fraction;
-		return fraction;
+		(void) normal;
+		bool save_data = true;
+		float32 new_fraction = fraction;
+
+		if (ref != LUA_REFNIL) {
+			int refbody = (int) (size_t) fixture->GetBody()->GetUserData();
+			lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
+			lua_rawgeti(L, LUA_REGISTRYINDEX, refbody);
+			lua_pushnumber(L, fraction);
+			if (lua_pcall(L, 2, 2, 0)) {
+				luaL_error(L, "error calling raycast callback: %s", lua_tostring(L, -1));
+			}
+			new_fraction = luaL_checknumber(L, -2);
+			save_data = lua_toboolean(L, -1);
+		}
+
+		if (save_data) {
+			this->fixture = fixture;
+			this->point = point;
+		}
+
+		return new_fraction;
 	}
 
 	b2Fixture* fixture = nullptr;
 	b2Vec2 point;
-	b2Vec2 normal;
-	float32 fraction;
 };
 
 int raycast(lua_State* L)
@@ -187,10 +203,17 @@ int raycast(lua_State* L)
 	lua_Number y1 = luaL_checknumber(L, 2);
 	lua_Number x2 = luaL_checknumber(L, 3);
 	lua_Number y2 = luaL_checknumber(L, 4);
+	int callback_ref = LUA_REFNIL;
+	if (lua_gettop(L) == 5) {
+		lua_pushvalue(L, 5);
+		callback_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+	}
 
 	CustomRayCastCallback callback;
 	callback.L = L;
+	callback.ref = callback_ref;
 	world->RayCast(&callback, b2Vec2(x1, y1), b2Vec2(x2, y2));
+	luaL_unref(L, LUA_REGISTRYINDEX, callback_ref);
 
 	if (callback.fixture) {
 		int ref = (int) (size_t) callback.fixture->GetBody()->GetUserData();
@@ -228,8 +251,12 @@ int new_shape(lua_State* L)
 		fixtureDef->shape = polygon;
 	} else if (!strcmp(type, "circle")) {
 		b2CircleShape* circle = new b2CircleShape;
-		lua_Number radius = luaL_checknumber(L, 2);
-		circle->m_radius = radius;
+		circle->m_radius = luaL_checknumber(L, 2);
+		if (lua_gettop(L) > 2) {
+			lua_Number dx = luaL_checknumber(L, 3);
+			lua_Number dy = luaL_checknumber(L, 4);
+			circle->m_p.Set(dx, dy);
+		}
 		fixtureDef->shape = circle;
 	} else {
 		assert(false);
@@ -253,14 +280,14 @@ static b2FixtureDef* luam_tofixture(lua_State* L, int index)
 }
 
 #define SHAPE_GETSET_SOME_VALUE(value) \
-	int set_##value(lua_State* L) \
+	int shape_set_##value(lua_State* L) \
 	{ \
 		b2FixtureDef* fixtureDef = luam_tofixture(L, 1); \
 		lua_Number value = luaL_checknumber(L, 2); \
 		fixtureDef->value = value; \
 		return 0; \
 	} \
-	int get_##value(lua_State* L) \
+	int shape_get_##value(lua_State* L) \
 	{ \
 		b2FixtureDef* fixtureDef = luam_tofixture(L, 1); \
 		lua_pushnumber(L, fixtureDef->value); \
@@ -270,7 +297,7 @@ SHAPE_GETSET_SOME_VALUE(density)
 SHAPE_GETSET_SOME_VALUE(restitution)
 SHAPE_GETSET_SOME_VALUE(friction)
 
-int set_sensor(lua_State* L)
+int shape_set_sensor(lua_State* L)
 {
 	b2FixtureDef* fixtureDef = luam_tofixture(L, 1);
 	bool sensor = lua_toboolean(L, 2);
@@ -286,11 +313,14 @@ int shape_gc(lua_State* L)
 	return 0;
 }
 
+#define DECLARE_SHAPE_FUNCTION(name) {#name, shape_##name}
+#define DECLARE_SHAPE_GETSET(x) DECLARE_SHAPE_FUNCTION(set_##x), DECLARE_SHAPE_FUNCTION(get_##x)
+
 static const luaL_Reg __shape_class[] = {
-	DECLARE_GETSET(density),
-	DECLARE_GETSET(restitution),
-	DECLARE_GETSET(friction),
-	DECLARE_FUNCTION(set_sensor),
+	DECLARE_SHAPE_GETSET(density),
+	DECLARE_SHAPE_GETSET(restitution),
+	DECLARE_SHAPE_GETSET(friction),
+	DECLARE_SHAPE_FUNCTION(set_sensor),
 
 	{"__gc", shape_gc},
 	{NULL, NULL},
@@ -303,11 +333,15 @@ int new_body(lua_State* L)
 {
 	assert(world);
 
-	b2FixtureDef* fixtureDef = luam_tofixture(L, 1);
-	bool dynamic = lua_toboolean(L, 2);
+	bool dynamic = lua_toboolean(L, 1);
 
-	assert(fixtureDef);
-	assert(fixtureDef->shape);
+	int number_of_shapes = lua_gettop(L) - 1;
+	b2FixtureDef* fixtureDefs[number_of_shapes];
+	for (int i = 0; i < number_of_shapes; i++) {
+		fixtureDefs[i] = luam_tofixture(L, i + 1 + 1);
+		assert(fixtureDefs[i]);
+		assert(fixtureDefs[i]->shape);
+	}
 
 	b2BodyDef def;
 	if (dynamic) {
@@ -315,7 +349,9 @@ int new_body(lua_State* L)
 	}
 
 	b2Body* body = world->CreateBody(&def);
-	body->CreateFixture(fixtureDef);
+	for (int i = 0; i < number_of_shapes; i++) {
+		body->CreateFixture(fixtureDefs[i]);
+	}
 
 	lua_newtable(L);
 	lua_pushlightuserdata(L, body);
