@@ -231,6 +231,12 @@ static int mlua_set_blend_mode(lua_State* L)
 	engine->display.set_blend_mode(mode);
 	return 0;
 }
+static int mlua_set_filter_mode(lua_State* L)
+{
+	FilterMode mode = static_cast<FilterMode>(luaL_checknumber(L, 1));
+	engine->display.set_filter_mode(mode);
+	return 0;
+}
 
 static int mlua_camera__newindex(lua_State* L)
 {
@@ -622,6 +628,7 @@ int luaopen_drystal(lua_State* L)
 		DECLARE_FUNCTION(set_point_size),
 		DECLARE_FUNCTION(set_line_width),
 		DECLARE_FUNCTION(set_blend_mode),
+		DECLARE_FUNCTION(set_filter_mode),
 
 		DECLARE_FUNCTION(new_shader),
 		DECLARE_FUNCTION(use_shader),
@@ -667,6 +674,14 @@ int luaopen_drystal(lua_State* L)
 		lua_pushvalue(L, -1);
 		lua_pushnumber(L, MULT);
 		lua_setfield(L, -2, "BLEND_MULT");
+		lua_pushvalue(L, -1);
+	}
+	{ // filter modes
+		lua_pushnumber(L, LINEAR);
+		lua_setfield(L, -2, "FILTER_LINEAR");
+		lua_pushvalue(L, -1);
+		lua_pushnumber(L, NEAREST);
+		lua_setfield(L, -2, "FILTER_NEAREST");
 		lua_pushvalue(L, -1);
 	}
 

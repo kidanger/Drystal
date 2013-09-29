@@ -279,6 +279,10 @@ void Display::set_blend_mode(BlendMode mode)
 			break;
 	}
 }
+void Display::set_filter_mode(FilterMode mode)
+{
+	filter_mode = mode;
+}
 
 void Display::reset_camera()
 {
@@ -378,8 +382,8 @@ Surface* Display::create_surface(int w, int h, int texw, int texh, unsigned char
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texw, texh, 0,
 				 GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 	GLDEBUG();
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // TODO: allow toggle to GL_NEAREST
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter_mode);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter_mode);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 

@@ -53,6 +53,12 @@ enum BlendMode
 #endif
 };
 
+enum FilterMode
+{
+	NEAREST=GL_NEAREST,
+	LINEAR=GL_LINEAR,
+};
+
 class Display
 {
 	private:
@@ -68,6 +74,7 @@ class Display
 
 		const Surface * current;
 		const Surface * current_from;
+		FilterMode filter_mode = LINEAR;
 
 		Buffer * current_buffer;
 
@@ -115,6 +122,7 @@ class Display
 		void get_point_size(float *size) { *size = this->point_size; };
 		void set_line_width(float width);
 		void set_blend_mode(BlendMode mode);
+		void set_filter_mode(FilterMode mode);
 
 		void reset_camera();
 		void set_camera_position(float dx, float dy);
