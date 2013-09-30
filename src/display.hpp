@@ -89,13 +89,13 @@ class Display
 
 		bool available;
 
-		inline void convert_coords(int x, int y, float *dx, float *dy) {
+		inline void convert_coords(float x, float y, float *dx, float *dy) {
 			*dx = (2.0 * x / current->w) - 1;
 			*dy = (2.0 * y / current->h) - 1;
 			if (current == screen)
 				*dy *= -1.0;
 		}
-		inline void convert_texcoords(int x, int y, float *dx, float *dy) {
+		inline void convert_texcoords(float x, float y, float *dx, float *dy) {
 			*dx = (float) x / current_from->texw;
 			*dy = (float) y / current_from->texh;
 		}
@@ -143,12 +143,14 @@ class Display
 		const Surface* get_draw_from() const { return current_from; };
 
 		void draw_background() const;
-		void draw_point(int x, int y);
-		void draw_point_tex(int xi, int yi, int xd, int yd);
-		void draw_line(int x1, int y1, int x2, int y2);
-		void draw_triangle(int x1, int y1, int x2, int y2, int x3, int y3);
-		void draw_surface(int, int, int, int, int, int, int, int,
-							int, int, int, int, int, int, int, int);
+		void draw_point(float x, float y);
+		void draw_point_tex(float xi, float yi, float xd, float yd);
+		void draw_line(float x1, float y1, float x2, float y2);
+		void draw_triangle(float x1, float y1, float x2, float y2, float x3, float y3);
+		void draw_surface(float, float, float, float, float, float,
+					   float, float, float, float, float, float);
+		void draw_quad(float, float, float, float, float, float, float, float,
+					   float, float, float, float, float, float, float, float);
 
 		Shader* new_shader(const char* strvert, const char* strfragcolor, const char* strfragtex);
 		void use_shader(Shader*);

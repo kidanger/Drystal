@@ -408,24 +408,42 @@ static int mlua_draw_triangle(lua_State* L)
 }
 static int mlua_draw_surface(lua_State* L)
 {
-	lua_Number i1 = lua_tonumber(L, -16);
-	lua_Number i2 = lua_tonumber(L, -15);
-	lua_Number i3 = lua_tonumber(L, -14);
-	lua_Number i4 = lua_tonumber(L, -13);
-	lua_Number i5 = lua_tonumber(L, -12);
-	lua_Number i6 = lua_tonumber(L, -11);
-	lua_Number i7 = lua_tonumber(L, -10);
-	lua_Number i8 = lua_tonumber(L, -9);
-	lua_Number o1 = lua_tonumber(L, -8);
-	lua_Number o2 = lua_tonumber(L, -7);
-	lua_Number o3 = lua_tonumber(L, -6);
-	lua_Number o4 = lua_tonumber(L, -5);
-	lua_Number o5 = lua_tonumber(L, -4);
-	lua_Number o6 = lua_tonumber(L, -3);
-	lua_Number o7 = lua_tonumber(L, -2);
-	lua_Number o8 = lua_tonumber(L, -1);
-	engine->display.draw_surface(i1, i2, i3, i4, i5, i6, i7, i8,
-			o1, o2, o3, o4, o5, o6, o7, o8);
+	lua_Number i1 = lua_tonumber(L, 1);
+	lua_Number i2 = lua_tonumber(L, 2);
+	lua_Number i3 = lua_tonumber(L, 3);
+	lua_Number i4 = lua_tonumber(L, 4);
+	lua_Number i5 = lua_tonumber(L, 5);
+	lua_Number i6 = lua_tonumber(L, 6);
+	lua_Number o1 = lua_tonumber(L, 7);
+	lua_Number o2 = lua_tonumber(L, 8);
+	lua_Number o3 = lua_tonumber(L, 9);
+	lua_Number o4 = lua_tonumber(L, 10);
+	lua_Number o5 = lua_tonumber(L, 11);
+	lua_Number o6 = lua_tonumber(L, 12);
+	engine->display.draw_surface(i1, i2, i3, i4, i5, i6,
+								 o1, o2, o3, o4, o5, o6);
+	return 0;
+}
+static int mlua_draw_quad(lua_State* L)
+{
+	lua_Number i1 = lua_tonumber(L, 1);
+	lua_Number i2 = lua_tonumber(L, 2);
+	lua_Number i3 = lua_tonumber(L, 3);
+	lua_Number i4 = lua_tonumber(L, 4);
+	lua_Number i5 = lua_tonumber(L, 5);
+	lua_Number i6 = lua_tonumber(L, 6);
+	lua_Number i7 = lua_tonumber(L, 7);
+	lua_Number i8 = lua_tonumber(L, 8);
+	lua_Number o1 = lua_tonumber(L, 9);
+	lua_Number o2 = lua_tonumber(L, 10);
+	lua_Number o3 = lua_tonumber(L, 11);
+	lua_Number o4 = lua_tonumber(L, 12);
+	lua_Number o5 = lua_tonumber(L, 13);
+	lua_Number o6 = lua_tonumber(L, 14);
+	lua_Number o7 = lua_tonumber(L, 15);
+	lua_Number o8 = lua_tonumber(L, 16);
+	engine->display.draw_quad(i1, i2, i3, i4, i5, i6, i7, i8,
+							  o1, o2, o3, o4, o5, o6, o7, o8);
 	return 0;
 }
 
@@ -622,6 +640,7 @@ int luaopen_drystal(lua_State* L)
 		DECLARE_FUNCTION(draw_line),
 		DECLARE_FUNCTION(draw_triangle),
 		DECLARE_FUNCTION(draw_surface),
+		DECLARE_FUNCTION(draw_quad),
 
 		DECLARE_FUNCTION(set_color),
 		DECLARE_FUNCTION(set_alpha),

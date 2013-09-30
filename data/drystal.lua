@@ -2,8 +2,8 @@ local drystal = drystal
 
 local _draw_from = drystal.draw_from
 local _draw_on = drystal.draw_on
-local _draw_surface = drystal.draw_surface
-drystal.draw_freeshape = _draw_surface
+local _draw_quad = drystal.draw_quad
+drystal.draw_freeshape = _draw_quad
 
 function _draw_rect(x, y, w, h)
 	drystal.draw_triangle(x, y, x, y+h, x+w, y)
@@ -13,7 +13,7 @@ end
 function drystal.draw_image(x, y, w, h, dx, dy, dw, dh)
 	dw = dw or w
 	dh = dh or h
-	_draw_surface(x, y,  x+w,   y,  x+w,   y+h,   x,  y+h,
+	_draw_quad(x, y,  x+w,   y,  x+w,   y+h,   x,  y+h,
 				dx, dy, dx+dw, dy, dx+dw, dy+dh, dx, dy+dh)
 end
 
@@ -42,7 +42,7 @@ function drystal.draw_sprite_simple(sprite, x, y)
 	local xi2 = sprite.x + sprite.w
 	local yi2 = sprite.y + sprite.h
 
-	_draw_surface(xi, yi, xi2, yi, xi2, yi2, xi, yi2,
+	_draw_quad(xi, yi, xi2, yi, xi2, yi2, xi, yi2,
 				  x1, y1, x2,  y1, x2,  y2,  x1, y2)
 end
 function drystal.draw_sprite(sprite, x, y, transform)
@@ -81,7 +81,7 @@ function drystal.draw_sprite(sprite, x, y, transform)
 		yi, yi2 = yi2, yi
 	end
 
-	_draw_surface(xi, yi, xi2, yi, xi2, yi2, xi, yi2,
+	_draw_quad(xi, yi, xi2, yi, xi2, yi2, xi, yi2,
 				  x1, y1, x2,  y2, x3,  y3,  x4, y4)
 end
 function drystal.draw_sprite_rotated(sprite, x, y, angle)
@@ -108,17 +108,6 @@ function drystal.draw_on(surf)
 	current_on = surf
 end
 
-function drystal.draw_surface(surf, x, y)
-	local old = current_from
-
-	drystal.draw_from(surf)
-	local w, h = drystal.surface_size(surf)
-	drystal.draw_image(0, 0, w, h, x+ox, y+oy)
-
-	if old then
-		drystal.draw_from(old)
-	end
-end
 
 function drystal.draw_circle(cx, cy, r)
 	cx = cx + ox;

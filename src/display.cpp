@@ -494,7 +494,7 @@ void Display::surface_size(Surface* surface, int *w, int *h)
  * Primitive drawing
  */
 
-void Display::draw_point(int x, int y)
+void Display::draw_point(float x, float y)
 {
 	DEBUG("");
 	float xx, yy;
@@ -507,7 +507,7 @@ void Display::draw_point(int x, int y)
 	current_buffer->push_point_size(point_size);
 	current_buffer->push_color(r, g, b, alpha);
 }
-void Display::draw_point_tex(int xi, int yi, int xd, int yd)
+void Display::draw_point_tex(float xi, float yi, float xd, float yd)
 {
 	DEBUG("");
 	float xxd, yyd;
@@ -525,7 +525,7 @@ void Display::draw_point_tex(int xi, int yi, int xd, int yd)
 	current_buffer->push_color(r, g, b, alpha);
 }
 
-void Display::draw_line(int x1, int y1, int x2, int y2)
+void Display::draw_line(float x1, float y1, float x2, float y2)
 {
 	DEBUG("");
 	// glLineWidth(2);
@@ -542,7 +542,7 @@ void Display::draw_line(int x1, int y1, int x2, int y2)
 		current_buffer->push_color(r, g, b, alpha);
 }
 
-void Display::draw_triangle(int x1, int y1, int x2, int y2, int x3, int y3)
+void Display::draw_triangle(float x1, float y1, float x2, float y2, float x3, float y3)
 {
 	DEBUG("");
 	float xx1, xx2, xx3;
@@ -560,45 +560,43 @@ void Display::draw_triangle(int x1, int y1, int x2, int y2, int x3, int y3)
 		current_buffer->push_color(r, g, b, alpha);
 }
 
-void Display::draw_surface(int xi1, int yi1, int xi2, int yi2, int xi3, int yi3, int xi4, int yi4,
-		int xo1, int yo1, int xo2, int yo2, int xo3, int yo3, int xo4, int yo4)
+void Display::draw_surface(float xi1, float yi1, float xi2, float yi2, float xi3, float yi3,
+		float xo1, float yo1, float xo2, float yo2, float xo3, float yo3)
 {
 	assert(current_from);
 	DEBUG("");
-	float xxi1, xxi2, xxi3, xxi4;
-	float yyi1, yyi2, yyi3, yyi4;
+	float xxi1, xxi2, xxi3;
+	float yyi1, yyi2, yyi3;
 	convert_texcoords(xi1, yi1, &xxi1, &yyi1);
 	convert_texcoords(xi2, yi2, &xxi2, &yyi2);
 	convert_texcoords(xi3, yi3, &xxi3, &yyi3);
-	convert_texcoords(xi4, yi4, &xxi4, &yyi4);
 
-	float xxo1, xxo2, xxo3, xxo4;
-	float yyo1, yyo2, yyo3, yyo4;
+	float xxo1, xxo2, xxo3;
+	float yyo1, yyo2, yyo3;
 	convert_coords(xo1, yo1, &xxo1, &yyo1);
 	convert_coords(xo2, yo2, &xxo2, &yyo2);
 	convert_coords(xo3, yo3, &xxo3, &yyo3);
-	convert_coords(xo4, yo4, &xxo4, &yyo4);
 
 	current_buffer->assert_type(TRIANGLE_BUFFER);
 	current_buffer->assert_use_texture();
-	current_buffer->push_tex_coord(xxi1, yyi1);
-	current_buffer->push_tex_coord(xxi3, yyi3);
-	current_buffer->push_tex_coord(xxi4, yyi4);
 
 	current_buffer->push_tex_coord(xxi1, yyi1);
 	current_buffer->push_tex_coord(xxi2, yyi2);
 	current_buffer->push_tex_coord(xxi3, yyi3);
 
 	current_buffer->push_vertex(xxo1, yyo1);
-	current_buffer->push_vertex(xxo3, yyo3);
-	current_buffer->push_vertex(xxo4, yyo4);
-
-	current_buffer->push_vertex(xxo1, yyo1);
 	current_buffer->push_vertex(xxo2, yyo2);
 	current_buffer->push_vertex(xxo3, yyo3);
 
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < 3; i++)
 		current_buffer->push_color(r, g, b, alpha);
+}
+
+void Display::draw_quad(float xi1, float yi1, float xi2, float yi2, float xi3, float yi3, float xi4, float yi4,
+		float xo1, float yo1, float xo2, float yo2, float xo3, float yo3, float xo4, float yo4)
+{
+	draw_surface(xi1, yi1, xi2, yi2, xi3, yi3, xo1, yo1, xo2, yo2, xo3, yo3);
+	draw_surface(xi1, yi1, xi3, yi3, xi4, yi4, xo1, yo1, xo3, yo3, xo4, yo4);
 }
 
 

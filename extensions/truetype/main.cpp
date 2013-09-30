@@ -58,7 +58,7 @@ Font* load_font(const char* filename, float size, int first_char=32, int num_cha
 
 static inline void draw_quad(Engine& engine, const stbtt_aligned_quad& q)
 {
-	engine.display.draw_surface(
+	engine.display.draw_quad(
 			// texture coordinates
 			q.s0, q.t0,
 			q.s1, q.t0,
