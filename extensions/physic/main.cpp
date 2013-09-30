@@ -226,6 +226,46 @@ int raycast(lua_State* L)
 	}
 }
 
+class CustomQueryCallback : public b2QueryCallback
+{
+	public:
+		lua_State* L;
+		unsigned index = 1;
+
+		bool ReportFixture(b2Fixture* fixture)
+		{
+			int ref = (int) (size_t) fixture->GetBody()->GetUserData();
+			lua_pushnumber(L, index);
+			lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
+			lua_settable(L, -3);
+			index++;
+			return true;
+		}
+
+};
+
+int query(lua_State* L)
+{
+	assert(world);
+
+	lua_Number x1 = luaL_checknumber(L, 1);
+	lua_Number y1 = luaL_checknumber(L, 2);
+	lua_Number x2 = luaL_checknumber(L, 3);
+	lua_Number y2 = luaL_checknumber(L, 4);
+
+	lua_newtable(L);
+
+	CustomQueryCallback query;
+	query.L = L;
+	b2AABB aabb;
+	aabb.lowerBound = b2Vec2(x1, y1);
+	aabb.upperBound = b2Vec2(x2, y2);
+
+	world->QueryAABB(&query, aabb);
+
+	return 1;
+}
+
 // Shape methods
 
 int new_shape(lua_State* L)
@@ -672,6 +712,7 @@ static const luaL_Reg lib[] =
 	DECLARE_FUNCTION(on_collision),
 
 	DECLARE_FUNCTION(raycast),
+	DECLARE_FUNCTION(query),
 
 	{NULL, NULL}
 };
