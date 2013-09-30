@@ -38,7 +38,6 @@ private:
 
 	void assert_not_full();
 	void flush();
-	void reset();
 
 public:
 	Buffer(unsigned int size=BUFFER_DEFAULT_SIZE);
@@ -58,6 +57,7 @@ public:
 	void assert_use_texture();
 	void assert_not_use_texture();
 
+	void reset();
 	void reallocate();
 };
 

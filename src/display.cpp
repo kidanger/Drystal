@@ -788,6 +788,10 @@ void Display::draw_buffer(Buffer* buffer, float dx, float dy)
 	current_buffer->assert_empty();
 	buffer->draw(dx, dy);
 }
+void Display::reset_buffer(Buffer* buffer)
+{
+	buffer->reset();
+}
 void Display::free_buffer(Buffer* buffer)
 {
 	delete buffer;
