@@ -156,6 +156,7 @@ void Display::resize(int w, int h)
 			SDL_OPENGL| (resizable ? SDL_VIDEORESIZE : 0));
 #ifndef EMSCRIPTEN
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
 #endif
 	assert(sdl_screen);
 
@@ -791,6 +792,10 @@ void Display::draw_buffer(Buffer* buffer, float dx, float dy)
 void Display::reset_buffer(Buffer* buffer)
 {
 	buffer->reset();
+}
+void Display::upload_and_free_buffer(Buffer* buffer)
+{
+	buffer->upload_and_free();
 }
 void Display::free_buffer(Buffer* buffer)
 {

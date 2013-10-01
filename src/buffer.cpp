@@ -16,6 +16,7 @@ Buffer::Buffer(unsigned int size) :
 	colors(new GLfloat[size * 4]),
 	tex_coords(new GLfloat[size * 2]),
 	point_sizes(new GLfloat[size]),
+	uploaded(false),
 	has_texture(false)
 {
 	current_position = 0;
@@ -51,10 +52,20 @@ void Buffer::reallocate()
 Buffer::~Buffer()
 {
 	glDeleteBuffers(4, buffers);
-	delete[] positions;
-	delete[] colors;
-	delete[] tex_coords;
-	delete[] point_sizes;
+	partial_free();
+}
+
+void Buffer::partial_free()
+{
+	if (positions)
+		delete[] positions;
+	if (colors)
+		delete[] colors;
+	if (tex_coords)
+		delete[] tex_coords;
+	if (point_sizes)
+		delete[] point_sizes;
+	positions = colors = tex_coords = point_sizes = nullptr;
 }
 
 void Buffer::use_camera(const Camera* camera)
@@ -113,6 +124,7 @@ void Buffer::push_vertex(GLfloat x, GLfloat y)
 	positions[cur + 0] = x;
 	positions[cur + 1] = y;
 	current_position += 1;
+	uploaded = false;
 }
 void Buffer::push_color(GLfloat r, GLfloat g, GLfloat b, GLfloat a)
 {
@@ -123,6 +135,7 @@ void Buffer::push_color(GLfloat r, GLfloat g, GLfloat b, GLfloat a)
 	colors[cur + 2] = b;
 	colors[cur + 3] = a;
 	current_color += 1;
+	uploaded = false;
 }
 void Buffer::push_tex_coord(GLfloat x, GLfloat y)
 {
@@ -131,6 +144,7 @@ void Buffer::push_tex_coord(GLfloat x, GLfloat y)
 	tex_coords[cur + 0] = x;
 	tex_coords[cur + 1] = y;
 	current_tex_coord += 1;
+	uploaded = false;
 }
 void Buffer::push_point_size(GLfloat s)
 {
@@ -138,6 +152,31 @@ void Buffer::push_point_size(GLfloat s)
 	size_t cur = current_point_size;
 	point_sizes[cur] = s;
 	current_point_size += 1;
+	uploaded = false;
+}
+
+void Buffer::upload(int method)
+{
+	size_t used = current_color;
+	if (used == 0 or uploaded) {
+		return;
+	}
+
+	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
+	glBufferData(GL_ARRAY_BUFFER, used * 2 * sizeof(GLfloat), positions, method);
+
+	glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
+	glBufferData(GL_ARRAY_BUFFER, used * 4 * sizeof(GLfloat), colors, method);
+
+	if (has_texture) {
+		glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
+		glBufferData(GL_ARRAY_BUFFER, used * 2 * sizeof(GLfloat), tex_coords, method);
+	}
+	if (type == POINT_BUFFER) {
+		glBindBuffer(GL_ARRAY_BUFFER, buffers[3]);
+		glBufferData(GL_ARRAY_BUFFER, used * sizeof(GLfloat), point_sizes, method);
+	}
+	uploaded = true;
 }
 
 void Buffer::draw(float dx, float dy)
@@ -160,23 +199,21 @@ void Buffer::draw(float dx, float dy)
 	}
 	glUseProgram(prog);
 
+	if (not uploaded)
+		upload(GL_DYNAMIC_DRAW);
+
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
 	glVertexAttribPointer(ATTR_POSITION_INDEX, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-	glBufferData(GL_ARRAY_BUFFER, used * 2 * sizeof(GLfloat), positions, GL_DYNAMIC_DRAW);
-
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
 	glVertexAttribPointer(ATTR_COLOR_INDEX, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
-	glBufferData(GL_ARRAY_BUFFER, used * 4 * sizeof(GLfloat), colors, GL_DYNAMIC_DRAW);
 
 	if (has_texture) {
 		glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
-		glBufferData(GL_ARRAY_BUFFER, used * 2 * sizeof(GLfloat), tex_coords, GL_DYNAMIC_DRAW);
 		glEnableVertexAttribArray(ATTR_TEXCOORD_INDEX);
 		glVertexAttribPointer(ATTR_TEXCOORD_INDEX, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 	}
 	if (type == POINT_BUFFER) {
 		glBindBuffer(GL_ARRAY_BUFFER, buffers[3]);
-		glBufferData(GL_ARRAY_BUFFER, used * sizeof(GLfloat), point_sizes, GL_DYNAMIC_DRAW);
 		glEnableVertexAttribArray(ATTR_POINTSIZE_INDEX);
 		glVertexAttribPointer(ATTR_POINTSIZE_INDEX, 1, GL_FLOAT, GL_FALSE, 0, nullptr);
 	}
@@ -221,5 +258,11 @@ void Buffer::flush()
 void Buffer::reset()
 {
 	current_position = current_color = current_tex_coord = current_point_size = 0;
+}
+
+void Buffer::upload_and_free()
+{
+	upload(GL_STATIC_DRAW);
+	partial_free();
 }
 

@@ -536,6 +536,12 @@ static int mlua_reset_buffer(lua_State* L)
 	engine->display.reset_buffer(buffer);
 	return 0;
 }
+static int mlua_upload_and_free_buffer(lua_State* L)
+{
+	Buffer* buffer = (Buffer*) lua_touserdata(L, -1);
+	engine->display.upload_and_free_buffer(buffer);
+	return 0;
+}
 static int mlua_free_buffer(lua_State* L)
 {
 	Buffer* buffer = (Buffer*) lua_touserdata(L, -1);
@@ -664,6 +670,7 @@ int luaopen_drystal(lua_State* L)
 		DECLARE_FUNCTION(use_buffer),
 		DECLARE_FUNCTION(draw_buffer),
 		DECLARE_FUNCTION(reset_buffer),
+		DECLARE_FUNCTION(upload_and_free_buffer),
 		DECLARE_FUNCTION(free_buffer),
 
 		DECLARE_FUNCTION(play_music),

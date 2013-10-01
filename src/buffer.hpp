@@ -31,6 +31,7 @@ private:
 	unsigned int current_color;
 	unsigned int current_tex_coord;
 	unsigned int current_point_size;
+	bool uploaded;
 
 	bool has_texture;
 	Shader* shader;
@@ -38,6 +39,8 @@ private:
 
 	void assert_not_full();
 	void flush();
+	void upload(int method);
+	void partial_free();
 
 public:
 	Buffer(unsigned int size=BUFFER_DEFAULT_SIZE);
@@ -59,5 +62,6 @@ public:
 
 	void reset();
 	void reallocate();
+	void upload_and_free();
 };
 
