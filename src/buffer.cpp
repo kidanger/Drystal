@@ -14,8 +14,8 @@ Buffer::Buffer(unsigned int size) :
 	size(size),
 	positions(new GLfloat[size * 2]),
 	colors(new GLfloat[size * 4]),
-	tex_coords(new GLfloat[size * 2]),
-	point_sizes(new GLfloat[size]),
+	tex_coords(nullptr),
+	point_sizes(nullptr),
 	uploaded(false),
 	has_texture(false)
 {
@@ -84,6 +84,10 @@ void Buffer::assert_type(BufferType atype)
 		flush();
 	}
 	type = atype;
+	if (type == POINT_BUFFER and point_sizes == nullptr) {
+		point_sizes = new GLfloat[size];
+	}
+
 }
 
 void Buffer::assert_not_full()
@@ -105,6 +109,9 @@ void Buffer::assert_use_texture()
 	if (not has_texture) {
 		flush();
 		has_texture = true;
+	}
+	if (tex_coords == nullptr) {
+		tex_coords = new GLfloat[size*2];
 	}
 }
 
