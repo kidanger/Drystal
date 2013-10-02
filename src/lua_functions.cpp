@@ -172,7 +172,7 @@ void LuaFunctions::call_resize_event(int w, int h) const
 	}
 }
 
-void LuaFunctions::call_update(double dt)
+void LuaFunctions::call_update(float dt)
 {
 	if (get_function(L, "update")) {
 		lua_pushnumber(L, dt);
@@ -266,7 +266,7 @@ static int mlua_camera__index(lua_State* L)
 		lua_pushnumber(L, dx);
 		return 1;
 	} else if (!strcmp(name, "y")) {
-		lua_Number dy = engine->display.get_camera().dx;
+		lua_Number dy = engine->display.get_camera().dy;
 		lua_pushnumber(L, dy);
 		return 1;
 	} else if (!strcmp(name, "angle")) {
@@ -313,6 +313,16 @@ static int mlua_resize(lua_State* L)
 	lua_setfield(L, -2, "screen");
 	lua_pop(L, 1);
 	return 0;
+}
+static int mlua_screen2scene(lua_State* L)
+{
+	lua_Number x = lua_tointeger(L, 1);
+	lua_Number y = lua_tointeger(L, 2);
+	float tx, ty;
+	engine->display.screen2scene(x, y, &tx, &ty);
+	lua_pushnumber(L, tx);
+	lua_pushnumber(L, ty);
+	return 2;
 }
 static int mlua_flip(lua_State*)
 {
@@ -637,6 +647,7 @@ int luaopen_drystal(lua_State* L)
 
 		DECLARE_FUNCTION(set_resizable),
 		DECLARE_FUNCTION(resize),
+		DECLARE_FUNCTION(screen2scene),
 		DECLARE_FUNCTION(flip),
 
 		DECLARE_FUNCTION(load_surface),

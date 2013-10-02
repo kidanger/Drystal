@@ -111,6 +111,7 @@ class Display
 		void show_cursor(bool);
 		void set_resizable(bool);
 		void resize(int w, int h);
+		void screen2scene(float x, float y, float * tx, float * ty);
 
 		void set_color(int r, int g, int b);
 		void set_alpha(int a);

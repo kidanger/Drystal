@@ -102,7 +102,7 @@ void Engine::update()
 
 	AT(event)
 
-	double dt = (get_now() - last_update) / 1000;
+	float dt = (get_now() - last_update) / 1000;
 	last_update = get_now();
 
 	if (update_activated)

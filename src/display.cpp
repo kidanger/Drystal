@@ -22,7 +22,7 @@ extern "C" {
 
 const char* DEFAULT_VERTEX_SHADER = R"(
 #ifdef GL_ES
-precision highp float;
+precision mediump float;
 #endif
 
 attribute vec2 position;	// position of the vertice
@@ -196,6 +196,15 @@ void Display::resize(int w, int h)
 	// TODO: handle other buffers
 	// TODO: invalidate surfaces
 	DEBUG("end");
+}
+
+void Display::screen2scene(float x, float y, float * tx, float * ty)
+{
+	float z = camera.zoom;
+	x -= camera.dx;
+	y -= camera.dy;
+	*tx = (camera.matrix[0] * x + camera.matrix[2] * y) / z;
+	*ty = (camera.matrix[1] * x + camera.matrix[3] * y) / z;
 }
 
 void Display::show_cursor(bool b)

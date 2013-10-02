@@ -21,7 +21,7 @@ class LuaFunctions
 		bool load_code();
 		bool reload_code();
 
-		void call_update(double dt);
+		void call_update(float dt);
 		void call_draw();
 
 		void call_resize_event(int w, int h) const;
