@@ -172,8 +172,8 @@ public:
 		float32 new_fraction = fraction;
 
 		if (ref != LUA_REFNIL) {
-			int refbody = (int) (size_t) fixture->GetBody()->GetUserData();
 			lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
+			int refbody = (int) (size_t) fixture->GetBody()->GetUserData();
 			lua_rawgeti(L, LUA_REGISTRYINDEX, refbody);
 			lua_pushnumber(L, fraction);
 			if (lua_pcall(L, 2, 2, 0)) {
@@ -615,6 +615,17 @@ int new_joint(lua_State* L)
 		def->bodyA = luam_tobody(L, i++);
 		def->bodyB = luam_tobody(L, i++);
 		joint_def = def;
+	} else if (!strcmp(type, "revolute")) {
+		b2RevoluteJointDef* def = new b2RevoluteJointDef;
+		def->bodyA = luam_tobody(L, i++);
+		def->bodyB = luam_tobody(L, i++);
+		lua_Number anchorAx = luaL_checknumber(L, i++);
+		lua_Number anchorAy = luaL_checknumber(L, i++);
+		lua_Number anchorBx = luaL_checknumber(L, i++);
+		lua_Number anchorBy = luaL_checknumber(L, i++);
+		def->localAnchorA.Set(anchorAx, anchorAy);
+		def->localAnchorB.Set(anchorBx, anchorBy);
+		joint_def = def;
 	} else {
 		assert(false);
 	}
@@ -657,6 +668,10 @@ inline static b2RopeJoint* luam_toropejoint(lua_State* L, int index)
 {
 	return (b2RopeJoint*) luam_tojoint(L, index);
 }
+inline static b2RevoluteJoint* luam_torevolutejoint(lua_State* L, int index)
+{
+	return (b2RevoluteJoint*) luam_tojoint(L, index);
+}
 
 int set_target(lua_State* L)
 {
@@ -690,6 +705,36 @@ int set_max_length(lua_State* L)
 	return 0;
 }
 
+int set_angle_limits(lua_State* L)
+{
+	b2RevoluteJoint* joint = luam_torevolutejoint(L, 1);
+	lua_Number min = luaL_checknumber(L, 2);
+	lua_Number max = luaL_checknumber(L, 3);
+	if (min != max) {
+		joint->SetLimits(min, max);
+		joint->EnableLimit(true);
+	} else {
+		joint->EnableLimit(false);
+	}
+	return 0;
+}
+
+int set_motor_speed(lua_State* L)
+{
+	b2RevoluteJoint* joint = luam_torevolutejoint(L, 1);
+	lua_Number speed = luaL_checknumber(L, 2);
+	lua_Number maxtorque = 20;
+	if (lua_gettop(L) > 3)
+		maxtorque = luaL_checknumber(L, 3);
+	if (speed != 0) {
+		joint->SetMotorSpeed(speed);
+		joint->SetMaxMotorTorque(maxtorque);
+		joint->EnableMotor(true);
+	} else {
+		joint->EnableMotor(false);
+	}
+	return 0;
+}
 
 int destroy(lua_State* L)
 {
@@ -708,6 +753,9 @@ static const luaL_Reg __joint_class[] = {
 	DECLARE_FUNCTION(set_frequency),
 	// rope joint
 	DECLARE_FUNCTION(set_max_length),
+	// revolute joint
+	DECLARE_FUNCTION(set_angle_limits),
+	DECLARE_FUNCTION(set_motor_speed),
 	{NULL, NULL},
 };
 
