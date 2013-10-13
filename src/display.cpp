@@ -200,11 +200,17 @@ void Display::resize(int w, int h)
 
 void Display::screen2scene(float x, float y, float * tx, float * ty)
 {
-	float z = camera.zoom;
+	float zoom = camera.zoom;
 	x -= camera.dx;
 	y -= camera.dy;
-	*tx = (camera.matrix[0] * x + camera.matrix[2] * y) / z;
-	*ty = (camera.matrix[1] * x + camera.matrix[3] * y) / z;
+	*tx = camera.matrix[0] * x + camera.matrix[2] * y;
+	*ty = camera.matrix[1] * x + camera.matrix[3] * y;
+
+	float dx = (x + camera.dx) - screen->w/2;
+	float dy = (y + camera.dy) - screen->h/2;
+	// MAGIC, don't modify
+	*tx += dx * (1 - zoom) / zoom;
+	*ty += dy * (1 - zoom) / zoom;
 }
 
 void Display::show_cursor(bool b)
