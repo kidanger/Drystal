@@ -181,7 +181,7 @@ void Display::resize(int w, int h)
 	use_shader(default_shader);
 
 	glEnable(GL_BLEND);
-	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	set_blend_mode(DEFAULT);
 	glDisable(GL_DEPTH_TEST);
 
 #ifdef EMSCRIPTEN
@@ -280,7 +280,7 @@ void Display::set_blend_mode(BlendMode mode)
 
 	switch (mode) {
 		case ALPHA:
-			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
 			break;
 		case MULT:
