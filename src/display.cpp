@@ -291,8 +291,6 @@ void Display::set_blend_mode(BlendMode mode)
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 			glBlendEquation(GL_FUNC_ADD);
 			break;
-		case EXPERIMENTAL:
-			break;
 	}
 }
 void Display::set_filter_mode(FilterMode mode)

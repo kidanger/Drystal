@@ -48,9 +48,6 @@ enum BlendMode
 	ALPHA=0,
 	ADD,
 	MULT,
-#if 1
-	EXPERIMENTAL,
-#endif
 };
 
 enum FilterMode
