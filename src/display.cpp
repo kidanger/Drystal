@@ -280,7 +280,7 @@ void Display::set_blend_mode(BlendMode mode)
 
 	switch (mode) {
 		case ALPHA:
-			glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
 			break;
 		case MULT:

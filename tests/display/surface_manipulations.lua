@@ -56,7 +56,7 @@ function drystal.init()
 	drystal.set_alpha(255)
 	local sprite = spritesheet.frames['character.png'].frame
 	drystal.draw_sprite(sprite, 0, 0)
-	drystal.draw_on(screen)
+	drystal.draw_on(drystal.screen)
 
 	shader = drystal.new_shader(vert)
 	if not shader then
