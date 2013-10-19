@@ -231,6 +231,12 @@ static int mlua_stop(lua_State*)
 	return 0;
 }
 
+static int mlua_reload(lua_State*)
+{
+	engine->lua.reload_code();
+	return 0;
+}
+
 static int mlua_set_color(lua_State* L)
 {
 	int r = lua_tointeger(L, -3);
@@ -340,10 +346,17 @@ static int mlua_resize(lua_State* L)
 	int w = lua_tointeger(L, 1);
 	int h = lua_tointeger(L, 2);
 	engine->display.resize(w, h);
+
+	// update screen
 	lua_rawgeti(L, LUA_REGISTRYINDEX, engine->lua.drystal_table_ref);
-	lua_pushlightuserdata(L, engine->display.get_screen());
+	Surface* screen = engine->display.get_screen();
+	if (screen)
+		lua_pushlightuserdata(L, screen);
+	else
+		lua_pushnil(L);
 	lua_setfield(L, -2, "screen");
 	lua_pop(L, 1);
+
 	return 0;
 }
 static int mlua_screen2scene(lua_State* L)
@@ -673,6 +686,7 @@ int luaopen_drystal(lua_State* L)
 	{
 		{"engine_stop", mlua_stop},
 		DECLARE_FUNCTION(stop),
+		DECLARE_FUNCTION(reload),
 
 		DECLARE_FUNCTION(show_cursor),
 		DECLARE_FUNCTION(grab_cursor),
@@ -733,7 +747,11 @@ int luaopen_drystal(lua_State* L)
 	luaL_setfuncs(L, lib, 0);
 
 	{ // screen
-		lua_pushlightuserdata(L, engine->display.get_screen());
+		Surface* screen = engine->display.get_screen();
+		if (screen)
+			lua_pushlightuserdata(L, screen);
+		else
+			lua_pushnil(L);
 		lua_setfield(L, -2, "screen");
 		lua_pushvalue(L, -1);
 	}
