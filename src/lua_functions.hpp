@@ -18,6 +18,8 @@ class LuaFunctions
 		LuaFunctions(Engine&, const char *filename);
 		~LuaFunctions();
 
+		void add_search_path(const char* path);
+
 		bool load_code();
 		bool reload_code();
 
@@ -34,6 +36,7 @@ class LuaFunctions
 
 	private:
 		const char* filename;
+		bool library_loaded;
 
 		bool get_function(lua_State*, const char* name) const;
 		void remove_userpackages(lua_State* L);

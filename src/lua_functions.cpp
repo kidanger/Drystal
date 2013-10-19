@@ -9,25 +9,45 @@ static int luaopen_drystal(lua_State*); // defined at the end of this file
 
 LuaFunctions::LuaFunctions(Engine& eng, const char *filename) :
 	L(luaL_newstate()),
-	filename(filename)
+	filename(filename),
+	library_loaded(false)
 {
 	engine = &eng;
-	luaL_openlibs(L);
 
-	// add drystal lib
-	luaL_requiref(L, "drystal", luaopen_drystal, 1); // as global
-	lua_pop(L, 1);  /* remove lib */
-	// then remove it from package.loaded, so the drystal.lua can be called if user wants
-	lua_getglobal(L, "package");
-	lua_getfield(L, -1, "loaded");
-	lua_pushnil(L);
-	lua_setfield(L, -2, "drystal");
+	luaL_openlibs(L);
 }
 
 LuaFunctions::~LuaFunctions()
 {
 	luaL_unref(L, LUA_REGISTRYINDEX, drystal_table_ref);
 	lua_close(L);
+}
+
+void LuaFunctions::add_search_path(const char* path)
+{
+	bool add_slash = path[strlen(path) - 1] != '/';
+	// update path
+	lua_getglobal(L, "package");
+	lua_getfield(L, -1, "path");
+	lua_pushstring(L, ";");
+	lua_pushstring(L, path);
+	if (add_slash)
+		lua_pushstring(L, "/");
+	lua_pushstring(L, "?.lua");
+	lua_concat(L, 4 + add_slash);
+	lua_setfield(L, -2, "path");
+
+	// update cpath
+	lua_getfield(L, -1, "cpath");
+	lua_pushstring(L, ";");
+	lua_pushstring(L, path);
+	if (add_slash)
+		lua_pushstring(L, "/");
+	lua_pushstring(L, "?.so");
+	lua_concat(L, 4 + add_slash);
+	lua_setfield(L, -2, "cpath");
+
+	lua_pop(L, 1);
 }
 
 #define CALL(num_args) \
@@ -93,6 +113,18 @@ void LuaFunctions::remove_userpackages(lua_State* L)
 
 bool LuaFunctions::load_code()
 {
+	if (!library_loaded) {
+		// add drystal lib
+		luaL_requiref(L, "drystal", luaopen_drystal, 1); // as global
+		lua_pop(L, 1);  /* remove lib */
+		// then remove it from package.loaded, so the drystal.lua can be called if user wants
+		lua_getglobal(L, "package");
+		lua_getfield(L, -1, "loaded");
+		lua_pushnil(L);
+		lua_setfield(L, -2, "drystal");
+		library_loaded = true;
+	}
+
 	if (luaL_dofile(L, filename)) {
 		fprintf(stderr, "[ERROR] cannot run script: %s\n", lua_tostring(L, -1));
 		return false;

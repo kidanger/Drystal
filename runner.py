@@ -279,9 +279,9 @@ else:
             httpd = HTTPServer((addr, port), SimpleHTTPRequestHandler)
             for b in BROWSERS:
                 if not os.system(b + ' ' + addr + ':' + str(port) + '/' + BUILD_WEB_REL + ' >/dev/null'):
-                    print(G, '- page opened in', b)
+                    print(G, '- page opened in', b, N)
                     break
             else:
-                print(W, '! unable to open a browser')
+                print(W, '! unable to open a browser', N)
             httpd.serve_forever()
 
