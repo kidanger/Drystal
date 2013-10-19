@@ -67,6 +67,8 @@ int run_js(lua_State* L)
 #ifdef EMSCRIPTEN
 	const char* script = luaL_checkstring(L, 1);
 	emscripten_run_script(script);
+#else
+	(void) L;
 #endif
 	return 0;
 }

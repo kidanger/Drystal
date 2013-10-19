@@ -95,7 +95,8 @@ Display::Display()
 	  g(1),
 	  b(1),
 	  alpha(1),
-	  available(false)
+	  available(false),
+	  debug_mode(false)
 {
 	int err = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 	if (err)
@@ -246,6 +247,11 @@ void Display::flip()
 Surface* Display::get_screen() const
 {
 	return screen;
+}
+
+void Display::toggle_debug_mode()
+{
+	debug_mode = not debug_mode;
 }
 
 /**
@@ -559,6 +565,12 @@ void Display::draw_line(float x1, float y1, float x2, float y2)
 void Display::draw_triangle(float x1, float y1, float x2, float y2, float x3, float y3)
 {
 	DEBUG("");
+	if (debug_mode) {
+		draw_line(x1, y1, x2, y2);
+		draw_line(x2, y2, x3, y3);
+		draw_line(x3, y3, x1, y1);
+		return;
+	}
 	float xx1, xx2, xx3;
 	float yy1, yy2, yy3;
 	convert_coords(x1, y1, &xx1, &yy1);
@@ -577,8 +589,14 @@ void Display::draw_triangle(float x1, float y1, float x2, float y2, float x3, fl
 void Display::draw_surface(float xi1, float yi1, float xi2, float yi2, float xi3, float yi3,
 		float xo1, float yo1, float xo2, float yo2, float xo3, float yo3)
 {
-	assert(current_from);
 	DEBUG("");
+	if (debug_mode) {
+		draw_line(xo1, yo1, xo2, yo2);
+		draw_line(xo2, yo2, xo3, yo3);
+		draw_line(xo3, yo3, xo1, yo1);
+		return;
+	}
+	assert(current_from);
 	float xxi1, xxi2, xxi3;
 	float yyi1, yyi2, yyi3;
 	convert_texcoords(xi1, yi1, &xxi1, &yyi1);
@@ -592,6 +610,7 @@ void Display::draw_surface(float xi1, float yi1, float xi2, float yi2, float xi3
 	convert_coords(xo3, yo3, &xxo3, &yyo3);
 
 	current_buffer->assert_type(TRIANGLE_BUFFER);
+
 	current_buffer->assert_use_texture();
 
 	current_buffer->push_tex_coord(xxi1, yyi1);

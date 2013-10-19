@@ -85,6 +85,7 @@ class Display
 		float point_size;
 
 		bool available;
+		bool debug_mode;
 
 		inline void convert_coords(float x, float y, float *dx, float *dy) {
 			*dx = (2.0 * x / current->w) - 1;
@@ -109,6 +110,7 @@ class Display
 		void set_resizable(bool);
 		void resize(int w, int h);
 		void screen2scene(float x, float y, float * tx, float * ty);
+		void toggle_debug_mode();
 
 		void set_color(int r, int g, int b);
 		void set_alpha(int a);

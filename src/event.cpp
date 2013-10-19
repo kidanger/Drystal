@@ -306,6 +306,8 @@ void EventManager::handle_event(const SDL_Event& event)
 				engine.toggle_draw();
 			} else if (event.key.keysym.sym == SDLK_F3) {
 				engine.lua.reload_code();
+			} else if (event.key.keysym.sym == SDLK_F4) {
+				engine.display.toggle_debug_mode();
 			} else {
 				engine.key_press(mySDL_GetKeyName(event.key.keysym.sym));
 			}
