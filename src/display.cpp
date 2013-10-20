@@ -548,7 +548,6 @@ void Display::draw_point_tex(float xi, float yi, float xd, float yd)
 void Display::draw_line(float x1, float y1, float x2, float y2)
 {
 	DEBUG("");
-	// glLineWidth(2);
 	float xx1, xx2;
 	float yy1, yy2;
 	convert_coords(x1, y1, &xx1, &yy1);
