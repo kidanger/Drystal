@@ -4,3 +4,4 @@ build-*/
 .tup
 *.pyc
 gamedata
+remove.sh
