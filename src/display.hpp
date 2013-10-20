@@ -88,14 +88,14 @@ class Display
 		bool debug_mode;
 
 		inline void convert_coords(float x, float y, float *dx, float *dy) {
-			*dx = (2.0 * x / current->w) - 1;
-			*dy = (2.0 * y / current->h) - 1;
+			*dx = (2. * x / current->w) - 1;
+			*dy = (2. * y / current->h) - 1;
 			if (current == screen)
-				*dy *= -1.0;
+				*dy *= -1.;
 		}
 		inline void convert_texcoords(float x, float y, float *dx, float *dy) {
-			*dx = (float) x / current_from->texw;
-			*dy = (float) y / current_from->texh;
+			*dx = (x + 1.) / current_from->texw;
+			*dy = (y + 1.) / current_from->texh;
 		}
 
 		void update_camera_matrix();

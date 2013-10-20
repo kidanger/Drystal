@@ -26,7 +26,7 @@ local function create_box(w, h, args, dynamic)
 	for k, v in pairs(args) do
 		shape['set_' .. k](shape, v)
 	end
-	local box = physic.new_body(shape, dynamic)
+	local box = physic.new_body(dynamic, shape)
 	box.width = w
 	box.height = h
 	function box:draw()
@@ -48,7 +48,7 @@ local function create_circle(radius, args, dynamic)
 	for k, v in pairs(args) do
 		shape['set_' .. k](shape, v)
 	end
-	local circle = physic.new_body(shape, dynamic)
+	local circle = physic.new_body(dynamic, shape)
 	circle.radius = radius
 	function circle:draw()
 		local angle = self:get_angle()
