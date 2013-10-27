@@ -1,7 +1,9 @@
 #ifndef DISPLAY_HPP
 #define DISPLAY_HPP
 
+#define GL_GLEXT_PROTOTYPES
 #include <SDL/SDL_opengl.h>
+
 struct SDL_Surface;
 
 #include "buffer.hpp"

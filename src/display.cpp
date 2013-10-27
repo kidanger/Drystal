@@ -1,7 +1,3 @@
-#ifndef EMSCRIPTEN
-#include <GLES2/gl2.h>
-#endif
-
 #include <SDL/SDL.h>
 
 #include <iostream>
@@ -19,6 +15,17 @@ extern "C" {
 
 #include "log.hpp"
 #include "display.hpp"
+
+#ifndef EMSCRIPTEN
+#define GL_FRAMEBUFFER GL_FRAMEBUFFER_EXT
+#define GL_FRAMEBUFFER_COMPLETE GL_FRAMEBUFFER_COMPLETE_EXT
+#define GL_COLOR_ATTACHMENT0 GL_COLOR_ATTACHMENT0_EXT
+#define glBindFramebuffer glBindFramebufferEXT
+#define glGenFramebuffers glGenFramebuffersEXT
+#define glDeleteFramebuffers glDeleteFramebuffersEXT
+#define glFramebufferTexture2D glFramebufferTexture2DEXT
+#define glCheckFramebufferStatus glCheckFramebufferStatusEXT
+#endif
 
 #define STRINGIZE(x) #x
 #define STRINGIZE2(x) STRINGIZE(x)
@@ -158,12 +165,12 @@ void Display::resize(int w, int h)
 	size_x = w;
 	size_y = h;
 
-	sdl_screen = SDL_SetVideoMode(size_x, size_y, 32,
-			SDL_OPENGL| (resizable ? SDL_VIDEORESIZE : 0));
 #ifndef EMSCRIPTEN
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
 #endif
+	sdl_screen = SDL_SetVideoMode(size_x, size_y, 32,
+			SDL_OPENGL| (resizable ? SDL_VIDEORESIZE : 0));
 	assert(sdl_screen);
 
 	if (screen)

@@ -1,9 +1,5 @@
 #include <cassert>
 
-#ifndef EMSCRIPTEN
-#include <GLES2/gl2.h>
-#endif
-
 #include "log.hpp"
 #include "stats.hpp"
 #include "display.hpp"
