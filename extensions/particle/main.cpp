@@ -14,7 +14,7 @@
 class System;
 class Particle {
 public:
-	bool dead = true;
+	bool dead;
 
 	float x, y;
 	float vel;
@@ -53,16 +53,16 @@ class System {
 	Particle* particles;
 public:
 
-	int cur_size = 0;
+	int cur_size;
 	Size sizes[MAX_SIZES];
 
-	int cur_color = 0;
+	int cur_color;
 	Color colors[MAX_COLORS];
 
-	bool running = false;
+	bool running;
 
-	int size = 256;
-	int used = 0;
+	int size;
+	int used;
 
 	int x, y;
 	int offx, offy;
@@ -74,8 +74,14 @@ public:
 	float min_initial_velocity, max_initial_velocity;
 
 	float emission_rate;
-	float emit_counter = 0;
+	float emit_counter;
 
+	System() :
+		cur_size(0), cur_color(0),
+		running(false),
+		size(256), used(0),
+		emit_counter(0)
+	{}
 	~System()
 	{
 		delete[] particles;
@@ -102,6 +108,8 @@ public:
 	void allocate()
 	{
 		particles = new Particle[size];
+		for (int i = 0; i < size; i++)
+			particles[i].dead = true;
 		used = 0;
 	}
 

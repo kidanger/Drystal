@@ -116,7 +116,7 @@ void Audio::stop_music()
 Mix_Chunk *Audio::load_sound(const char *filepath)
 {
 	Mix_Chunk *chunk = Mix_LoadWAV(filepath);
-	if (chunk == nullptr)
+	if (chunk == NULL)
 	{
 		std::cerr << "[ERROR] cannot load sound file: `" << filepath << "': " << Mix_GetError() << std::endl;
 	}

@@ -20,11 +20,20 @@ extern "C" {
 #include "log.hpp"
 #include "display.hpp"
 
-const char* DEFAULT_VERTEX_SHADER = R"(
-#ifdef GL_ES
-precision mediump float;
-#endif
+#define STRINGIZE(x) #x
+#define STRINGIZE2(x) STRINGIZE(x)
+#define SHADER_STRING(text) STRINGIZE2(text)
+#define HASH(x) x
 
+const char* SHADER_PREFIX = SHADER_STRING
+(
+HASH(#)ifdef GL_ES \n
+precision mediump float; \n
+HASH(#)endif \n
+);
+
+const char* DEFAULT_VERTEX_SHADER = SHADER_STRING
+(
 attribute vec2 position;	// position of the vertice
 attribute vec4 color;		// color of the vertice
 attribute vec2 texCoord;	// texture coordinates
@@ -47,13 +56,10 @@ void main()
 	fColor = color;
 	fTexCoord = texCoord;
 }
-)";
+);
 
-const char* DEFAULT_FRAGMENT_SHADER_COLOR = R"(
-#ifdef GL_ES
-precision mediump float;
-#endif
-
+const char* DEFAULT_FRAGMENT_SHADER_COLOR = SHADER_STRING
+(
 varying vec4 fColor;
 varying vec2 fTexCoord;
 
@@ -61,13 +67,10 @@ void main()
 {
 	gl_FragColor = fColor;
 }
-)";
+);
 
-const char* DEFAULT_FRAGMENT_SHADER_TEX = R"(
-#ifdef GL_ES
-precision mediump float;
-#endif
-
+const char* DEFAULT_FRAGMENT_SHADER_TEX = SHADER_STRING
+(
 uniform sampler2D tex;
 
 varying vec4 fColor;
@@ -81,7 +84,7 @@ void main()
 	color.a = texval.a * fColor.a;
 	gl_FragColor = color;
 }
-)";
+);
 
 Display::Display()
 	: resizable(false),
@@ -90,6 +93,7 @@ Display::Display()
 	  default_shader(NULL),
 	  current(NULL),
 	  current_from(NULL),
+	  filter_mode(LINEAR),
 	  current_buffer(&default_buffer),
 	  r(1),
 	  g(1),
@@ -115,15 +119,15 @@ Display::~Display()
 {
 	if (sdl_screen) {
 		SDL_FreeSurface(sdl_screen);
-		sdl_screen = nullptr;
+		sdl_screen = NULL;
 	}
 	if (screen) {
 		delete screen;
-		screen = nullptr;
+		screen = NULL;
 	}
 	if (default_shader) {
 		free_shader(default_shader);
-		default_shader = nullptr;
+		default_shader = NULL;
 	}
 }
 
@@ -171,7 +175,7 @@ void Display::resize(int w, int h)
 	screen->fbo = 0; // back buffer
 
 	if (current == old) {
-		current = nullptr; // force update
+		current = NULL; // force update
 		draw_on(screen);
 	}
 
@@ -441,7 +445,7 @@ Surface* Display::load_surface(const char * filename) const
 	unsigned char *data = stbi_load(filename, &w, &h, &n, RGBA_SIZE);
 
 	if (not data)
-		return nullptr;
+		return NULL;
 
 	int potw = pow(2, ceil(log(w)/log(2)));
 	int poth = pow(2, ceil(log(h)/log(2)));
@@ -684,20 +688,35 @@ Shader* Display::new_shader(const char* strvert, const char* strfragcolor, const
 		strfragtex = DEFAULT_FRAGMENT_SHADER_TEX;
 	}
 
+	printf("%s\n", SHADER_PREFIX);
+	char* new_strvert = new char[strlen(SHADER_PREFIX) + strlen(strvert) + 1];
+	strcpy(new_strvert, SHADER_PREFIX);
+	strcat(new_strvert, strvert);
+	char* new_strfragcolor = new char[strlen(SHADER_PREFIX) + strlen(strfragcolor) + 1];
+	strcpy(new_strfragcolor, SHADER_PREFIX);
+	strcat(new_strfragcolor, strfragcolor);
+	char* new_strfragtex = new char[strlen(SHADER_PREFIX) + strlen(strfragtex) + 1];
+	strcpy(new_strfragtex, SHADER_PREFIX);
+	strcat(new_strfragtex, strfragtex);
+
 	vert = glCreateShader(GL_VERTEX_SHADER);
 	assert(vert);
-	glShaderSource(vert, 1, &strvert, NULL);
+	glShaderSource(vert, 1, (const char**)&new_strvert, NULL);
 	glCompileShader(vert);
 
 	frag_color = glCreateShader(GL_FRAGMENT_SHADER);
 	assert(frag_color);
-	glShaderSource(frag_color, 1, &strfragcolor, NULL);
+	glShaderSource(frag_color, 1, (const char**)&new_strfragcolor, NULL);
 	glCompileShader(frag_color);
 
 	frag_tex = glCreateShader(GL_FRAGMENT_SHADER);
 	assert(frag_tex);
-	glShaderSource(frag_tex, 1, &strfragtex, NULL);
+	glShaderSource(frag_tex, 1, (const char**)&new_strfragtex, NULL);
 	glCompileShader(frag_tex);
+
+	delete[] new_strvert;
+	delete[] new_strfragcolor;
+	delete[] new_strfragtex;
 
 	prog_color = glCreateProgram();
 	assert(prog_color);

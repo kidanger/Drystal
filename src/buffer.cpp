@@ -14,8 +14,8 @@ Buffer::Buffer(unsigned int size) :
 	size(size),
 	positions(new GLfloat[size * 2]),
 	colors(new GLfloat[size * 4]),
-	tex_coords(nullptr),
-	point_sizes(nullptr),
+	tex_coords(NULL),
+	point_sizes(NULL),
 	uploaded(false),
 	has_texture(false)
 {
@@ -65,7 +65,7 @@ void Buffer::partial_free()
 		delete[] tex_coords;
 	if (point_sizes)
 		delete[] point_sizes;
-	positions = colors = tex_coords = point_sizes = nullptr;
+	positions = colors = tex_coords = point_sizes = NULL;
 }
 
 void Buffer::use_camera(const Camera* camera)
@@ -84,7 +84,7 @@ void Buffer::assert_type(BufferType atype)
 		flush();
 	}
 	type = atype;
-	if (type == POINT_BUFFER and point_sizes == nullptr) {
+	if (type == POINT_BUFFER and point_sizes == NULL) {
 		point_sizes = new GLfloat[size];
 	}
 
@@ -110,7 +110,7 @@ void Buffer::assert_use_texture()
 		flush();
 		has_texture = true;
 	}
-	if (tex_coords == nullptr) {
+	if (tex_coords == NULL) {
 		tex_coords = new GLfloat[size*2];
 	}
 }
@@ -210,19 +210,19 @@ void Buffer::draw(float dx, float dy)
 		upload(GL_DYNAMIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
-	glVertexAttribPointer(ATTR_POSITION_INDEX, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+	glVertexAttribPointer(ATTR_POSITION_INDEX, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
-	glVertexAttribPointer(ATTR_COLOR_INDEX, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+	glVertexAttribPointer(ATTR_COLOR_INDEX, 4, GL_FLOAT, GL_FALSE, 0, NULL);
 
 	if (has_texture) {
 		glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
 		glEnableVertexAttribArray(ATTR_TEXCOORD_INDEX);
-		glVertexAttribPointer(ATTR_TEXCOORD_INDEX, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+		glVertexAttribPointer(ATTR_TEXCOORD_INDEX, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 	}
 	if (type == POINT_BUFFER) {
 		glBindBuffer(GL_ARRAY_BUFFER, buffers[3]);
 		glEnableVertexAttribArray(ATTR_POINTSIZE_INDEX);
-		glVertexAttribPointer(ATTR_POINTSIZE_INDEX, 1, GL_FLOAT, GL_FALSE, 0, nullptr);
+		glVertexAttribPointer(ATTR_POINTSIZE_INDEX, 1, GL_FLOAT, GL_FALSE, 0, NULL);
 	}
 
 	dx += camera->dx_transformed;

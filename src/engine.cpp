@@ -47,6 +47,12 @@ Engine::~Engine()
 // Main loop
 //
 
+#ifdef EMSCRIPTEN
+void _engine_update()
+{
+	engine->update();
+}
+#endif
 void Engine::loop()
 {
 	if (!display.is_available())
@@ -58,7 +64,7 @@ void Engine::loop()
 	bool successful_load = lua.load_code();
 #ifdef EMSCRIPTEN
 	if (successful_load)
-		emscripten_set_main_loop([]() { engine->update(); }, 0, true);
+		emscripten_set_main_loop(_engine_update, 0, true);
 	(void) target_fps;
 #else
 	run = run and successful_load;

@@ -152,7 +152,7 @@ int on_collision(lua_State* L)
 	} else {
 		CustomListener* listener = (CustomListener*) world->GetContactManager().m_contactListener;
 		delete listener;
-		world->SetContactListener(nullptr);
+		world->SetContactListener(NULL);
 	}
 
 	return 0;
@@ -163,6 +163,12 @@ class CustomRayCastCallback : public b2RayCastCallback
 public:
 	lua_State* L;
 	int ref;
+
+	b2Fixture* fixture;
+	b2Vec2 point;
+
+	CustomRayCastCallback() : fixture(NULL)
+	{}
 
 	virtual float32 ReportFixture(b2Fixture* fixture, const b2Vec2& point,
 								  const b2Vec2& normal, float32 fraction)
@@ -190,9 +196,6 @@ public:
 
 		return new_fraction;
 	}
-
-	b2Fixture* fixture = nullptr;
-	b2Vec2 point;
 };
 
 int raycast(lua_State* L)
@@ -232,7 +235,10 @@ class CustomQueryCallback : public b2QueryCallback
 {
 	public:
 		lua_State* L;
-		unsigned index = 1;
+		unsigned index;
+
+		CustomQueryCallback() : index(1)
+		{}
 
 		bool ReportFixture(b2Fixture* fixture)
 		{

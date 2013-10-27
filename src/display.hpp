@@ -33,13 +33,19 @@ struct Shader
 
 struct Camera
 {
-	float dx = 0;
-	float dy = 0;
-	float dx_transformed = 0;
-	float dy_transformed = 0;
-	float zoom = 1;
-	float angle = 0;
+	float dx;
+	float dy;
+	float dx_transformed;
+	float dy_transformed;
+	float zoom;
+	float angle;
 	float matrix[4];
+
+	Camera() :
+		dx(0), dy(0),
+		dx_transformed(0), dy_transformed(0),
+		zoom(1), angle(0)
+	{}
 };
 
 enum BlendMode
@@ -71,7 +77,7 @@ class Display
 
 		const Surface * current;
 		const Surface * current_from;
-		FilterMode filter_mode = LINEAR;
+		FilterMode filter_mode;
 
 		Buffer * current_buffer;
 

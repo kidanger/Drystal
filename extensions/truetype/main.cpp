@@ -28,7 +28,7 @@ Font* load_font(const char* filename, float size, int first_char=32, int num_cha
 
 	FILE* file = fopen(filename, "rb");
 	if (not file)
-		return nullptr;
+		return NULL;
 
 	// TODO: compute texture size
 	int w = 512;
@@ -254,7 +254,7 @@ void use_font(Font* font)
 void free_font(Font* font)
 {
 	if (font == current_font)
-		current_font = nullptr;
+		current_font = NULL;
 
 	Engine& engine = get_engine();
 	engine.display.free_surface(font->surface);

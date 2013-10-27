@@ -505,7 +505,7 @@ static int mlua_draw_quad(lua_State* L)
 
 static int mlua_new_shader(lua_State* L)
 {
-	const char *vert = nullptr, *frag_color = nullptr, *frag_tex = nullptr;
+	const char *vert = NULL, *frag_color = NULL, *frag_tex = NULL;
 	if (lua_gettop(L) >= 1) { // one argument, it's the vertex shader
 		vert = lua_tostring(L, 1);
 	}
@@ -526,7 +526,7 @@ static int mlua_new_shader(lua_State* L)
 static int mlua_use_shader(lua_State* L)
 {
 	if (lua_gettop(L) == 0) { // use defaut shader
-		engine->display.use_shader(nullptr);
+		engine->display.use_shader(NULL);
 	} else {
 		Shader* shader = (Shader*) lua_touserdata(L, -1);
 		engine->display.use_shader(shader);
@@ -567,7 +567,7 @@ static int mlua_new_buffer(lua_State* L)
 static int mlua_use_buffer(lua_State* L)
 {
 	if (lua_gettop(L) == 0) { // use defaut buffer
-		engine->display.use_buffer(nullptr);
+		engine->display.use_buffer(NULL);
 	} else {
 		Buffer* buffer = (Buffer*) lua_touserdata(L, -1);
 		engine->display.use_buffer(buffer);
