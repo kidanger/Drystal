@@ -157,6 +157,7 @@ void Display::resize(int w, int h)
 	Surface* old = screen;
 	size_x = w;
 	size_y = h;
+
 	sdl_screen = SDL_SetVideoMode(size_x, size_y, 32,
 			SDL_OPENGL| (resizable ? SDL_VIDEORESIZE : 0));
 #ifndef EMSCRIPTEN
@@ -688,7 +689,6 @@ Shader* Display::new_shader(const char* strvert, const char* strfragcolor, const
 		strfragtex = DEFAULT_FRAGMENT_SHADER_TEX;
 	}
 
-	printf("%s\n", SHADER_PREFIX);
 	char* new_strvert = new char[strlen(SHADER_PREFIX) + strlen(strvert) + 1];
 	strcpy(new_strvert, SHADER_PREFIX);
 	strcat(new_strvert, strvert);
