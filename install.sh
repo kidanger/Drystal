@@ -1,10 +1,18 @@
 #!/bin/sh -x
 
-BIN=/usr/bin
-LIB=/usr/lib64
-SHARE=/usr/share/drystal
+PREFIX=$1
+if [ -z "$1" ]; then
+	PREFIX=""
+fi
+echo Installing drystal at $PREFIX
 
-test -d $SHARE || mkdir $SHARE
+BIN=$PREFIX/usr/bin
+LIB=$PREFIX/usr/lib64
+SHARE=$PREFIX/usr/share/drystal
+
+test -d $BIN || mkdir -p $BIN
+test -d $LIB || mkdir -p $LIB
+test -d $SHARE || mkdir -p $SHARE
 
 cp build-native/drystal $BIN/
 cp build-native/external/liblua-drystal.so $LIB/
