@@ -612,20 +612,64 @@ static int mlua_load_sound(lua_State *L)
 	return 1;
 }
 
+static int mlua_create_sound(lua_State *L)
+{
+	/*
+	 * Multiple configurations allowed:
+	 * [1]: table
+	 * 	len = #table (can call __len)
+	 * 	data = table[i] (can call __index)
+	 * or
+	 * [1]: table
+	 * [2]: number
+	 * 	len = number
+	 * 	data = table[i] (can call __index)
+	 * or
+	 * [1]: function
+	 * [2]: number
+	 * 	len = number
+	 * 	data = function(i)
+	 */
+	unsigned int len;
+	if (lua_gettop(L) == 1) {
+		len = luaL_len(L, 1);
+	} else {
+		len = luaL_checknumber(L, 2);
+	}
+	printf("%d\n", len);
+
+	float buffer[len];
+	if (lua_istable(L, 1)) {
+		for (unsigned int i = 0; i < len; i++) {
+			lua_pushnumber(L, i + 1);
+			lua_gettable(L, 1);
+			buffer[i] = luaL_checknumber(L, -1);
+			lua_pop(L, 1);
+		}
+	} else if (lua_isfunction(L, 1)) {
+		for (unsigned int i = 0; i < len; i++) {
+			lua_pushvalue(L, 1);
+			lua_pushnumber(L, i);
+			lua_call(L, 1, 1);
+			buffer[i] = luaL_checknumber(L, -1);
+			lua_pop(L, 1);
+		}
+	}
+
+	void* chunk = engine->audio.create_sound(len, buffer);
+	lua_pushlightuserdata(L, chunk);
+	return 1;
+}
+
 static int mlua_play_sound(lua_State *L)
 {
 	Mix_Chunk *chunk = (Mix_Chunk *) lua_touserdata(L, 1);
-	int times = 1;
-	if (!lua_isnone(L, 2))
-		times = lua_tonumber(L, 2);
-	if (times == -1)
-		times = 0;
 
 	float volume = -1;
-	if (!lua_isnone(L, 3))
-		volume = lua_tonumber(L, 3);
+	if (!lua_isnone(L, 2))
+		volume = lua_tonumber(L, 2);
 
-	engine->audio.play_sound(chunk, times, volume);
+	engine->audio.play_sound(chunk, volume);
 	return 0;
 }
 
@@ -673,7 +717,6 @@ static int mlua_stop_music(lua_State* L)
 	engine->audio.stop_music();
 	return 0;
 }
-
 
 //
 // Lua load
@@ -736,6 +779,7 @@ int luaopen_drystal(lua_State* L)
 		DECLARE_FUNCTION(stop_music),
 
 		DECLARE_FUNCTION(load_sound),
+		DECLARE_FUNCTION(create_sound),
 		DECLARE_FUNCTION(play_sound),
 		DECLARE_FUNCTION(set_sound_volume),
 		DECLARE_FUNCTION(free_sound),

@@ -113,13 +113,23 @@ void Audio::stop_music()
 	SDL_mutexV(_mutex);
 }
 
-Mix_Chunk *Audio::load_sound(const char *filepath)
+Mix_Chunk* Audio::load_sound(const char *filepath)
 {
 	Mix_Chunk *chunk = Mix_LoadWAV(filepath);
 	if (chunk == NULL)
 	{
 		std::cerr << "[ERROR] cannot load sound file: `" << filepath << "': " << Mix_GetError() << std::endl;
 	}
+	return chunk;
+}
+
+Mix_Chunk* Audio::create_sound(unsigned int len, const float* buffer)
+{
+	uint16_t converted_buffer[len]; // 16bits per sample
+	for (unsigned int i = 0; i < len; i++) {
+		converted_buffer[i] = static_cast<uint16_t>(buffer[i] * 65535/2 + 65535/2);
+	}
+	Mix_Chunk *chunk = Mix_QuickLoad_RAW(reinterpret_cast<uint8_t*>(converted_buffer), len);
 	return chunk;
 }
 
@@ -131,7 +141,7 @@ void Audio::free_sound(Mix_Chunk *chunk)
 #ifdef EMSCRIPTEN
 static int next_channel = 0;
 #endif
-void Audio::play_sound(Mix_Chunk *chunk, int times, float volume)
+void Audio::play_sound(Mix_Chunk *chunk, float volume)
 {
 	if (volume != -1 && volume < 0 && volume > 1)
 	{
@@ -176,3 +186,4 @@ void Audio::set_sound_volume(float volume)
 	}
 	Mix_Volume(-1, volume * MIX_MAX_VOLUME);
 }
+

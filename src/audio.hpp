@@ -1,4 +1,6 @@
-#pragma once
+#ifndef AUDIO_H
+#define AUDIO_H
+
 #include <SDL/SDL_mutex.h>
 #include <SDL/SDL_mixer.h>
 #include <queue>
@@ -11,9 +13,10 @@ class Audio
 		Audio();
 		~Audio();
 
-		Mix_Chunk *load_sound(const char *filepath);
+		Mix_Chunk* load_sound(const char *filepath);
+		Mix_Chunk* create_sound(unsigned int len, const float* buffer);
 		void free_sound(Mix_Chunk *chunk);
-		void play_sound(Mix_Chunk *chunk, int times = 1, float volume = -1);
+		void play_sound(Mix_Chunk *chunk, float volume = -1);
 
 		void set_music_volume(float volume);
 		void set_sound_volume(float volume);
@@ -21,6 +24,7 @@ class Audio
 		static void play_music(const char *filepath, int times = 1);
 		static void play_music_queued(char *filepath);
 		static void stop_music();
+
 	private:
 		static void music_finished();
 
@@ -28,3 +32,5 @@ class Audio
 		static Mix_Music *_music;
 		static std::queue<char *> _musicQueue;
 };
+
+#endif
