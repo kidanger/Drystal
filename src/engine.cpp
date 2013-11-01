@@ -112,6 +112,9 @@ void Engine::update()
 	float dt = (get_now() - last_update) / 1000;
 	last_update = get_now();
 
+	audio.update(dt);
+	AT(audio)
+
 	if (update_activated)
 		lua.call_update(dt);
 	AT(game);

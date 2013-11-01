@@ -1,3 +1,5 @@
+#include <cstring>
+
 #include <lua.hpp>
 
 #include "engine.hpp"

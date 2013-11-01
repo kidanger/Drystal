@@ -1,11 +1,32 @@
 #ifndef AUDIO_H
 #define AUDIO_H
 
-#include <SDL/SDL_mutex.h>
-#include <SDL/SDL_mixer.h>
-#include <queue>
+#include <AL/al.h>
+#include <AL/alc.h>
 
-#include "log.hpp"
+struct Sound;
+struct Music;
+
+struct Source {
+	ALuint alSource;
+	bool used;
+	bool isMusic;
+	union {
+		Sound* currentSound;
+		Music* currentMusic;
+	};
+	float desiredVolume;
+};
+
+struct Sound {
+	ALuint alBuffer;
+};
+
+struct Music {
+	Source* source;
+	ALuint alBuffer;
+	int callback;
+};
 
 class Audio
 {
@@ -13,24 +34,25 @@ class Audio
 		Audio();
 		~Audio();
 
-		Mix_Chunk* load_sound(const char *filepath);
-		Mix_Chunk* create_sound(unsigned int len, const float* buffer);
-		void free_sound(Mix_Chunk *chunk);
-		void play_sound(Mix_Chunk *chunk, float volume = -1);
+		void update(float dt);
+
+		Sound* load_sound(const char *filepath);
+		Sound* create_sound(unsigned int len, const float* buffer);
+		void play_sound(Sound* sound, float volume=1, float x=0, float y=0);
+		void free_sound(Sound* sound);
+
+		Music* load_music(int callback);
+		void play_music(Music* music);
+		void stop_music(Music* music);
 
 		void set_music_volume(float volume);
 		void set_sound_volume(float volume);
 
-		static void play_music(const char *filepath, int times = 1);
-		static void play_music_queued(char *filepath);
-		static void stop_music();
-
 	private:
-		static void music_finished();
-
-		static SDL_mutex *_mutex;
-		static Mix_Music *_music;
-		static std::queue<char *> _musicQueue;
+		ALCcontext* context;
+		ALCdevice* device;
+		float globalSoundVolume;
+		float globalMusicVolume;
 };
 
 #endif

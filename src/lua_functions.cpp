@@ -1,3 +1,5 @@
+#include <cstring>
+
 #include <lua.hpp>
 
 #include "engine.hpp"
@@ -662,37 +664,36 @@ static int mlua_create_sound(lua_State *L)
 
 static int mlua_play_sound(lua_State *L)
 {
-	Mix_Chunk *chunk = (Mix_Chunk *) lua_touserdata(L, 1);
+	Sound* chunk = (Sound*) lua_touserdata(L, 1);
 
-	float volume = -1;
+	float volume = 1;
+	float x = 0;
+	float y = 0;
 	if (!lua_isnone(L, 2))
 		volume = lua_tonumber(L, 2);
+	if (!lua_isnone(L, 3))
+		x = lua_tonumber(L, 3);
+	if (!lua_isnone(L, 4))
+		y = lua_tonumber(L, 4);
 
-	engine->audio.play_sound(chunk, volume);
+	engine->audio.play_sound(chunk, volume, x, y);
 	return 0;
 }
 
 static int mlua_free_sound(lua_State *L)
 {
-	Mix_Chunk *chunk = (Mix_Chunk *) lua_touserdata(L, -1);
+	Sound* chunk = (Sound *) lua_touserdata(L, -1);
 	engine->audio.free_sound(chunk);
-	return 0;
-}
-
-static int mlua_play_music_queued(lua_State *L)
-{
-	const char *filepath = lua_tostring(L, -1);
-	engine->audio.play_music_queued(strdup(filepath));
 	return 0;
 }
 
 static int mlua_play_music(lua_State *L)
 {
-	const char *filepath = lua_tostring(L, 1);
-	int times = 1;
-	if (!lua_isnone(L, 2))
-		times = lua_tonumber(L, 2);
-	engine->audio.play_music(filepath, times);
+	//const char *filepath = lua_tostring(L, 1);
+	//int times = 1;
+	//if (!lua_isnone(L, 2))
+	//	times = lua_tonumber(L, 2);
+	//engine->audio.play_music(filepath, times);
 	return 0;
 }
 
@@ -713,7 +714,7 @@ static int mlua_set_music_volume(lua_State *L)
 static int mlua_stop_music(lua_State* L)
 {
 	(void) L;
-	engine->audio.stop_music();
+	// engine->audio.stop_music();
 	return 0;
 }
 
@@ -773,7 +774,6 @@ int luaopen_drystal(lua_State* L)
 		DECLARE_FUNCTION(free_buffer),
 
 		DECLARE_FUNCTION(play_music),
-		DECLARE_FUNCTION(play_music_queued),
 		DECLARE_FUNCTION(set_music_volume),
 		DECLARE_FUNCTION(stop_music),
 
