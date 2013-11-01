@@ -636,7 +636,6 @@ static int mlua_create_sound(lua_State *L)
 	} else {
 		len = luaL_checknumber(L, 2);
 	}
-	printf("%d\n", len);
 
 	float buffer[len];
 	if (lua_istable(L, 1)) {
