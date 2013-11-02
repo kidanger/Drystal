@@ -4,7 +4,7 @@ local w = 800
 local h = 500
 local x = w/2
 local y = h/2
-local RATE = 16000
+local RATE = 22000
 
 local sound
 local current = 0
@@ -47,10 +47,8 @@ function drystal.init()
 	drystal.play_music(music)
 end
 
-local time = 0
 function drystal.update(dt)
 	dt = dt / 1000
-	time = time
 end
 
 function drystal.draw(dt)
@@ -66,3 +64,4 @@ function drystal.key_press(k)
 		drystal.stop()
 	end
 end
+

@@ -692,14 +692,20 @@ class LuaMusicCallback : public MusicCallback {
 	public:
 		lua_State* L;
 		int ref;
+		int table_ref;
+
+		LuaMusicCallback() {
+			table_ref = LUA_NOREF;
+		}
 
 		int feed_buffer(unsigned short* buffer, unsigned int len)
 		{
-			lua_createtable(L, len, 0);
-			int table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
-
+			if (table_ref == LUA_NOREF) {
+				lua_createtable(L, len, 0);
+				this->table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+			}
 			lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
-			lua_rawgeti(L, LUA_REGISTRYINDEX, table_ref);
+			lua_rawgeti(L, LUA_REGISTRYINDEX, this->table_ref);
 			lua_pushunsigned(L, len);
 			lua_call(L, 2, 1);
 
@@ -713,12 +719,13 @@ class LuaMusicCallback : public MusicCallback {
 				buffer[k] = sample * (1<<15) + (1<<15);
 				lua_pop(L, 1);
 			}
-			luaL_unref(L, LUA_REGISTRYINDEX, table_ref);
 			return i;
 		}
 
 		~LuaMusicCallback() {
 			luaL_unref(L, LUA_REGISTRYINDEX, ref);
+			if (table_ref != LUA_NOREF)
+				luaL_unref(L, LUA_REGISTRYINDEX, table_ref);
 		}
 };
 
