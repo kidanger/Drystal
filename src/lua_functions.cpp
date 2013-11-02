@@ -1,4 +1,5 @@
 #include <cstring>
+#include <cmath>
 
 #include <lua.hpp>
 
@@ -687,13 +688,57 @@ static int mlua_free_sound(lua_State *L)
 	return 0;
 }
 
+class LuaMusicCallback : public MusicCallback {
+	public:
+		lua_State* L;
+		int ref;
+
+		int feed_buffer(unsigned short* buffer, unsigned int len)
+		{
+			lua_createtable(L, len, 0);
+			int table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+
+			lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
+			lua_rawgeti(L, LUA_REGISTRYINDEX, table_ref);
+			lua_pushunsigned(L, len);
+			lua_call(L, 2, 1);
+
+			unsigned int i = lua_tounsigned(L, -1);
+			lua_pop(L, 1);
+
+			lua_rawgeti(L, LUA_REGISTRYINDEX, table_ref);
+			for (unsigned int k = 1; k <= i; k++) {
+				lua_rawgeti(L, -1, k);
+				lua_Number sample = lua_tonumber(L, -1);
+				buffer[k] = sample * (1<<15) + (1<<15);
+				lua_pop(L, 1);
+			}
+			luaL_unref(L, LUA_REGISTRYINDEX, table_ref);
+			return i;
+		}
+
+		~LuaMusicCallback() {
+			luaL_unref(L, LUA_REGISTRYINDEX, ref);
+		}
+};
+
+static int mlua_load_music(lua_State *L)
+{
+	LuaMusicCallback* callback = new LuaMusicCallback;
+	callback->L = L;
+	lua_pushvalue(L, 1);
+	callback->ref = luaL_ref(L, LUA_REGISTRYINDEX);
+
+	int samplesrate = samplesrate = luaL_optnumber(L, 2, DEFAULT_SAMPLES_RATE);
+	Music* music = engine->audio.load_music(callback, samplesrate);
+	lua_pushlightuserdata(L, music);
+	return 1;
+}
+
 static int mlua_play_music(lua_State *L)
 {
-	//const char *filepath = lua_tostring(L, 1);
-	//int times = 1;
-	//if (!lua_isnone(L, 2))
-	//	times = lua_tonumber(L, 2);
-	//engine->audio.play_music(filepath, times);
+	Music* music = (Music*) lua_touserdata(L, 1);
+	engine->audio.play_music(music);
 	return 0;
 }
 
@@ -713,8 +758,8 @@ static int mlua_set_music_volume(lua_State *L)
 
 static int mlua_stop_music(lua_State* L)
 {
-	(void) L;
-	// engine->audio.stop_music();
+	Music* music = (Music*) lua_touserdata(L, 1);
+	engine->audio.stop_music(music);
 	return 0;
 }
 
@@ -773,6 +818,7 @@ int luaopen_drystal(lua_State* L)
 		DECLARE_FUNCTION(upload_and_free_buffer),
 		DECLARE_FUNCTION(free_buffer),
 
+		DECLARE_FUNCTION(load_music),
 		DECLARE_FUNCTION(play_music),
 		DECLARE_FUNCTION(set_music_volume),
 		DECLARE_FUNCTION(stop_music),

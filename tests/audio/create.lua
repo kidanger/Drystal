@@ -1,48 +1,56 @@
 local drystal = require 'drystal'
 
 local w = 800
-local h = 600
+local h = 500
+local x = w/2
+local y = h/2
+local RATE = 16000
 
 local sound
-local x = 0
-local y = 0
+local current = 0
 
 function play(time, ...)
-	if sound then
-		drystal.free_sound(sound)
-	end
-
 	local freqs = {...}
 	print("gen...")
-
-	local sound = drystal.create_sound(function(i)
+	local new = drystal.create_sound(function(i)
 		local s = 0
 		for _, f in ipairs(freqs) do
-			s = s + math.sin(i*f*math.pi / 44100)
+			s = s + math.sin(i*f*math.pi / RATE)
 		end
 		s = s / #freqs
 		return s
-	end, time*44100)
-
-	drystal.play_sound(sound, 0.3, (x-w/2)/w, (y-h/2)/h)
+	end, time*RATE)
+	drystal.play_sound(new)
 	print("play at", ...)
+
+	if sound then
+		drystal.free_sound(sound)
+	end
+	sound = new
+end
+
+local cursor = 0
+function music_callback(data, len)
+	local freq = 1800 * x / w
+	local tone = freq * math.pi / RATE
+	for i = 1, len do
+		data[i] = math.sin(cursor * tone)
+		cursor = cursor + 1
+	end
+	return len
 end
 
 function drystal.init()
 	drystal.resize(w, h)
+	drystal.set_music_volume(.2)
+	local music = drystal.load_music(music_callback, RATE)
+	drystal.play_music(music)
 end
 
 local time = 0
 function drystal.update(dt)
 	dt = dt / 1000
-	time = time + dt
-
-	if time > .2 then
-		local freq = 1800 * x / w
-		local freq2 = 1800 * y / h
-		play(time+dt, freq, freq2)
-		time = 0
-	end
+	time = time
 end
 
 function drystal.draw(dt)
@@ -58,4 +66,3 @@ function drystal.key_press(k)
 		drystal.stop()
 	end
 end
-

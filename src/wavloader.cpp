@@ -1,12 +1,11 @@
 #include <cstdio>
 #include <cstring>
-#include <iostream>
 
 int load_wav(const char* filename, void** buffer, int* length, int* format, int* channels, int* samplerate)
 {
 	FILE* file = fopen(filename, "rb");
 	char tag[4];
-	uint32_t filesize;
+	unsigned int filesize;
 	char filetype[4];
 	char fmt[4];
 
@@ -21,5 +20,6 @@ int load_wav(const char* filename, void** buffer, int* length, int* format, int*
 	}
 	fread(fmt, 4, 1, file);
 	return 0;
+	// TODO
 }
 

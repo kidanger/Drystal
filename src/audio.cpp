@@ -62,11 +62,21 @@ Audio::~Audio()
 void Audio::update(float dt)
 {
 	(void)dt;
+
 	ALint status;
 	for (int i = 0; i < NUM_SOURCES; i++) {
 		Source& source = sources[i];
+		if (not source.used)
+			continue;
 		alGetSourcei(source.alSource, AL_SOURCE_STATE, &status);
 		source.used = status == AL_PLAYING;
+
+		if (source.used and source.isMusic) {
+			Music* music = source.currentMusic;
+			if (not music->ended) {
+				stream_music(music);
+			}
+		}
 	}
 }
 
@@ -93,7 +103,7 @@ Sound* Audio::load_sound(const char *filepath)
 	return sound;
 }
 
-Sound* Audio::create_sound(unsigned int len, const float* buffer)
+Sound* Audio::create_sound(unsigned int len, const float* buffer, int samplesrate)
 {
 	ALushort converted_buffer[len]; // 16bits per sample
 	for (unsigned int i = 0; i < len; i++) {
@@ -103,7 +113,7 @@ Sound* Audio::create_sound(unsigned int len, const float* buffer)
 	Sound* sound = new Sound;
 	alGenBuffers(1, &sound->alBuffer);
 	alBufferData(sound->alBuffer, AL_FORMAT_MONO16,
-			converted_buffer, len * sizeof(ALushort), 44100);
+			converted_buffer, len * sizeof(ALushort), samplesrate);
 
 	error()
 	return sound;
@@ -116,20 +126,20 @@ void Audio::free_sound(Sound* sound)
 	delete sound;
 }
 
-void Audio::play_sound(Sound* sound, float volume, float x, float y)
+static Source* get_free_source()
 {
-	Source* source = NULL;
-
 	for (int i = 0; i < NUM_SOURCES; i++) {
 		if (not sources[i].used) {
-			source = &sources[i];
-			break;
+			return &sources[i];
 		}
 	}
-	if (not source) {
-		fprintf(stderr, "no more source available\n");
-		return;
-	}
+	fprintf(stderr, "no more source available\n");
+	return NULL;
+}
+
+void Audio::play_sound(Sound* sound, float volume, float x, float y)
+{
+	Source* source = get_free_source();
 
 	error()
 	alSourcei(source->alSource, AL_BUFFER, sound->alBuffer);
@@ -147,14 +157,83 @@ void Audio::play_sound(Sound* sound, float volume, float x, float y)
 	source->desiredVolume = volume;
 }
 
+Music* Audio::load_music(MusicCallback* callback, int samplesrate)
+{
+	Music* music = new Music;
+	music->callback = callback;
+	music->samplesrate = samplesrate;
+	music->buffersize = samplesrate * .1;
+	alGenBuffers(STREAM_NUM_BUFFERS, music->alBuffers);
+	error()
+	return music;
+}
+
 void Audio::play_music(Music* music)
 {
-//	alSourcei(alSourceID, AL_SOURCE_RELATIVE, AL_TRUE);
-//	alSource3f(alSourceID, AL_POSITION, 0.0f, 0.0f, 0.0f);
+	Source* source = get_free_source();
+
+	ALushort buff[music->buffersize];
+	unsigned int len;
+	for (int i = 0; i < STREAM_NUM_BUFFERS; i++) {
+		len = music->callback->feed_buffer(buff, music->buffersize);
+		alBufferData(music->alBuffers[i], AL_FORMAT_MONO16, buff, len*sizeof(ALushort), music->samplesrate);
+		error()
+	}
+
+	alSourceQueueBuffers(source->alSource, STREAM_NUM_BUFFERS, music->alBuffers);
+	alSourcef(source->alSource, AL_GAIN, globalMusicVolume);
+	alSourcePlay(source->alSource);
+	error()
+
+	music->source = source;
+	music->ended = 0;
+	source->isMusic = true;
+	source->currentMusic = music;
+	source->used = true;
+	source->desiredVolume = 1;
+}
+
+void Audio::stream_music(Music* music)
+{
+	Source* source = music->source;
+
+	ALint processed;
+	alGetSourcei(source->alSource, AL_BUFFERS_PROCESSED, &processed);
+
+	while(processed--)
+	{
+		ALuint buffer;
+
+		alSourceUnqueueBuffers(source->alSource, 1, &buffer);
+		error()
+
+		ALushort buff[music->buffersize];
+		unsigned int len = music->callback->feed_buffer(buff, music->buffersize);
+		alBufferData(buffer, AL_FORMAT_MONO16, buff, len*sizeof(ALushort), music->samplesrate);
+
+		if (len < music->buffersize)
+			music->ended = true;
+
+		alSourceQueueBuffers(source->alSource, 1, &buffer);
+		error()
+	}
 }
 
 void Audio::stop_music(Music* music)
 {
+	Source* source = music->source;
+	alSourceStop(source->alSource);
+	source->used = false;
+}
+
+void Audio::free_music(Music* music)
+{
+	if (music->source) {
+		stop_music(music);
+	}
+	alDeleteBuffers(2, music->alBuffers);
+	delete music->callback;
+	delete music;
 }
 
 void Audio::set_music_volume(float volume)

@@ -22,11 +22,23 @@ struct Sound {
 	ALuint alBuffer;
 };
 
+class MusicCallback {
+	public:
+		virtual ~MusicCallback() {}
+		virtual int feed_buffer(unsigned short * buffer, unsigned int len) = 0;
+};
+
+#define STREAM_NUM_BUFFERS 3
 struct Music {
 	Source* source;
-	ALuint alBuffer;
-	int callback;
+	ALuint alBuffers[STREAM_NUM_BUFFERS];
+	MusicCallback* callback;
+	int samplesrate;
+	size_t buffersize;
+	bool ended;
 };
+
+#define DEFAULT_SAMPLES_RATE 44100
 
 class Audio
 {
@@ -37,13 +49,14 @@ class Audio
 		void update(float dt);
 
 		Sound* load_sound(const char *filepath);
-		Sound* create_sound(unsigned int len, const float* buffer);
+		Sound* create_sound(unsigned int len, const float* buffer, int samplesrate=DEFAULT_SAMPLES_RATE);
 		void play_sound(Sound* sound, float volume=1, float x=0, float y=0);
 		void free_sound(Sound* sound);
 
-		Music* load_music(int callback);
+		Music* load_music(MusicCallback* callback, int samplesrate=DEFAULT_SAMPLES_RATE);
 		void play_music(Music* music);
 		void stop_music(Music* music);
+		void free_music(Music* music);
 
 		void set_music_volume(float volume);
 		void set_sound_volume(float volume);
@@ -53,6 +66,8 @@ class Audio
 		ALCdevice* device;
 		float globalSoundVolume;
 		float globalMusicVolume;
+
+		void stream_music(Music* music);
 };
 
 #endif
