@@ -698,7 +698,7 @@ class LuaMusicCallback : public MusicCallback {
 			table_ref = LUA_NOREF;
 		}
 
-		int feed_buffer(unsigned short* buffer, unsigned int len)
+		unsigned int feed_buffer(unsigned short* buffer, unsigned int len)
 		{
 			if (table_ref == LUA_NOREF) {
 				lua_createtable(L, len, 0);
@@ -731,13 +731,19 @@ class LuaMusicCallback : public MusicCallback {
 
 static int mlua_load_music(lua_State *L)
 {
-	LuaMusicCallback* callback = new LuaMusicCallback;
-	callback->L = L;
-	lua_pushvalue(L, 1);
-	callback->ref = luaL_ref(L, LUA_REGISTRYINDEX);
+	Music* music;
+	if (lua_isstring(L, 1)) {
+		const char* filename = lua_tostring(L, 1);
+		music = engine->audio.load_music_from_file(filename);
+	} else {
+		LuaMusicCallback* callback = new LuaMusicCallback;
+		callback->L = L;
+		lua_pushvalue(L, 1);
+		callback->ref = luaL_ref(L, LUA_REGISTRYINDEX);
 
-	int samplesrate = samplesrate = luaL_optnumber(L, 2, DEFAULT_SAMPLES_RATE);
-	Music* music = engine->audio.load_music(callback, samplesrate);
+		int samplesrate = samplesrate = luaL_optnumber(L, 2, DEFAULT_SAMPLES_RATE);
+		music = engine->audio.load_music(callback, samplesrate);
+	}
 	lua_pushlightuserdata(L, music);
 	return 1;
 }

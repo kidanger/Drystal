@@ -1,6 +1,8 @@
 #include <cassert>
 #include <cstdio>
 
+#include "stb_vorbis.c"
+
 #include "audio.hpp"
 #include "wavloader.hpp"
 
@@ -140,6 +142,8 @@ static Source* get_free_source()
 void Audio::play_sound(Sound* sound, float volume, float x, float y)
 {
 	Source* source = get_free_source();
+	if (not source)
+		return;
 
 	error()
 	alSourcei(source->alSource, AL_BUFFER, sound->alBuffer);
@@ -157,26 +161,63 @@ void Audio::play_sound(Sound* sound, float volume, float x, float y)
 	source->desiredVolume = volume;
 }
 
-Music* Audio::load_music(MusicCallback* callback, int samplesrate)
+Music* Audio::load_music(MusicCallback* callback, int samplesrate, int num_channels)
 {
 	Music* music = new Music;
 	music->callback = callback;
 	music->samplesrate = samplesrate;
-	music->buffersize = samplesrate * .1;
+	music->buffersize = samplesrate * .1 * num_channels;
+	music->format = num_channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
 	alGenBuffers(STREAM_NUM_BUFFERS, music->alBuffers);
 	error()
 	return music;
 }
 
+class VorbisMusicCallback : public MusicCallback {
+	public:
+		stb_vorbis* stream;
+		stb_vorbis_info info;
+
+		~VorbisMusicCallback()
+		{
+			stb_vorbis_close(stream);
+		}
+
+		unsigned int feed_buffer(unsigned short * buffer, unsigned int len)
+		{
+			int size = stb_vorbis_get_samples_short_interleaved(
+									this->stream, this->info.channels,
+									reinterpret_cast<short*>(buffer), len);
+			size *= this->info.channels;
+			return size;
+		}
+};
+Music* Audio::load_music_from_file(const char* filename)
+{
+	VorbisMusicCallback* callback = new VorbisMusicCallback;
+
+	callback->stream = stb_vorbis_open_filename((char*) filename, NULL, NULL);
+	if (not callback->stream) {
+		fprintf(stderr, "cannot load %s\n", filename);
+		return NULL;
+	}
+
+	callback->info = stb_vorbis_get_info(callback->stream);
+
+	return load_music(callback, callback->info.sample_rate, callback->info.channels);
+}
+
 void Audio::play_music(Music* music)
 {
 	Source* source = get_free_source();
+	if (not source)
+		return;
 
 	ALushort buff[music->buffersize];
 	unsigned int len;
 	for (int i = 0; i < STREAM_NUM_BUFFERS; i++) {
 		len = music->callback->feed_buffer(buff, music->buffersize);
-		alBufferData(music->alBuffers[i], AL_FORMAT_MONO16, buff, len*sizeof(ALushort), music->samplesrate);
+		alBufferData(music->alBuffers[i], music->format, buff, len*sizeof(ALushort), music->samplesrate);
 		error()
 	}
 
@@ -203,16 +244,17 @@ void Audio::stream_music(Music* music)
 	while(processed--)
 	{
 		ALuint buffer;
-
 		alSourceUnqueueBuffers(source->alSource, 1, &buffer);
 		error()
 
 		ALushort buff[music->buffersize];
 		unsigned int len = music->callback->feed_buffer(buff, music->buffersize);
-		alBufferData(buffer, AL_FORMAT_MONO16, buff, len*sizeof(ALushort), music->samplesrate);
+		alBufferData(buffer, music->format, buff, len*sizeof(ALushort), music->samplesrate);
+		error()
 
-		if (len < music->buffersize)
+		if (len < music->buffersize) {
 			music->ended = true;
+		}
 
 		alSourceQueueBuffers(source->alSource, 1, &buffer);
 		error()
@@ -242,7 +284,8 @@ void Audio::set_music_volume(float volume)
 	for (int i = 0; i < NUM_SOURCES; i++) {
 		Source& source = sources[i];
 		if (source.isMusic) {
-			alSourcei(source.alSource, AL_GAIN, source.desiredVolume*volume);
+			alSourcef(source.alSource, AL_GAIN, source.desiredVolume*volume);
+			error()
 		}
 	}
 }
@@ -253,7 +296,8 @@ void Audio::set_sound_volume(float volume)
 	for (int i = 0; i < NUM_SOURCES; i++) {
 		Source& source = sources[i];
 		if (not source.isMusic) {
-			alSourcei(source.alSource, AL_GAIN, source.desiredVolume*volume);
+			alSourcef(source.alSource, AL_GAIN, source.desiredVolume*volume);
+			error()
 		}
 	}
 }
