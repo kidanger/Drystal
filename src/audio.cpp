@@ -2,9 +2,9 @@
 #include <cstdio>
 
 #include "stb_vorbis.c"
+#include "wavloader.c"
 
 #include "audio.hpp"
-#include "wavloader.hpp"
 
 #define NUM_SOURCES 16
 
