@@ -24,6 +24,7 @@ extern "C" {
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 int load_wav(const char* filename, void** buffer, int* length, int* format, int* channels, int* samplerate)
 {
