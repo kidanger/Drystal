@@ -102,8 +102,8 @@ class Display
 				*dy *= -1.;
 		}
 		inline void convert_texcoords(float x, float y, float *dx, float *dy) {
-			*dx = (x + 1.) / current_from->texw;
-			*dy = (y + 1.) / current_from->texh;
+			*dx = x / current_from->texw;
+			*dy = y / current_from->texh;
 		}
 
 		void update_camera_matrix();
