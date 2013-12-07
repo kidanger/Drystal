@@ -60,7 +60,7 @@ function drystal.init()
 
 	shader = drystal.new_shader(vert)
 	if not shader then
-		drystal.engine_stop()
+		drystal.stop()
 	end
 	drystal.display_logo(spritesheet.frames['logo.png'].frame)
 end
@@ -103,8 +103,8 @@ function drystal.draw()
 end
 
 function drystal.key_press(key)
-	if key == 'escape' then
-		drystal.engine_stop()
+	if key == 'a' then
+		drystal.stop()
 	end
 end
 

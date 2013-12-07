@@ -6,6 +6,7 @@ local image
 local image_sprite = {x=16, y=16, w=32, h=32}
 function drystal.init()
 	drystal.resize(800, 600)
+	drystal.camera.reset()
 	drystal.set_filter_mode(drystal.FILTER_NEAREST)
 
 	image = drystal.load_surface('precise.png')
@@ -71,3 +72,4 @@ function drystal.key_press(k)
 		drystal.stop()
 	end
 end
+

@@ -3,9 +3,9 @@ local web = require 'web'
 
 function drystal.init()
 	print(web.is_web())
-	web.wget('/src/log.hpp', 'lol', onsuccess, onerror)
-	web.wget('src/log.hpp', 'kk', onsuccess, onerror)
-	web.wget('http://google.fr', 'k2', onsuccess, onerror)
+	web.wget('/', 'f1', onsuccess, onerror)
+	web.wget('src/log.hpp', 'f2', onsuccess, onerror)
+	web.wget('http://google.fr', 'f3', onsuccess, onerror)
 	print 'boom'
 end
 
@@ -18,5 +18,6 @@ function onerror(filename)
 end
 
 function drystal.update()
-	drystal.engine_stop()
+	drystal.stop()
 end
+

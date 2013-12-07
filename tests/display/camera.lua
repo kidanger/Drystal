@@ -1,6 +1,10 @@
 local drystal = require 'drystal'
 
 assert(drystal.camera.x == 0)
+assert(drystal.camera.y == 0)
+assert(drystal.camera.angle == 0)
+assert(drystal.camera.zoom == 1)
+
 assert(drystal.camera.blo == nil)
 drystal.camera.blo = "t"
 assert(drystal.camera.blo == "t")
@@ -22,13 +26,12 @@ end
 function mouse_motion(x, y)
 	drystal.camera.x = x
 	drystal.camera.y = y
-	drystal.camera.angle = math.random()*math.pi*2
-	print(drystal.camera.x, drystal.camera.y)
+	drystal.camera.angle = drystal.camera.angle + math.pi/32
 end
 
 function drystal.key_press(k)
 	if k == 'a' then
-		drystal.engine_stop()
+		drystal.stop()
 	end
 end
 

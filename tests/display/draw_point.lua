@@ -50,6 +50,6 @@ end
 
 function drystal.key_press(k)
 	if k == 'a' then
-		drystal.engine_stop()
+		drystal.stop()
 	end
 end

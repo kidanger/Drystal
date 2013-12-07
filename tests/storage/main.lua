@@ -3,6 +3,9 @@ local storage = require 'storage'
 
 local data = storage.load('test_storage')
 print(data)
+if data then
+	print(data.text)
+end
 
 print('saving...')
 storage.save('test_storage', {text='blabla'})
@@ -17,5 +20,5 @@ else
 end
 
 function drystal.init()
-	drystal.engine_stop()
+	drystal.stop()
 end

@@ -7,6 +7,7 @@ function drystal.init()
 	drystal.resize(600, 400)
 	image = drystal.load_surface(spritesheet.meta.image)
 	drystal.draw_from(image)
+	print('b to toggle buffer')
 end
 
 local bufferize = true
@@ -60,8 +61,8 @@ function heavy_draw(number)
 end
 
 function drystal.key_press(key)
-	if key == 'escape' then
-		drystal.engine_stop()
+	if key == 'a' then
+		drystal.stop()
 	elseif key == 'b' then
 		bufferize = not bufferize
 	end

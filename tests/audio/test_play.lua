@@ -12,7 +12,7 @@ end
 
 function drystal.key_press(key)
 	if key == 'a' then
-		drystal.engine_stop()
+		drystal.stop()
 	elseif key == 'p' then
 		drystal.play_sound(piou)
 	elseif key == 'l' then

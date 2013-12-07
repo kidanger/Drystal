@@ -16,5 +16,5 @@ function drystal.draw()
 end
 
 function drystal.key_press()
-	drystal.engine_stop()
+	drystal.stop()
 end

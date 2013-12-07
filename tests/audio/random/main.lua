@@ -1,9 +1,6 @@
 local drystal = require 'drystal'
 local web = require 'web'
 
---local audio = require 'audio'
---print(audio.init())
-
 local sounds = {
 	'jump1.wav',
 	'jump2.wav',
@@ -28,6 +25,7 @@ end
 
 function drystal.init()
 	drystal.resize(400, 400)
+	drystal.set_sound_volume(0.1)
 end
 
 function drystal.mouse_motion()
@@ -36,6 +34,6 @@ end
 
 function drystal.key_press(k)
 	if k == 'escape' or k == 'a' then
-		drystal.engine_stop()
+		drystal.stop()
 	end
 end

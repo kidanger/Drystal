@@ -82,12 +82,10 @@ end
 function drystal.key_press(k)
 	if k == 'space' then
 		sys1:set_running(not sys1:is_running())
-	end
-	if k == 'a' then
-		particle.free(sys1);
-	for _, s in ipairs(systems) do
-		s:free()
-	end
-		drystal.engine_stop()
+	elseif k == 'c' then
+		systems = {}
+	elseif k == 'a' then
+		drystal.stop()
 	end
 end
+
