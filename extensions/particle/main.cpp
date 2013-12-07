@@ -452,9 +452,6 @@ int particle_add_color(lua_State* L)
 	return 0;
 }
 
-//lua_Number g = luaL_checknumber(L, 4);
-//lua_Number b = luaL_checknumber(L, 5);
-
 int particle_free(lua_State* L)
 {
 	System* system = (System*) lua_touserdata(L, 1);

@@ -9,6 +9,10 @@ particle.rawnew_system = particle.new_system
 local System = {}
 System.__index = System
 
+function System:__gc()
+	self:free()
+end
+
 local function is_getset(funcname)
 	if funcname:sub(1, string.len('set_min_')) == 'set_min_' then
 		return true
