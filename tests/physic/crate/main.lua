@@ -16,7 +16,7 @@ end
 
 function makeCrate(x, y)
 	local s = physic.new_shape('box', 32, 32)
-	local b = physic.new_body(s, 'dynamic')
+	local b = physic.new_body(true, s)
 	b:set_position(x*32 + 16, y*32 + 16)
 	b:set_fixed_rotation(true)
 	b:set_linear_damping(4)
@@ -25,7 +25,7 @@ end
 
 function makePlayer()
 	local s = physic.new_shape('circle', 16)
-	local b = physic.new_body(s, 'dynamic')
+	local b = physic.new_body(true, s)
 	b:set_position(48, 48)
 	return {body=b, shape=s}
 end
