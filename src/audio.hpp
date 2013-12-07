@@ -64,11 +64,13 @@ class Audio
 		void set_sound_volume(float volume);
 
 	private:
+		bool initialized;
 		ALCcontext* context;
 		ALCdevice* device;
 		float globalSoundVolume;
 		float globalMusicVolume;
 
+		bool init();
 		void stream_music(Music* music);
 };
 

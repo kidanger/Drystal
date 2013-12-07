@@ -8,13 +8,13 @@
 
 #define NUM_SOURCES 16
 
-#define error() \
-{ \
-	ALint error; \
-	while ((error = alGetError()) != AL_NO_ERROR) { \
-		fprintf(stderr, "[ALerr] %s:%d %s\n", __func__, __LINE__, getAlError(error)); \
-	} \
-}
+#define error() do { \
+		ALint error; \
+		while ((error = alGetError()) != AL_NO_ERROR) { \
+			fprintf(stderr, "[ALerr] %s:%d %s\n", __func__, __LINE__, getAlError(error)); \
+		} \
+	} while (false)
+
 const char* getAlError(ALint error)
 {
 #define casereturn(x) case x: return #x
@@ -31,39 +31,65 @@ const char* getAlError(ALint error)
 	return "";
 }
 
+#define INIT_IF_NEEDED(ret) do { \
+		if (!initialized) \
+			init(); \
+		if (!initialized) \
+			return ret; \
+	} while (false)
+
 Source sources[NUM_SOURCES];
 
 Audio::Audio() :
+	initialized(false),
 	globalSoundVolume(1.),
 	globalMusicVolume(1.)
 {
-	device = alcOpenDevice(NULL);
-	if (!device)
-		fprintf(stderr, "cannot open device\n");
-
-	context = alcCreateContext(device, NULL);
-	if (!context)
-		fprintf(stderr, "cannot create context\n");
-
-	if (!alcMakeContextCurrent(context))
-		fprintf(stderr, "cannot make context\n");
-	for (int i = 0; i < NUM_SOURCES; i++)
-		alGenSources(1, &sources[i].alSource);
 }
 
 Audio::~Audio()
 {
-	for (int i = 0; i < NUM_SOURCES; i++)
-		alDeleteSources(1, &sources[i].alSource);
+	if (initialized) {
+		for (int i = 0; i < NUM_SOURCES; i++)
+			alDeleteSources(1, &sources[i].alSource);
 
-	alcMakeContextCurrent(NULL);
-	alcDestroyContext(context);
-	alcCloseDevice(device);
+		alcMakeContextCurrent(NULL);
+		alcDestroyContext(context);
+		alcCloseDevice(device);
+	}
+}
+
+bool Audio::init()
+{
+	device = alcOpenDevice(NULL);
+	if (!device) {
+		fprintf(stderr, "cannot open device\n");
+		return false;
+	}
+
+	context = alcCreateContext(device, NULL);
+	if (!context) {
+		fprintf(stderr, "cannot create context\n");
+		return false;
+	}
+
+	if (!alcMakeContextCurrent(context)) {
+		fprintf(stderr, "cannot make context\n");
+		return false;
+	}
+
+	for (int i = 0; i < NUM_SOURCES; i++)
+		alGenSources(1, &sources[i].alSource);
+
+	initialized = true;
+	return true;
 }
 
 void Audio::update(float dt)
 {
 	(void)dt;
+	if (!initialized)
+		return;
 
 	ALint status;
 	for (int i = 0; i < NUM_SOURCES; i++) {
@@ -84,6 +110,7 @@ void Audio::update(float dt)
 
 Sound* Audio::load_sound(const char *filepath)
 {
+	INIT_IF_NEEDED(NULL);
 	Sound* sound = new Sound;
 
 	void* buffer;
@@ -101,12 +128,13 @@ Sound* Audio::load_sound(const char *filepath)
 	alBufferData(sound->alBuffer, AL_FORMAT_MONO16,
 			buffer, length * sizeof(ALushort), samplerate);
 
-	error()
+	error();
 	return sound;
 }
 
 Sound* Audio::create_sound(unsigned int len, const float* buffer, int samplesrate)
 {
+	INIT_IF_NEEDED(NULL);
 	ALushort converted_buffer[len]; // 16bits per sample
 	for (unsigned int i = 0; i < len; i++) {
 		converted_buffer[i] = static_cast<ALushort>(buffer[i] * 65535/2 + 65535/2);
@@ -117,14 +145,14 @@ Sound* Audio::create_sound(unsigned int len, const float* buffer, int samplesrat
 	alBufferData(sound->alBuffer, AL_FORMAT_MONO16,
 			converted_buffer, len * sizeof(ALushort), samplesrate);
 
-	error()
+	error();
 	return sound;
 }
 
 void Audio::free_sound(Sound* sound)
 {
 	alDeleteBuffers(1, &sound->alBuffer);
-	error()
+	error();
 	delete sound;
 }
 
@@ -141,19 +169,23 @@ static Source* get_free_source()
 
 void Audio::play_sound(Sound* sound, float volume, float x, float y)
 {
+	if (!sound)
+		// sound is not loaded properly
+		return;
+
 	Source* source = get_free_source();
 	if (not source)
 		return;
 
-	error()
+	error();
 	alSourcei(source->alSource, AL_BUFFER, sound->alBuffer);
-	error()
+	error();
 	alSource3f(source->alSource, AL_POSITION, x, y, 0.);
-	error()
+	error();
 	alSourcef(source->alSource, AL_GAIN, volume*globalSoundVolume);
-	error()
+	error();
 	alSourcePlay(source->alSource);
-	error()
+	error();
 
 	source->isMusic = false;
 	source->currentSound = sound;
@@ -163,13 +195,14 @@ void Audio::play_sound(Sound* sound, float volume, float x, float y)
 
 Music* Audio::load_music(MusicCallback* callback, int samplesrate, int num_channels)
 {
+	INIT_IF_NEEDED(NULL);
 	Music* music = new Music;
 	music->callback = callback;
 	music->samplesrate = samplesrate;
 	music->buffersize = samplesrate * .1 * num_channels;
 	music->format = num_channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
 	alGenBuffers(STREAM_NUM_BUFFERS, music->alBuffers);
-	error()
+	error();
 	return music;
 }
 
@@ -194,6 +227,7 @@ class VorbisMusicCallback : public MusicCallback {
 };
 Music* Audio::load_music_from_file(const char* filename)
 {
+	INIT_IF_NEEDED(NULL);
 	VorbisMusicCallback* callback = new VorbisMusicCallback;
 
 	callback->stream = stb_vorbis_open_filename((char*) filename, NULL, NULL);
@@ -209,6 +243,10 @@ Music* Audio::load_music_from_file(const char* filename)
 
 void Audio::play_music(Music* music)
 {
+	if (!music)
+		// music is not loaded properly
+		return;
+
 	Source* source = get_free_source();
 	if (not source)
 		return;
@@ -218,13 +256,13 @@ void Audio::play_music(Music* music)
 	for (int i = 0; i < STREAM_NUM_BUFFERS; i++) {
 		len = music->callback->feed_buffer(buff, music->buffersize);
 		alBufferData(music->alBuffers[i], music->format, buff, len*sizeof(ALushort), music->samplesrate);
-		error()
+		error();
 	}
 
 	alSourceQueueBuffers(source->alSource, STREAM_NUM_BUFFERS, music->alBuffers);
 	alSourcef(source->alSource, AL_GAIN, globalMusicVolume);
 	alSourcePlay(source->alSource);
-	error()
+	error();
 
 	music->source = source;
 	music->ended = 0;
@@ -245,19 +283,19 @@ void Audio::stream_music(Music* music)
 	{
 		ALuint buffer;
 		alSourceUnqueueBuffers(source->alSource, 1, &buffer);
-		error()
+		error();
 
 		ALushort buff[music->buffersize];
 		unsigned int len = music->callback->feed_buffer(buff, music->buffersize);
 		alBufferData(buffer, music->format, buff, len*sizeof(ALushort), music->samplesrate);
-		error()
+		error();
 
 		if (len < music->buffersize) {
 			music->ended = true;
 		}
 
 		alSourceQueueBuffers(source->alSource, 1, &buffer);
-		error()
+		error();
 	}
 }
 
@@ -281,11 +319,15 @@ void Audio::free_music(Music* music)
 void Audio::set_music_volume(float volume)
 {
 	globalMusicVolume = volume;
+	if (!initialized)
+		return;
+
+	// update current playing musics
 	for (int i = 0; i < NUM_SOURCES; i++) {
 		Source& source = sources[i];
 		if (source.isMusic) {
 			alSourcef(source.alSource, AL_GAIN, source.desiredVolume*volume);
-			error()
+			error();
 		}
 	}
 }
@@ -293,11 +335,15 @@ void Audio::set_music_volume(float volume)
 void Audio::set_sound_volume(float volume)
 {
 	globalSoundVolume = volume;
+	if (!initialized)
+		return;
+
+	// update current playing sounds
 	for (int i = 0; i < NUM_SOURCES; i++) {
 		Source& source = sources[i];
 		if (not source.isMusic) {
 			alSourcef(source.alSource, AL_GAIN, source.desiredVolume*volume);
-			error()
+			error();
 		}
 	}
 }

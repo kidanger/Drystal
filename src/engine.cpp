@@ -55,8 +55,7 @@ void _engine_update()
 #endif
 void Engine::loop()
 {
-	if (!display.is_available())
-	{
+	if (!display.is_available()) {
 		fprintf(stderr, "[ERROR] cannot run the engine, display isn't available\n");
 		return;
 	}
