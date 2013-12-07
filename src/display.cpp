@@ -263,7 +263,7 @@ Surface* Display::get_screen() const
 
 void Display::toggle_debug_mode()
 {
-	debug_mode = not debug_mode;
+	debug_mode = !debug_mode;
 }
 
 /**
@@ -452,7 +452,7 @@ Surface* Display::load_surface(const char * filename) const
 	int n;
 	unsigned char *data = stbi_load(filename, &w, &h, &n, RGBA_SIZE);
 
-	if (not data)
+	if (!data)
 		return NULL;
 
 	int potw = pow(2, ceil(log(w)/log(2)));
@@ -460,7 +460,7 @@ Surface* Display::load_surface(const char * filename) const
 
 	Surface* surface;
 
-	if (potw != w or poth != h) {
+	if (potw != w || poth != h) {
 		unsigned char *pixels = new unsigned char[potw * poth * RGBA_SIZE];
 		memset(pixels, 0, potw * poth * RGBA_SIZE);
 		for (int y = 0; y < h; y++) {
@@ -686,13 +686,13 @@ Shader* Display::new_shader(const char* strvert, const char* strfragcolor, const
 	GLuint prog_color;
 	GLuint prog_tex;
 
-	if (not strvert or not *strvert) {
+	if (!strvert || !*strvert) {
 		strvert = DEFAULT_VERTEX_SHADER;
 	}
-	if (not strfragcolor or not *strfragcolor) {
+	if (!strfragcolor || !*strfragcolor) {
 		strfragcolor = DEFAULT_FRAGMENT_SHADER_COLOR;
 	}
-	if (not strfragtex or not *strfragtex) {
+	if (!strfragtex || !*strfragtex) {
 		strfragtex = DEFAULT_FRAGMENT_SHADER_TEX;
 	}
 
@@ -776,7 +776,7 @@ void Display::use_shader(Shader* shader)
 	DEBUG();
 	current_buffer->assert_empty();
 
-	if (not shader) {
+	if (!shader) {
 		shader = default_shader;
 	}
 	current_shader = shader;
@@ -832,7 +832,7 @@ Buffer* Display::new_buffer(unsigned int size)
 }
 void Display::use_buffer(Buffer* buffer)
 {
-	if (not buffer) {
+	if (!buffer) {
 		current_buffer = &default_buffer;
 	} else {
 		current_buffer = buffer;

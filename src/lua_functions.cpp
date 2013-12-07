@@ -101,8 +101,8 @@ void LuaFunctions::remove_userpackages(lua_State* L)
 	while (lua_next(L, -2)) {
 		bool remove = true;
 		const char* name = lua_tostring(L, -2);
-		for (unsigned long i = 0; i < sizeof(kept)/sizeof(const char*) and remove; i++) {
-			remove = remove and strcmp(name, kept[i]);
+		for (unsigned long i = 0; i < sizeof(kept)/sizeof(const char*) && remove; i++) {
+			remove = remove && strcmp(name, kept[i]);
 		}
 		if (remove) {
 			lua_pushnil(L);
@@ -133,7 +133,7 @@ bool LuaFunctions::load_code()
 		return false;
 	}
 
-	if (not get_function(L, "init")) {
+	if (!get_function(L, "init")) {
 		fprintf(stderr, "[ERROR] cannot find init function in `%s'\n", filename);
 		return false;
 	} else if (lua_pcall(L, 0, 0, 0)) {

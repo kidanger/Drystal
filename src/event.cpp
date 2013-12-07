@@ -314,7 +314,7 @@ void EventManager::handle_event(const SDL_Event& event)
 			break;
 		case SDL_MOUSEMOTION:
 #ifndef EMSCRIPTEN
-			if (not _warped) {
+			if (!_warped) {
 #endif
 				engine.mouse_motion(event.motion.x, event.motion.y,
 									event.motion.xrel, event.motion.yrel);

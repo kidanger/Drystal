@@ -94,14 +94,14 @@ void Audio::update(float dt)
 	ALint status;
 	for (int i = 0; i < NUM_SOURCES; i++) {
 		Source& source = sources[i];
-		if (not source.used)
+		if (!source.used)
 			continue;
 		alGetSourcei(source.alSource, AL_SOURCE_STATE, &status);
 		source.used = status == AL_PLAYING;
 
-		if (source.used and source.isMusic) {
+		if (source.used && source.isMusic) {
 			Music* music = source.currentMusic;
-			if (not music->ended) {
+			if (!music->ended) {
 				stream_music(music);
 			}
 		}
@@ -159,7 +159,7 @@ void Audio::free_sound(Sound* sound)
 static Source* get_free_source()
 {
 	for (int i = 0; i < NUM_SOURCES; i++) {
-		if (not sources[i].used) {
+		if (!sources[i].used) {
 			return &sources[i];
 		}
 	}
@@ -174,7 +174,7 @@ void Audio::play_sound(Sound* sound, float volume, float x, float y)
 		return;
 
 	Source* source = get_free_source();
-	if (not source)
+	if (!source)
 		return;
 
 	error();
@@ -231,7 +231,7 @@ Music* Audio::load_music_from_file(const char* filename)
 	VorbisMusicCallback* callback = new VorbisMusicCallback;
 
 	callback->stream = stb_vorbis_open_filename((char*) filename, NULL, NULL);
-	if (not callback->stream) {
+	if (!callback->stream) {
 		fprintf(stderr, "cannot load %s\n", filename);
 		return NULL;
 	}
@@ -248,7 +248,7 @@ void Audio::play_music(Music* music)
 		return;
 
 	Source* source = get_free_source();
-	if (not source)
+	if (!source)
 		return;
 
 	ALushort buff[music->buffersize];
@@ -341,7 +341,7 @@ void Audio::set_sound_volume(float volume)
 	// update current playing sounds
 	for (int i = 0; i < NUM_SOURCES; i++) {
 		Source& source = sources[i];
-		if (not source.isMusic) {
+		if (!source.isMusic) {
 			alSourcef(source.alSource, AL_GAIN, source.desiredVolume*volume);
 			error();
 		}

@@ -80,7 +80,7 @@ void Buffer::assert_type(BufferType atype)
 		flush();
 	}
 	type = atype;
-	if (type == POINT_BUFFER and point_sizes == NULL) {
+	if (type == POINT_BUFFER && point_sizes == NULL) {
 		point_sizes = new GLfloat[size];
 	}
 
@@ -102,7 +102,7 @@ void Buffer::assert_empty()
 
 void Buffer::assert_use_texture()
 {
-	if (not has_texture) {
+	if (!has_texture) {
 		flush();
 		has_texture = true;
 	}
@@ -161,7 +161,7 @@ void Buffer::push_point_size(GLfloat s)
 void Buffer::upload(int method)
 {
 	size_t used = current_color;
-	if (used == 0 or uploaded) {
+	if (used == 0 || uploaded) {
 		return;
 	}
 
@@ -191,8 +191,8 @@ void Buffer::draw(float dx, float dy)
 
 	DEBUG();
 	assert(current_color == current_position);
-	assert(not has_texture or current_color == current_tex_coord);
-	assert(type != POINT_BUFFER or current_color == current_point_size);
+	assert(!has_texture || current_color == current_tex_coord);
+	assert(type != POINT_BUFFER || current_color == current_point_size);
 
 	GLint prog;
 	if (has_texture) {
@@ -202,7 +202,7 @@ void Buffer::draw(float dx, float dy)
 	}
 	glUseProgram(prog);
 
-	if (not uploaded)
+	if (!uploaded)
 		upload(GL_DYNAMIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);

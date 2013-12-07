@@ -66,7 +66,7 @@ void Engine::loop()
 		emscripten_set_main_loop(_engine_update, 0, true);
 	(void) target_fps;
 #else
-	run = run and successful_load;
+	run = run && successful_load;
 	while (run)
 	{
 		unsigned long at_start = get_now();
@@ -103,7 +103,7 @@ void Engine::update()
 	event.poll();
 
 	// check if an event provocked a stop
-	if (not run)
+	if (!run)
 		return;
 
 	AT(event)
@@ -117,7 +117,7 @@ void Engine::update()
 	if (update_activated)
 		lua.call_update(dt);
 	AT(game);
-	if (tick % 2 and draw_activated)
+	if (tick % 2 && draw_activated)
 		lua.call_draw();
 	AT(display);
 
@@ -185,12 +185,12 @@ void Engine::stop()
 
 void Engine::toggle_draw()
 {
-	draw_activated = not draw_activated;
+	draw_activated = !draw_activated;
 }
 
 void Engine::toggle_update()
 {
-	update_activated = not update_activated;
+	update_activated = !update_activated;
 }
 
 Engine &get_engine()
