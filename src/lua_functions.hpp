@@ -22,6 +22,7 @@ class LuaFunctions
 
 		bool load_code();
 		bool reload_code();
+		bool call_init();
 
 		void call_update(float dt);
 		void call_draw();

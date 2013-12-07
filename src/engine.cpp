@@ -61,6 +61,9 @@ void Engine::loop()
 	}
 
 	bool successful_load = lua.load_code();
+	if (run)
+		// run can be disabled before init being called
+		successful_load = successful_load && lua.call_init();
 #ifdef EMSCRIPTEN
 	if (successful_load)
 		emscripten_set_main_loop(_engine_update, 0, true);

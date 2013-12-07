@@ -133,13 +133,6 @@ bool LuaFunctions::load_code()
 		return false;
 	}
 
-	if (!get_function(L, "init")) {
-		fprintf(stderr, "[ERROR] cannot find init function in `%s'\n", filename);
-		return false;
-	} else if (lua_pcall(L, 0, 0, 0)) {
-		fprintf(stderr, "[ERROR] cannot call init: %s\n", lua_tostring(L, -1));
-		return false;
-	}
 	return true;
 }
 
@@ -148,7 +141,19 @@ bool LuaFunctions::reload_code()
 	remove_userpackages(L);
 
 	printf("Reloading code...\n");
-	return load_code();
+	return load_code() && call_init();
+}
+
+bool LuaFunctions::call_init()
+{
+	if (!get_function(L, "init")) {
+		fprintf(stderr, "[ERROR] cannot find init function in `%s'\n", filename);
+		return false;
+	} else if (lua_pcall(L, 0, 0, 0)) {
+		fprintf(stderr, "[ERROR] cannot call init: %s\n", lua_tostring(L, -1));
+		return false;
+	}
+	return true;
 }
 
 void LuaFunctions::call_mouse_motion(int mx, int my, int dx, int dy) const
@@ -313,6 +318,7 @@ static int mlua_camera__index(lua_State* L)
 	} else if (!strcmp(name, "angle")) {
 		lua_Number angle = engine->display.get_camera().angle;
 		lua_pushnumber(L, angle);
+		return 1;
 	} else if (!strcmp(name, "zoom")) {
 		lua_Number zoom = engine->display.get_camera().zoom;
 		lua_pushnumber(L, zoom);
@@ -741,7 +747,7 @@ static int mlua_load_music(lua_State *L)
 		lua_pushvalue(L, 1);
 		callback->ref = luaL_ref(L, LUA_REGISTRYINDEX);
 
-		int samplesrate = samplesrate = luaL_optnumber(L, 2, DEFAULT_SAMPLES_RATE);
+		int samplesrate = luaL_optnumber(L, 2, DEFAULT_SAMPLES_RATE);
 		music = engine->audio.load_music(callback, samplesrate);
 	}
 	lua_pushlightuserdata(L, music);
