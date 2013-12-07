@@ -1,6 +1,7 @@
 local drystal = require 'drystal'
 local tt = require 'truetype'
 
+local font, font_big
 function drystal.init()
 	drystal.resize(512, 512)
 
@@ -44,7 +45,7 @@ function drystal.key_press(k)
 	if k == 'a' then
 		tt.free(font)
 		tt.free(font_big)
-		drystal.engine_stop()
+		drystal.stop()
 	end
 end
 

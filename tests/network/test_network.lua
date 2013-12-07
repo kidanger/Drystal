@@ -30,7 +30,7 @@ function drystal.update(dt)
 		print('received:', str)
 	else
 		print('error receiving ' .. code)
-		drystal.engine_stop()
+		drystal.stop()
 	end
 end
 

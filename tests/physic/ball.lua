@@ -200,7 +200,9 @@ function drystal.key_press(key)
 	end
 end
 function drystal.key_release(key)
-	if key == 'left' then
+	if key == 'a' then
+		drystal.stop()
+	elseif key == 'left' then
 		dir = ''
 	elseif key == 'right' then
 		dir = ''
@@ -232,3 +234,4 @@ function drystal.mouse_press(x, y, b)
 		ball:set_linear_velocity(0, 0)
 	end
 end
+
