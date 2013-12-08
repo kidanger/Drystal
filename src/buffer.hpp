@@ -22,7 +22,6 @@ private:
 
 	unsigned int size;
 	GLuint buffers[4]; // first is for positions, second for colors, third (optional) for texcoords, forth (optional) for point sizes
-	// TODO: make so we don't allocate the four arrays (allocate only if needed and keep allocated)
 	GLfloat* positions;
 	GLfloat* colors;
 	GLfloat* tex_coords; // only if IMAGE_BUFFER
