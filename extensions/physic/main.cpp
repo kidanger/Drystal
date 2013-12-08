@@ -2,7 +2,7 @@
 
 #include "engine.hpp"
 
-#include "box2d/Box2D/Box2D.h"
+#include "box2d/Box2D/Box2D/Box2D.h"
 
 #define BODY_CLASS "__body_class"
 #define SHAPE_CLASS "__shape_class"
