@@ -205,7 +205,7 @@ void LuaFunctions::call_key_release(const char* key_string) const
 
 void LuaFunctions::call_resize_event(int w, int h) const
 {
-	if (get_function(L, "key_release")) {
+	if (get_function(L, "resize_event")) {
 		lua_pushnumber(L, w);
 		lua_pushnumber(L, h);
 		CALL(2);
