@@ -22,6 +22,7 @@ enum BufferType {
 class Buffer
 {
 private:
+	Buffer(const Buffer&);
 	BufferType type;
 
 	unsigned int size;
