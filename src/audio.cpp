@@ -111,7 +111,6 @@ void Audio::update(float dt)
 Sound* Audio::load_sound(const char *filepath)
 {
 	INIT_IF_NEEDED(NULL);
-	Sound* sound = new Sound;
 
 	void* buffer;
 	int length;
@@ -123,6 +122,8 @@ Sound* Audio::load_sound(const char *filepath)
 		fprintf(stderr, "could not load %s\n", filepath);
 		return NULL;
 	}
+
+	Sound* sound = new Sound;
 
 	alGenBuffers(1, &sound->alBuffer);
 	alBufferData(sound->alBuffer, AL_FORMAT_MONO16,
