@@ -7,18 +7,21 @@
 
 
 Buffer::Buffer(unsigned int size) :
+	type(TRIANGLE_BUFFER),
 	size(size),
 	positions(new GLfloat[size * 2]),
 	colors(new GLfloat[size * 4]),
 	tex_coords(NULL),
 	point_sizes(NULL),
+	current_position(0),
+	current_color(0),
+	current_tex_coord(0),
+	current_point_size(0),
 	uploaded(false),
-	has_texture(false)
+	has_texture(false),
+	shader(NULL),
+	camera(NULL)
 {
-	current_position = 0;
-	current_color = 0;
-	current_tex_coord = 0;
-	current_point_size = 0;
 	buffers[0] = 0;
 	buffers[1] = 0;
 	buffers[2] = 0;

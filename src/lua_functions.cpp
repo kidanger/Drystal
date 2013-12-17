@@ -12,6 +12,7 @@ static int luaopen_drystal(lua_State*); // defined at the end of this file
 
 LuaFunctions::LuaFunctions(Engine& eng, const char *filename) :
 	L(luaL_newstate()),
+	drystal_table_ref(LUA_NOREF),
 	filename(filename),
 	library_loaded(false)
 {
@@ -700,8 +701,11 @@ class LuaMusicCallback : public MusicCallback {
 		int ref;
 		int table_ref;
 
-		LuaMusicCallback() {
-			table_ref = LUA_NOREF;
+		LuaMusicCallback() :
+			L(NULL),
+			ref(LUA_NOREF),
+			table_ref(LUA_NOREF)
+		{
 		}
 
 		unsigned int feed_buffer(unsigned short* buffer, unsigned int len)

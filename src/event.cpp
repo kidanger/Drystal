@@ -264,7 +264,10 @@ const char * mySDL_GetKeyName(SDL_Keycode key)
 	return keyname;
 }
 
-EventManager::EventManager(Engine& eng) : engine(eng), _grab_cursor(false)
+EventManager::EventManager(Engine& eng) :
+	engine(eng),
+	_grab_cursor(false),
+	_warped(false)
 {
 	initKeys();
 	SDL_EnableKeyRepeat(0, 0);

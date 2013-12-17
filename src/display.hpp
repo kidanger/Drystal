@@ -47,7 +47,12 @@ struct Camera
 		dx(0), dy(0),
 		dx_transformed(0), dy_transformed(0),
 		zoom(1), angle(0)
-	{}
+	{
+		matrix[0] = 0;
+		matrix[1] = 0;
+		matrix[2] = 0;
+		matrix[3] = 0;
+	}
 };
 
 enum BlendMode

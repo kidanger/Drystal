@@ -42,6 +42,8 @@ Source sources[NUM_SOURCES];
 
 Audio::Audio() :
 	initialized(false),
+	context(NULL),
+	device(NULL),
 	globalSoundVolume(1.),
 	globalMusicVolume(1.)
 {

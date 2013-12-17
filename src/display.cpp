@@ -93,26 +93,29 @@ void main()
 }
 );
 
-Display::Display()
-	: resizable(false),
-	  sdl_screen(NULL),
-	  screen(NULL),
-	  default_shader(NULL),
-	  current(NULL),
-	  current_from(NULL),
-	  filter_mode(LINEAR),
-	  current_buffer(&default_buffer),
-	  r(1),
-	  g(1),
-	  b(1),
-	  alpha(1),
-	  available(false),
-	  debug_mode(false)
+Display::Display() :
+	size_x(0),
+	size_y(0),
+	resizable(false),
+	sdl_screen(NULL),
+	screen(NULL),
+	default_shader(NULL),
+	current_shader(NULL),
+	current(NULL),
+	current_from(NULL),
+	filter_mode(LINEAR),
+	current_buffer(&default_buffer),
+	r(1),
+	g(1),
+	b(1),
+	alpha(1),
+	point_size(1),
+	available(false),
+	debug_mode(false)
 {
 	int err = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 	if (err)
 	{
-		available = false;
 		fprintf(stderr, "[ERROR] cannot initialize SDL\n");
 		return;
 	}
@@ -458,7 +461,7 @@ Surface* Display::load_surface(const char * filename) const
 	int potw = pow(2, ceil(log(w)/log(2)));
 	int poth = pow(2, ceil(log(h)/log(2)));
 
-	Surface* surface;
+	Surface* surface = NULL;
 
 	if (potw != w || poth != h) {
 		unsigned char *pixels = new unsigned char[potw * poth * RGBA_SIZE];
