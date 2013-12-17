@@ -404,13 +404,13 @@ static int mlua_new_surface(lua_State* L)
 }
 static int mlua_free_surface(lua_State* L)
 {
-	Surface* surface = (Surface*) lua_touserdata(L, -1);
+	Surface* surface = static_cast<Surface *>(lua_touserdata(L, -1));
 	engine->display.free_surface(surface);
 	return 0;
 }
 static int mlua_surface_size(lua_State* L)
 {
-	Surface* surface = (Surface *) lua_touserdata(L, -1);
+	Surface* surface = static_cast<Surface *>(lua_touserdata(L, -1));
 	int w, h;
 	engine->display.surface_size(surface, &w, &h);
 	lua_pushnumber(L, w);
@@ -419,13 +419,13 @@ static int mlua_surface_size(lua_State* L)
 }
 static int mlua_draw_on(lua_State* L)
 {
-	Surface* surface = (Surface*) lua_touserdata(L, -1);
+	Surface* surface = static_cast<Surface *>(lua_touserdata(L, -1));
 	engine->display.draw_on(surface);
 	return 0;
 }
 static int mlua_draw_from(lua_State* L)
 {
-	Surface* surface = (Surface*) lua_touserdata(L, -1);
+	Surface* surface = static_cast<Surface *>(lua_touserdata(L, -1));
 	engine->display.draw_from(surface);
 	return 0;
 }
@@ -538,7 +538,7 @@ static int mlua_use_shader(lua_State* L)
 	if (lua_gettop(L) == 0) { // use defaut shader
 		engine->display.use_shader(NULL);
 	} else {
-		Shader* shader = (Shader*) lua_touserdata(L, -1);
+		Shader* shader = static_cast<Shader *>(lua_touserdata(L, -1));
 		engine->display.use_shader(shader);
 	}
 	return 0;
@@ -546,7 +546,7 @@ static int mlua_use_shader(lua_State* L)
 
 static int mlua_feed_shader(lua_State* L)
 {
-	Shader* shader = (Shader*) lua_touserdata(L, 1);
+	Shader* shader = static_cast<Shader*>(lua_touserdata(L, 1));
 	const char* name = lua_tostring(L, 2);
 	float value = lua_tonumber(L, 3);
 	engine->display.feed_shader(shader, name, value);
@@ -554,7 +554,7 @@ static int mlua_feed_shader(lua_State* L)
 }
 static int mlua_free_shader(lua_State* L)
 {
-	Shader* shader = (Shader*) lua_touserdata(L, 1);
+	Shader* shader = static_cast<Shader*>(lua_touserdata(L, 1));
 	engine->display.free_shader(shader);
 	return 0;
 }
@@ -579,14 +579,14 @@ static int mlua_use_buffer(lua_State* L)
 	if (lua_gettop(L) == 0) { // use defaut buffer
 		engine->display.use_buffer(NULL);
 	} else {
-		Buffer* buffer = (Buffer*) lua_touserdata(L, -1);
+		Buffer* buffer = static_cast<Buffer *>(lua_touserdata(L, -1));
 		engine->display.use_buffer(buffer);
 	}
 	return 0;
 }
 static int mlua_draw_buffer(lua_State* L)
 {
-	Buffer* buffer = (Buffer*) lua_touserdata(L, 1);
+	Buffer* buffer = static_cast<Buffer *>(lua_touserdata(L, 1));
 	lua_Number dx = 0, dy = 0;
 	if (lua_gettop(L) >= 2)
 		dx = luaL_checknumber(L, 2);
@@ -597,19 +597,19 @@ static int mlua_draw_buffer(lua_State* L)
 }
 static int mlua_reset_buffer(lua_State* L)
 {
-	Buffer* buffer = (Buffer*) lua_touserdata(L, -1);
+	Buffer* buffer = static_cast<Buffer *>(lua_touserdata(L, -1));
 	engine->display.reset_buffer(buffer);
 	return 0;
 }
 static int mlua_upload_and_free_buffer(lua_State* L)
 {
-	Buffer* buffer = (Buffer*) lua_touserdata(L, -1);
+	Buffer* buffer = static_cast<Buffer *>(lua_touserdata(L, -1));
 	engine->display.upload_and_free_buffer(buffer);
 	return 0;
 }
 static int mlua_free_buffer(lua_State* L)
 {
-	Buffer* buffer = (Buffer*) lua_touserdata(L, -1);
+	Buffer* buffer = static_cast<Buffer *>(lua_touserdata(L, -1));
 	engine->display.free_buffer(buffer);
 	return 0;
 }
@@ -672,7 +672,7 @@ static int mlua_create_sound(lua_State *L)
 
 static int mlua_play_sound(lua_State *L)
 {
-	Sound* chunk = (Sound*) lua_touserdata(L, 1);
+	Sound* chunk = static_cast<Sound *>(lua_touserdata(L, 1));
 
 	float volume = 1;
 	float x = 0;
@@ -690,14 +690,14 @@ static int mlua_play_sound(lua_State *L)
 
 static int mlua_free_sound(lua_State *L)
 {
-	Sound* chunk = (Sound *) lua_touserdata(L, -1);
+	Sound* chunk = static_cast<Sound *>(lua_touserdata(L, -1));
 	engine->audio.free_sound(chunk);
 	return 0;
 }
 
 static int mlua_free_music(lua_State *L)
 {
-	Music* music = (Music *) lua_touserdata(L, -1);
+	Music* music = static_cast<Music *>(lua_touserdata(L, -1));
 	engine->audio.free_music(music);
 	return 0;
 }
@@ -767,7 +767,7 @@ static int mlua_load_music(lua_State *L)
 
 static int mlua_play_music(lua_State *L)
 {
-	Music* music = (Music*) lua_touserdata(L, 1);
+	Music* music = static_cast<Music *>(lua_touserdata(L, 1));
 	engine->audio.play_music(music);
 	return 0;
 }
@@ -788,7 +788,7 @@ static int mlua_set_music_volume(lua_State *L)
 
 static int mlua_stop_music(lua_State* L)
 {
-	Music* music = (Music*) lua_touserdata(L, 1);
+	Music* music = static_cast<Music *>(lua_touserdata(L, 1));
 	engine->audio.stop_music(music);
 	return 0;
 }
