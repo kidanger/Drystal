@@ -695,6 +695,13 @@ static int mlua_free_sound(lua_State *L)
 	return 0;
 }
 
+static int mlua_free_music(lua_State *L)
+{
+	Music* music = (Music *) lua_touserdata(L, -1);
+	engine->audio.free_music(music);
+	return 0;
+}
+
 class LuaMusicCallback : public MusicCallback {
 	public:
 		lua_State* L;
@@ -851,6 +858,7 @@ int luaopen_drystal(lua_State* L)
 		DECLARE_FUNCTION(play_music),
 		DECLARE_FUNCTION(set_music_volume),
 		DECLARE_FUNCTION(stop_music),
+		DECLARE_FUNCTION(free_music),
 
 		DECLARE_FUNCTION(load_sound),
 		DECLARE_FUNCTION(create_sound),
