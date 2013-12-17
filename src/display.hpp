@@ -100,13 +100,13 @@ class Display
 		bool available;
 		bool debug_mode;
 
-		inline void convert_coords(float x, float y, float *dx, float *dy) {
+		inline void convert_coords(float x, float y, float *dx, float *dy) const {
 			*dx = (2. * x / current->w) - 1;
 			*dy = (2. * y / current->h) - 1;
 			if (current == screen)
 				*dy *= -1.;
 		}
-		inline void convert_texcoords(float x, float y, float *dx, float *dy) {
+		inline void convert_texcoords(float x, float y, float *dx, float *dy) const {
 			*dx = x / current_from->texw;
 			*dy = y / current_from->texh;
 		}
@@ -119,10 +119,10 @@ class Display
 		Display();
 		~Display();
 
-		void show_cursor(bool);
+		void show_cursor(bool) const;
 		void set_resizable(bool);
 		void resize(int w, int h);
-		void screen2scene(float x, float y, float * tx, float * ty);
+		void screen2scene(float x, float y, float * tx, float * ty) const;
 		void toggle_debug_mode();
 
 		void set_color(int r, int g, int b);
@@ -141,7 +141,7 @@ class Display
 		void set_camera_position(float dx, float dy);
 		void set_camera_angle(float angle);
 		void set_camera_zoom(float zoom);
-		const Camera& get_camera() { return camera; };
+		const Camera& get_camera() const { return camera; };
 
 		Surface* get_screen() const;
 		Surface* create_surface(int w, int h, int texw, int texh, unsigned char* pixels) const;

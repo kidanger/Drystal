@@ -214,7 +214,7 @@ void Display::resize(int w, int h)
 	DEBUG("end");
 }
 
-void Display::screen2scene(float x, float y, float * tx, float * ty)
+void Display::screen2scene(float x, float y, float * tx, float * ty) const
 {
 	float zoom = camera.zoom;
 	x -= camera.dx;
@@ -229,7 +229,7 @@ void Display::screen2scene(float x, float y, float * tx, float * ty)
 	*ty += dy * (1 - zoom) / zoom;
 }
 
-void Display::show_cursor(bool b)
+void Display::show_cursor(bool b) const
 {
 #ifndef EMSCRIPTEN
 	SDL_ShowCursor(b);
