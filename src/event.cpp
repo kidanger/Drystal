@@ -340,6 +340,7 @@ void EventManager::handle_event(const SDL_Event& event)
 	}
 }
 
+#ifndef EMSCRIPTEN
 void EventManager::check_grab()
 {
 	if (_grab_cursor) {
@@ -353,4 +354,4 @@ void EventManager::check_grab()
 		}
 	}
 }
-
+#endif

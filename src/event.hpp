@@ -13,7 +13,9 @@ class EventManager
 		bool _warped;
 
 		void handle_event(const SDL_Event& event);
+#ifndef EMSCRIPTEN
 		void check_grab();
+#endif
 
 	public:
 		EventManager(Engine&);
