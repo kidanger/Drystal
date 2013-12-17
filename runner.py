@@ -4,6 +4,9 @@
 import sys
 import os
 import shutil
+import subprocess
+import argparse
+import signal
 
 G = '\033[92m'
 I = '\033[95m'
@@ -35,8 +38,28 @@ WGET_FILES = []
 IGNORE_FILES = ['index.html', 'drystal.cfg']
 SUBDIRS = []
 
-def parent(dir):
-    return os.path.abspath(os.path.join(dir, os.pardir))
+def parent(directory):
+    return os.path.abspath(os.path.join(directory, os.pardir))
+
+def execute(args, fork=False):
+    print(I, ' '.join(args), N)
+    if fork:
+        return subprocess.Popen(args)
+    else:
+        return subprocess.call(args)
+
+def has_been_modified(fullpath, old):
+    if not os.path.exists(old):
+        return True
+    elif os.path.isdir(fullpath):
+        for f in os.listdir(fullpath):
+            o = os.path.join(old, f)
+            fp = os.path.join(fullpath, f)
+            if has_been_modified(fp, o):
+                return True
+    elif os.path.getmtime(fullpath) > os.path.getmtime(old):
+        return True
+    return False
 
 def copy_files_maybe(from_directory, get_subdir=False, verbose=True):
     if verbose:
@@ -47,30 +70,26 @@ def copy_files_maybe(from_directory, get_subdir=False, verbose=True):
     _print(G, '- processing', from_directory, N)
     did_copy = False
     for f in os.listdir(from_directory):
-        if f.startswith('.'):
-            continue
-        if f in IGNORE_FILES:
+        if f.startswith('.') or f in IGNORE_FILES:
             _print(I, '    ignoring\t', f)
             continue
         old = os.path.join(DESTINATION_DIRECTORY, f)
         fullpath = os.path.join(from_directory, f)
-        if not os.path.exists(old) or os.path.getmtime(fullpath) > os.path.getmtime(old):
-            if os.path.isfile(fullpath):
-                if os.path.splitext(fullpath)[1] not in IGNORE_FILES:
-                    print(G, '    copying\t', f)
-                    shutil.copy(fullpath, DESTINATION_DIRECTORY)
-                    did_copy = True
-                else:
-                    _print(I, '    ignoring ext', f)
+        if os.path.isdir(fullpath) and (get_subdir or f in SUBDIRS) and has_been_modified(fullpath, old):
+            _print(G, '    copying dir\t', f)
+            if os.path.exists(old):
+                shutil.rmtree(old)
+            shutil.copytree(fullpath, old)
+            did_copy = True
+        elif os.path.isfile(fullpath) and has_been_modified(fullpath, old):
+            if os.path.splitext(fullpath)[1] not in IGNORE_FILES:
+                print(G, '    copying\t', f)
+                shutil.copy(fullpath, DESTINATION_DIRECTORY)
+                did_copy = True
+            else:
+                _print(I, '    ignoring ext', f)
         else:
             _print(I, '    already\t', f)
-        if os.path.isdir(fullpath) and (get_subdir or f in SUBDIRS):
-            _print(G, '    copying dir\t', f)
-            newdir = os.path.join(DESTINATION_DIRECTORY, f)
-            if os.path.exists(newdir):
-                shutil.rmtree(newdir)
-            shutil.copytree(fullpath, newdir)
-            did_copy = True
     return did_copy
 
 def remove_old_wget():
@@ -84,7 +103,6 @@ def remove_old_wget():
             os.remove(fullpath)
         else:
             shutil.rmtree(fullpath)
-
 
 def load_config(from_directory):
     import json
@@ -123,22 +141,18 @@ def copy_extensions(from_dir, ext_list, mainfilename):
             print(G, '! extension not available: ', src_path)
 
 def locate_index_html(from_dir, to_dir):
-    dir = from_dir
-    while dir != to_dir:
-        files = os.listdir(dir)
+    directory = from_dir
+    while directory != to_dir:
+        files = os.listdir(directory)
         if 'index.html' in files:
-            return os.path.join(dir, 'index.html')
-        dir = parent(dir)
+            return os.path.join(directory, 'index.html')
+        directory = parent(directory)
     return None
 
-def clean(dir):
-    cleaned = False
-    if os.path.exists(dir):
-        cleaned = True
-        shutil.rmtree(dir)
-    return cleaned
+def clean(directory):
+    return os.path.exists(directory) and shutil.rmtree(directory)
 
-def clean_all():
+def run_clean():
     if clean(DESTINATION_DIRECTORY):
         print(G, '-', DESTINATION_DIRECTORY, 'deleted', N)
     else:
@@ -147,141 +161,177 @@ def clean_all():
     if clean(webdata):
         print(G, '-', webdata, 'deleted', N)
 
-cw = os.getcwd()
+def tup_update(build=''):
+    if '.tup' not in os.listdir('.'):
+        execute(['tup', 'init'])
+    if execute(['tup', 'upd', build]) != 0:
+        print(E, 'compilation failed, stopping.', N)
+        sys.exit(1)
 
-main_arg = len(sys.argv) > 1 and sys.argv[1] or ''
-run_arg = len(sys.argv) == 3 and sys.argv[2] or ''
-
-if (len(sys.argv) < 2
-    or not (os.path.exists(main_arg)
-            or main_arg == 'clean')
-    or not run_arg in ('', 'native', 'live', 'debug', 'profile', 'web', 'repack',)
-        ):
-    print('usage:', sys.argv[0], '<directory>[/filename.lua] [native|live|debug|profile|web|repack]')
-    print('      ', sys.argv[0], 'clean')
-    sys.exit(1)
-
-if sys.argv[1] == 'clean':
-    clean_all()
-
-else:
-    to_be_run = main_arg
-
-    token = os.path.join(DESTINATION_DIRECTORY, '.' + to_be_run.replace('/', '\\'))
-    if not os.path.exists(token):
-        clean_all()
-    else:
-        print(W, '- token exists, don\'t clean')
-
+def create_token(token):
     if not os.path.exists(DESTINATION_DIRECTORY):
         print(G, '- create', DESTINATION_DIRECTORY)
         os.mkdir(DESTINATION_DIRECTORY)
-        print(W, '- add token', token)
-        open(token, 'w').close()
+    print(W, '- add token', token)
+    open(token, 'w').close()
 
-    if os.path.isdir(to_be_run):
+def check_token(path):
+    token = os.path.join(DESTINATION_DIRECTORY, '.' + path.replace('/', '\\'))
+    if not os.path.exists(token):
+        run_clean()
+        create_token(token)
+    else:
+        print(W, '- token exists, don\'t clean')
+
+def split_path(path):
+    # here, if file is not null, it will be renamed to 'main.lua'
+    # if it's null, we asume there's already a 'main.lua' in directory
+    if os.path.isdir(path):
         # in case the trailing '/' is omitted, because path.split wouldn't behave as we want
-        dirpath = to_be_run
+        dirpath = path
         file = None
     else:
-        dirpath, file = os.path.split(to_be_run)
+        dirpath, file = os.path.split(path)
+    return os.path.abspath(dirpath), file
 
-    # here, if file is not null, it will be renamed to 'main.lua'
-    # if it's null, we asume there's already a 'main.lua' in dirpath
+def prepare_data(path):
+    check_token(path)
+    directory, file = split_path(path)
+
+    load_config(directory)
+    copy_files(directory, file)
+    return directory, file
+
+def prepare_native():
+    tup_update('build-native')
+    copy_extensions(EXTENSIONS_DIRECTORY_NATIVE,
+                    [f for f in os.listdir(EXTENSIONS_DIRECTORY)
+                       if os.path.isdir(os.path.join(EXTENSIONS_DIRECTORY, f))],
+                    EXTENSIONS_NATIVE)
+
+    os.chdir(DESTINATION_DIRECTORY)
+    os.environ['LD_LIBRARY_PATH'] = LIB_PATH
+    program = os.path.join(BUILD_NATIVE, 'drystal')
+    return program
+
+def run_repack(args):
+    directory, file = prepare_data(args.PATH)
+    tup_update('build-web')
+    remove_old_wget()
+    move_wget_files(DESTINATION_DIRECTORY, os.path.join(BUILD_WEB, DESTINATION_DIRECTORY_REL))
+    htmlfile = locate_index_html(os.path.abspath(directory), os.getcwd())
+    import repacker
+    os.chdir(BUILD_WEB)
+    repacker.DATADIR = os.path.join('..', repacker.DATADIR)
+    repacker.repack(htmlfile)
+    os.chdir('..')
+
+def run_web(args):
+    run_repack(args)
+    from http.server import HTTPServer, SimpleHTTPRequestHandler
+    addr, port = '127.0.0.1', 8000
+    httpd = HTTPServer((addr, port), SimpleHTTPRequestHandler)
+    for b in BROWSERS:
+        if not execute([b, addr + ':' + str(port) + '/' + BUILD_WEB_REL]):
+            print(G, '- page opened in', b, N)
+            break
+        else:
+            print(W, '! unable to open a browser', N)
+    httpd.serve_forever()
+
+def get_gdb_args(program, pid=None):
+    # if debug, run with 'gdb' (and give it path to sources)
+    source_directories = ['src', os.path.join('external', 'lua', 'src')]
+    for f in os.listdir(EXTENSIONS_DIRECTORY):
+        path = os.path.join(EXTENSIONS_DIRECTORY, f)
+        if os.path.isdir(path):
+            source_directories.append(path[path.find('extensions'):])
+    args = ['gdb']
+    for d in source_directories:
+        args.append('-d')
+        args.append(os.path.join('..', d))
+    if pid:
+        args += [program, str(pid), '-ex', 'handle SIGUSR1 ignore']
+    else:
+        args += ['-ex', 'run', program]
+    return args
+
+def setup_live_coding(directory, file, drystal):
+    print(G, '- settings up live coding', N)
+    import time
+    try:
+        while True:
+            time.sleep(1)
+            c = copy_files(directory, file, verbose=False)
+            if c:
+                drystal.send_signal(signal.SIGUSR1)
+    except KeyboardInterrupt:
+        drystal.terminate()
+        sys.exit(1)
+
+def run_native(args):
+    directory, file = prepare_data(args.PATH)
+    program = prepare_native()
+    if args.debug:
+        if args.live:
+            drystal = execute([program], fork=True)
+            execute(get_gdb_args(program, drystal.pid), fork=True)
+        else:
+            execute(get_gdb_args(program), fork=False)
+    elif args.profile:
+        drystal = execute(['valgrind', VALGRIND_ARGS, program], fork=args.live)
+    else:
+        drystal = execute([program], fork=args.live)
+
+    if args.live:
+        setup_live_coding(directory, file, drystal)
+
+def copy_files(directory, file, verbose=True):
+    has_copied_some_files = copy_files_maybe(INCLUDE_DIRECTORY, get_subdir=True, verbose=verbose)
+    has_copied_some_files = copy_files_maybe(directory, get_subdir=True, verbose=verbose) or has_copied_some_files
+
     main = os.path.join(DESTINATION_DIRECTORY, 'main.lua')
-    dir = os.path.abspath(dirpath)
+    mainfile = file or 'main.lua'
+    notmain = os.path.join(DESTINATION_DIRECTORY, mainfile)
+    if (has_copied_some_files or not os.path.exists(main) or os.path.getmtime(notmain) > os.path.getmtime(main)):
+        if notmain != main:
+            print(W, '- rename', file, 'to main.lua', N)
+            shutil.copy(notmain, main)
+        else:
+            print(W, '- touch', main, N)
+            os.utime(main, None)
+    return has_copied_some_files
 
-    load_config(dir)
+def valid_path(path):
+    if not os.path.exists(path):
+        msg = "%r does not exist" % path
+        raise argparse.ArgumentTypeError(msg)
+    return path
 
-    def copy_files(verbose=True):
-        has_copied_some_files = False # main.lua is over
-        dir = os.path.abspath(dirpath)
-        has_copied_some_files = copy_files_maybe(INCLUDE_DIRECTORY, get_subdir=True, verbose=verbose) or has_copied_some_files
+parser = argparse.ArgumentParser(description='Drystal roadrunner !')
+subparsers = parser.add_subparsers(help='sub-commands')
 
-        first = True
-        while cw != dir:
-            last = parent(dir) == cw
-            has_copied_some_files = copy_files_maybe(dir, get_subdir=first and not last, verbose=verbose) or has_copied_some_files
-            dir = parent(dir)
-            first = False
+parser_native = subparsers.add_parser('native', help='run with drystal', description='run with drystal')
+parser_native.add_argument('PATH', help='<directory>[/filename.lua]', type=valid_path)
+parser_native.set_defaults(func=run_native)
+parser_native.add_argument('-l', '--live', help='live coding (reload code when it has been modified)', action='store_true', default=False)
+group = parser_native.add_mutually_exclusive_group()
+group.add_argument('-d', '--debug', help='debug with gdb', action='store_true', default=False)
+group.add_argument('-p', '--profile', help='profile with valgrind', action='store_true', default=False)
 
-        mainfile = file or 'main.lua'
-        notmain = os.path.join(DESTINATION_DIRECTORY, mainfile)
-        if (has_copied_some_files
-        or not os.path.exists(main) or os.path.getmtime(notmain) > os.path.getmtime(main)):
-            if notmain != main:
-                print(W, '- rename', file, 'to main.lua', N)
-                shutil.copy(notmain, main)
-            else:
-                print(W, '- touch', main, N)
-                os.utime(main, None)
-        return has_copied_some_files
+parser_web = subparsers.add_parser('web', help='run in a browser', description='run in a browser')
+parser_web.add_argument('PATH', help='<directory>[/filename.lua]', type=valid_path)
+parser_web.set_defaults(func=run_web)
 
-    copy_files()
+parser_repack = subparsers.add_parser('repack', help='repack', description='repack')
+parser_repack.add_argument('PATH', help='<directory>[/filename.lua]', type=valid_path)
+parser_repack.set_defaults(func=run_repack)
 
-    if run_arg in ('native', 'live', 'debug', 'profile'):
-        if '.tup' in os.listdir('.'):
-            assert(not os.system('tup build-native'))
-        copy_extensions(EXTENSIONS_DIRECTORY_NATIVE,
-                        [f for f in os.listdir(EXTENSIONS_DIRECTORY)
-                           if os.path.isdir(os.path.join(EXTENSIONS_DIRECTORY, f))],
-                        EXTENSIONS_NATIVE)
+parser_clean = subparsers.add_parser('clean', help='cleanup gamedata/', description='cleanup gamedata/')
+parser_clean.set_defaults(func=run_clean)
 
-        os.environ['LD_LIBRARY_PATH'] = LIB_PATH
-        program = '../build-native/drystal'
-        # if debug, run with 'gdb' (and give it path to sources)
-        if run_arg == 'debug':
-            source_directories = ['src', 'external/lua/src']
-            for f in os.listdir(EXTENSIONS_DIRECTORY):
-                path = os.path.join(EXTENSIONS_DIRECTORY, f)
-                if os.path.isdir(path):
-                    source_directories.append(path[len(os.getcwd()) + 1:])
-            source_directories = map(lambda d: '-d ../' + d, source_directories)
-            program = 'gdb ' + ' '.join(source_directories) + ' -ex run ' + program
-        if run_arg == 'profile':
-            program = 'valgrind ' + VALGRIND_ARGS + ' ' + program
-        if run_arg == 'live':
-            program += ' &'
-        cmd = 'cd ' + DESTINATION_DIRECTORY + '; ' + program
-        print(I, cmd, N)
-        os.system(cmd)
-        if run_arg == 'live':
-            print(G, '- settings up live coding', N)
-            import time
-            try:
-                while True:
-                    c = copy_files(verbose=False)
-                    if c:
-                        cmd = 'pkill -sigusr1 drystal'
-                        print(I, cmd, N)
-                        os.system(cmd)
-                    time.sleep(1)
-            except KeyboardInterrupt:
-                print(I, 'kill drystal', N)
-                os.system('pkill drystal')
-                sys.exit()
-
-    elif run_arg in ('web', 'repack'):
-        if '.tup' in os.listdir('.'):
-            assert(not os.system('tup build-web'))
-        remove_old_wget()
-        move_wget_files(DESTINATION_DIRECTORY, os.path.join(BUILD_WEB, DESTINATION_DIRECTORY_REL))
-        htmlfile = locate_index_html(os.path.abspath(dirpath), os.getcwd())
-        import repacker
-        os.chdir(BUILD_WEB)
-        repacker.DATADIR = '../' + repacker.DATADIR
-        repacker.repack(htmlfile)
-        os.chdir('..')
-
-        if run_arg == 'web':
-            from http.server import HTTPServer, SimpleHTTPRequestHandler
-            addr, port = '127.0.0.1', 8000
-            httpd = HTTPServer((addr, port), SimpleHTTPRequestHandler)
-            for b in BROWSERS:
-                if not os.system(b + ' ' + addr + ':' + str(port) + '/' + BUILD_WEB_REL + ' >/dev/null'):
-                    print(G, '- page opened in', b, N)
-                    break
-            else:
-                print(W, '! unable to open a browser', N)
-            httpd.serve_forever()
-
+if len(sys.argv) > 1:
+    args = parser.parse_args()
+    args.func(args)
+else:
+    parser.print_usage()
