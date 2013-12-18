@@ -1,5 +1,6 @@
 #pragma once
 
+#define GL_GLEXT_PROTOTYPES
 #include <SDL/SDL_opengl.h>
 
 struct Shader;

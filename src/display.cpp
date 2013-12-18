@@ -9,12 +9,13 @@ extern "C" {
 #include "stb_image.c"
 }
 
+#include "display.hpp"
+
 #ifdef EMSCRIPTEN
 #include "emscripten.h" // see show_cursor
 #endif
 
 #include "log.hpp"
-#include "display.hpp"
 
 #ifndef EMSCRIPTEN
 #define GL_FRAMEBUFFER GL_FRAMEBUFFER_EXT

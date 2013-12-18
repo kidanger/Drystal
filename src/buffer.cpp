@@ -1,9 +1,9 @@
 #include <cassert>
 
+#include "buffer.hpp"
 #include "log.hpp"
 #include "stats.hpp"
 #include "display.hpp"
-#include "buffer.hpp"
 
 
 Buffer::Buffer(unsigned int size) :

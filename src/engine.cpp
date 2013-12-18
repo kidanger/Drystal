@@ -7,9 +7,8 @@
 #include <SDL/SDL.h> // SDL_Delay
 #endif
 
-#include "log.hpp"
 #include "engine.hpp"
-
+#include "log.hpp"
 #include "stats.hpp"
 
 #ifdef EMSCRIPTEN
