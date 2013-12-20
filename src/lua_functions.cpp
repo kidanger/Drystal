@@ -188,11 +188,12 @@ void LuaFunctions::call_mouse_release(int mx, int my, int button) const
 	}
 }
 
-void LuaFunctions::call_key_press(const char* key_string) const
+void LuaFunctions::call_key_press(const char* key_string, const char* unicode) const
 {
 	if (get_function(L, "key_press")) {
 		lua_pushstring(L, key_string);
-		CALL(1);
+		lua_pushstring(L, unicode);
+		CALL(2);
 	}
 }
 

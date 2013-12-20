@@ -5,7 +5,7 @@
 
 typedef Sint32 SDL_Keycode;
 
-static const char *keynames[0x8000];
+static const char *keynames[0x800];
 
 /** from https://code.google.com/r/kyberneticist-webport/source/browse/project_files/web_exp/pas2c_build/emcc/patches/sdl_patch.c */
 static void initKeys()
@@ -271,6 +271,7 @@ EventManager::EventManager(Engine& eng) :
 {
 	initKeys();
 	SDL_EnableKeyRepeat(0, 0);
+	SDL_EnableUNICODE(SDL_ENABLE);
 }
 
 void EventManager::poll()
@@ -312,7 +313,9 @@ void EventManager::handle_event(const SDL_Event& event)
 			} else if (event.key.keysym.sym == SDLK_F4) {
 				engine.display.toggle_debug_mode();
 			} else {
-				engine.key_press(mySDL_GetKeyName(event.key.keysym.sym));
+				char str[2] = {0};
+				str[0] = event.key.keysym.unicode & 0xFF;
+				engine.key_press(mySDL_GetKeyName(event.key.keysym.sym), str);
 			}
 			break;
 		case SDL_MOUSEMOTION:

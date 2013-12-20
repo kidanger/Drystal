@@ -13,8 +13,8 @@ function drystal.draw()
 	print'draw'
 end
 
-function drystal.key_press(key)
-	print('key_press', key)
+function drystal.key_press(key, unicode)
+	print('key_press', key, unicode)
 	if key == 'a' then
 		drystal.engine_stop()
 	end

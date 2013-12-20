@@ -31,7 +31,7 @@ class LuaFunctions
 		void call_mouse_motion(int mx, int my, int dx, int dy) const;
 		void call_mouse_press(int mx, int my, int button) const;
 		void call_mouse_release(int mx, int my, int button) const;
-		void call_key_press(const char* key_string) const;
+		void call_key_press(const char* key_string, const char* unicode) const;
 		void call_key_release(const char* key_string) const;
 		void call_atexit() const;
 
