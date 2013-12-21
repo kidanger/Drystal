@@ -22,13 +22,16 @@ BUILD_NATIVE = os.path.abspath('build-native')
 BUILD_WEB_REL = 'build-web'
 BUILD_WEB = os.path.abspath(BUILD_WEB_REL)
 
+BINARY_DIRECTORY_NATIVE = os.path.join(BUILD_NATIVE, 'src')
 EXTENSIONS_DIRECTORY = os.path.abspath('extensions')
 EXTENSIONS_DIRECTORY_NATIVE = os.path.join(BUILD_NATIVE, 'extensions')
 EXTENSIONS_DIRECTORY_WEB = os.path.join(BUILD_WEB, 'extensions')
 
-EXTENSIONS_NATIVE = 'main.so'
-EXTENSIONS_WEB = 'main.so'
-
+EMSCRIPTEN_ROOT_PATH='/usr/lib/emscripten'
+EMSCRIPTEN_CMAKE_DEFINES = ['CMAKE_TOOLCHAIN_FILE=' + os.path.join(EMSCRIPTEN_ROOT_PATH,
+                                                    'cmake/Platform/Emscripten.cmake'),
+                            'EMSCRIPTEN_ROOT_PATH=' + EMSCRIPTEN_ROOT_PATH,
+                            'EMSCRIPTEN=1']
 LIB_PATH = os.path.join(BUILD_NATIVE, 'external')
 VALGRIND_ARGS = '--tool=callgrind'
 
@@ -38,15 +41,17 @@ WGET_FILES = []
 IGNORE_FILES = ['index.html', 'drystal.cfg']
 SUBDIRS = []
 
+HAS_NINJA = subprocess.call(['ninja', '--version'], stdout=subprocess.DEVNULL) == 0
+
 def parent(directory):
     return os.path.abspath(os.path.join(directory, os.pardir))
 
-def execute(args, fork=False):
-    print(I, ' '.join(args), N)
+def execute(args, fork=False, cwd='.'):
+    print(I, ' '.join(args), 'from', cwd, N)
     if fork:
-        return subprocess.Popen(args)
+        return subprocess.Popen(args, cwd=cwd)
     else:
-        return subprocess.call(args)
+        return subprocess.call(args, cwd=cwd)
 
 def has_been_modified(fullpath, old):
     if not os.path.exists(old):
@@ -127,13 +132,13 @@ def move_wget_files(from_directory, destination):
             print(G, '    wget\t', f)
             shutil.move(fullpath, destination)
 
-def copy_extensions(from_dir, ext_list, mainfilename):
+def copy_extensions(from_dir, ext_list):
     for extension in ext_list:
         src_path = os.path.join(from_dir,
                                 extension,
-                                mainfilename)
+                                'lib'+extension+'.so')
         dst_path = os.path.join(DESTINATION_DIRECTORY,
-                                mainfilename.replace('main', extension))
+                                extension + '.so')
         if os.path.exists(src_path):
             shutil.copy(src_path, dst_path)
             print(G, '- add extension ', src_path)
@@ -166,6 +171,19 @@ def tup_update(build=''):
         execute(['tup', 'init'])
     if execute(['tup', 'upd', build]) != 0:
         print(E, 'compilation failed, stopping.', N)
+        sys.exit(1)
+
+def cmake_update(build, definitions=[]):
+    generator = HAS_NINJA and 'Ninja' or 'Unix Makefiles'
+    compiler = HAS_NINJA and 'ninja' or 'make'
+    if build not in os.listdir('.'):
+        os.mkdir(build)
+        defs = ['-D' + d for d in definitions]
+        if execute(['cmake', '..', '-G', generator] + defs, cwd=build) != 0:
+            print(E, 'cmake failed, stopping. remove', build, 'and try again', N)
+            sys.exit(1)
+    if execute([compiler], cwd=build) != 0:
+        print(E, compiler, 'failed, stopping.', N)
         sys.exit(1)
 
 def create_token(token):
@@ -203,26 +221,26 @@ def prepare_data(path):
     return directory, file
 
 def prepare_native():
-    tup_update('build-native')
+    cmake_update('build-native')
     copy_extensions(EXTENSIONS_DIRECTORY_NATIVE,
                     [f for f in os.listdir(EXTENSIONS_DIRECTORY)
-                       if os.path.isdir(os.path.join(EXTENSIONS_DIRECTORY, f))],
-                    EXTENSIONS_NATIVE)
+                       if os.path.isdir(os.path.join(EXTENSIONS_DIRECTORY, f))])
 
     os.chdir(DESTINATION_DIRECTORY)
     os.environ['LD_LIBRARY_PATH'] = LIB_PATH
-    program = os.path.join(BUILD_NATIVE, 'drystal')
+    program = os.path.join(BINARY_DIRECTORY_NATIVE, 'drystal')
     return program
 
 def run_repack(args):
     directory, file = prepare_data(args.PATH)
-    tup_update('build-web')
+    cmake_update('build-web', EMSCRIPTEN_CMAKE_DEFINES)
     remove_old_wget()
     move_wget_files(DESTINATION_DIRECTORY, os.path.join(BUILD_WEB, DESTINATION_DIRECTORY_REL))
     htmlfile = locate_index_html(os.path.abspath(directory), os.getcwd())
     import repacker
     os.chdir(BUILD_WEB)
     repacker.DATADIR = os.path.join('..', repacker.DATADIR)
+    repacker.INPUT = 'src/drystal'
     repacker.repack(htmlfile)
     os.chdir('..')
 

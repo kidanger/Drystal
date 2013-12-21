@@ -1,0 +1,7 @@
+add_definitions(-DDRYSTAL_EXTENSION)
+add_subdirectory(truetype)
+add_subdirectory(physic)
+add_subdirectory(net)
+add_subdirectory(web)
+add_subdirectory(storage)
+add_subdirectory(particle)
