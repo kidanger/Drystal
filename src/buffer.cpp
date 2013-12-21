@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <cassert>
 
 #include "buffer.hpp"

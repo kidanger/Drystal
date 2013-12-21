@@ -1,7 +1,7 @@
 #pragma once
 
 #define GL_GLEXT_PROTOTYPES
-#include <SDL/SDL_opengl.h>
+#include <SDL2/SDL_opengles2.h>
 
 struct Shader;
 struct Camera;

@@ -2,9 +2,10 @@
 #define DISPLAY_HPP
 
 #define GL_GLEXT_PROTOTYPES
-#include <SDL/SDL_opengl.h>
+#include <SDL2/SDL_opengles2.h>
 
 struct SDL_Surface;
+struct SDL_Window;
 
 #include "buffer.hpp"
 
@@ -76,6 +77,7 @@ class Display
 		int size_x;
 		int size_y;
 		bool resizable;
+		SDL_Window * sdl_window;
 		SDL_Surface * sdl_screen;
 		Surface * screen;
 
@@ -120,6 +122,7 @@ class Display
 		~Display();
 
 		void show_cursor(bool) const;
+		void grab_cursor(bool) const;
 		void set_resizable(bool);
 		void resize(int w, int h);
 		void screen2scene(float x, float y, float * tx, float * ty) const;

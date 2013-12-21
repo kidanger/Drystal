@@ -1,4 +1,4 @@
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 #include <iostream>
 #include <cassert>
@@ -17,16 +17,16 @@ extern "C" {
 
 #include "log.hpp"
 
-#ifndef EMSCRIPTEN
-#define GL_FRAMEBUFFER GL_FRAMEBUFFER_EXT
-#define GL_FRAMEBUFFER_COMPLETE GL_FRAMEBUFFER_COMPLETE_EXT
-#define GL_COLOR_ATTACHMENT0 GL_COLOR_ATTACHMENT0_EXT
-#define glBindFramebuffer glBindFramebufferEXT
-#define glGenFramebuffers glGenFramebuffersEXT
-#define glDeleteFramebuffers glDeleteFramebuffersEXT
-#define glFramebufferTexture2D glFramebufferTexture2DEXT
-#define glCheckFramebufferStatus glCheckFramebufferStatusEXT
-#endif
+//#ifndef EMSCRIPTEN
+//#define GL_FRAMEBUFFER GL_FRAMEBUFFER_EXT
+//#define GL_FRAMEBUFFER_COMPLETE GL_FRAMEBUFFER_COMPLETE_EXT
+//#define GL_COLOR_ATTACHMENT0 GL_COLOR_ATTACHMENT0_EXT
+//#define glBindFramebuffer glBindFramebufferEXT
+//#define glGenFramebuffers glGenFramebuffersEXT
+//#define glDeleteFramebuffers glDeleteFramebuffersEXT
+//#define glFramebufferTexture2D glFramebufferTexture2DEXT
+//#define glCheckFramebufferStatus glCheckFramebufferStatusEXT
+//#endif
 
 #define STRINGIZE(x) #x
 #define STRINGIZE2(x) STRINGIZE(x)
@@ -171,19 +171,26 @@ void Display::resize(int w, int h)
 
 #ifndef EMSCRIPTEN
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
-#endif
+	SDL_GL_SetSwapInterval(1);
+	sdl_window = SDL_CreateWindow("Drystal",
+			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+			size_x, size_y,
+			SDL_WINDOW_OPENGL | (resizable ? SDL_WINDOW_RESIZABLE : 0));
+	SDL_GLContext glcontext = SDL_GL_CreateContext(sdl_window);
+#else
 	sdl_screen = SDL_SetVideoMode(size_x, size_y, 32,
-			SDL_OPENGL| (resizable ? SDL_VIDEORESIZE : 0));
-	assert(sdl_screen);
+			SDL_OPENGL | (resizable ? SDL_VIDEORESIZE : 0));
+#endif
+	assert(sdl_window || sdl_screen);
+	SDL_GetWindowSize(sdl_window, &w, &h);
 
 	if (screen)
 		delete screen;
 	screen = new Surface;
-	screen->w = sdl_screen->w;
-	screen->h = sdl_screen->h;
-	screen->texw = sdl_screen->w;
-	screen->texh = sdl_screen->h;
+	screen->w = w;
+	screen->h = h;
+	screen->texw = w;
+	screen->texh = h;
 	screen->fbo = 0; // back buffer
 
 	if (current == old) {
@@ -204,7 +211,7 @@ void Display::resize(int w, int h)
 #ifdef EMSCRIPTEN
 	//glEnable(0x8642);
 #else
-	glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+	//glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 #endif
 //	glEnable(GL_POINT_SMOOTH);
 //	glEnable(GL_POINT_SPRITE);
@@ -243,6 +250,15 @@ void Display::show_cursor(bool b) const
 #endif
 }
 
+void Display::grab_cursor(bool grab) const
+{
+#ifdef EMSCRIPTEN
+	// NOT IMPLEMENTED
+#else
+	SDL_SetWindowGrab(sdl_window, grab ? SDL_TRUE : SDL_FALSE);
+#endif
+}
+
 void Display::draw_background() const
 {
 	glClearColor(r, g, b, alpha);
@@ -255,7 +271,11 @@ void Display::flip()
 	default_buffer.assert_empty();
 	glBindFramebuffer(GL_FRAMEBUFFER, screen->fbo);
 	glFlush();
+#ifndef EMSCRIPTEN
+	SDL_GL_SwapWindow(sdl_window);
+#else
 	SDL_GL_SwapBuffers();
+#endif
 	glBindFramebuffer(GL_FRAMEBUFFER, current->fbo);
 	DEBUG("end");
 }

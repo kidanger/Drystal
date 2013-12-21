@@ -343,7 +343,7 @@ static int mlua_show_cursor(lua_State* L)
 static int mlua_grab_cursor(lua_State* L)
 {
 	int grab = lua_toboolean(L, 1);
-	engine->event.grab_cursor(grab);
+	engine->display.grab_cursor(grab);
 	return 0;
 }
 static int mlua_set_resizable(lua_State* L)

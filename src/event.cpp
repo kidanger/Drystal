@@ -1,10 +1,11 @@
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 #include "event.hpp"
 #include "engine.hpp"
 
 typedef Sint32 SDL_Keycode;
 
+#ifdef EMSCRIPTEN
 static const char *keynames[0x800];
 
 /** from https://code.google.com/r/kyberneticist-webport/source/browse/project_files/web_exp/pas2c_build/emcc/patches/sdl_patch.c */
@@ -82,105 +83,6 @@ static void initKeys()
 	keynames[SDLK_z] = "z";
 	keynames[SDLK_DELETE] = "delete";
 
-#ifndef EMSCRIPTEN
-	keynames[SDLK_WORLD_0] = "world 0";
-	keynames[SDLK_WORLD_1] = "world 1";
-	keynames[SDLK_WORLD_2] = "world 2";
-	keynames[SDLK_WORLD_3] = "world 3";
-	keynames[SDLK_WORLD_4] = "world 4";
-	keynames[SDLK_WORLD_5] = "world 5";
-	keynames[SDLK_WORLD_6] = "world 6";
-	keynames[SDLK_WORLD_7] = "world 7";
-	keynames[SDLK_WORLD_8] = "world 8";
-	keynames[SDLK_WORLD_9] = "world 9";
-	keynames[SDLK_WORLD_10] = "world 10";
-	keynames[SDLK_WORLD_11] = "world 11";
-	keynames[SDLK_WORLD_12] = "world 12";
-	keynames[SDLK_WORLD_13] = "world 13";
-	keynames[SDLK_WORLD_14] = "world 14";
-	keynames[SDLK_WORLD_15] = "world 15";
-	keynames[SDLK_WORLD_16] = "world 16";
-	keynames[SDLK_WORLD_17] = "world 17";
-	keynames[SDLK_WORLD_18] = "world 18";
-	keynames[SDLK_WORLD_19] = "world 19";
-	keynames[SDLK_WORLD_20] = "world 20";
-	keynames[SDLK_WORLD_21] = "world 21";
-	keynames[SDLK_WORLD_22] = "world 22";
-	keynames[SDLK_WORLD_23] = "world 23";
-	keynames[SDLK_WORLD_24] = "world 24";
-	keynames[SDLK_WORLD_25] = "world 25";
-	keynames[SDLK_WORLD_26] = "world 26";
-	keynames[SDLK_WORLD_27] = "world 27";
-	keynames[SDLK_WORLD_28] = "world 28";
-	keynames[SDLK_WORLD_29] = "world 29";
-	keynames[SDLK_WORLD_30] = "world 30";
-	keynames[SDLK_WORLD_31] = "world 31";
-	keynames[SDLK_WORLD_32] = "world 32";
-	keynames[SDLK_WORLD_33] = "world 33";
-	keynames[SDLK_WORLD_34] = "world 34";
-	keynames[SDLK_WORLD_35] = "world 35";
-	keynames[SDLK_WORLD_36] = "world 36";
-	keynames[SDLK_WORLD_37] = "world 37";
-	keynames[SDLK_WORLD_38] = "world 38";
-	keynames[SDLK_WORLD_39] = "world 39";
-	keynames[SDLK_WORLD_40] = "world 40";
-	keynames[SDLK_WORLD_41] = "world 41";
-	keynames[SDLK_WORLD_42] = "world 42";
-	keynames[SDLK_WORLD_43] = "world 43";
-	keynames[SDLK_WORLD_44] = "world 44";
-	keynames[SDLK_WORLD_45] = "world 45";
-	keynames[SDLK_WORLD_46] = "world 46";
-	keynames[SDLK_WORLD_47] = "world 47";
-	keynames[SDLK_WORLD_48] = "world 48";
-	keynames[SDLK_WORLD_49] = "world 49";
-	keynames[SDLK_WORLD_50] = "world 50";
-	keynames[SDLK_WORLD_51] = "world 51";
-	keynames[SDLK_WORLD_52] = "world 52";
-	keynames[SDLK_WORLD_53] = "world 53";
-	keynames[SDLK_WORLD_54] = "world 54";
-	keynames[SDLK_WORLD_55] = "world 55";
-	keynames[SDLK_WORLD_56] = "world 56";
-	keynames[SDLK_WORLD_57] = "world 57";
-	keynames[SDLK_WORLD_58] = "world 58";
-	keynames[SDLK_WORLD_59] = "world 59";
-	keynames[SDLK_WORLD_60] = "world 60";
-	keynames[SDLK_WORLD_61] = "world 61";
-	keynames[SDLK_WORLD_62] = "world 62";
-	keynames[SDLK_WORLD_63] = "world 63";
-	keynames[SDLK_WORLD_64] = "world 64";
-	keynames[SDLK_WORLD_65] = "world 65";
-	keynames[SDLK_WORLD_66] = "world 66";
-	keynames[SDLK_WORLD_67] = "world 67";
-	keynames[SDLK_WORLD_68] = "world 68";
-	keynames[SDLK_WORLD_69] = "world 69";
-	keynames[SDLK_WORLD_70] = "world 70";
-	keynames[SDLK_WORLD_71] = "world 71";
-	keynames[SDLK_WORLD_72] = "world 72";
-	keynames[SDLK_WORLD_73] = "world 73";
-	keynames[SDLK_WORLD_74] = "world 74";
-	keynames[SDLK_WORLD_75] = "world 75";
-	keynames[SDLK_WORLD_76] = "world 76";
-	keynames[SDLK_WORLD_77] = "world 77";
-	keynames[SDLK_WORLD_78] = "world 78";
-	keynames[SDLK_WORLD_79] = "world 79";
-	keynames[SDLK_WORLD_80] = "world 80";
-	keynames[SDLK_WORLD_81] = "world 81";
-	keynames[SDLK_WORLD_82] = "world 82";
-	keynames[SDLK_WORLD_83] = "world 83";
-	keynames[SDLK_WORLD_84] = "world 84";
-	keynames[SDLK_WORLD_85] = "world 85";
-	keynames[SDLK_WORLD_86] = "world 86";
-	keynames[SDLK_WORLD_87] = "world 87";
-	keynames[SDLK_WORLD_88] = "world 88";
-	keynames[SDLK_WORLD_89] = "world 89";
-	keynames[SDLK_WORLD_90] = "world 90";
-	keynames[SDLK_WORLD_91] = "world 91";
-	keynames[SDLK_WORLD_92] = "world 92";
-	keynames[SDLK_WORLD_93] = "world 93";
-	keynames[SDLK_WORLD_94] = "world 94";
-	keynames[SDLK_WORLD_95] = "world 95";
-#endif
-
 	keynames[SDLK_KP0] = "[0]";
 	keynames[SDLK_KP1] = "[1]";
 	keynames[SDLK_KP2] = "[2]";
@@ -251,10 +153,11 @@ static void initKeys()
 	keynames[SDLK_EURO] = "euro";
 	keynames[SDLK_UNDO] = "undo";
 }
-
+#endif
 
 const char * mySDL_GetKeyName(SDL_Keycode key)
 {
+#ifdef EMSCRIPTEN
 	const char *keyname;
 
 	keyname = keynames[key];
@@ -262,16 +165,19 @@ const char * mySDL_GetKeyName(SDL_Keycode key)
 		keyname = "unknown key";
 	}
 	return keyname;
+#else
+	return SDL_GetKeyName(key);
+#endif
 }
 
 EventManager::EventManager(Engine& eng) :
-	engine(eng),
-	_grab_cursor(false),
-	_warped(false)
+	engine(eng)
 {
+#ifdef EMSCRIPTEN
 	initKeys();
 	SDL_EnableKeyRepeat(0, 0);
 	SDL_EnableUNICODE(SDL_ENABLE);
+#endif
 }
 
 void EventManager::poll()
@@ -280,17 +186,6 @@ void EventManager::poll()
 	while (SDL_PollEvent(&event)) {
 		handle_event(event);
 	}
-	_warped = false;
-}
-
-void EventManager::grab_cursor(bool grab)
-{
-#ifdef EMSCRIPTEN
-	SDL_WM_GrabInput(grab ? SDL_GRAB_ON : SDL_GRAB_OFF); // in native, this grabs keyboard too
-#else
-	_grab_cursor = grab;
-	check_grab();
-#endif
 }
 
 void EventManager::handle_event(const SDL_Event& event)
@@ -314,20 +209,12 @@ void EventManager::handle_event(const SDL_Event& event)
 				engine.display.toggle_debug_mode();
 			} else {
 				char str[2] = {0};
-				str[0] = event.key.keysym.unicode & 0xFF;
 				engine.key_press(mySDL_GetKeyName(event.key.keysym.sym), str);
 			}
 			break;
 		case SDL_MOUSEMOTION:
-#ifndef EMSCRIPTEN
-			if (!_warped) {
-#endif
-				engine.mouse_motion(event.motion.x, event.motion.y,
-									event.motion.xrel, event.motion.yrel);
-#ifndef EMSCRIPTEN
-				check_grab();
-			}
-#endif
+			engine.mouse_motion(event.motion.x, event.motion.y,
+								event.motion.xrel, event.motion.yrel);
 			break;
 		case SDL_MOUSEBUTTONDOWN:
 			engine.mouse_press(event.button.x, event.button.y, event.button.button);
@@ -335,26 +222,10 @@ void EventManager::handle_event(const SDL_Event& event)
 		case SDL_MOUSEBUTTONUP:
 			engine.mouse_release(event.button.x, event.button.y, event.button.button);
 			break;
-		case SDL_VIDEORESIZE:
-			engine.resize_event(event.resize.w, event.resize.h);
+		case SDL_WINDOWEVENT_RESIZED:
+			engine.resize_event(event.window.data1, event.window.data2);
 			break;
 		default:
 			break;
 	}
 }
-
-#ifndef EMSCRIPTEN
-void EventManager::check_grab()
-{
-	if (_grab_cursor) {
-		int x, y;
-		SDL_GetMouseState(&x, &y);
-		int w = SDL_GetVideoInfo()->current_w;
-		int h = SDL_GetVideoInfo()->current_h;
-		if (x < w / 4 || x > w * 3/4 || y < h / 4 || y > h * 3/4) {
-			SDL_WarpMouse(w / 2, h / 2);
-			_warped = true;
-		}
-	}
-}
-#endif
