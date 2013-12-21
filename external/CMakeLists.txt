@@ -39,5 +39,5 @@ add_custom_command(OUTPUT loadlib_patched.c
     COMMENT "Patching lua")
 
 add_definitions(-DLUA_COMPAT_ALL -DLUA_USE_DLOPEN)
-add_library(lua SHARED ${CORE_C} ${LIB_C})
+add_library(lua-drystal SHARED ${CORE_C} ${LIB_C})
 

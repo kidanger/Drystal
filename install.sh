@@ -14,12 +14,14 @@ test -d $BIN || mkdir -p $BIN
 test -d $LIB || mkdir -p $LIB
 test -d $SHARE || mkdir -p $SHARE
 
-cp build-native/drystal $BIN/
+cp build-native/src/drystal $BIN/
 cp build-native/external/liblua-drystal.so $LIB/
 
 for ext in `ls build-native/extensions`
 do
-	cp build-native/extensions/$ext/main.so $SHARE/${ext}.so
+	test -d build-native/extensions/${ext} \
+	-a -f build-native/extensions/${ext}/lib${ext}.so &&
+		cp build-native/extensions/$ext/lib${ext}.so $SHARE/${ext}.so
 done
 
 for lua in `ls data/*.lua`
@@ -32,7 +34,9 @@ echo "rm $BIN/drystal" >>remove.sh
 echo "rm $LIB/liblua-drystal.so" >>remove.sh
 for ext in `ls build-native/extensions`
 do
-	echo "rm $SHARE/${ext}.so" >>remove.sh
+	test -d build-native/extensions/${ext} \
+	-a -f build-native/extensions/${ext}/lib${ext}.so &&
+		echo "rm $SHARE/${ext}.so" >>remove.sh
 done
 for lua in `ls data/*.lua`
 do

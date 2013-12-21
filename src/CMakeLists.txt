@@ -28,5 +28,5 @@ if(EMSCRIPTEN)
     set(EXTENSIONS physic truetype particle net web storage)
 endif(EMSCRIPTEN)
 
-target_link_libraries(${DRYSTAL_OUT} lua ${EXTENSIONS})
+target_link_libraries(${DRYSTAL_OUT} lua-drystal ${EXTENSIONS})
 
