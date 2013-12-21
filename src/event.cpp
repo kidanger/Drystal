@@ -4,13 +4,14 @@
 #include <SDL/SDL.h>
 #endif
 
+#include <map>
+
 #include "event.hpp"
 #include "engine.hpp"
 
 typedef Sint32 SDL_Keycode;
 
-#ifdef EMSCRIPTEN
-static const char *keynames[0x800];
+std::map<SDL_Keycode, const char*> keynames;
 
 /** from https://code.google.com/r/kyberneticist-webport/source/browse/project_files/web_exp/pas2c_build/emcc/patches/sdl_patch.c */
 static void initKeys()
@@ -87,16 +88,16 @@ static void initKeys()
 	keynames[SDLK_z] = "z";
 	keynames[SDLK_DELETE] = "delete";
 
-	keynames[SDLK_KP0] = "[0]";
-	keynames[SDLK_KP1] = "[1]";
-	keynames[SDLK_KP2] = "[2]";
-	keynames[SDLK_KP3] = "[3]";
-	keynames[SDLK_KP4] = "[4]";
-	keynames[SDLK_KP5] = "[5]";
-	keynames[SDLK_KP6] = "[6]";
-	keynames[SDLK_KP7] = "[7]";
-	keynames[SDLK_KP8] = "[8]";
-	keynames[SDLK_KP9] = "[9]";
+	keynames[SDLK_KP_0] = "[0]";
+	keynames[SDLK_KP_1] = "[1]";
+	keynames[SDLK_KP_2] = "[2]";
+	keynames[SDLK_KP_3] = "[3]";
+	keynames[SDLK_KP_4] = "[4]";
+	keynames[SDLK_KP_5] = "[5]";
+	keynames[SDLK_KP_6] = "[6]";
+	keynames[SDLK_KP_7] = "[7]";
+	keynames[SDLK_KP_8] = "[8]";
+	keynames[SDLK_KP_9] = "[9]";
 	keynames[SDLK_KP_PERIOD] = "[.]";
 	keynames[SDLK_KP_DIVIDE] = "[/]";
 	keynames[SDLK_KP_MULTIPLY] = "[*]";
@@ -132,36 +133,20 @@ static void initKeys()
 	keynames[SDLK_F14] = "f14";
 	keynames[SDLK_F15] = "f15";
 
-	keynames[SDLK_NUMLOCK] = "numlock";
 	keynames[SDLK_CAPSLOCK] = "caps lock";
-	keynames[SDLK_SCROLLOCK] = "scroll lock";
 	keynames[SDLK_RSHIFT] = "right shift";
 	keynames[SDLK_LSHIFT] = "left shift";
 	keynames[SDLK_RCTRL] = "right ctrl";
 	keynames[SDLK_LCTRL] = "left ctrl";
 	keynames[SDLK_RALT] = "right alt";
 	keynames[SDLK_LALT] = "left alt";
-	keynames[SDLK_RMETA] = "right meta";
-	keynames[SDLK_LMETA] = "left meta";
-	keynames[SDLK_LSUPER] = "left super";	/* "Windows" keys */
-	keynames[SDLK_RSUPER] = "right super";
+	keynames[SDLK_RGUI] = "right meta";
+	keynames[SDLK_LGUI] = "left meta";
 	keynames[SDLK_MODE] = "alt gr";
-	keynames[SDLK_COMPOSE] = "compose";
-
-	keynames[SDLK_HELP] = "help";
-	keynames[SDLK_PRINT] = "print screen";
-	keynames[SDLK_SYSREQ] = "sys req";
-	keynames[SDLK_BREAK] = "break";
-	keynames[SDLK_MENU] = "menu";
-	keynames[SDLK_POWER] = "power";
-	keynames[SDLK_EURO] = "euro";
-	keynames[SDLK_UNDO] = "undo";
 }
-#endif
 
 const char * mySDL_GetKeyName(SDL_Keycode key)
 {
-#ifdef EMSCRIPTEN
 	const char *keyname;
 
 	keyname = keynames[key];
@@ -169,19 +154,14 @@ const char * mySDL_GetKeyName(SDL_Keycode key)
 		keyname = "unknown key";
 	}
 	return keyname;
-#else
-	return SDL_GetKeyName(key);
-#endif
 }
 
 EventManager::EventManager(Engine& eng) :
 	engine(eng)
 {
-#ifdef EMSCRIPTEN
 	initKeys();
-	SDL_EnableKeyRepeat(0, 0);
-	SDL_EnableUNICODE(SDL_ENABLE);
-#endif
+	// key repeat is not handled by emscripten
+	// so don't handle it in native mode either
 }
 
 void EventManager::poll()
@@ -218,7 +198,7 @@ void EventManager::handle_event(const SDL_Event& event)
 			break;
 		case SDL_MOUSEMOTION:
 			engine.mouse_motion(event.motion.x, event.motion.y,
-								event.motion.xrel, event.motion.yrel);
+					event.motion.xrel, event.motion.yrel);
 			break;
 		case SDL_MOUSEBUTTONDOWN:
 			engine.mouse_press(event.button.x, event.button.y, event.button.button);
@@ -226,9 +206,15 @@ void EventManager::handle_event(const SDL_Event& event)
 		case SDL_MOUSEBUTTONUP:
 			engine.mouse_release(event.button.x, event.button.y, event.button.button);
 			break;
+#ifndef EMSCRIPTEN
 		case SDL_WINDOWEVENT_RESIZED:
 			engine.resize_event(event.window.data1, event.window.data2);
 			break;
+#else
+		case SDL_VIDEORESIZE:
+			engine.resize_event(event.resize.w, event.resize.h);
+			break;
+#endif
 		default:
 			break;
 	}
