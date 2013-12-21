@@ -206,6 +206,15 @@ void EventManager::handle_event(const SDL_Event& event)
 		case SDL_MOUSEBUTTONUP:
 			engine.mouse_release(event.button.x, event.button.y, event.button.button);
 			break;
+		case SDL_MOUSEWHEEL:
+			{
+				int x, y;
+				SDL_GetMouseState(&x, &y);
+				int button = event.wheel.y > 0 ? 4 : 5;
+				engine.mouse_press(x, y, button);
+				engine.mouse_release(x, y, button);
+			}
+			break;
 #ifndef EMSCRIPTEN
 		case SDL_WINDOWEVENT_RESIZED:
 			engine.resize_event(event.window.data1, event.window.data2);
@@ -219,3 +228,4 @@ void EventManager::handle_event(const SDL_Event& event)
 			break;
 	}
 }
+
