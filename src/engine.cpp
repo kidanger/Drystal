@@ -29,6 +29,7 @@ Engine::Engine(const char* filename, int target_fps) :
 	last_update(get_now()),
 	update_activated(true),
 	draw_activated(true),
+	stats_activated(false),
 	event(*this),
 	lua(*this, filename)
 {
@@ -116,11 +117,13 @@ void Engine::update()
 		lua.call_update(dt);
 	AT(game);
 
-	if (tick % 2 && draw_activated) {
-		lua.call_draw();
+	if (tick % 2) {
+		if (draw_activated)
+			lua.call_draw();
 
 #ifdef STATS
-		stats.draw(*this);
+		if (stats_activated)
+			stats.draw(*this);
 #endif
 		display.flip();
 	}
@@ -130,18 +133,20 @@ void Engine::update()
 	tick += 1;
 
 #ifdef STATS
-	stats.ticks_passed++;
-	stats.event = stats.event * .99 + (at_event - at_start) * .01;
-	stats.audio = stats.audio * .99 + (at_audio - at_event) * .01;
-	stats.game = stats.game * .99 + (at_game - at_audio) * .01;
-	stats.display = stats.display * .99 + (at_display - at_game) * .01;
-	stats.active = stats.active * .99 + (at_display - at_start) * .01;
-	stats.total_active += at_display - at_start;
+	if (stats_activated) {
+		stats.ticks_passed++;
+		stats.event = stats.event * .99 + (at_event - at_start) * .01;
+		stats.audio = stats.audio * .99 + (at_audio - at_event) * .01;
+		stats.game = stats.game * .99 + (at_game - at_audio) * .01;
+		stats.display = stats.display * .99 + (at_display - at_game) * .01;
+		stats.active = stats.active * .99 + (at_display - at_start) * .01;
+		stats.total_active += at_display - at_start;
 
-	stats.average_dt = dt*0.05 + stats.average_dt*0.95;
-	stats.slept = stats.slept * .95 + (at_start - stats.last) * .05;
-	stats.nb_flushed = 0;
-	stats.last = get_now();
+		stats.average_dt = dt*0.01 + stats.average_dt*0.99;
+		stats.slept = stats.slept * .99 + (at_start - stats.last) * .01;
+		stats.nb_flushed = 0;
+		stats.last = get_now();
+	}
 #endif
 }
 
@@ -196,6 +201,10 @@ void Engine::stop()
 void Engine::toggle_draw()
 {
 	draw_activated = !draw_activated;
+}
+void Engine::toggle_stats()
+{
+	stats_activated = !stats_activated;
 }
 
 void Engine::toggle_update()

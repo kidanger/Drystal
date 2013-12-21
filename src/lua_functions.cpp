@@ -383,7 +383,6 @@ static int mlua_screen2scene(lua_State* L)
 }
 static int mlua_flip(lua_State*)
 {
-	// engine->display.flip();
 	return 0;
 }
 
@@ -826,7 +825,7 @@ int luaopen_drystal(lua_State* L)
 
 		DECLARE_FUNCTION(resize),
 		DECLARE_FUNCTION(screen2scene),
-		DECLARE_FUNCTION(flip),
+		DECLARE_FUNCTION(flip), // DEPRECATED
 
 		DECLARE_FUNCTION(start_text),
 		DECLARE_FUNCTION(stop_text),

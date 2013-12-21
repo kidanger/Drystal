@@ -21,6 +21,7 @@ class Engine
 
 		bool update_activated;
 		bool draw_activated;
+		bool stats_activated;
 
 	public:
 		Display display;
@@ -45,6 +46,7 @@ class Engine
 
 		void toggle_update();
 		void toggle_draw();
+		void toggle_stats();
 
 		void stop();
 };
