@@ -3,10 +3,10 @@ local web = require 'web'
 
 function drystal.init()
 	drystal.resize(400, 400)
-	print 'Press h to hide, g to grab'
+	print 'Press h to hide, r to set relative mode'
 end
 
-local grabbed = false
+local relative = false
 local hidden = false
 function drystal.key_press(key)
 	if key == 'a' then
@@ -14,11 +14,11 @@ function drystal.key_press(key)
 	elseif key == 'h' then
 		hidden = not hidden
 		drystal.show_cursor(not hidden)
-	elseif key == 'g' then
-		grabbed = not grabbed
-		drystal.grab_cursor(grabbed)
+	elseif key == 'r' then
+		relative = not relative
+		drystal.set_relative_mode(relative)
 	end
-	print('grab:', grabbed, 'hide:', hidden)
+	print('relative:', relative, 'hide:', hidden)
 end
 
 function drystal.mouse_motion(x, y, dx, dy)

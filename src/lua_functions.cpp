@@ -343,14 +343,14 @@ static int mlua_camera_reset(lua_State*)
 
 static int mlua_show_cursor(lua_State* L)
 {
-	int show = lua_toboolean(L, 1);
+	bool show = lua_toboolean(L, 1);
 	engine->display.show_cursor(show);
 	return 0;
 }
-static int mlua_grab_cursor(lua_State* L)
+static int mlua_set_relative_mode(lua_State* L)
 {
-	int grab = lua_toboolean(L, 1);
-	engine->display.grab_cursor(grab);
+	bool relative = lua_toboolean(L, 1);
+	engine->event.set_relative_mode(relative);
 	return 0;
 }
 static int mlua_resize(lua_State* L)
@@ -822,7 +822,7 @@ int luaopen_drystal(lua_State* L)
 		DECLARE_FUNCTION(reload),
 
 		DECLARE_FUNCTION(show_cursor),
-		DECLARE_FUNCTION(grab_cursor),
+		DECLARE_FUNCTION(set_relative_mode),
 
 		DECLARE_FUNCTION(resize),
 		DECLARE_FUNCTION(screen2scene),

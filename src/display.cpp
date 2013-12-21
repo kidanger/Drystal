@@ -91,7 +91,6 @@ void main()
 );
 
 Display::Display() :
-	resizable(false),
 	sdl_window(NULL),
 	screen(NULL),
 	default_shader(NULL),
@@ -224,15 +223,6 @@ void Display::show_cursor(bool b) const
 	} else {
 		emscripten_run_script("Module['canvas'].style.cursor='none';");
 	}
-#endif
-}
-
-void Display::grab_cursor(bool grab) const
-{
-#ifdef EMSCRIPTEN
-	// NOT IMPLEMENTED
-#else
-	SDL_SetWindowGrab(sdl_window, grab ? SDL_TRUE : SDL_FALSE);
 #endif
 }
 

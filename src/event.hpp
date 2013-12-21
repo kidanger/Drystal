@@ -16,8 +16,9 @@ class EventManager
 		EventManager(Engine&);
 
 		void poll();
-		void start_text();
-		void stop_text();
+		void set_relative_mode(bool relative) const;
+		void start_text() const;
+		void stop_text() const;
 };
 
 #endif

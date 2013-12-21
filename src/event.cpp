@@ -231,11 +231,23 @@ void EventManager::handle_event(const SDL_Event& event)
 	}
 }
 
-void EventManager::start_text() {
+void EventManager::set_relative_mode(bool relative) const
+{
+#ifdef EMSCRIPTEN
+	engine.display.show_cursor(not relative);
+	// NOT IMPLEMENTED
+#else
+	SDL_SetRelativeMouseMode(relative ? SDL_TRUE : SDL_FALSE);
+#endif
+}
+
+void EventManager::start_text() const
+{
 	SDL_StartTextInput();
 }
 
-void EventManager::stop_text() {
+void EventManager::stop_text() const
+{
 	SDL_StopTextInput();
 }
 
