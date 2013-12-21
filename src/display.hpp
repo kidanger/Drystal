@@ -2,7 +2,12 @@
 #define DISPLAY_HPP
 
 #define GL_GLEXT_PROTOTYPES
+#ifndef EMSCRIPTEN
 #include <SDL2/SDL_opengles2.h>
+#else
+#include <SDL/SDL_opengl.h>
+#endif
+
 
 struct SDL_Surface;
 struct SDL_Window;

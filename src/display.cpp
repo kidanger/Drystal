@@ -1,4 +1,8 @@
+#ifndef EMSCRIPTEN
 #include <SDL2/SDL.h>
+#else
+#include <SDL/SDL.h>
+#endif
 
 #include <iostream>
 #include <cassert>
