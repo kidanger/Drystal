@@ -146,9 +146,10 @@ void Display::resize(int w, int h)
 {
 	DEBUG("");
 	if (sdl_window) {
-		SDL_SetWindowSize(sdl_window, w, h);
 #ifdef EMSCRIPTEN
 		emscripten_set_canvas_size(w, h);
+#else
+		SDL_SetWindowSize(sdl_window, w, h);
 #endif
 		SDL_GetWindowSize(sdl_window, &w, &h);
 		screen->w = w;
