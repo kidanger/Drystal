@@ -1,5 +1,9 @@
 #include <lua.hpp>
+#ifndef EMSCRIPTEN
+#include <SDL2/SDL_opengles2.h>
+#else
 #include <SDL/SDL_opengl.h>
+#endif
 
 extern "C" {
 #define STB_TRUETYPE_IMPLEMENTATION
