@@ -5,7 +5,11 @@
 #endif
 
 #ifdef DODEBUG
+#ifndef EMSCRIPTEN
+#include <SDL2/SDL_opengles2.h>
+#else
 #include <SDL/SDL_opengl.h>
+#endif
 #include <cstdio>
 
 #define DEBUG(fmt)\

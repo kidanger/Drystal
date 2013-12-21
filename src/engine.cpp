@@ -4,7 +4,7 @@
 #include <iostream>
 
 #ifndef EMSCRIPTEN
-#include <SDL/SDL.h> // SDL_Delay
+#include <SDL2/SDL.h> // SDL_Delay
 #endif
 
 #include "engine.hpp"
