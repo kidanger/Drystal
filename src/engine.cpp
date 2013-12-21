@@ -69,8 +69,7 @@ void Engine::loop()
 	(void) target_fps;
 #else
 	run = run && successful_load;
-	while (run)
-	{
+	while (run) {
 		unsigned long at_start = get_now();
 
 		// update everything (event, game, display)
@@ -78,11 +77,9 @@ void Engine::loop()
 
 		// wait few millis to stay at the targeted fps value
 		unsigned long now = get_now();
-		if ((now - at_start)/1000 < 1000/target_fps)
-		{
+		if ((now - at_start)/1000 < 1000/target_fps) {
 			long sleep_time = 1000/target_fps - (now - at_start)/1000;
-			if (sleep_time > 0)
-			{
+			if (sleep_time > 0) {
 				SDL_Delay(sleep_time);
 			}
 		}
@@ -100,15 +97,14 @@ long unsigned Engine::get_now() const
 
 void Engine::update()
 {
-	static int tick = 0;
 	AT(start)
+	static int tick = 0;
 	event.poll();
+	AT(event)
 
 	// check if an event provocked a stop
 	if (!run)
 		return;
-
-	AT(event)
 
 	float dt = (get_now() - last_update) / 1000;
 	last_update = get_now();
@@ -119,25 +115,32 @@ void Engine::update()
 	if (update_activated)
 		lua.call_update(dt);
 	AT(game);
-	if (tick % 2 && draw_activated)
+
+	if (tick % 2 && draw_activated) {
 		lua.call_draw();
+
+#ifdef STATS
+		stats.draw(*this);
+#endif
+		display.flip();
+	}
+
 	AT(display);
 
 	tick += 1;
 
 #ifdef STATS
 	stats.ticks_passed++;
-	stats.event += at_event - at_start;
-	stats.game += at_game - at_event;
-	stats.display += at_display - at_game;
+	stats.event = stats.event * .99 + (at_event - at_start) * .01;
+	stats.audio = stats.audio * .99 + (at_audio - at_event) * .01;
+	stats.game = stats.game * .99 + (at_game - at_audio) * .01;
+	stats.display = stats.display * .99 + (at_display - at_game) * .01;
+	stats.active = stats.active * .99 + (at_display - at_start) * .01;
 	stats.total_active += at_display - at_start;
 
-	if (stats.average_dt == -1)
-		stats.average_dt = dt;
 	stats.average_dt = dt*0.05 + stats.average_dt*0.95;
-	stats.slept += at_start - stats.last;
-	if (stats.ticks_passed % 60 == 0)
-		stats.report();
+	stats.slept = stats.slept * .95 + (at_start - stats.last) * .05;
+	stats.nb_flushed = 0;
 	stats.last = get_now();
 #endif
 }

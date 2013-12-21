@@ -383,7 +383,7 @@ static int mlua_screen2scene(lua_State* L)
 }
 static int mlua_flip(lua_State*)
 {
-	engine->display.flip();
+	// engine->display.flip();
 	return 0;
 }
 
