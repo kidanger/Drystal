@@ -65,7 +65,7 @@ public:
 	void assert_not_use_texture();
 
 	void reset();
-	void reallocate();
 	void upload_and_free();
+	void allocate();
 };
 

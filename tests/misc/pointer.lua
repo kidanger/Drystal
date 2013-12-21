@@ -20,3 +20,7 @@ function drystal.key_press(key)
 	end
 	print('grab:', grabbed, 'hide:', hidden)
 end
+
+function drystal.mouse_motion(x, y, dx, dy)
+	print(x, y, dx, dy)
+end

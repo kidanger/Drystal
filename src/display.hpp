@@ -79,11 +79,8 @@ class Display
 {
 	private:
 		Buffer default_buffer;
-		int size_x;
-		int size_y;
 		bool resizable;
 		SDL_Window * sdl_window;
-		SDL_Surface * sdl_screen;
 		Surface * screen;
 
 		Shader * default_shader;
@@ -128,7 +125,6 @@ class Display
 
 		void show_cursor(bool) const;
 		void grab_cursor(bool) const;
-		void set_resizable(bool);
 		void resize(int w, int h);
 		void screen2scene(float x, float y, float * tx, float * ty) const;
 		void toggle_debug_mode();

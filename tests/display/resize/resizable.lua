@@ -5,6 +5,7 @@ local w, h = 600, 400
 local text = ''
 
 function drystal.init()
+	print('init')
 	drystal.resize(w, h)
 	tt.use(tt.load('arial.ttf', 20))
 	update_surf()

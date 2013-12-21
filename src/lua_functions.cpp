@@ -353,12 +353,6 @@ static int mlua_grab_cursor(lua_State* L)
 	engine->display.grab_cursor(grab);
 	return 0;
 }
-static int mlua_set_resizable(lua_State* L)
-{
-	int r = lua_toboolean(L, 1);
-	engine->display.set_resizable(r);
-	return 0;
-}
 static int mlua_resize(lua_State* L)
 {
 	int w = lua_tointeger(L, 1);
@@ -830,7 +824,6 @@ int luaopen_drystal(lua_State* L)
 		DECLARE_FUNCTION(show_cursor),
 		DECLARE_FUNCTION(grab_cursor),
 
-		DECLARE_FUNCTION(set_resizable),
 		DECLARE_FUNCTION(resize),
 		DECLARE_FUNCTION(screen2scene),
 		DECLARE_FUNCTION(flip),

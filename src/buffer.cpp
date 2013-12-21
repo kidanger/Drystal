@@ -29,18 +29,8 @@ Buffer::Buffer(unsigned int size) :
 	buffers[3] = 0;
 }
 
-void Buffer::reallocate()
+void Buffer::allocate()
 {
-	DEBUG("");
-	reset();
-	if (buffers[0] > 0)
-	{
-		glDeleteBuffers(4, buffers);
-		buffers[0] = 0;
-		buffers[1] = 0;
-		buffers[2] = 0;
-		buffers[3] = 0;
-	}
 	glGenBuffers(4, buffers);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

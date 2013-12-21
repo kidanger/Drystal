@@ -4,6 +4,8 @@
 #include <SDL/SDL.h>
 #endif
 
+#define GL_VERTEX_PROGRAM_POINT_SIZE 0x8642
+
 #include <iostream>
 #include <cassert>
 #include <cmath>
@@ -21,16 +23,6 @@ extern "C" {
 
 #include "log.hpp"
 
-//#ifndef EMSCRIPTEN
-//#define GL_FRAMEBUFFER GL_FRAMEBUFFER_EXT
-//#define GL_FRAMEBUFFER_COMPLETE GL_FRAMEBUFFER_COMPLETE_EXT
-//#define GL_COLOR_ATTACHMENT0 GL_COLOR_ATTACHMENT0_EXT
-//#define glBindFramebuffer glBindFramebufferEXT
-//#define glGenFramebuffers glGenFramebuffersEXT
-//#define glDeleteFramebuffers glDeleteFramebuffersEXT
-//#define glFramebufferTexture2D glFramebufferTexture2DEXT
-//#define glCheckFramebufferStatus glCheckFramebufferStatusEXT
-//#endif
 
 #define STRINGIZE(x) #x
 #define STRINGIZE2(x) STRINGIZE(x)
@@ -99,10 +91,8 @@ void main()
 );
 
 Display::Display() :
-	size_x(0),
-	size_y(0),
 	resizable(false),
-	sdl_screen(NULL),
+	sdl_window(NULL),
 	screen(NULL),
 	default_shader(NULL),
 	current_shader(NULL),
@@ -118,9 +108,8 @@ Display::Display() :
 	available(false),
 	debug_mode(false)
 {
-	int err = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-	if (err)
-	{
+	int err = SDL_Init(SDL_INIT_VIDEO);
+	if (err) {
 		fprintf(stderr, "[ERROR] cannot initialize SDL\n");
 		return;
 	}
@@ -132,9 +121,8 @@ Display::Display() :
 
 Display::~Display()
 {
-	if (sdl_screen) {
-		SDL_FreeSurface(sdl_screen);
-		sdl_screen = NULL;
+	if (sdl_window) {
+		SDL_DestroyWindow(sdl_window);
 	}
 	if (screen) {
 		delete screen;
@@ -155,74 +143,59 @@ bool Display::is_available() const
  * Screen
  */
 
-void Display::set_resizable(bool b)
-{
-	if (b != resizable) {
-		resizable = b;
-		if (screen)
-			resize(size_x, size_y);
-	}
-}
-
 void Display::resize(int w, int h)
 {
-	w = w > 0 ? w : 1;
-	h = h > 0 ? h : 1;
 	DEBUG("");
-	Surface* old = screen;
-	size_x = w;
-	size_y = h;
-
-#ifndef EMSCRIPTEN
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetSwapInterval(1);
-	sdl_window = SDL_CreateWindow("Drystal",
-			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-			size_x, size_y,
-			SDL_WINDOW_OPENGL | (resizable ? SDL_WINDOW_RESIZABLE : 0));
-	SDL_GLContext glcontext = SDL_GL_CreateContext(sdl_window);
-#else
-	sdl_screen = SDL_SetVideoMode(size_x, size_y, 32,
-			SDL_OPENGL | (resizable ? SDL_VIDEORESIZE : 0));
+	if (sdl_window) {
+		SDL_SetWindowSize(sdl_window, w, h);
+#ifdef EMSCRIPTEN
+		emscripten_set_canvas_size(w, h);
 #endif
-	assert(sdl_window || sdl_screen);
-	SDL_GetWindowSize(sdl_window, &w, &h);
-
-	if (screen)
-		delete screen;
-	screen = new Surface;
-	screen->w = w;
-	screen->h = h;
-	screen->texw = w;
-	screen->texh = h;
-	screen->fbo = 0; // back buffer
-
-	if (current == old) {
+		SDL_GetWindowSize(sdl_window, &w, &h);
+		screen->w = w;
+		screen->h = h;
+		screen->texw = w;
+		screen->texh = h;
 		current = NULL; // force update
 		draw_on(screen);
-	}
+	} else {
+		w = w > 0 ? w : 1;
+		h = h > 0 ? h : 1;
 
-	// regenerate shader (lost with the GL context)
-	if (default_shader)
-		free_shader(default_shader);
-	default_shader = create_default_shader();
-	use_shader(default_shader);
-
-	glEnable(GL_BLEND);
-	set_blend_mode(DEFAULT);
-	glDisable(GL_DEPTH_TEST);
-
-#ifdef EMSCRIPTEN
-	//glEnable(0x8642);
+#ifndef EMSCRIPTEN
+		sdl_window = SDL_CreateWindow("Drystal",
+				SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+				w, h, SDL_WINDOW_OPENGL);
+		SDL_GL_CreateContext(sdl_window);
+		assert(sdl_window);
 #else
-	//glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+		SDL_SetVideoMode(w, h, 32, SDL_OPENGL);
 #endif
-//	glEnable(GL_POINT_SMOOTH);
-//	glEnable(GL_POINT_SPRITE);
 
-	default_buffer.reallocate();
-	// TODO: handle other buffers
-	// TODO: invalidate surfaces
+		SDL_GL_SetSwapInterval(1);
+		SDL_GetWindowSize(sdl_window, &w, &h);
+
+		screen = new Surface;
+		screen->w = w;
+		screen->h = h;
+		screen->texw = w;
+		screen->texh = h;
+		screen->fbo = 0; // back buffer
+
+		draw_on(screen);
+
+		default_shader = create_default_shader();
+		use_shader(default_shader);
+		default_buffer.allocate();
+
+		glEnable(GL_BLEND);
+		set_blend_mode(DEFAULT);
+		glDisable(GL_DEPTH_TEST);
+
+#ifndef EMSCRIPTEN
+		glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+#endif
+	}
 	DEBUG("end");
 }
 
@@ -275,11 +248,7 @@ void Display::flip()
 	default_buffer.assert_empty();
 	glBindFramebuffer(GL_FRAMEBUFFER, screen->fbo);
 	glFlush();
-#ifndef EMSCRIPTEN
 	SDL_GL_SwapWindow(sdl_window);
-#else
-	SDL_GL_SwapBuffers();
-#endif
 	glBindFramebuffer(GL_FRAMEBUFFER, current->fbo);
 	DEBUG("end");
 }
@@ -854,7 +823,7 @@ void Display::free_shader(Shader* shader)
 Buffer* Display::new_buffer(unsigned int size)
 {
 	Buffer* buffer = new Buffer(size);
-	buffer->reallocate();
+	buffer->allocate();
 	buffer->use_camera(&camera);
 	return buffer;
 }

@@ -5,7 +5,6 @@
 #endif
 
 #include <map>
-#include <cstdio>
 
 #include "event.hpp"
 #include "engine.hpp"
