@@ -13,14 +13,17 @@ function drystal.draw()
 	print'draw'
 end
 
-function drystal.key_press(key, unicode)
-	print('key_press', key, unicode)
+function drystal.key_press(key)
+	print('key_press', key)
 	if key == 'a' then
 		drystal.engine_stop()
 	end
 end
 function drystal.key_release(key)
 	print('key_release', key)
+end
+function drystal.key_text(char)
+	print('key_text', char)
 end
 
 function drystal.mouse_press(x, y, b)

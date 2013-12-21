@@ -188,12 +188,11 @@ void LuaFunctions::call_mouse_release(int mx, int my, int button) const
 	}
 }
 
-void LuaFunctions::call_key_press(const char* key_string, const char* unicode) const
+void LuaFunctions::call_key_press(const char* key_string) const
 {
 	if (get_function(L, "key_press")) {
 		lua_pushstring(L, key_string);
-		lua_pushstring(L, unicode);
-		CALL(2);
+		CALL(1);
 	}
 }
 
@@ -201,6 +200,14 @@ void LuaFunctions::call_key_release(const char* key_string) const
 {
 	if (get_function(L, "key_release")) {
 		lua_pushstring(L, key_string);
+		CALL(1);
+	}
+}
+
+void LuaFunctions::call_key_text(const char* string) const
+{
+	if (get_function(L, "key_text")) {
+		lua_pushstring(L, string);
 		CALL(1);
 	}
 }
@@ -385,6 +392,19 @@ static int mlua_flip(lua_State*)
 	engine->display.flip();
 	return 0;
 }
+
+static int mlua_start_text(lua_State*)
+{
+	engine->event.start_text();
+	return 0;
+}
+
+static int mlua_stop_text(lua_State*)
+{
+	engine->event.stop_text();
+	return 0;
+}
+
 static int mlua_load_surface(lua_State* L)
 {
 	const char * filename = lua_tostring(L, -1);
@@ -814,6 +834,9 @@ int luaopen_drystal(lua_State* L)
 		DECLARE_FUNCTION(resize),
 		DECLARE_FUNCTION(screen2scene),
 		DECLARE_FUNCTION(flip),
+
+		DECLARE_FUNCTION(start_text),
+		DECLARE_FUNCTION(stop_text),
 
 		/* DISPLAY SURFACE */
 		DECLARE_FUNCTION(load_surface),

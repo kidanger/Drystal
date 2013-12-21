@@ -16,6 +16,8 @@ class EventManager
 		EventManager(Engine&);
 
 		void poll();
+		void start_text();
+		void stop_text();
 };
 
 #endif

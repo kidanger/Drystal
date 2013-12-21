@@ -166,14 +166,19 @@ void Engine::mouse_release(int mx, int my, int button) const
 	lua.call_mouse_release(mx, my, button);
 }
 
-void Engine::key_press(const char* key_string, const char* unicode) const
+void Engine::key_press(const char* key_string) const
 {
-	lua.call_key_press(key_string, unicode);
+	lua.call_key_press(key_string);
 }
 
 void Engine::key_release(const char* key_string) const
 {
 	lua.call_key_release(key_string);
+}
+
+void Engine::key_text(const char* string) const
+{
+	lua.call_key_text(string);
 }
 
 void Engine::stop()

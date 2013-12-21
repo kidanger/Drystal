@@ -5,6 +5,7 @@
 #endif
 
 #include <map>
+#include <cstdio>
 
 #include "event.hpp"
 #include "engine.hpp"
@@ -192,9 +193,11 @@ void EventManager::handle_event(const SDL_Event& event)
 			} else if (event.key.keysym.sym == SDLK_F4) {
 				engine.display.toggle_debug_mode();
 			} else {
-				char str[2] = {0};
-				engine.key_press(mySDL_GetKeyName(event.key.keysym.sym), str);
+				engine.key_press(mySDL_GetKeyName(event.key.keysym.sym));
 			}
+			break;
+		case SDL_TEXTINPUT:
+			engine.key_text(event.edit.text);
 			break;
 		case SDL_MOUSEMOTION:
 			engine.mouse_motion(event.motion.x, event.motion.y,
@@ -227,5 +230,13 @@ void EventManager::handle_event(const SDL_Event& event)
 		default:
 			break;
 	}
+}
+
+void EventManager::start_text() {
+	SDL_StartTextInput();
+}
+
+void EventManager::stop_text() {
+	SDL_StopTextInput();
 }
 

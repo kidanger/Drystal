@@ -39,8 +39,9 @@ class Engine
 		void mouse_motion(int x, int y, int dx, int dy) const;
 		void mouse_press(int, int, int) const;
 		void mouse_release(int, int, int) const;
-		void key_press(const char* key_string, const char* unicode) const;
+		void key_press(const char* key_string) const;
 		void key_release(const char* key_string) const;
+		void key_text(const char* string) const;
 
 		void toggle_update();
 		void toggle_draw();
