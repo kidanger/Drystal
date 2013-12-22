@@ -14,21 +14,18 @@ LuaFunctions::LuaFunctions(Engine& eng, const char *filename) :
 	L(luaL_newstate()),
 	drystal_table_ref(LUA_NOREF),
 	filename(filename),
-	library_loaded(false)
-{
+	library_loaded(false) {
 	engine = &eng;
 
 	luaL_openlibs(L);
 }
 
-LuaFunctions::~LuaFunctions()
-{
+LuaFunctions::~LuaFunctions() {
 	luaL_unref(L, LUA_REGISTRYINDEX, drystal_table_ref);
 	lua_close(L);
 }
 
-void LuaFunctions::add_search_path(const char* path)
-{
+void LuaFunctions::add_search_path(const char* path) {
 	bool add_slash = path[strlen(path) - 1] != '/';
 	// update path
 	lua_getglobal(L, "package");
@@ -64,8 +61,7 @@ void LuaFunctions::add_search_path(const char* path)
  * Return true if found, and keep the function is the lua stack
  * Otherwise, return false (stack is cleaned as needed).
  */
-bool LuaFunctions::get_function(lua_State* L, const char* name) const
-{
+bool LuaFunctions::get_function(lua_State* L, const char* name) const {
 	lua_rawgeti(L, LUA_REGISTRYINDEX, drystal_table_ref);
 	lua_getfield(L, -1, name);
 	if (lua_isfunction(L, -1)) {
@@ -80,8 +76,7 @@ bool LuaFunctions::get_function(lua_State* L, const char* name) const
 	return false;
 }
 
-void LuaFunctions::remove_userpackages(lua_State* L)
-{
+void LuaFunctions::remove_userpackages(lua_State* L) {
 	printf("Removing old packages: ");
 	const char* kept[] = {
 		"_G",
@@ -102,7 +97,7 @@ void LuaFunctions::remove_userpackages(lua_State* L)
 	while (lua_next(L, -2)) {
 		bool remove = true;
 		const char* name = lua_tostring(L, -2);
-		for (unsigned long i = 0; i < sizeof(kept)/sizeof(const char*) && remove; i++) {
+		for (unsigned long i = 0; i < sizeof(kept) / sizeof(const char*) && remove; i++) {
 			remove = remove && strcmp(name, kept[i]);
 		}
 		if (remove) {
@@ -115,8 +110,7 @@ void LuaFunctions::remove_userpackages(lua_State* L)
 	printf("\n");
 }
 
-bool LuaFunctions::load_code()
-{
+bool LuaFunctions::load_code() {
 	if (!library_loaded) {
 		// add drystal lib
 		luaL_requiref(L, "drystal", luaopen_drystal, 1); // as global
@@ -137,16 +131,14 @@ bool LuaFunctions::load_code()
 	return true;
 }
 
-bool LuaFunctions::reload_code()
-{
+bool LuaFunctions::reload_code() {
 	remove_userpackages(L);
 
 	printf("Reloading code...\n");
 	return load_code() && call_init();
 }
 
-bool LuaFunctions::call_init()
-{
+bool LuaFunctions::call_init() {
 	if (!get_function(L, "init")) {
 		fprintf(stderr, "[ERROR] cannot find init function in `%s'\n", filename);
 		return false;
@@ -157,8 +149,7 @@ bool LuaFunctions::call_init()
 	return true;
 }
 
-void LuaFunctions::call_mouse_motion(int mx, int my, int dx, int dy) const
-{
+void LuaFunctions::call_mouse_motion(int mx, int my, int dx, int dy) const {
 	if (get_function(L, "mouse_motion")) {
 		lua_pushnumber(L, mx);
 		lua_pushnumber(L, my);
@@ -168,8 +159,7 @@ void LuaFunctions::call_mouse_motion(int mx, int my, int dx, int dy) const
 	}
 }
 
-void LuaFunctions::call_mouse_press(int mx, int my, int button) const
-{
+void LuaFunctions::call_mouse_press(int mx, int my, int button) const {
 	if (get_function(L, "mouse_press")) {
 		lua_pushnumber(L, mx);
 		lua_pushnumber(L, my);
@@ -178,8 +168,7 @@ void LuaFunctions::call_mouse_press(int mx, int my, int button) const
 	}
 }
 
-void LuaFunctions::call_mouse_release(int mx, int my, int button) const
-{
+void LuaFunctions::call_mouse_release(int mx, int my, int button) const {
 	if (get_function(L, "mouse_release")) {
 		lua_pushnumber(L, mx);
 		lua_pushnumber(L, my);
@@ -188,32 +177,28 @@ void LuaFunctions::call_mouse_release(int mx, int my, int button) const
 	}
 }
 
-void LuaFunctions::call_key_press(const char* key_string) const
-{
+void LuaFunctions::call_key_press(const char* key_string) const {
 	if (get_function(L, "key_press")) {
 		lua_pushstring(L, key_string);
 		CALL(1);
 	}
 }
 
-void LuaFunctions::call_key_release(const char* key_string) const
-{
+void LuaFunctions::call_key_release(const char* key_string) const {
 	if (get_function(L, "key_release")) {
 		lua_pushstring(L, key_string);
 		CALL(1);
 	}
 }
 
-void LuaFunctions::call_key_text(const char* string) const
-{
+void LuaFunctions::call_key_text(const char* string) const {
 	if (get_function(L, "key_text")) {
 		lua_pushstring(L, string);
 		CALL(1);
 	}
 }
 
-void LuaFunctions::call_resize_event(int w, int h) const
-{
+void LuaFunctions::call_resize_event(int w, int h) const {
 	if (get_function(L, "resize_event")) {
 		lua_pushnumber(L, w);
 		lua_pushnumber(L, h);
@@ -221,80 +206,68 @@ void LuaFunctions::call_resize_event(int w, int h) const
 	}
 }
 
-void LuaFunctions::call_update(float dt)
-{
+void LuaFunctions::call_update(float dt) {
 	if (get_function(L, "update")) {
 		lua_pushnumber(L, dt);
 		CALL(1);
 	}
 }
-void LuaFunctions::call_draw()
-{
+void LuaFunctions::call_draw() {
 	if (get_function(L, "draw")) {
 		CALL(0);
 	}
 }
 
-void LuaFunctions::call_atexit() const
-{
+void LuaFunctions::call_atexit() const {
 	if (get_function(L, "atexit")) {
 		CALL(0);
 	}
 }
 
-static int mlua_stop(lua_State*)
-{
+static int mlua_stop(lua_State*) {
 	engine->stop();
 	return 0;
 }
 
-static int mlua_reload(lua_State*)
-{
+static int mlua_reload(lua_State*) {
 	engine->lua.reload_code();
 	return 0;
 }
 
-static int mlua_set_color(lua_State* L)
-{
+static int mlua_set_color(lua_State* L) {
 	int r = lua_tointeger(L, -3);
 	int g = lua_tointeger(L, -2);
 	int b = lua_tointeger(L, -1);
 	engine->display.set_color(r, g, b);
 	return 0;
 }
-static int mlua_set_alpha(lua_State* L)
-{
+static int mlua_set_alpha(lua_State* L) {
 	int alpha = lua_tointeger(L, 1);
 	engine->display.set_alpha(alpha);
 	return 0;
 }
-static int mlua_set_point_size(lua_State* L)
-{
+static int mlua_set_point_size(lua_State* L) {
 	int point_size = lua_tointeger(L, 1);
 	engine->display.set_point_size(point_size);
 	return 0;
 }
-static int mlua_set_line_width(lua_State* L)
-{
+static int mlua_set_line_width(lua_State* L) {
 	int width = lua_tointeger(L, 1);
 	engine->display.set_line_width(width);
 	return 0;
 }
-static int mlua_set_blend_mode(lua_State* L)
-{
+static int mlua_set_blend_mode(lua_State* L) {
 	BlendMode mode = static_cast<BlendMode>(luaL_checknumber(L, 1));
 	engine->display.set_blend_mode(mode);
 	return 0;
 }
-static int mlua_set_filter_mode(lua_State* L)
-{
+static int mlua_set_filter_mode(lua_State* L) {
 	FilterMode mode = static_cast<FilterMode>(luaL_checknumber(L, 1));
 	engine->display.set_filter_mode(mode);
 	return 0;
 }
 
-static int mlua_camera__newindex(lua_State* L)
-{
+static int mlua_camera__newindex(lua_State* L) {
 	const char * name = luaL_checkstring(L, 2);
 	if (!strcmp(name, "x")) {
 		lua_Number dx = luaL_checknumber(L, 3);
@@ -313,8 +286,7 @@ static int mlua_camera__newindex(lua_State* L)
 	}
 	return 0;
 }
-static int mlua_camera__index(lua_State* L)
-{
+static int mlua_camera__index(lua_State* L) {
 	const char * name = luaL_checkstring(L, 2);
 	if (!strcmp(name, "x")) {
 		lua_Number dx = engine->display.get_camera().dx;
@@ -335,26 +307,22 @@ static int mlua_camera__index(lua_State* L)
 	}
 	return 0;
 }
-static int mlua_camera_reset(lua_State*)
-{
+static int mlua_camera_reset(lua_State*) {
 	engine->display.reset_camera();
 	return 0;
 }
 
-static int mlua_show_cursor(lua_State* L)
-{
+static int mlua_show_cursor(lua_State* L) {
 	bool show = lua_toboolean(L, 1);
 	engine->display.show_cursor(show);
 	return 0;
 }
-static int mlua_set_relative_mode(lua_State* L)
-{
+static int mlua_set_relative_mode(lua_State* L) {
 	bool relative = lua_toboolean(L, 1);
 	engine->event.set_relative_mode(relative);
 	return 0;
 }
-static int mlua_resize(lua_State* L)
-{
+static int mlua_resize(lua_State* L) {
 	int w = lua_tointeger(L, 1);
 	int h = lua_tointeger(L, 2);
 	engine->display.resize(w, h);
@@ -371,8 +339,7 @@ static int mlua_resize(lua_State* L)
 
 	return 0;
 }
-static int mlua_screen2scene(lua_State* L)
-{
+static int mlua_screen2scene(lua_State* L) {
 	lua_Number x = lua_tointeger(L, 1);
 	lua_Number y = lua_tointeger(L, 2);
 	float tx, ty;
@@ -381,25 +348,21 @@ static int mlua_screen2scene(lua_State* L)
 	lua_pushnumber(L, ty);
 	return 2;
 }
-static int mlua_flip(lua_State*)
-{
+static int mlua_flip(lua_State*) {
 	return 0;
 }
 
-static int mlua_start_text(lua_State*)
-{
+static int mlua_start_text(lua_State*) {
 	engine->event.start_text();
 	return 0;
 }
 
-static int mlua_stop_text(lua_State*)
-{
+static int mlua_stop_text(lua_State*) {
 	engine->event.stop_text();
 	return 0;
 }
 
-static int mlua_load_surface(lua_State* L)
-{
+static int mlua_load_surface(lua_State* L) {
 	const char * filename = lua_tostring(L, -1);
 	void* surface = engine->display.load_surface(filename);
 	if (surface) {
@@ -408,22 +371,19 @@ static int mlua_load_surface(lua_State* L)
 	}
 	return 0;
 }
-static int mlua_new_surface(lua_State* L)
-{
+static int mlua_new_surface(lua_State* L) {
 	int w = lua_tointeger(L, -2);
 	int h = lua_tointeger(L, -1);
 	void* surface = engine->display.new_surface(w, h);
 	lua_pushlightuserdata(L, surface);
 	return 1;
 }
-static int mlua_free_surface(lua_State* L)
-{
+static int mlua_free_surface(lua_State* L) {
 	Surface* surface = static_cast<Surface *>(lua_touserdata(L, -1));
 	engine->display.free_surface(surface);
 	return 0;
 }
-static int mlua_surface_size(lua_State* L)
-{
+static int mlua_surface_size(lua_State* L) {
 	Surface* surface = static_cast<Surface *>(lua_touserdata(L, -1));
 	int w, h;
 	engine->display.surface_size(surface, &w, &h);
@@ -431,33 +391,28 @@ static int mlua_surface_size(lua_State* L)
 	lua_pushnumber(L, h);
 	return 2;
 }
-static int mlua_draw_on(lua_State* L)
-{
+static int mlua_draw_on(lua_State* L) {
 	Surface* surface = static_cast<Surface *>(lua_touserdata(L, -1));
 	engine->display.draw_on(surface);
 	return 0;
 }
-static int mlua_draw_from(lua_State* L)
-{
+static int mlua_draw_from(lua_State* L) {
 	Surface* surface = static_cast<Surface *>(lua_touserdata(L, -1));
 	engine->display.draw_from(surface);
 	return 0;
 }
 
-static int mlua_draw_background(lua_State*)
-{
+static int mlua_draw_background(lua_State*) {
 	engine->display.draw_background();
 	return 0;
 }
-static int mlua_draw_point(lua_State* L)
-{
+static int mlua_draw_point(lua_State* L) {
 	lua_Number x = lua_tonumber(L, 1);
 	lua_Number y = lua_tonumber(L, 2);
 	engine->display.draw_point(x, y);
 	return 0;
 }
-static int mlua_draw_point_tex(lua_State* L)
-{
+static int mlua_draw_point_tex(lua_State* L) {
 	lua_Number xi = lua_tonumber(L, 1);
 	lua_Number yi = lua_tonumber(L, 2);
 	lua_Number xd = lua_tonumber(L, 3);
@@ -465,8 +420,7 @@ static int mlua_draw_point_tex(lua_State* L)
 	engine->display.draw_point_tex(xi, yi, xd, yd);
 	return 0;
 }
-static int mlua_draw_line(lua_State* L)
-{
+static int mlua_draw_line(lua_State* L) {
 	lua_Number x1 = lua_tonumber(L, 1);
 	lua_Number y1 = lua_tonumber(L, 2);
 	lua_Number x2 = lua_tonumber(L, 3);
@@ -474,8 +428,7 @@ static int mlua_draw_line(lua_State* L)
 	engine->display.draw_line(x1, y1, x2, y2);
 	return 0;
 }
-static int mlua_draw_triangle(lua_State* L)
-{
+static int mlua_draw_triangle(lua_State* L) {
 	lua_Number x1 = lua_tonumber(L, 1);
 	lua_Number y1 = lua_tonumber(L, 2);
 	lua_Number x2 = lua_tonumber(L, 3);
@@ -485,8 +438,7 @@ static int mlua_draw_triangle(lua_State* L)
 	engine->display.draw_triangle(x1, y1, x2, y2, x3, y3);
 	return 0;
 }
-static int mlua_draw_surface(lua_State* L)
-{
+static int mlua_draw_surface(lua_State* L) {
 	lua_Number i1 = lua_tonumber(L, 1);
 	lua_Number i2 = lua_tonumber(L, 2);
 	lua_Number i3 = lua_tonumber(L, 3);
@@ -500,11 +452,10 @@ static int mlua_draw_surface(lua_State* L)
 	lua_Number o5 = lua_tonumber(L, 11);
 	lua_Number o6 = lua_tonumber(L, 12);
 	engine->display.draw_surface(i1, i2, i3, i4, i5, i6,
-								 o1, o2, o3, o4, o5, o6);
+	                             o1, o2, o3, o4, o5, o6);
 	return 0;
 }
-static int mlua_draw_quad(lua_State* L)
-{
+static int mlua_draw_quad(lua_State* L) {
 	lua_Number i1 = lua_tonumber(L, 1);
 	lua_Number i2 = lua_tonumber(L, 2);
 	lua_Number i3 = lua_tonumber(L, 3);
@@ -522,13 +473,12 @@ static int mlua_draw_quad(lua_State* L)
 	lua_Number o7 = lua_tonumber(L, 15);
 	lua_Number o8 = lua_tonumber(L, 16);
 	engine->display.draw_quad(i1, i2, i3, i4, i5, i6, i7, i8,
-							  o1, o2, o3, o4, o5, o6, o7, o8);
+	                          o1, o2, o3, o4, o5, o6, o7, o8);
 	return 0;
 }
 
 
-static int mlua_new_shader(lua_State* L)
-{
+static int mlua_new_shader(lua_State* L) {
 	const char *vert = NULL, *frag_color = NULL, *frag_tex = NULL;
 	if (lua_gettop(L) >= 1) { // one argument, it's the vertex shader
 		vert = lua_tostring(L, 1);
@@ -547,8 +497,7 @@ static int mlua_new_shader(lua_State* L)
 	}
 	return 0; // returns nil
 }
-static int mlua_use_shader(lua_State* L)
-{
+static int mlua_use_shader(lua_State* L) {
 	if (lua_gettop(L) == 0) { // use defaut shader
 		engine->display.use_shader(NULL);
 	} else {
@@ -558,23 +507,20 @@ static int mlua_use_shader(lua_State* L)
 	return 0;
 }
 
-static int mlua_feed_shader(lua_State* L)
-{
+static int mlua_feed_shader(lua_State* L) {
 	Shader* shader = static_cast<Shader*>(lua_touserdata(L, 1));
 	const char* name = lua_tostring(L, 2);
 	float value = lua_tonumber(L, 3);
 	engine->display.feed_shader(shader, name, value);
 	return 0;
 }
-static int mlua_free_shader(lua_State* L)
-{
+static int mlua_free_shader(lua_State* L) {
 	Shader* shader = static_cast<Shader*>(lua_touserdata(L, 1));
 	engine->display.free_shader(shader);
 	return 0;
 }
 
-static int mlua_new_buffer(lua_State* L)
-{
+static int mlua_new_buffer(lua_State* L) {
 	Buffer* buffer;
 	if (lua_gettop(L) == 1) {
 		lua_Number size = luaL_checknumber(L, 1);
@@ -588,8 +534,7 @@ static int mlua_new_buffer(lua_State* L)
 	}
 	return 0; // returns nil
 }
-static int mlua_use_buffer(lua_State* L)
-{
+static int mlua_use_buffer(lua_State* L) {
 	if (lua_gettop(L) == 0) { // use defaut buffer
 		engine->display.use_buffer(NULL);
 	} else {
@@ -598,8 +543,7 @@ static int mlua_use_buffer(lua_State* L)
 	}
 	return 0;
 }
-static int mlua_draw_buffer(lua_State* L)
-{
+static int mlua_draw_buffer(lua_State* L) {
 	Buffer* buffer = static_cast<Buffer *>(lua_touserdata(L, 1));
 	lua_Number dx = 0, dy = 0;
 	if (lua_gettop(L) >= 2)
@@ -609,35 +553,30 @@ static int mlua_draw_buffer(lua_State* L)
 	engine->display.draw_buffer(buffer, dx, dy);
 	return 0;
 }
-static int mlua_reset_buffer(lua_State* L)
-{
+static int mlua_reset_buffer(lua_State* L) {
 	Buffer* buffer = static_cast<Buffer *>(lua_touserdata(L, -1));
 	engine->display.reset_buffer(buffer);
 	return 0;
 }
-static int mlua_upload_and_free_buffer(lua_State* L)
-{
+static int mlua_upload_and_free_buffer(lua_State* L) {
 	Buffer* buffer = static_cast<Buffer *>(lua_touserdata(L, -1));
 	engine->display.upload_and_free_buffer(buffer);
 	return 0;
 }
-static int mlua_free_buffer(lua_State* L)
-{
+static int mlua_free_buffer(lua_State* L) {
 	Buffer* buffer = static_cast<Buffer *>(lua_touserdata(L, -1));
 	engine->display.free_buffer(buffer);
 	return 0;
 }
 
-static int mlua_load_sound(lua_State *L)
-{
+static int mlua_load_sound(lua_State *L) {
 	const char *filepath = lua_tostring(L, -1);
 	void *chunk = engine->audio.load_sound(filepath);
 	lua_pushlightuserdata(L, chunk);
 	return 1;
 }
 
-static int mlua_create_sound(lua_State *L)
-{
+static int mlua_create_sound(lua_State *L) {
 	/*
 	 * Multiple configurations allowed:
 	 * [1]: table
@@ -684,8 +623,7 @@ static int mlua_create_sound(lua_State *L)
 	return 1;
 }
 
-static int mlua_play_sound(lua_State *L)
-{
+static int mlua_play_sound(lua_State *L) {
 	Sound* chunk = static_cast<Sound *>(lua_touserdata(L, 1));
 
 	float volume = 1;
@@ -702,66 +640,61 @@ static int mlua_play_sound(lua_State *L)
 	return 0;
 }
 
-static int mlua_free_sound(lua_State *L)
-{
+static int mlua_free_sound(lua_State *L) {
 	Sound* chunk = static_cast<Sound *>(lua_touserdata(L, -1));
 	engine->audio.free_sound(chunk);
 	return 0;
 }
 
-static int mlua_free_music(lua_State *L)
-{
+static int mlua_free_music(lua_State *L) {
 	Music* music = static_cast<Music *>(lua_touserdata(L, -1));
 	engine->audio.free_music(music);
 	return 0;
 }
 
 class LuaMusicCallback : public MusicCallback {
-	public:
-		lua_State* L;
-		int ref;
-		int table_ref;
+public:
+	lua_State* L;
+	int ref;
+	int table_ref;
 
-		LuaMusicCallback() :
-			L(NULL),
-			ref(LUA_NOREF),
-			table_ref(LUA_NOREF)
-		{
+	LuaMusicCallback() :
+		L(NULL),
+		ref(LUA_NOREF),
+		table_ref(LUA_NOREF) {
+	}
+
+	unsigned int feed_buffer(unsigned short* buffer, unsigned int len) {
+		if (table_ref == LUA_NOREF) {
+			lua_createtable(L, len, 0);
+			this->table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 		}
+		lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
+		lua_rawgeti(L, LUA_REGISTRYINDEX, this->table_ref);
+		lua_pushunsigned(L, len);
+		lua_call(L, 2, 1);
 
-		unsigned int feed_buffer(unsigned short* buffer, unsigned int len)
-		{
-			if (table_ref == LUA_NOREF) {
-				lua_createtable(L, len, 0);
-				this->table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
-			}
-			lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
-			lua_rawgeti(L, LUA_REGISTRYINDEX, this->table_ref);
-			lua_pushunsigned(L, len);
-			lua_call(L, 2, 1);
+		unsigned int i = lua_tounsigned(L, -1);
+		lua_pop(L, 1);
 
-			unsigned int i = lua_tounsigned(L, -1);
+		lua_rawgeti(L, LUA_REGISTRYINDEX, table_ref);
+		for (unsigned int k = 1; k <= i; k++) {
+			lua_rawgeti(L, -1, k);
+			lua_Number sample = lua_tonumber(L, -1);
+			buffer[k] = sample * (1 << 15) + (1 << 15);
 			lua_pop(L, 1);
-
-			lua_rawgeti(L, LUA_REGISTRYINDEX, table_ref);
-			for (unsigned int k = 1; k <= i; k++) {
-				lua_rawgeti(L, -1, k);
-				lua_Number sample = lua_tonumber(L, -1);
-				buffer[k] = sample * (1<<15) + (1<<15);
-				lua_pop(L, 1);
-			}
-			return i;
 		}
+		return i;
+	}
 
-		~LuaMusicCallback() {
-			luaL_unref(L, LUA_REGISTRYINDEX, ref);
-			if (table_ref != LUA_NOREF)
-				luaL_unref(L, LUA_REGISTRYINDEX, table_ref);
-		}
+	~LuaMusicCallback() {
+		luaL_unref(L, LUA_REGISTRYINDEX, ref);
+		if (table_ref != LUA_NOREF)
+			luaL_unref(L, LUA_REGISTRYINDEX, table_ref);
+	}
 };
 
-static int mlua_load_music(lua_State *L)
-{
+static int mlua_load_music(lua_State *L) {
 	Music* music;
 	if (lua_isstring(L, 1)) {
 		const char* filename = lua_tostring(L, 1);
@@ -779,29 +712,25 @@ static int mlua_load_music(lua_State *L)
 	return 1;
 }
 
-static int mlua_play_music(lua_State *L)
-{
+static int mlua_play_music(lua_State *L) {
 	Music* music = static_cast<Music *>(lua_touserdata(L, 1));
 	engine->audio.play_music(music);
 	return 0;
 }
 
-static int mlua_set_sound_volume(lua_State *L)
-{
+static int mlua_set_sound_volume(lua_State *L) {
 	float volume = lua_tonumber(L, 1);
 	engine->audio.set_sound_volume(volume);
 	return 0;
 }
 
-static int mlua_set_music_volume(lua_State *L)
-{
+static int mlua_set_music_volume(lua_State *L) {
 	float volume = lua_tonumber(L, 1);
 	engine->audio.set_music_volume(volume);
 	return 0;
 }
 
-static int mlua_stop_music(lua_State* L)
-{
+static int mlua_stop_music(lua_State* L) {
 	Music* music = static_cast<Music *>(lua_touserdata(L, 1));
 	engine->audio.stop_music(music);
 	return 0;
@@ -811,11 +740,9 @@ static int mlua_stop_music(lua_State* L)
 // Lua load
 //
 
-int luaopen_drystal(lua_State* L)
-{
+int luaopen_drystal(lua_State* L) {
 #define DECLARE_FUNCTION(name) {#name, mlua_##name}
-	static const luaL_Reg lib[] =
-	{
+	static const luaL_Reg lib[] = {
 		{"engine_stop", mlua_stop},
 		DECLARE_FUNCTION(stop),
 		DECLARE_FUNCTION(reload),
@@ -888,7 +815,8 @@ int luaopen_drystal(lua_State* L)
 	luaL_newlib(L, lib);
 	luaL_setfuncs(L, lib, 0);
 
-	{ // screen
+	{
+		// screen
 		Surface* screen = engine->display.get_screen();
 		if (screen)
 			lua_pushlightuserdata(L, screen);
@@ -898,7 +826,8 @@ int luaopen_drystal(lua_State* L)
 		lua_pushvalue(L, -1);
 	}
 
-	{ // blend modes
+	{
+		// blend modes
 		lua_pushnumber(L, DEFAULT);
 		lua_setfield(L, -2, "BLEND_DEFAULT");
 		lua_pushvalue(L, -1);
@@ -912,7 +841,8 @@ int luaopen_drystal(lua_State* L)
 		lua_setfield(L, -2, "BLEND_MULT");
 		lua_pushvalue(L, -1);
 	}
-	{ // filter modes
+	{
+		// filter modes
 		lua_pushnumber(L, LINEAR);
 		lua_setfield(L, -2, "FILTER_LINEAR");
 		lua_pushvalue(L, -1);
@@ -921,7 +851,8 @@ int luaopen_drystal(lua_State* L)
 		lua_pushvalue(L, -1);
 	}
 
-	{ // camera
+	{
+		// camera
 		lua_newtable(L);
 		luaL_newmetatable(L, "__camera_class");
 		lua_pushcfunction(L, mlua_camera__newindex);

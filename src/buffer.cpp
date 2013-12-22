@@ -21,16 +21,14 @@ Buffer::Buffer(unsigned int size) :
 	uploaded(false),
 	has_texture(false),
 	shader(NULL),
-	camera(NULL)
-{
+	camera(NULL) {
 	buffers[0] = 0;
 	buffers[1] = 0;
 	buffers[2] = 0;
 	buffers[3] = 0;
 }
 
-void Buffer::allocate()
-{
+void Buffer::allocate() {
 	glGenBuffers(4, buffers);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -39,14 +37,12 @@ void Buffer::allocate()
 	type = TRIANGLE_BUFFER;
 }
 
-Buffer::~Buffer()
-{
+Buffer::~Buffer() {
 	glDeleteBuffers(4, buffers);
 	partial_free();
 }
 
-void Buffer::partial_free()
-{
+void Buffer::partial_free() {
 	if (positions)
 		delete[] positions;
 	if (colors)
@@ -58,18 +54,15 @@ void Buffer::partial_free()
 	positions = colors = tex_coords = point_sizes = NULL;
 }
 
-void Buffer::use_camera(const Camera* camera)
-{
+void Buffer::use_camera(const Camera* camera) {
 	this->camera = camera;
 }
 
-void Buffer::use_shader(Shader* shader)
-{
+void Buffer::use_shader(Shader* shader) {
 	this->shader = shader;
 }
 
-void Buffer::assert_type(BufferType atype)
-{
+void Buffer::assert_type(BufferType atype) {
 	if (type != atype) {
 		flush();
 	}
@@ -80,33 +73,29 @@ void Buffer::assert_type(BufferType atype)
 
 }
 
-void Buffer::assert_not_full()
-{
+void Buffer::assert_not_full() {
 	if (current_color == size) {
 		flush();
 	}
 }
 
-void Buffer::assert_empty()
-{
+void Buffer::assert_empty() {
 	if (current_color != 0) {
 		flush();
 	}
 }
 
-void Buffer::assert_use_texture()
-{
+void Buffer::assert_use_texture() {
 	if (!has_texture) {
 		flush();
 		has_texture = true;
 	}
 	if (tex_coords == NULL) {
-		tex_coords = new GLfloat[size*2];
+		tex_coords = new GLfloat[size * 2];
 	}
 }
 
-void Buffer::assert_not_use_texture()
-{
+void Buffer::assert_not_use_texture() {
 	if (has_texture) {
 		flush();
 		has_texture = false;
@@ -114,8 +103,7 @@ void Buffer::assert_not_use_texture()
 }
 
 
-void Buffer::push_vertex(GLfloat x, GLfloat y)
-{
+void Buffer::push_vertex(GLfloat x, GLfloat y) {
 	assert_not_full();
 	size_t cur = current_position * 2;
 	positions[cur + 0] = x;
@@ -123,8 +111,7 @@ void Buffer::push_vertex(GLfloat x, GLfloat y)
 	current_position += 1;
 	uploaded = false;
 }
-void Buffer::push_color(GLfloat r, GLfloat g, GLfloat b, GLfloat a)
-{
+void Buffer::push_color(GLfloat r, GLfloat g, GLfloat b, GLfloat a) {
 	assert_not_full();
 	size_t cur = current_color * 4;
 	colors[cur + 0] = r;
@@ -134,8 +121,7 @@ void Buffer::push_color(GLfloat r, GLfloat g, GLfloat b, GLfloat a)
 	current_color += 1;
 	uploaded = false;
 }
-void Buffer::push_tex_coord(GLfloat x, GLfloat y)
-{
+void Buffer::push_tex_coord(GLfloat x, GLfloat y) {
 	assert_not_full();
 	size_t cur = current_tex_coord * 2;
 	tex_coords[cur + 0] = x;
@@ -143,8 +129,7 @@ void Buffer::push_tex_coord(GLfloat x, GLfloat y)
 	current_tex_coord += 1;
 	uploaded = false;
 }
-void Buffer::push_point_size(GLfloat s)
-{
+void Buffer::push_point_size(GLfloat s) {
 	assert_not_full();
 	size_t cur = current_point_size;
 	point_sizes[cur] = s;
@@ -152,8 +137,7 @@ void Buffer::push_point_size(GLfloat s)
 	uploaded = false;
 }
 
-void Buffer::upload(int method)
-{
+void Buffer::upload(int method) {
 	size_t used = current_color;
 	if (used == 0 || uploaded) {
 		return;
@@ -176,8 +160,7 @@ void Buffer::upload(int method)
 	uploaded = true;
 }
 
-void Buffer::draw(float dx, float dy)
-{
+void Buffer::draw(float dx, float dy) {
 	size_t used = current_color;
 	if (used == 0) {
 		return;
@@ -221,7 +204,7 @@ void Buffer::draw(float dx, float dy)
 	glUniform1f(glGetUniformLocation(prog, "dy"), dy);
 	glUniform1f(glGetUniformLocation(prog, "zoom"), camera->zoom);
 	glUniformMatrix2fv(glGetUniformLocation(prog, "rotationMatrix"),
-						1, GL_FALSE, camera->matrix);
+	                   1, GL_FALSE, camera->matrix);
 
 	GLint draw_type;
 	if (type == POINT_BUFFER) {
@@ -246,19 +229,16 @@ void Buffer::draw(float dx, float dy)
 #endif
 }
 
-void Buffer::flush()
-{
+void Buffer::flush() {
 	draw();
 	reset();
 }
 
-void Buffer::reset()
-{
+void Buffer::reset() {
 	current_position = current_color = current_tex_coord = current_point_size = 0;
 }
 
-void Buffer::upload_and_free()
-{
+void Buffer::upload_and_free() {
 	upload(GL_STATIC_DRAW);
 	partial_free();
 }

@@ -30,65 +30,62 @@ extern "C" {
 #define HASH(x) x
 
 const char* SHADER_PREFIX = SHADER_STRING
-(
-HASH(#)ifdef GL_ES \n
-precision mediump float; \n
-HASH(#)endif \n
-);
+                            (
+                                HASH(#)ifdef GL_ES \n
+                                precision mediump float; \n
+                                HASH(#)endif \n
+                            );
 
 const char* DEFAULT_VERTEX_SHADER = SHADER_STRING
-(
-attribute vec2 position;	// position of the vertice
-attribute vec4 color;		// color of the vertice
-attribute vec2 texCoord;	// texture coordinates
-attribute float pointSize;	// size of points
+                                    (
+                                        attribute vec2 position;	// position of the vertice
+                                        attribute vec4 color;		// color of the vertice
+                                        attribute vec2 texCoord;	// texture coordinates
+                                        attribute float pointSize;	// size of points
 
-varying vec4 fColor;
-varying vec2 fTexCoord;
+                                        varying vec4 fColor;
+                                        varying vec2 fTexCoord;
 
-uniform float dx;
-uniform float dy;
-uniform float zoom;
-uniform mat2 rotationMatrix;
-mat2 cameraMatrix = rotationMatrix * zoom;
+                                        uniform float dx;
+                                        uniform float dy;
+                                        uniform float zoom;
+                                        uniform mat2 rotationMatrix;
+                                        mat2 cameraMatrix = rotationMatrix * zoom;
 
-void main()
-{
+void main() {
 	gl_PointSize = pointSize * zoom;
 	vec2 position2d = cameraMatrix  * (position - vec2(dx, dy));
 	gl_Position = vec4(position2d, 0.0, 1.0);
 	fColor = color;
 	fTexCoord = texCoord;
 }
-);
+                                    );
 
 const char* DEFAULT_FRAGMENT_SHADER_COLOR = SHADER_STRING
-(
-varying vec4 fColor;
-varying vec2 fTexCoord;
+        (
+            varying vec4 fColor;
+            varying vec2 fTexCoord;
 
-void main()
-{
+void main() {
 	gl_FragColor = fColor;
 }
-);
+        );
 
 const char* DEFAULT_FRAGMENT_SHADER_TEX = SHADER_STRING
-(
-uniform sampler2D tex;
+        (
+            uniform sampler2D tex;
 
-varying vec4 fColor;
-varying vec2 fTexCoord;
+            varying vec4 fColor;
+            varying vec2 fTexCoord;
 
-void main()
-{
+void main() {
 	vec4 color;
 	vec4 texval = texture2D(tex, fTexCoord);
-	color.rgb = mix(texval.rgb, fColor.rgb, vec3(1.)-fColor.rgb);
+	color.rgb = mix(texval.rgb, fColor.rgb, vec3(1.) - fColor.rgb);
 	color.a = texval.a * fColor.a;
 	gl_FragColor = color;
 }
-);
+        );
 
 Display::Display() :
 	sdl_window(NULL),
@@ -105,8 +102,7 @@ Display::Display() :
 	alpha(1),
 	point_size(1),
 	available(false),
-	debug_mode(false)
-{
+	debug_mode(false) {
 	int err = SDL_Init(SDL_INIT_VIDEO);
 	if (err) {
 		fprintf(stderr, "[ERROR] cannot initialize SDL\n");
@@ -118,8 +114,7 @@ Display::Display() :
 	available = true;
 }
 
-Display::~Display()
-{
+Display::~Display() {
 	if (sdl_window) {
 		SDL_DestroyWindow(sdl_window);
 	}
@@ -133,8 +128,7 @@ Display::~Display()
 	}
 }
 
-bool Display::is_available() const
-{
+bool Display::is_available() const {
 	return available;
 }
 
@@ -142,8 +136,7 @@ bool Display::is_available() const
  * Screen
  */
 
-void Display::resize(int w, int h)
-{
+void Display::resize(int w, int h) {
 	DEBUG("");
 	if (sdl_window) {
 #ifdef EMSCRIPTEN
@@ -164,8 +157,8 @@ void Display::resize(int w, int h)
 
 #ifndef EMSCRIPTEN
 		sdl_window = SDL_CreateWindow("Drystal",
-				SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-				w, h, SDL_WINDOW_OPENGL);
+		                              SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+		                              w, h, SDL_WINDOW_OPENGL);
 		SDL_GL_CreateContext(sdl_window);
 		assert(sdl_window);
 #else
@@ -199,23 +192,21 @@ void Display::resize(int w, int h)
 	DEBUG("end");
 }
 
-void Display::screen2scene(float x, float y, float * tx, float * ty) const
-{
+void Display::screen2scene(float x, float y, float * tx, float * ty) const {
 	float zoom = camera.zoom;
 	x -= camera.dx;
 	y -= camera.dy;
 	*tx = camera.matrix[0] * x + camera.matrix[2] * y;
 	*ty = camera.matrix[1] * x + camera.matrix[3] * y;
 
-	float dx = (x + camera.dx) - screen->w/2;
-	float dy = (y + camera.dy) - screen->h/2;
+	float dx = (x + camera.dx) - screen->w / 2;
+	float dy = (y + camera.dy) - screen->h / 2;
 	// MAGIC, don't modify
 	*tx += dx * (1 - zoom) / zoom;
 	*ty += dy * (1 - zoom) / zoom;
 }
 
-void Display::show_cursor(bool b) const
-{
+void Display::show_cursor(bool b) const {
 #ifndef EMSCRIPTEN
 	SDL_ShowCursor(b);
 #else
@@ -227,14 +218,12 @@ void Display::show_cursor(bool b) const
 #endif
 }
 
-void Display::draw_background() const
-{
+void Display::draw_background() const {
 	glClearColor(r, g, b, alpha);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void Display::flip()
-{
+void Display::flip() {
 	DEBUG("");
 	default_buffer.assert_empty();
 	glBindFramebuffer(GL_FRAMEBUFFER, screen->fbo);
@@ -244,13 +233,11 @@ void Display::flip()
 	DEBUG("end");
 }
 
-Surface* Display::get_screen() const
-{
+Surface * Display::get_screen() const {
 	return screen;
 }
 
-void Display::toggle_debug_mode()
-{
+void Display::toggle_debug_mode() {
 	debug_mode = !debug_mode;
 }
 
@@ -258,30 +245,25 @@ void Display::toggle_debug_mode()
  * State
  */
 
-void Display::set_color(int r, int g, int b)
-{
+void Display::set_color(int r, int g, int b) {
 	this->r = r / 255.;
 	this->g = g / 255.;
 	this->b = b / 255.;
 }
 
-void Display::set_alpha(int a)
-{
+void Display::set_alpha(int a) {
 	this->alpha = a / 255.;
 }
 
-void Display::set_point_size(float size)
-{
+void Display::set_point_size(float size) {
 	this->point_size = size;
 }
 
-void Display::set_line_width(float width)
-{
+void Display::set_line_width(float width) {
 	glLineWidth(width);
 }
 
-void Display::set_blend_mode(BlendMode mode)
-{
+void Display::set_blend_mode(BlendMode mode) {
 	current_buffer->assert_empty();
 
 	switch (mode) {
@@ -299,13 +281,11 @@ void Display::set_blend_mode(BlendMode mode)
 			break;
 	}
 }
-void Display::set_filter_mode(FilterMode mode)
-{
+void Display::set_filter_mode(FilterMode mode) {
 	filter_mode = mode;
 }
 
-void Display::reset_camera()
-{
+void Display::reset_camera() {
 	current_buffer->assert_empty();
 
 	camera.dx = camera.dy = 0;
@@ -315,8 +295,7 @@ void Display::reset_camera()
 	update_camera_matrix();
 }
 
-void Display::set_camera_position(float dx, float dy)
-{
+void Display::set_camera_position(float dx, float dy) {
 	current_buffer->assert_empty();
 
 	camera.dx = dx;
@@ -325,8 +304,7 @@ void Display::set_camera_position(float dx, float dy)
 	update_camera_matrix();
 }
 
-void Display::set_camera_angle(float angle)
-{
+void Display::set_camera_angle(float angle) {
 	current_buffer->assert_empty();
 
 	camera.angle = angle;
@@ -334,15 +312,13 @@ void Display::set_camera_angle(float angle)
 	update_camera_matrix();
 }
 
-void Display::set_camera_zoom(float zoom)
-{
+void Display::set_camera_zoom(float zoom) {
 	current_buffer->assert_empty();
 
 	camera.zoom = zoom;
 }
 
-void Display::update_camera_matrix()
-{
+void Display::update_camera_matrix() {
 	assert(current);
 
 	float angle = camera.angle;
@@ -361,8 +337,7 @@ void Display::update_camera_matrix()
 	camera.dy_transformed = ddy;
 }
 
-void Display::draw_from(const Surface* surf)
-{
+void Display::draw_from(const Surface* surf) {
 	DEBUG("");
 	assert(surf);
 	if (current_from != surf) {
@@ -372,8 +347,7 @@ void Display::draw_from(const Surface* surf)
 	}
 }
 
-void Display::draw_on(const Surface* surf)
-{
+void Display::draw_on(const Surface* surf) {
 	DEBUG("");
 	assert(surf);
 	if (current != surf) {
@@ -392,15 +366,14 @@ void Display::draw_on(const Surface* surf)
  * Surface
  */
 
-Surface* Display::create_surface(int w, int h, int texw, int texh, unsigned char* pixels) const
-{
+Surface * Display::create_surface(int w, int h, int texw, int texh, unsigned char* pixels) const {
 	// gen texture
 	GLuint tex;
 	glGenTextures(1, &tex);
 	glBindTexture(GL_TEXTURE_2D, tex);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texw, texh, 0,
-				 GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+	             GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 	GLDEBUG();
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter_mode);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter_mode);
@@ -433,8 +406,7 @@ Surface* Display::create_surface(int w, int h, int texw, int texh, unsigned char
 }
 
 #define RGBA_SIZE 4
-Surface* Display::load_surface(const char * filename) const
-{
+Surface * Display::load_surface(const char * filename) const {
 	assert(filename);
 	int w, h;
 	int n;
@@ -443,8 +415,8 @@ Surface* Display::load_surface(const char * filename) const
 	if (!data)
 		return NULL;
 
-	int potw = pow(2, ceil(log(w)/log(2)));
-	int poth = pow(2, ceil(log(h)/log(2)));
+	int potw = pow(2, ceil(log(w) / log(2)));
+	int poth = pow(2, ceil(log(h) / log(2)));
 
 	Surface* surface = NULL;
 
@@ -469,12 +441,11 @@ Surface* Display::load_surface(const char * filename) const
 	return surface;
 }
 
-Surface* Display::new_surface(int w, int h) const
-{
+Surface * Display::new_surface(int w, int h) const {
 	assert(w > 0);
 	assert(h > 0);
-	int potw = pow(2, ceil(log(w)/log(2)));
-	int poth = pow(2, ceil(log(h)/log(2)));
+	int potw = pow(2, ceil(log(w) / log(2)));
+	int poth = pow(2, ceil(log(h) / log(2)));
 
 	unsigned char *pixels = new unsigned char[potw * poth * RGBA_SIZE];
 	memset(pixels, 0, potw * poth * RGBA_SIZE);
@@ -484,8 +455,7 @@ Surface* Display::new_surface(int w, int h) const
 	return surface;
 }
 
-void Display::free_surface(Surface* surface)
-{
+void Display::free_surface(Surface* surface) {
 	assert(surface);
 	if (surface == current_from) {
 		default_buffer.assert_not_use_texture();
@@ -501,8 +471,7 @@ void Display::free_surface(Surface* surface)
 	delete surface;
 }
 
-void Display::surface_size(Surface* surface, int *w, int *h)
-{
+void Display::surface_size(Surface* surface, int *w, int *h) {
 	assert(surface);
 	assert(w);
 	assert(h);
@@ -514,8 +483,7 @@ void Display::surface_size(Surface* surface, int *w, int *h)
  * Primitive drawing
  */
 
-void Display::draw_point(float x, float y)
-{
+void Display::draw_point(float x, float y) {
 	DEBUG("");
 	float xx, yy;
 	convert_coords(x, y, &xx, &yy);
@@ -527,8 +495,7 @@ void Display::draw_point(float x, float y)
 	current_buffer->push_point_size(point_size);
 	current_buffer->push_color(r, g, b, alpha);
 }
-void Display::draw_point_tex(float xi, float yi, float xd, float yd)
-{
+void Display::draw_point_tex(float xi, float yi, float xd, float yd) {
 	DEBUG("");
 	float xxd, yyd;
 	convert_coords(xd, yd, &xxd, &yyd);
@@ -545,8 +512,7 @@ void Display::draw_point_tex(float xi, float yi, float xd, float yd)
 	current_buffer->push_color(r, g, b, alpha);
 }
 
-void Display::draw_line(float x1, float y1, float x2, float y2)
-{
+void Display::draw_line(float x1, float y1, float x2, float y2) {
 	DEBUG("");
 	float xx1, xx2;
 	float yy1, yy2;
@@ -561,8 +527,7 @@ void Display::draw_line(float x1, float y1, float x2, float y2)
 		current_buffer->push_color(r, g, b, alpha);
 }
 
-void Display::draw_triangle(float x1, float y1, float x2, float y2, float x3, float y3)
-{
+void Display::draw_triangle(float x1, float y1, float x2, float y2, float x3, float y3) {
 	DEBUG("");
 	if (debug_mode) {
 		draw_line(x1, y1, x2, y2);
@@ -586,8 +551,7 @@ void Display::draw_triangle(float x1, float y1, float x2, float y2, float x3, fl
 }
 
 void Display::draw_surface(float xi1, float yi1, float xi2, float yi2, float xi3, float yi3,
-		float xo1, float yo1, float xo2, float yo2, float xo3, float yo3)
-{
+                           float xo1, float yo1, float xo2, float yo2, float xo3, float yo3) {
 	DEBUG("");
 	if (debug_mode) {
 		draw_line(xo1, yo1, xo2, yo2);
@@ -625,8 +589,7 @@ void Display::draw_surface(float xi1, float yi1, float xi2, float yi2, float xi3
 }
 
 void Display::draw_quad(float xi1, float yi1, float xi2, float yi2, float xi3, float yi3, float xi4, float yi4,
-		float xo1, float yo1, float xo2, float yo2, float xo3, float yo3, float xo4, float yo4)
-{
+                        float xo1, float yo1, float xo2, float yo2, float xo3, float yo3, float xo4, float yo4) {
 	draw_surface(xi1, yi1, xi2, yi2, xi3, yi3, xo1, yo1, xo2, yo2, xo3, yo3);
 	draw_surface(xi1, yi1, xi3, yi3, xi4, yi4, xo1, yo1, xo3, yo3, xo4, yo4);
 }
@@ -635,15 +598,14 @@ void Display::draw_quad(float xi1, float yi1, float xi2, float yi2, float xi3, f
 /**
  * Shader
  */
-static void printLog(GLuint obj, const char* prefix)
-{
+static void printLog(GLuint obj, const char* prefix) {
 	int infologLength = 0;
 	int maxLength;
 
-	if(glIsShader(obj))
-		glGetShaderiv(obj,GL_INFO_LOG_LENGTH,&maxLength);
+	if (glIsShader(obj))
+		glGetShaderiv(obj, GL_INFO_LOG_LENGTH, &maxLength);
 	else
-		glGetProgramiv(obj,GL_INFO_LOG_LENGTH,&maxLength);
+		glGetProgramiv(obj, GL_INFO_LOG_LENGTH, &maxLength);
 
 	char infoLog[maxLength];
 
@@ -656,8 +618,7 @@ static void printLog(GLuint obj, const char* prefix)
 		printf("Err %s: %s\n", prefix, infoLog);
 }
 
-Shader* Display::create_default_shader()
-{
+Shader * Display::create_default_shader() {
 	const char* strvert = DEFAULT_VERTEX_SHADER;
 	const char* strfragcolor = DEFAULT_FRAGMENT_SHADER_COLOR;
 	const char* strfragtex = DEFAULT_FRAGMENT_SHADER_TEX;
@@ -666,8 +627,7 @@ Shader* Display::create_default_shader()
 	return shader;
 }
 
-Shader* Display::new_shader(const char* strvert, const char* strfragcolor, const char* strfragtex)
-{
+Shader * Display::new_shader(const char* strvert, const char* strfragcolor, const char* strfragtex) {
 	GLuint vert = 0;
 	GLuint frag_color = 0;
 	GLuint frag_tex = 0;
@@ -759,8 +719,7 @@ Shader* Display::new_shader(const char* strvert, const char* strfragcolor, const
 	return shader;
 }
 
-void Display::use_shader(Shader* shader)
-{
+void Display::use_shader(Shader* shader) {
 	DEBUG();
 	current_buffer->assert_empty();
 
@@ -771,8 +730,7 @@ void Display::use_shader(Shader* shader)
 	current_buffer->use_shader(shader);
 }
 
-void Display::feed_shader(Shader* shader, const char* name, float value)
-{
+void Display::feed_shader(Shader* shader, const char* name, float value) {
 	assert(shader);
 	assert(name);
 
@@ -796,8 +754,7 @@ void Display::feed_shader(Shader* shader, const char* name, float value)
 	glUseProgram(prog);
 }
 
-void Display::free_shader(Shader* shader)
-{
+void Display::free_shader(Shader* shader) {
 	GLuint prog;
 	glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*)&prog);
 	if (prog == shader->prog_color)
@@ -811,15 +768,13 @@ void Display::free_shader(Shader* shader)
 	delete shader;
 }
 
-Buffer* Display::new_buffer(unsigned int size)
-{
+Buffer * Display::new_buffer(unsigned int size) {
 	Buffer* buffer = new Buffer(size);
 	buffer->allocate();
 	buffer->use_camera(&camera);
 	return buffer;
 }
-void Display::use_buffer(Buffer* buffer)
-{
+void Display::use_buffer(Buffer* buffer) {
 	if (!buffer) {
 		current_buffer = &default_buffer;
 	} else {
@@ -827,23 +782,19 @@ void Display::use_buffer(Buffer* buffer)
 	}
 	current_buffer->use_shader(current_shader);
 }
-void Display::draw_buffer(Buffer* buffer, float dx, float dy)
-{
+void Display::draw_buffer(Buffer* buffer, float dx, float dy) {
 	dx /= current->w;
 	dy /= current->h;
 	current_buffer->assert_empty();
 	buffer->draw(dx, dy);
 }
-void Display::reset_buffer(Buffer* buffer)
-{
+void Display::reset_buffer(Buffer* buffer) {
 	buffer->reset();
 }
-void Display::upload_and_free_buffer(Buffer* buffer)
-{
+void Display::upload_and_free_buffer(Buffer* buffer) {
 	buffer->upload_and_free();
 }
-void Display::free_buffer(Buffer* buffer)
-{
+void Display::free_buffer(Buffer* buffer) {
 	delete buffer;
 }
 

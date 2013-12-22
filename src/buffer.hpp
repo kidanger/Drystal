@@ -13,15 +13,13 @@ struct Camera;
 // should be multiple of 2 (for GL_LINES) and of 3 (GL_TRIANGLES)
 const unsigned int BUFFER_DEFAULT_SIZE = 2 * 3 * 4096;
 
-enum BufferType
-{
-	POINT_BUFFER,
-	LINE_BUFFER,
-	TRIANGLE_BUFFER,
+enum BufferType {
+    POINT_BUFFER,
+    LINE_BUFFER,
+    TRIANGLE_BUFFER,
 };
 
-class Buffer
-{
+class Buffer {
 private:
 	BufferType type;
 
@@ -47,7 +45,7 @@ private:
 	void partial_free();
 
 public:
-	Buffer(unsigned int size=BUFFER_DEFAULT_SIZE);
+	Buffer(unsigned int size = BUFFER_DEFAULT_SIZE);
 	~Buffer();
 
 	void push_vertex(GLfloat, GLfloat);
@@ -57,7 +55,7 @@ public:
 
 	void use_camera(const Camera* camera);
 	void use_shader(Shader* shader);
-	void draw(float dx=0, float dy=0);
+	void draw(float dx = 0, float dy = 0);
 
 	void assert_type(BufferType);
 	void assert_empty();

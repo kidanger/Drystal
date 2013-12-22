@@ -7,14 +7,12 @@
 
 #ifndef EMSCRIPTEN
 Engine* engine;
-void reload(int)
-{
+void reload(int) {
 	engine->lua.reload_code();
 }
 #endif
 
-int main(int argc, const char* argv[])
-{
+int main(int argc, const char* argv[]) {
 	const char* filename = "main.lua";
 	const char* searchpath = NULL;
 
@@ -22,7 +20,7 @@ int main(int argc, const char* argv[])
 	{
 		int i;
 		const char* search_option = "--lib_path=";
-		size_t size_search_option=strlen(search_option);
+		size_t size_search_option = strlen(search_option);
 		for (i = 1; i < argc; i++) {
 			if (!strncmp(argv[i], search_option, size_search_option)) {
 				searchpath = argv[i] + size_search_option;

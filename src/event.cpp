@@ -14,8 +14,7 @@ typedef Sint32 SDL_Keycode;
 std::map<SDL_Keycode, const char*> keynames;
 
 /** from https://code.google.com/r/kyberneticist-webport/source/browse/project_files/web_exp/pas2c_build/emcc/patches/sdl_patch.c */
-static void initKeys()
-{
+static void initKeys() {
 	keynames[SDLK_BACKSPACE] = "backspace";
 	keynames[SDLK_TAB] = "tab";
 	keynames[SDLK_CLEAR] = "clear";
@@ -145,8 +144,7 @@ static void initKeys()
 	keynames[SDLK_MODE] = "alt gr";
 }
 
-const char * mySDL_GetKeyName(SDL_Keycode key)
-{
+const char * mySDL_GetKeyName(SDL_Keycode key) {
 	const char *keyname;
 
 	keyname = keynames[key];
@@ -157,25 +155,21 @@ const char * mySDL_GetKeyName(SDL_Keycode key)
 }
 
 EventManager::EventManager(Engine& eng) :
-	engine(eng)
-{
+	engine(eng) {
 	initKeys();
 	// key repeat is not handled by emscripten
 	// so don't handle it in native mode either
 }
 
-void EventManager::poll()
-{
+void EventManager::poll() {
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
 		handle_event(event);
 	}
 }
 
-void EventManager::handle_event(const SDL_Event& event)
-{
-	switch(event.type)
-	{
+void EventManager::handle_event(const SDL_Event& event) {
+	switch (event.type) {
 		case SDL_QUIT:
 			engine.stop();
 			break;
@@ -202,7 +196,7 @@ void EventManager::handle_event(const SDL_Event& event)
 			break;
 		case SDL_MOUSEMOTION:
 			engine.mouse_motion(event.motion.x, event.motion.y,
-					event.motion.xrel, event.motion.yrel);
+			                    event.motion.xrel, event.motion.yrel);
 			break;
 		case SDL_MOUSEBUTTONDOWN:
 			engine.mouse_press(event.button.x, event.button.y, event.button.button);
@@ -210,15 +204,14 @@ void EventManager::handle_event(const SDL_Event& event)
 		case SDL_MOUSEBUTTONUP:
 			engine.mouse_release(event.button.x, event.button.y, event.button.button);
 			break;
-		case SDL_MOUSEWHEEL:
-			{
-				int x, y;
-				SDL_GetMouseState(&x, &y);
-				int button = event.wheel.y > 0 ? 4 : 5;
-				engine.mouse_press(x, y, button);
-				engine.mouse_release(x, y, button);
-			}
-			break;
+		case SDL_MOUSEWHEEL: {
+			int x, y;
+			SDL_GetMouseState(&x, &y);
+			int button = event.wheel.y > 0 ? 4 : 5;
+			engine.mouse_press(x, y, button);
+			engine.mouse_release(x, y, button);
+		}
+		break;
 #ifndef EMSCRIPTEN
 		case SDL_WINDOWEVENT_RESIZED:
 			engine.resize_event(event.window.data1, event.window.data2);
@@ -233,8 +226,7 @@ void EventManager::handle_event(const SDL_Event& event)
 	}
 }
 
-void EventManager::set_relative_mode(bool relative) const
-{
+void EventManager::set_relative_mode(bool relative) const {
 #ifdef EMSCRIPTEN
 	engine.display.show_cursor(not relative);
 	// NOT IMPLEMENTED
@@ -243,13 +235,11 @@ void EventManager::set_relative_mode(bool relative) const
 #endif
 }
 
-void EventManager::start_text() const
-{
+void EventManager::start_text() const {
 	SDL_StartTextInput();
 }
 
-void EventManager::stop_text() const
-{
+void EventManager::stop_text() const {
 	SDL_StopTextInput();
 }
 

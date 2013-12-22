@@ -8,8 +8,7 @@
 
 #include "engine.hpp"
 
-struct Stats
-{
+struct Stats {
 	long unsigned started_at;
 
 	float event;
@@ -29,12 +28,10 @@ struct Stats
 	double average_dt;
 	long unsigned last;
 
-	Stats() : average_dt(16.)
-	{
+	Stats() : average_dt(16.) {
 	}
 
-	void reset(long unsigned now)
-	{
+	void reset(long unsigned now) {
 		started_at = now;
 		last = now;
 
@@ -50,15 +47,13 @@ struct Stats
 		size_flushed = 0;
 	}
 
-	void add_flush(int used)
-	{
+	void add_flush(int used) {
 		nb_flushed += 1;
 		total_nb_flushed += 1;
 		size_flushed = used * 0.1 + size_flushed * 0.9;
 	}
 
-	void draw(Engine& engine)
-	{
+	void draw(Engine& engine) {
 		float event_ratio = event / active;
 		float audio_ratio = audio / active;
 		float game_ratio = game / active;
@@ -78,8 +73,8 @@ struct Stats
 		drystal.reset_camera();
 
 #define draw_rect(x, y, w, h) \
-			drystal.draw_triangle((x), (y), (x)+(w), (y), (x), (y)+(h)); \
-			drystal.draw_triangle((x)+(w), (y), (x)+(w), (y)+(h), (x), (y)+(h));
+	drystal.draw_triangle((x), (y), (x)+(w), (y), (x), (y)+(h)); \
+	drystal.draw_triangle((x)+(w), (y), (x)+(w), (y)+(h), (x), (y)+(h));
 
 		float y = yr;
 
