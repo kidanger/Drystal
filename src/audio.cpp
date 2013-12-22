@@ -154,6 +154,17 @@ Sound* Audio::create_sound(unsigned int len, const float* buffer, int samplesrat
 
 void Audio::free_sound(Sound* sound)
 {
+	// stop sources using the sound
+	for (int i = 0; i < NUM_SOURCES; i++) {
+		Source& source = sources[i];
+		if (!source.isMusic && source.currentSound == sound) {
+			alSourceStop(source.alSource);
+			alSourcei(source.alSource, AL_BUFFER, 0);
+			source.used = false;
+		}
+	}
+	error();
+	// delete buffer
 	alDeleteBuffers(1, &sound->alBuffer);
 	error();
 	delete sound;

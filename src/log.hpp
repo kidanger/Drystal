@@ -27,9 +27,6 @@ static const char* getGlError(GLenum error)
 			casereturn(GL_INVALID_VALUE);
 			casereturn(GL_INVALID_OPERATION);
 			casereturn(GL_OUT_OF_MEMORY);
-			casereturn(GL_STACK_OVERFLOW);
-			casereturn(GL_STACK_UNDERFLOW);
-			casereturn(GL_TABLE_TOO_LARGE);
 		default:
 			casereturn(GL_NO_ERROR);
 	}
