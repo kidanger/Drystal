@@ -19,7 +19,8 @@
 	do { fprintf(stderr, "%10.10s:%d\t%s()\t" fmt "\n", __FILE__, \
 		             __LINE__, __func__, __VA_ARGS__); } while (0)
 
-static const char* getGlError(GLenum error) {
+static const char* getGlError(GLenum error)
+{
 #define casereturn(x) case x: return #x
 	switch (error) {
 			casereturn(GL_INVALID_ENUM);

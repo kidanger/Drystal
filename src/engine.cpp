@@ -31,14 +31,16 @@ Engine::Engine(const char* filename, int target_fps) :
 	draw_activated(true),
 	stats_activated(false),
 	event(*this),
-	lua(*this, filename) {
+	lua(*this, filename)
+{
 	engine = this;
 #ifdef STATS
 	stats.reset(get_now());
 #endif
 }
 
-Engine::~Engine() {
+Engine::~Engine()
+{
 }
 
 //
@@ -46,11 +48,13 @@ Engine::~Engine() {
 //
 
 #ifdef EMSCRIPTEN
-void _engine_update() {
+void _engine_update()
+{
 	engine->update();
 }
 #endif
-void Engine::loop() {
+void Engine::loop()
+{
 	if (!display.is_available()) {
 		fprintf(stderr, "[ERROR] cannot run the engine, display isn't available\n");
 		return;
@@ -84,14 +88,16 @@ void Engine::loop() {
 #endif
 }
 
-long unsigned Engine::get_now() const {
+long unsigned Engine::get_now() const
+{
 	// in microsecond
 	struct timeval stTimeVal;
 	gettimeofday(&stTimeVal, NULL);
 	return stTimeVal.tv_sec * 1000000ll + stTimeVal.tv_usec;
 }
 
-void Engine::update() {
+void Engine::update()
+{
 	AT(start)
 	static int tick = 0;
 	event.poll();
@@ -145,35 +151,43 @@ void Engine::update() {
 // Events
 //
 
-void Engine::resize_event(int w, int h) const {
+void Engine::resize_event(int w, int h) const
+{
 	lua.call_resize_event(w, h);
 }
 
-void Engine::mouse_motion(int x, int y, int dx, int dy) const {
+void Engine::mouse_motion(int x, int y, int dx, int dy) const
+{
 	lua.call_mouse_motion(x, y, dx, dy);
 }
 
-void Engine::mouse_press(int mx, int my, int button) const {
+void Engine::mouse_press(int mx, int my, int button) const
+{
 	lua.call_mouse_press(mx, my, button);
 }
 
-void Engine::mouse_release(int mx, int my, int button) const {
+void Engine::mouse_release(int mx, int my, int button) const
+{
 	lua.call_mouse_release(mx, my, button);
 }
 
-void Engine::key_press(const char* key_string) const {
+void Engine::key_press(const char* key_string) const
+{
 	lua.call_key_press(key_string);
 }
 
-void Engine::key_release(const char* key_string) const {
+void Engine::key_release(const char* key_string) const
+{
 	lua.call_key_release(key_string);
 }
 
-void Engine::key_text(const char* string) const {
+void Engine::key_text(const char* string) const
+{
 	lua.call_key_text(string);
 }
 
-void Engine::stop() {
+void Engine::stop()
+{
 	lua.call_atexit();
 	run = false;
 #ifdef EMSCRIPTEN
@@ -181,18 +195,22 @@ void Engine::stop() {
 #endif
 }
 
-void Engine::toggle_draw() {
+void Engine::toggle_draw()
+{
 	draw_activated = !draw_activated;
 }
-void Engine::toggle_stats() {
+void Engine::toggle_stats()
+{
 	stats_activated = !stats_activated;
 }
 
-void Engine::toggle_update() {
+void Engine::toggle_update()
+{
 	update_activated = !update_activated;
 }
 
-Engine &get_engine() {
+Engine &get_engine()
+{
 	return *engine;
 }
 

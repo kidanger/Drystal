@@ -5,7 +5,8 @@ union SDL_Event;
 
 class Engine;
 
-class EventManager {
+class EventManager
+{
 private:
 	Engine& engine;
 

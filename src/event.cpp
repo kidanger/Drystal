@@ -14,7 +14,8 @@ typedef Sint32 SDL_Keycode;
 std::map<SDL_Keycode, const char*> keynames;
 
 /** from https://code.google.com/r/kyberneticist-webport/source/browse/project_files/web_exp/pas2c_build/emcc/patches/sdl_patch.c */
-static void initKeys() {
+static void initKeys()
+{
 	keynames[SDLK_BACKSPACE] = "backspace";
 	keynames[SDLK_TAB] = "tab";
 	keynames[SDLK_CLEAR] = "clear";
@@ -144,7 +145,8 @@ static void initKeys() {
 	keynames[SDLK_MODE] = "alt gr";
 }
 
-const char * mySDL_GetKeyName(SDL_Keycode key) {
+const char * mySDL_GetKeyName(SDL_Keycode key)
+{
 	const char *keyname;
 
 	keyname = keynames[key];
@@ -155,20 +157,23 @@ const char * mySDL_GetKeyName(SDL_Keycode key) {
 }
 
 EventManager::EventManager(Engine& eng) :
-	engine(eng) {
+	engine(eng)
+{
 	initKeys();
 	// key repeat is not handled by emscripten
 	// so don't handle it in native mode either
 }
 
-void EventManager::poll() {
+void EventManager::poll()
+{
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
 		handle_event(event);
 	}
 }
 
-void EventManager::handle_event(const SDL_Event& event) {
+void EventManager::handle_event(const SDL_Event& event)
+{
 	switch (event.type) {
 		case SDL_QUIT:
 			engine.stop();
@@ -226,7 +231,8 @@ void EventManager::handle_event(const SDL_Event& event) {
 	}
 }
 
-void EventManager::set_relative_mode(bool relative) const {
+void EventManager::set_relative_mode(bool relative) const
+{
 #ifdef EMSCRIPTEN
 	engine.display.show_cursor(not relative);
 	// NOT IMPLEMENTED
@@ -235,11 +241,13 @@ void EventManager::set_relative_mode(bool relative) const {
 #endif
 }
 
-void EventManager::start_text() const {
+void EventManager::start_text() const
+{
 	SDL_StartTextInput();
 }
 
-void EventManager::stop_text() const {
+void EventManager::stop_text() const
+{
 	SDL_StopTextInput();
 }
 

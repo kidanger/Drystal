@@ -8,7 +8,8 @@
 
 struct lua_State;
 
-class Engine {
+class Engine
+{
 private:
 	unsigned int target_fps;
 	bool run;

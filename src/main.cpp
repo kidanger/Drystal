@@ -7,12 +7,14 @@
 
 #ifndef EMSCRIPTEN
 Engine* engine;
-void reload(int) {
+void reload(int)
+{
 	engine->lua.reload_code();
 }
 #endif
 
-int main(int argc, const char* argv[]) {
+int main(int argc, const char* argv[])
+{
 	const char* filename = "main.lua";
 	const char* searchpath = NULL;
 

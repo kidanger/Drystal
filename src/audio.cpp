@@ -15,7 +15,8 @@
 		} \
 	} while (false)
 
-const char* getAlError(ALint error) {
+const char* getAlError(ALint error)
+{
 #define casereturn(x) case x: return #x
 	switch (error) {
 			casereturn(AL_INVALID_NAME);
@@ -44,10 +45,12 @@ Audio::Audio() :
 	context(NULL),
 	device(NULL),
 	globalSoundVolume(1.),
-	globalMusicVolume(1.) {
+	globalMusicVolume(1.)
+{
 }
 
-Audio::~Audio() {
+Audio::~Audio()
+{
 	if (initialized) {
 		for (int i = 0; i < NUM_SOURCES; i++)
 			alDeleteSources(1, &sources[i].alSource);
@@ -58,7 +61,8 @@ Audio::~Audio() {
 	}
 }
 
-bool Audio::init() {
+bool Audio::init()
+{
 	device = alcOpenDevice(NULL);
 	if (!device) {
 		fprintf(stderr, "cannot open device\n");
@@ -83,7 +87,8 @@ bool Audio::init() {
 	return true;
 }
 
-void Audio::update(float dt) {
+void Audio::update(float dt)
+{
 	(void)dt;
 	if (!initialized)
 		return;
@@ -105,7 +110,8 @@ void Audio::update(float dt) {
 	}
 }
 
-Sound* Audio::load_sound(const char *filepath) {
+Sound* Audio::load_sound(const char *filepath)
+{
 	INIT_IF_NEEDED(NULL);
 
 	void* buffer;
@@ -129,7 +135,8 @@ Sound* Audio::load_sound(const char *filepath) {
 	return sound;
 }
 
-Sound* Audio::create_sound(unsigned int len, const float* buffer, int samplesrate) {
+Sound* Audio::create_sound(unsigned int len, const float* buffer, int samplesrate)
+{
 	INIT_IF_NEEDED(NULL);
 	ALushort converted_buffer[len]; // 16bits per sample
 	for (unsigned int i = 0; i < len; i++) {
@@ -145,13 +152,15 @@ Sound* Audio::create_sound(unsigned int len, const float* buffer, int samplesrat
 	return sound;
 }
 
-void Audio::free_sound(Sound* sound) {
+void Audio::free_sound(Sound* sound)
+{
 	alDeleteBuffers(1, &sound->alBuffer);
 	error();
 	delete sound;
 }
 
-static Source* get_free_source() {
+static Source* get_free_source()
+{
 	for (int i = 0; i < NUM_SOURCES; i++) {
 		if (!sources[i].used) {
 			return &sources[i];
@@ -161,7 +170,8 @@ static Source* get_free_source() {
 	return NULL;
 }
 
-void Audio::play_sound(Sound* sound, float volume, float x, float y) {
+void Audio::play_sound(Sound* sound, float volume, float x, float y)
+{
 	if (!sound)
 		// sound is not loaded properly
 		return;
@@ -186,7 +196,8 @@ void Audio::play_sound(Sound* sound, float volume, float x, float y) {
 	source->desiredVolume = volume;
 }
 
-Music* Audio::load_music(MusicCallback* callback, int samplesrate, int num_channels) {
+Music* Audio::load_music(MusicCallback* callback, int samplesrate, int num_channels)
+{
 	INIT_IF_NEEDED(NULL);
 	Music* music = new Music;
 	music->callback = callback;
@@ -198,7 +209,8 @@ Music* Audio::load_music(MusicCallback* callback, int samplesrate, int num_chann
 	return music;
 }
 
-class VorbisMusicCallback : public MusicCallback {
+class VorbisMusicCallback : public MusicCallback
+{
 public:
 	stb_vorbis* stream;
 	stb_vorbis_info info;
@@ -215,7 +227,8 @@ public:
 		return size;
 	}
 };
-Music* Audio::load_music_from_file(const char* filename) {
+Music* Audio::load_music_from_file(const char* filename)
+{
 	INIT_IF_NEEDED(NULL);
 	VorbisMusicCallback* callback = new VorbisMusicCallback;
 
@@ -230,7 +243,8 @@ Music* Audio::load_music_from_file(const char* filename) {
 	return load_music(callback, callback->info.sample_rate, callback->info.channels);
 }
 
-void Audio::play_music(Music* music) {
+void Audio::play_music(Music* music)
+{
 	if (!music)
 		// music is not loaded properly
 		return;
@@ -260,7 +274,8 @@ void Audio::play_music(Music* music) {
 	source->desiredVolume = 1;
 }
 
-void Audio::stream_music(Music* music) {
+void Audio::stream_music(Music* music)
+{
 	Source* source = music->source;
 
 	ALint processed;
@@ -285,13 +300,15 @@ void Audio::stream_music(Music* music) {
 	}
 }
 
-void Audio::stop_music(Music* music) {
+void Audio::stop_music(Music* music)
+{
 	Source* source = music->source;
 	alSourceStop(source->alSource);
 	source->used = false;
 }
 
-void Audio::free_music(Music* music) {
+void Audio::free_music(Music* music)
+{
 	if (music->source) {
 		stop_music(music);
 	}
@@ -300,7 +317,8 @@ void Audio::free_music(Music* music) {
 	delete music;
 }
 
-void Audio::set_music_volume(float volume) {
+void Audio::set_music_volume(float volume)
+{
 	globalMusicVolume = volume;
 	if (!initialized)
 		return;
@@ -315,7 +333,8 @@ void Audio::set_music_volume(float volume) {
 	}
 }
 
-void Audio::set_sound_volume(float volume) {
+void Audio::set_sound_volume(float volume)
+{
 	globalSoundVolume = volume;
 	if (!initialized)
 		return;

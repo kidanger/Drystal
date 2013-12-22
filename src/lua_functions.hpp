@@ -9,7 +9,8 @@
 
 struct lua_State;
 
-class LuaFunctions {
+class LuaFunctions
+{
 public:
 	lua_State* L;
 	int drystal_table_ref;

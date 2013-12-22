@@ -69,7 +69,8 @@ enum FilterMode {
     LINEAR = GL_LINEAR,
 };
 
-class Display {
+class Display
+{
 private:
 	Buffer default_buffer;
 	SDL_Window * sdl_window;

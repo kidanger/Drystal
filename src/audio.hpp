@@ -22,7 +22,8 @@ struct Sound {
 	ALuint alBuffer;
 };
 
-class MusicCallback {
+class MusicCallback
+{
 public:
 	virtual ~MusicCallback() {}
 	virtual unsigned int feed_buffer(unsigned short * buffer, unsigned int len) = 0;
@@ -41,7 +42,8 @@ struct Music {
 
 #define DEFAULT_SAMPLES_RATE 44100
 
-class Audio {
+class Audio
+{
 public:
 	Audio();
 	~Audio();

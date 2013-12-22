@@ -19,7 +19,8 @@ enum BufferType {
     TRIANGLE_BUFFER,
 };
 
-class Buffer {
+class Buffer
+{
 private:
 	BufferType type;
 
