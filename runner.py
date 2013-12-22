@@ -154,9 +154,12 @@ def locate_index_html(from_dir, to_dir):
     return None
 
 def clean(directory):
-    return os.path.exists(directory) and shutil.rmtree(directory)
+    if not os.path.exists(directory):
+        return False
+    shutil.rmtree(directory)
+    return True
 
-def run_clean():
+def run_clean(args=[]):
     if clean(DESTINATION_DIRECTORY):
         print(G, '-', DESTINATION_DIRECTORY, 'deleted', N)
     else:
