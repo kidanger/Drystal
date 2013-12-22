@@ -1,3 +1,0 @@
-include_rules
-
-: foreach *.cpp |> !cxx @(CFLAGS_DRYSTAL) |>

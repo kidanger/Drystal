@@ -1,8 +1,0 @@
-CFLAGS_EXT+=@(CFLAGS)
-CFLAGS_EXT+=-Wall -Wextra
-CFLAGS_EXT+=-fPIC
-CFLAGS_EXT+=-I../../external -I../../external/lua/src
-CFLAGS_EXT+=-I../../src
-CFLAGS_EXT+=-DDRYSTAL_EXTENSION
-
-!cxx = |> @(CXX) $(CFLAGS_EXT) -c %f -o %o |> %B.o
