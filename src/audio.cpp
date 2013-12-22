@@ -101,7 +101,13 @@ void Audio::update(float dt)
 		alGetSourcei(source.alSource, AL_SOURCE_STATE, &status);
 		source.used = status == AL_PLAYING;
 
-		if (source.used && source.isMusic) {
+		if (!source.used && !source.isMusic) { // ended sound
+			Sound* sound = source.currentSound;
+			if (sound->free_me) {
+				free_sound(sound);
+			}
+		}
+		if (source.used && source.isMusic) { // still playing music
 			Music* music = source.currentMusic;
 			if (!music->ended) {
 				stream_music(music);
@@ -127,6 +133,7 @@ Sound* Audio::load_sound(const char *filepath)
 
 	Sound* sound = new Sound;
 
+	sound->free_me = false;
 	alGenBuffers(1, &sound->alBuffer);
 	alBufferData(sound->alBuffer, AL_FORMAT_MONO16,
 	             buffer, length * sizeof(ALushort), samplerate);
@@ -144,6 +151,7 @@ Sound* Audio::create_sound(unsigned int len, const float* buffer, int samplesrat
 	}
 
 	Sound* sound = new Sound;
+	sound->free_me = false;
 	alGenBuffers(1, &sound->alBuffer);
 	alBufferData(sound->alBuffer, AL_FORMAT_MONO16,
 	             converted_buffer, len * sizeof(ALushort), samplesrate);
@@ -154,20 +162,29 @@ Sound* Audio::create_sound(unsigned int len, const float* buffer, int samplesrat
 
 void Audio::free_sound(Sound* sound)
 {
-	// stop sources using the sound
+	bool can_free = true;
+	// stop sources which used the sound
 	for (int i = 0; i < NUM_SOURCES; i++) {
 		Source& source = sources[i];
-		if (!source.isMusic && source.currentSound == sound) {
-			alSourceStop(source.alSource);
-			alSourcei(source.alSource, AL_BUFFER, 0);
-			source.used = false;
+		if (source.currentSound == sound) {
+			if (source.used) {
+				can_free = false;
+			} else {
+				alSourceStop(source.alSource);
+				alSourcei(source.alSource, AL_BUFFER, 0);
+			}
 		}
 	}
 	error();
-	// delete buffer
-	alDeleteBuffers(1, &sound->alBuffer);
-	error();
-	delete sound;
+	// if there's no more source playing the sound, free it
+	if (can_free) {
+		alDeleteBuffers(1, &sound->alBuffer);
+		delete sound;
+		error();
+	} else {
+		// otherwise, just delay the deletion
+		sound->free_me = true;
+	}
 }
 
 static Source* get_free_source()

@@ -32,8 +32,16 @@ function drystal.mouse_motion()
 	drystal.play_sound(loaded[math.random(#loaded)])
 end
 
+function quick_play(str)
+	local sound = drystal.load_sound(str)
+	drystal.play_sound(sound)
+	drystal.free_sound(sound)
+end
+
 function drystal.key_press(k)
-	if k == 'escape' or k == 'a' then
+	if k == 't' then
+		quick_play(sounds[math.random(#loaded)])
+	elseif k == 'escape' or k == 'a' then
 		drystal.stop()
 	end
 end

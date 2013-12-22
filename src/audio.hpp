@@ -20,6 +20,7 @@ struct Source {
 
 struct Sound {
 	ALuint alBuffer;
+	bool free_me;
 };
 
 class MusicCallback
