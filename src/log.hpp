@@ -26,9 +26,11 @@ static const char* getGlError(GLenum error)
 			casereturn(GL_INVALID_ENUM);
 			casereturn(GL_INVALID_VALUE);
 			casereturn(GL_INVALID_OPERATION);
+			casereturn(GL_INVALID_FRAMEBUFFER_OPERATION);
 			casereturn(GL_OUT_OF_MEMORY);
 		default:
-			casereturn(GL_NO_ERROR);
+		case GL_NO_ERROR:
+			return "";
 	}
 #undef casereturn
 	return "";
