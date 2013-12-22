@@ -117,17 +117,14 @@ void Engine::update()
 		lua.call_update(dt);
 	AT(game);
 
-	if (tick % 2) {
-		if (draw_activated)
-			lua.call_draw();
+	lua.call_draw();
 
 #ifdef STATS
-		if (stats_activated)
-			stats.draw(*this);
+	if (stats_activated)
+		stats.draw(*this);
 #endif
-		display.flip();
-	}
 
+	display.flip();
 	AT(display);
 
 	tick += 1;
