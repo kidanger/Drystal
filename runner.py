@@ -223,7 +223,7 @@ def prepare_data(path):
     return directory, file
 
 def prepare_native():
-    cmake_update('build-native')
+    cmake_update('build-native', ['CMAKE_BUILD_TYPE=Debug'])
     copy_extensions(EXTENSIONS_DIRECTORY_NATIVE,
                     [f for f in os.listdir(EXTENSIONS_DIRECTORY)
                        if os.path.isdir(os.path.join(EXTENSIONS_DIRECTORY, f))])
