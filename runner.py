@@ -28,8 +28,7 @@ EXTENSIONS_DIRECTORY_NATIVE = os.path.join(BUILD_NATIVE, 'extensions')
 EXTENSIONS_DIRECTORY_WEB = os.path.join(BUILD_WEB, 'extensions')
 
 EMSCRIPTEN_ROOT_PATH='/usr/lib/emscripten'
-EMSCRIPTEN_CMAKE_DEFINES = ['CMAKE_TOOLCHAIN_FILE=' + os.path.join(EMSCRIPTEN_ROOT_PATH,
-                                                    'cmake/Platform/Emscripten.cmake'),
+EMSCRIPTEN_CMAKE_DEFINES = ['CMAKE_TOOLCHAIN_FILE=../cmake/Emscripten.cmake',
                             'EMSCRIPTEN_ROOT_PATH=' + EMSCRIPTEN_ROOT_PATH,
                             'EMSCRIPTEN=1']
 LIB_PATH = os.path.join(BUILD_NATIVE, 'external')
