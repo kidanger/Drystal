@@ -2,7 +2,6 @@ local drystal = require 'drystal'
 local tt = require 'truetype'
 
 local w, h = 600, 400
-local text = ''
 
 function drystal.init()
 	print('init')
@@ -16,7 +15,7 @@ function drystal.draw()
 	drystal.draw_background()
 
 	drystal.set_color(0, 0, 0)
-	tt.draw(text, 0, 0)
+	drystal.draw_rect(2, 2, w - 4, h - 4)
 
 	drystal.flip()
 end
@@ -38,10 +37,7 @@ function drystal.key_press(key)
 end
 
 function update_surf()
-	print("screen size", drystal.surface_size(drystal.screen))
-	text = "hjlk to resize, current size is " .. w .. "x" .. h
+	w, h = drystal.surface_size(drystal.screen)
+	print("hjlk to resize, current size is " .. w .. "x" .. h)
 end
 
-function drystal.resize_event(w, h)
-	print("should not be printed")
-end

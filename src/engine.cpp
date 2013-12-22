@@ -117,7 +117,8 @@ void Engine::update()
 		lua.call_update(dt);
 	AT(game);
 
-	lua.call_draw();
+	if (draw_activated)
+		lua.call_draw();
 
 #ifdef STATS
 	if (stats_activated)

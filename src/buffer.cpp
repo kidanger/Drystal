@@ -82,8 +82,8 @@ void Buffer::assert_type(BufferType atype)
 
 void Buffer::assert_not_full()
 {
-	if (current_color >= size - 3) { // if triangle, we will push at most 3 more elements
-		flush();
+	if (current_color > size - 3) { // if triangle, we will push at most 3 more elements
+		flush(); // so flush if there is less than 3 space remaining
 	}
 }
 
