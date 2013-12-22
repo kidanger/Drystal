@@ -60,7 +60,7 @@ function drystal.draw_sprite(sprite, x, y, transform)
 	x = x + ox
 	y = y + oy
 
-	function rot(_x, _y)
+	local function rot(_x, _y)
 		return x + _x*cos - _y*sin + w/2,
 				y + _y*cos + _x*sin + h/2
 	end
@@ -194,7 +194,7 @@ function drystal.draw_rect_rotated(x, y, w, h, angle)
 	y = y + oy
 	local cos = math.cos(angle)
 	local sin = math.sin(angle)
-	function rot(_x, _y)
+	local function rot(_x, _y)
 		return x + _x*cos - _y*sin + w/2,
 				y + _y*cos + _x*sin + h/2
 	end
