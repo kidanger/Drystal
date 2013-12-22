@@ -538,6 +538,7 @@ void Display::draw_point_tex(float xi, float yi, float xd, float yd)
 
 	current_buffer->assert_type(POINT_BUFFER);
 	current_buffer->assert_use_texture();
+	current_buffer->assert_not_full();
 
 	current_buffer->push_vertex(xxd, yyd);
 	current_buffer->push_tex_coord(xxi, yyi);
@@ -555,6 +556,8 @@ void Display::draw_line(float x1, float y1, float x2, float y2)
 
 	current_buffer->assert_type(LINE_BUFFER);
 	current_buffer->assert_not_use_texture();
+	current_buffer->assert_not_full();
+
 	current_buffer->push_vertex(xx1, yy1);
 	current_buffer->push_vertex(xx2, yy2);
 	for (int i = 0; i < 2; i++)
@@ -578,6 +581,8 @@ void Display::draw_triangle(float x1, float y1, float x2, float y2, float x3, fl
 
 	current_buffer->assert_type(TRIANGLE_BUFFER);
 	current_buffer->assert_not_use_texture();
+	current_buffer->assert_not_full();
+
 	current_buffer->push_vertex(xx1, yy1);
 	current_buffer->push_vertex(xx2, yy2);
 	current_buffer->push_vertex(xx3, yy3);
@@ -609,8 +614,8 @@ void Display::draw_surface(float xi1, float yi1, float xi2, float yi2, float xi3
 	convert_coords(xo3, yo3, &xxo3, &yyo3);
 
 	current_buffer->assert_type(TRIANGLE_BUFFER);
-
 	current_buffer->assert_use_texture();
+	current_buffer->assert_not_full();
 
 	current_buffer->push_tex_coord(xxi1, yyi1);
 	current_buffer->push_tex_coord(xxi2, yyi2);

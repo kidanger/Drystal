@@ -82,7 +82,7 @@ void Buffer::assert_type(BufferType atype)
 
 void Buffer::assert_not_full()
 {
-	if (current_color == size) {
+	if (current_color >= size - 3) { // if triangle, we will push at most 3 more elements
 		flush();
 	}
 }
@@ -116,7 +116,6 @@ void Buffer::assert_not_use_texture()
 
 void Buffer::push_vertex(GLfloat x, GLfloat y)
 {
-	assert_not_full();
 	size_t cur = current_position * 2;
 	positions[cur + 0] = x;
 	positions[cur + 1] = y;
@@ -125,7 +124,6 @@ void Buffer::push_vertex(GLfloat x, GLfloat y)
 }
 void Buffer::push_color(GLfloat r, GLfloat g, GLfloat b, GLfloat a)
 {
-	assert_not_full();
 	size_t cur = current_color * 4;
 	colors[cur + 0] = r;
 	colors[cur + 1] = g;
@@ -136,7 +134,6 @@ void Buffer::push_color(GLfloat r, GLfloat g, GLfloat b, GLfloat a)
 }
 void Buffer::push_tex_coord(GLfloat x, GLfloat y)
 {
-	assert_not_full();
 	size_t cur = current_tex_coord * 2;
 	tex_coords[cur + 0] = x;
 	tex_coords[cur + 1] = y;
@@ -145,7 +142,6 @@ void Buffer::push_tex_coord(GLfloat x, GLfloat y)
 }
 void Buffer::push_point_size(GLfloat s)
 {
-	assert_not_full();
 	size_t cur = current_point_size;
 	point_sizes[cur] = s;
 	current_point_size += 1;

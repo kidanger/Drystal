@@ -40,7 +40,6 @@ private:
 	Shader* shader;
 	const Camera* camera;
 
-	void assert_not_full();
 	void flush();
 	void upload(int method);
 	void partial_free();
@@ -62,6 +61,7 @@ public:
 	void assert_empty();
 	void assert_use_texture();
 	void assert_not_use_texture();
+	void assert_not_full();
 
 	void reset();
 	void upload_and_free();
