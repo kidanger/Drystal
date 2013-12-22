@@ -41,7 +41,7 @@ WGET_FILES = []
 IGNORE_FILES = ['index.html', 'drystal.cfg']
 SUBDIRS = []
 
-HAS_NINJA = subprocess.call(['ninja', '--version'], stdout=subprocess.DEVNULL) == 0
+HAS_NINJA = subprocess.call(['which', 'ninja'], stdout=subprocess.DEVNULL) == 0
 
 def parent(directory):
     return os.path.abspath(os.path.join(directory, os.pardir))
