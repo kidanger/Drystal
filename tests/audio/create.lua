@@ -4,7 +4,7 @@ local w = 800
 local h = 500
 local x = w/2
 local y = h/2
-local RATE = 22000
+local RATE = 44100
 
 local sound
 local current = 0

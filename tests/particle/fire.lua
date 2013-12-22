@@ -1,4 +1,3 @@
-print = require 'colorprint'
 local drystal = require 'drystal'
 local particle = require 'particle'
 
