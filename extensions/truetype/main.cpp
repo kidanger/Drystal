@@ -324,7 +324,7 @@ int sizeof_color_wrap(lua_State* L)
 	return 2;
 }
 
-int free_font_wrap(lua_State* L)
+int mlua_free_font(lua_State* L)
 {
 	Font* font = pop_font(L, 1);
 	free_font(font);
@@ -344,8 +344,11 @@ static const luaL_Reg lib[] =
 
 DEFINE_EXTENSION(truetype)
 {
-    DECLARE_GC(font, free_font_wrap)
-    REGISTER_GC(font);
+	BEGIN_CLASS(font)
+		ADD_GC(free_font)
+		END_CLASS();
+	REGISTER_CLASS(font);
+
 	luaL_newlibtable(L, lib);
 	luaL_setfuncs(L, lib, 0);
 	return 1;

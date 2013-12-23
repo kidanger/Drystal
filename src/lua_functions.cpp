@@ -411,6 +411,22 @@ static int mlua_stop_text(lua_State*)
 	return 0;
 }
 
+
+static int __surface_class_index(lua_State* L)
+{
+	Surface* surface = pop_surface(L, 1);
+	const char* index = luaL_checkstring(L, 2);
+	if (strcmp(index, "w") == 0)
+		lua_pushnumber(L, surface->w);
+	else if (strcmp(index, "h") == 0)
+		lua_pushnumber(L, surface->h);
+	else {
+		lua_getmetatable(L, 1);
+		lua_getfield(L, -1, index);
+	}
+	return 1;
+}
+
 static int mlua_load_surface(lua_State* L)
 {
 	const char * filename = lua_tostring(L, -1);
@@ -433,7 +449,9 @@ static int mlua_free_surface(lua_State* L)
 {
 	DEBUG("");
 	Surface* surface = pop_surface(L, -1);
-	engine->display.free_surface(surface);
+	if (surface != engine->display.get_screen()) {
+		engine->display.free_surface(surface);
+	}
 	return 0;
 }
 static int mlua_surface_size(lua_State* L)
@@ -829,17 +847,41 @@ static int mlua_stop_music(lua_State* L)
 
 int luaopen_drystal(lua_State* L)
 {
-	DECLARE_GC(sound, mlua_free_sound)
-	DECLARE_GC(music, mlua_free_music)
-	DECLARE_GC(buffer, mlua_free_buffer)
-	DECLARE_GC(shader, mlua_free_shader)
-	DECLARE_GC(surface, mlua_free_surface)
+	BEGIN_CLASS(surface)
+		DECLARE_FUNCTION(draw_on),
+		DECLARE_FUNCTION(draw_from),
+		ADD_GC(free_surface)
+		END_CLASS();
+	REGISTER_CLASS_WITH_INDEX(surface);
 
-	REGISTER_GC(sound);
-	REGISTER_GC(music);
-	REGISTER_GC(shader);
-	REGISTER_GC(buffer);
-	REGISTER_GC(surface);
+	BEGIN_CLASS(sound)
+		ADD_METHOD(sound, play)
+		ADD_GC(free_sound)
+		END_CLASS();
+	REGISTER_CLASS(sound);
+
+	BEGIN_CLASS(music)
+		ADD_METHOD(music, play)
+		ADD_METHOD(music, stop)
+		ADD_GC(free_music)
+		END_CLASS();
+	REGISTER_CLASS(music);
+
+	BEGIN_CLASS(buffer)
+		ADD_METHOD(buffer, use)
+		ADD_METHOD(buffer, draw)
+		ADD_METHOD(buffer, reset)
+		ADD_METHOD(buffer, upload_and_free)
+		ADD_GC(free_buffer)
+		END_CLASS();
+	REGISTER_CLASS(buffer);
+
+	BEGIN_CLASS(shader)
+		ADD_METHOD(shader, use)
+		ADD_METHOD(shader, feed)
+		ADD_GC(free_shader)
+		END_CLASS();
+	REGISTER_CLASS(shader);
 
 	static const luaL_Reg lib[] = {
 		{"engine_stop", mlua_stop},
@@ -859,7 +901,7 @@ int luaopen_drystal(lua_State* L)
 		/* DISPLAY SURFACE */
 		DECLARE_FUNCTION(load_surface),
 		DECLARE_FUNCTION(new_surface),
-		DECLARE_FUNCTION(surface_size),
+		DECLARE_FUNCTION(surface_size), // DEPRECATE IT SOON
 		DECLARE_FUNCTION(draw_on),
 		DECLARE_FUNCTION(draw_from),
 
@@ -883,24 +925,17 @@ int luaopen_drystal(lua_State* L)
 		/* DISPLAY SHADER */
 		DECLARE_FUNCTION(new_shader),
 		DECLARE_FUNCTION(use_shader),
-		DECLARE_FUNCTION(feed_shader),
 
 		/* DISPLAY BUFFER */
 		DECLARE_FUNCTION(new_buffer),
 		DECLARE_FUNCTION(use_buffer),
-		DECLARE_FUNCTION(draw_buffer),
-		DECLARE_FUNCTION(reset_buffer),
-		DECLARE_FUNCTION(upload_and_free_buffer),
 
 		/* AUDIO */
-		DECLARE_FUNCTION(set_music_volume),
 		DECLARE_FUNCTION(load_music),
-		DECLARE_FUNCTION(play_music),
-		DECLARE_FUNCTION(stop_music),
+		DECLARE_FUNCTION(set_music_volume),
 
 		DECLARE_FUNCTION(load_sound),
 		DECLARE_FUNCTION(create_sound),
-		DECLARE_FUNCTION(play_sound),
 		DECLARE_FUNCTION(set_sound_volume),
 
 		{NULL, NULL}

@@ -59,14 +59,24 @@ private:
 		if (p == NULL) luaL_argerror(L, index, #name" expected");\
 		return *p;\
 	}
-#define DECLARE_GC(name, func) \
-	static const luaL_Reg __##name ## _class[] = {\
-	                                              {"__gc", func},\
-	                                              {NULL, NULL}\
-	                                             };
-#define REGISTER_GC(name) \
+
+#define BEGIN_CLASS(name) static const luaL_Reg __ ## name ## _class[] = {
+
+#define ADD_GC(func) { "__gc", mlua_ ## func},
+#define ADD_METHOD(class, name) { #name, mlua_ ## name ## _ ## class },
+#define END_CLASS() {NULL, NULL} }
+
+#define REGISTER_CLASS(name) \
 	luaL_newmetatable(L, #name);\
-	luaL_setfuncs(L, __##name ## _class, 0)
+	luaL_setfuncs(L, __ ## name ## _class, 0); \
+	lua_pushvalue(L, -1); \
+	lua_setfield(L, -2, "__index")
+
+#define REGISTER_CLASS_WITH_INDEX(name) \
+	luaL_newmetatable(L, #name);\
+	luaL_setfuncs(L, __ ## name ## _class, 0); \
+	lua_pushcfunction(L, __ ## name ## _class_index); \
+	lua_setfield(L, -2, "__index")
 
 #endif
 

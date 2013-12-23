@@ -455,7 +455,7 @@ int particle_add_color(lua_State* L)
 	return 0;
 }
 
-int particle_free(lua_State* L)
+int mlua_particle_free(lua_State* L)
 {
 	System* system = pop_system(L, 1);
 	delete system;
@@ -497,8 +497,11 @@ static const luaL_Reg lib[] =
 
 DEFINE_EXTENSION(particle)
 {
-    DECLARE_GC(system, particle_free)
-    REGISTER_GC(system);
+	BEGIN_CLASS(system)
+		ADD_GC(particle_free)
+		END_CLASS();
+	REGISTER_CLASS(system);
+
 	luaL_newlib(L, lib);
 	luaL_setfuncs(L, lib, 0);
 

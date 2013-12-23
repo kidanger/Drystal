@@ -4,10 +4,6 @@
 
 #include "box2d/Box2D/Box2D/Box2D.h"
 
-#define BODY_CLASS "__body_class"
-#define SHAPE_CLASS "__shape_class"
-#define JOINT_CLASS "__joint_class"
-
 #define DECLARE_FUNCTION(x) {#x, x}
 #define DECLARE_GETSET(x) DECLARE_FUNCTION(set_##x), DECLARE_FUNCTION(get_##x)
 
@@ -325,7 +321,7 @@ int new_shape(lua_State* L)
 	lua_newtable(L);
 	lua_pushlightuserdata(L, fixtureDef);
 	lua_setfield(L, -2, "__self");
-	luaL_getmetatable(L, SHAPE_CLASS);
+	luaL_getmetatable(L, "shape");
 	lua_setmetatable(L, -2);
 	return 1;
 }
@@ -376,12 +372,6 @@ int shape_gc(lua_State* L)
 #define DECLARE_SHAPE_GETSET(x) DECLARE_SHAPE_FUNCTION(set_##x), DECLARE_SHAPE_FUNCTION(get_##x)
 
 static const luaL_Reg __shape_class[] = {
-	DECLARE_SHAPE_GETSET(density),
-	DECLARE_SHAPE_GETSET(restitution),
-	DECLARE_SHAPE_GETSET(friction),
-	DECLARE_SHAPE_FUNCTION(set_sensor),
-
-	{"__gc", shape_gc},
 	{NULL, NULL},
 };
 
@@ -415,7 +405,7 @@ int new_body(lua_State* L)
 	lua_newtable(L);
 	lua_pushlightuserdata(L, body);
 	lua_setfield(L, -2, "__self");
-	luaL_getmetatable(L, BODY_CLASS);
+	luaL_getmetatable(L, "body");
 	lua_setmetatable(L, -2);
 
 	lua_pushvalue(L, -1);
@@ -573,26 +563,6 @@ static int body_destroy(lua_State* L)
 	return 0;
 }
 
-
-static const luaL_Reg __body_class[] = {
-	DECLARE_GETSET(position),
-	DECLARE_GETSET(angle),
-	DECLARE_GETSET(linear_velocity),
-	DECLARE_GETSET(angular_velocity),
-	DECLARE_GETSET(linear_damping),
-	DECLARE_GETSET(angular_damping),
-	DECLARE_GETSET(fixed_rotation),
-	DECLARE_FUNCTION(get_mass),
-	DECLARE_FUNCTION(set_mass_center),
-	DECLARE_FUNCTION(apply_force),
-	DECLARE_FUNCTION(apply_linear_impulse),
-	DECLARE_FUNCTION(apply_angular_impulse),
-	DECLARE_FUNCTION(apply_torque),
-	DECLARE_FUNCTION(dump),
-	{"destroy", body_destroy},
-	{NULL, NULL},
-};
-
 // Joint methods
 
 int new_joint(lua_State* L)
@@ -650,7 +620,7 @@ int new_joint(lua_State* L)
 	lua_newtable(L);
 	lua_pushlightuserdata(L, joint);
 	lua_setfield(L, -2, "__self");
-	luaL_getmetatable(L, JOINT_CLASS);
+	luaL_getmetatable(L, "joint");
 	lua_setmetatable(L, -2);
 	return 1;
 }
@@ -749,22 +719,6 @@ int destroy(lua_State* L)
 	return 0;
 }
 
-static const luaL_Reg __joint_class[] = {
-	// joint
-	DECLARE_FUNCTION(destroy),
-	// mouse joint
-	DECLARE_FUNCTION(set_target),
-	// distance joint
-	DECLARE_FUNCTION(set_length),
-	DECLARE_FUNCTION(set_frequency),
-	// rope joint
-	DECLARE_FUNCTION(set_max_length),
-	// revolute joint
-	DECLARE_FUNCTION(set_angle_limits),
-	DECLARE_FUNCTION(set_motor_speed),
-	{NULL, NULL},
-};
-
 // Physic module
 
 static const luaL_Reg lib[] =
@@ -786,30 +740,51 @@ static const luaL_Reg lib[] =
 
 DEFINE_EXTENSION(physic)
 {
+	BEGIN_CLASS(body)
+		DECLARE_GETSET(position),
+		DECLARE_GETSET(angle),
+		DECLARE_GETSET(linear_velocity),
+		DECLARE_GETSET(angular_velocity),
+		DECLARE_GETSET(linear_damping),
+		DECLARE_GETSET(angular_damping),
+		DECLARE_GETSET(fixed_rotation),
+		DECLARE_FUNCTION(get_mass),
+		DECLARE_FUNCTION(set_mass_center),
+		DECLARE_FUNCTION(apply_force),
+		DECLARE_FUNCTION(apply_linear_impulse),
+		DECLARE_FUNCTION(apply_angular_impulse),
+		DECLARE_FUNCTION(apply_torque),
+		DECLARE_FUNCTION(dump),
+		{ "destroy", body_destroy },
+		END_CLASS();
+	REGISTER_CLASS(body);
+
+	BEGIN_CLASS(shape)
+		DECLARE_SHAPE_GETSET(density),
+		DECLARE_SHAPE_GETSET(restitution),
+		DECLARE_SHAPE_GETSET(friction),
+		DECLARE_SHAPE_FUNCTION(set_sensor),
+		{"__gc", shape_gc},
+		END_CLASS();
+	REGISTER_CLASS(shape);
+
+	BEGIN_CLASS(joint)
+		DECLARE_FUNCTION(destroy),
+		// mouse joint
+		DECLARE_FUNCTION(set_target),
+		// distance joint
+		DECLARE_FUNCTION(set_length),
+		DECLARE_FUNCTION(set_frequency),
+		// rope joint
+		DECLARE_FUNCTION(set_max_length),
+		// revolute joint
+		DECLARE_FUNCTION(set_angle_limits),
+		DECLARE_FUNCTION(set_motor_speed),
+		END_CLASS();
+	REGISTER_CLASS(joint);
+
 	luaL_newlib(L, lib);
 	luaL_setfuncs(L, lib, 0);
-
-	// register BODY_CLASS
-	luaL_newmetatable(L, BODY_CLASS);
-	luaL_setfuncs(L, __body_class, 0);
-	lua_pushvalue(L, -1);
-	lua_setfield(L, -2, "__index");
-	lua_setfield(L, -2, BODY_CLASS);
-
-	// register SHAPE_CLASS
-	luaL_newmetatable(L, SHAPE_CLASS);
-	luaL_setfuncs(L, __shape_class, 0);
-	lua_pushvalue(L, -1);
-	lua_setfield(L, -2, "__index");
-	lua_setfield(L, -2, SHAPE_CLASS);
-
-	// register JOINT_CLASS
-	luaL_newmetatable(L, JOINT_CLASS);
-	luaL_setfuncs(L, __joint_class, 0);
-	lua_pushvalue(L, -1);
-	lua_setfield(L, -2, "__index");
-	lua_setfield(L, -2, JOINT_CLASS);
-
 	return 1;
 }
 
