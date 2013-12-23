@@ -12,7 +12,6 @@ end
 function drystal.draw()
 	local sprite = {x=0,y=0,w=200,h=150}
 	drystal.draw_sprite(sprite, 0, 0)
-	drystal.flip()
 end
 
 function drystal.key_press()

@@ -41,8 +41,6 @@ function drystal.draw()
 	for _, s in ipairs(systems) do
 		s:draw(scrollx, scrolly)
 	end
-
-	drystal.flip()
 end
 
 function drystal.mouse_motion(x, y, dx, dy)

@@ -181,8 +181,6 @@ function drystal.draw()
 
 	ball.p_system:draw()
 	ball2.p_system:draw()
-
-	drystal.flip()
 end
 
 function drystal.key_press(key)

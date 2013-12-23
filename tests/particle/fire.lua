@@ -38,8 +38,6 @@ function drystal.draw()
 	drystal.draw_background()
 
 	sys1:draw()
-
-	drystal.flip()
 end
 
 function drystal.key_press(k)

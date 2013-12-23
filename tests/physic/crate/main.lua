@@ -45,8 +45,6 @@ function drystal.draw()
 		x, y = c.body:get_position()
 		drystal.draw_rect(x-16, y-16, 32, 32)
 	end
-
-	drystal.flip()
 end
 
 --------------------------------------------------

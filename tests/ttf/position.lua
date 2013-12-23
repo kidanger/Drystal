@@ -15,6 +15,4 @@ function drystal.draw()
 	drystal.set_color(0, 0, 0)
 	drystal.draw_square(10, 10, w, h)
 	font.draw(text, 10, 10)
-
-	drystal.flip()
 end

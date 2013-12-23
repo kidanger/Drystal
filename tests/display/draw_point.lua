@@ -39,8 +39,6 @@ function drystal.draw()
 
 	drystal.set_line_width(5)
 	drystal.draw_line(0, 0, mx, my)
-
-	drystal.flip()
 end
 
 function drystal.mouse_motion(x, y)

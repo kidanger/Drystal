@@ -19,8 +19,6 @@ function drystal.draw()
 
 	drystal.set_color(255, 255, 255)
 	drystal.draw_circle(300, 200, 10)
-
-	drystal.flip()
 end
 
 function mouse_motion(x, y)

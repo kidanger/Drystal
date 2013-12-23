@@ -98,8 +98,6 @@ function drystal.draw()
 
 	drystal.draw_image(0, 0, 64, 32, 0, 256)
 	drystal.draw_from(image)
-
-	drystal.flip()
 end
 
 function drystal.key_press(key)

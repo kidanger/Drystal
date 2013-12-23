@@ -388,6 +388,7 @@ static int mlua_screen2scene(lua_State* L)
 }
 static int mlua_flip(lua_State*)
 {
+	fprintf(stderr, "[DEPRECATED] display.flip() is now deprecated !\n");
 	return 0;
 }
 

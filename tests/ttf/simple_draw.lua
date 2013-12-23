@@ -37,8 +37,6 @@ function drystal.draw()
 	tt.use_color(false)
 	tt.use(font)
 	tt.draw_align(text, 512 / 2, 512 * 0.7, 'center')
-
-	drystal.flip()
 end
 
 function drystal.key_press(k)

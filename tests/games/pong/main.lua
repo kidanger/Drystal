@@ -341,8 +341,6 @@ function drystal.draw()
 	else
 		draw_net_status()
 	end
-
-	drystal.flip()
 end
 
 function draw_say()

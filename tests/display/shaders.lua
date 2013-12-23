@@ -59,8 +59,6 @@ function drystal.draw()
 	end
 
 	drystal.use_shader()
-
-	drystal.flip()
 end
 
 function drystal.key_press(key)

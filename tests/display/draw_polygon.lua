@@ -35,8 +35,6 @@ function drystal.draw()
 		drystal.set_color(255, 0, 0)
 		drystal.draw_polyline(true, unpack(mouse_points))
 	end
-
-	drystal.flip()
 end
 
 function drystal.mouse_press(x, y, b)

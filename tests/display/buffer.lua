@@ -47,8 +47,6 @@ function drystal.draw()
 	drystal.set_alpha(255)
 	drystal.draw_sprite(sprite, 332, 200)
 	drystal.draw_line(0, 0, 600, 400)
-
-	drystal.flip()
 end
 
 function heavy_draw(number)

@@ -51,8 +51,6 @@ function drystal.draw()
 	drystal.draw_from(image)
 	drystal.set_color(255, 255, 255)
 	drystal.draw_sprite(image_sprite, 150+w, 150)
-
-	drystal.flip()
 end
 
 function drystal.mouse_motion(x, y)
