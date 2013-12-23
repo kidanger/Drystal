@@ -44,5 +44,29 @@ private:
 	void remove_userpackages(lua_State* L);
 };
 
+#define DECLARE_PUSHPOP(T, name) \
+	static void push_ ## name(lua_State *L, T *name)\
+	{\
+		T **p = static_cast<T **>(lua_newuserdata(L, sizeof(T **)));\
+		*p = name;\
+		luaL_getmetatable(L, #name);\
+		lua_setmetatable(L, -2);\
+	}\
+	static T *pop_ ## name(lua_State *L, int index)\
+	{\
+		luaL_checktype(L, index, LUA_TUSERDATA);\
+		T **p = static_cast<T **>(luaL_checkudata(L, index, #name));\
+		if (p == NULL) luaL_argerror(L, index, #name" expected");\
+		return *p;\
+	}
+#define DECLARE_GC(name, func) \
+	static const luaL_Reg __##name ## _class[] = {\
+	                                              {"__gc", func},\
+	                                              {NULL, NULL}\
+	                                             };
+#define REGISTER_GC(name) \
+	luaL_newmetatable(L, #name);\
+	luaL_setfuncs(L, __##name ## _class, 0)
+
 #endif
 

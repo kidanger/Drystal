@@ -5,6 +5,7 @@
 #include <lua.hpp>
 
 #include "engine.hpp"
+#include "lua_functions.hpp"
 
 #define DECLARE_FUNCTION(x) {#x, particle_##x}
 #define DECLARE_GETSET(x) DECLARE_FUNCTION(get_##x), DECLARE_FUNCTION(set_##x)
@@ -262,6 +263,8 @@ void Particle::update(System& sys, float dt)
 	}
 }
 
+DECLARE_PUSHPOP(System, system)
+
 int particle_new_system(lua_State* L)
 {
 	System* system = new System;
@@ -306,13 +309,13 @@ int particle_new_system(lua_State* L)
 	system->offy = 0;
 
 	system->allocate();
-	lua_pushlightuserdata(L, system);
+    push_system(L, system);
 	return 1;
 }
 
 int particle_set_position(lua_State* L)
 {
-	System* system = (System*) lua_touserdata(L, 1);
+	System* system = pop_system(L, 1);
 	lua_Number x = luaL_checknumber(L, 2);
 	lua_Number y = luaL_checknumber(L, 3);
 	system->x = x;
@@ -321,14 +324,14 @@ int particle_set_position(lua_State* L)
 }
 int particle_get_position(lua_State* L)
 {
-	System* system = (System*) lua_touserdata(L, 1);
+	System* system = pop_system(L, 1);
 	lua_pushnumber(L, system->x);
 	lua_pushnumber(L, system->y);
 	return 2;
 }
 int particle_set_offset(lua_State* L)
 {
-	System* system = (System*) lua_touserdata(L, 1);
+	System* system = pop_system(L, 1);
 	lua_Number ox = luaL_checknumber(L, 2);
 	lua_Number oy = luaL_checknumber(L, 3);
 	system->offx = ox;
@@ -337,7 +340,7 @@ int particle_set_offset(lua_State* L)
 }
 int particle_get_offset(lua_State* L)
 {
-	System* system = (System*) lua_touserdata(L, 1);
+	System* system = pop_system(L, 1);
 	lua_pushnumber(L, system->offx);
 	lua_pushnumber(L, system->offy);
 	return 2;
@@ -346,13 +349,13 @@ int particle_get_offset(lua_State* L)
 #define GETSET(attr) \
 	int particle_get_##attr(lua_State* L) \
 	{ \
-		System* system = (System*) lua_touserdata(L, 1); \
+	    System* system = pop_system(L, 1);\
 		lua_pushnumber(L, system->attr); \
 		return 1; \
 	} \
 	int particle_set_##attr(lua_State* L) \
 	{ \
-		System* system = (System*) lua_touserdata(L, 1); \
+	    System* system = pop_system(L, 1);\
 		lua_Number attr = luaL_checknumber(L, 2); \
 		system->attr = attr; \
 		return 0; \
@@ -371,7 +374,7 @@ GETSET(emission_rate)
 
 int particle_update(lua_State* L)
 {
-	System* system = (System*) lua_touserdata(L, 1);
+	System* system = pop_system(L, 1);
 	lua_Number dt = luaL_checknumber(L, 2);
 	system->update(dt);
 	return 0;
@@ -380,7 +383,7 @@ int particle_update(lua_State* L)
 #define ACTION(action) \
 	int particle_##action(lua_State* L) \
 	{ \
-		System* system = (System*) lua_touserdata(L, 1); \
+	    System* system = pop_system(L, 1);\
 		system->action(); \
 		return 0; \
 	}
@@ -392,7 +395,7 @@ ACTION(stop)
 
 int particle_draw(lua_State* L)
 {
-	System* system = (System*) lua_touserdata(L, 1);
+	System* system = pop_system(L, 1);
 	lua_Number dx = 0;
 	lua_Number dy = 0;
 	if (lua_gettop(L) > 1) {
@@ -405,14 +408,14 @@ int particle_draw(lua_State* L)
 
 int particle_is_running(lua_State* L)
 {
-	System* system = (System*) lua_touserdata(L, 1);
+	System* system = pop_system(L, 1);
 	bool running = system->running;
 	lua_pushboolean(L, running);
 	return 1;
 }
 int particle_set_running(lua_State* L)
 {
-	System* system = (System*) lua_touserdata(L, 1);
+	System* system = pop_system(L, 1);
 	bool running = lua_toboolean(L, 2);
 	system->running = running;
 	return 0;
@@ -420,7 +423,7 @@ int particle_set_running(lua_State* L)
 
 int particle_add_size(lua_State* L)
 {
-	System* system = (System*) lua_touserdata(L, 1);
+	System* system = pop_system(L, 1);
 	lua_Number at_lifetime = luaL_checknumber(L, 2);
 	lua_Number min = luaL_checknumber(L, 3);
 	lua_Number max = min;
@@ -433,7 +436,7 @@ int particle_add_size(lua_State* L)
 
 int particle_add_color(lua_State* L)
 {
-	System* system = (System*) lua_touserdata(L, 1);
+	System* system = pop_system(L, 1);
 	lua_Number at_lifetime = luaL_checknumber(L, 2);
 	if (lua_gettop(L) == 5) {
 		lua_Number r = luaL_checknumber(L, 3);
@@ -454,7 +457,7 @@ int particle_add_color(lua_State* L)
 
 int particle_free(lua_State* L)
 {
-	System* system = (System*) lua_touserdata(L, 1);
+	System* system = pop_system(L, 1);
 	delete system;
 	return 0;
 }
@@ -495,6 +498,8 @@ static const luaL_Reg lib[] =
 
 DEFINE_EXTENSION(particle)
 {
+    DECLARE_GC(system, particle_free)
+    REGISTER_GC(system);
 	luaL_newlib(L, lib);
 	luaL_setfuncs(L, lib, 0);
 

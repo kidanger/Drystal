@@ -11,6 +11,7 @@ extern "C" {
 }
 
 #include "engine.hpp"
+#include "lua_functions.hpp"
 
 unsigned char file_content[1<<20];
 unsigned char pixels[512*512];
@@ -25,6 +26,8 @@ struct Font {
 };
 
 static Font* current_font;
+
+DECLARE_PUSHPOP(Font, font)
 
 Font* load_font(const char* filename, float size, int first_char=32, int num_chars=96)
 {
@@ -288,7 +291,7 @@ int load_font_wrap(lua_State* L)
 	lua_Number size = lua_tonumber(L, 2);
 	Font* font = load_font(filename, size);
 	if (font) {
-		lua_pushlightuserdata(L, font);
+        push_font(L, font);
 		return 1;
 	}
 	return 0;
@@ -296,7 +299,7 @@ int load_font_wrap(lua_State* L)
 
 int use_font_wrap(lua_State* L)
 {
-	Font* font = (Font*) lua_touserdata(L, 1);
+	Font* font = pop_font(L, 1);
 	use_font(font);
 	return 0;
 }
@@ -323,7 +326,7 @@ int sizeof_color_wrap(lua_State* L)
 
 int free_font_wrap(lua_State* L)
 {
-	Font* font = (Font*) lua_touserdata(L, 1);
+	Font* font = pop_font(L, 1);
 	free_font(font);
 	return 0;
 }
@@ -342,6 +345,8 @@ static const luaL_Reg lib[] =
 
 DEFINE_EXTENSION(truetype)
 {
+    DECLARE_GC(font, free_font_wrap)
+    REGISTER_GC(font);
 	luaL_newlibtable(L, lib);
 	luaL_setfuncs(L, lib, 0);
 	return 1;

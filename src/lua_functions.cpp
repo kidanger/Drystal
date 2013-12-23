@@ -1,9 +1,19 @@
 #include <cstring>
 #include <cmath>
+#include <cassert>
 
 #include <lua.hpp>
 
 #include "engine.hpp"
+#include "log.hpp"
+#include "lua_functions.hpp"
+
+#define DECLARE_FUNCTION(name) {#name, mlua_##name}
+
+#define CALL(num_args) \
+	if (lua_pcall(L, num_args, 0, 0)) { \
+		luaL_error(L, "[ERROR] calling %s: %s", __func__, lua_tostring(L, -1)); \
+	}
 
 // used to access some engine's fields from lua callbacks
 static Engine *engine;
@@ -53,11 +63,6 @@ void LuaFunctions::add_search_path(const char* path)
 
 	lua_pop(L, 1);
 }
-
-#define CALL(num_args) \
-	if (lua_pcall(L, num_args, 0, 0)) { \
-		luaL_error(L, "[ERROR] calling %s: %s", __func__, lua_tostring(L, -1)); \
-	}
 
 /**
  * Search for a function named 'name' in the drystal table.
@@ -398,12 +403,14 @@ static int mlua_stop_text(lua_State*)
 	return 0;
 }
 
+DECLARE_PUSHPOP(Surface, surface)
+
 static int mlua_load_surface(lua_State* L)
 {
 	const char * filename = lua_tostring(L, -1);
-	void* surface = engine->display.load_surface(filename);
+	Surface* surface = engine->display.load_surface(filename);
 	if (surface) {
-		lua_pushlightuserdata(L, surface);
+		push_surface(L, surface);
 		return 1;
 	}
 	return 0;
@@ -412,19 +419,20 @@ static int mlua_new_surface(lua_State* L)
 {
 	int w = lua_tointeger(L, -2);
 	int h = lua_tointeger(L, -1);
-	void* surface = engine->display.new_surface(w, h);
-	lua_pushlightuserdata(L, surface);
+	Surface* surface = engine->display.new_surface(w, h);
+	push_surface(L, surface);
 	return 1;
 }
 static int mlua_free_surface(lua_State* L)
 {
-	Surface* surface = static_cast<Surface *>(lua_touserdata(L, -1));
+	DEBUG("");
+	Surface* surface = pop_surface(L, -1);
 	engine->display.free_surface(surface);
 	return 0;
 }
 static int mlua_surface_size(lua_State* L)
 {
-	Surface* surface = static_cast<Surface *>(lua_touserdata(L, -1));
+	Surface* surface = pop_surface(L, -1);
 	int w, h;
 	engine->display.surface_size(surface, &w, &h);
 	lua_pushnumber(L, w);
@@ -433,13 +441,13 @@ static int mlua_surface_size(lua_State* L)
 }
 static int mlua_draw_on(lua_State* L)
 {
-	Surface* surface = static_cast<Surface *>(lua_touserdata(L, -1));
+	Surface* surface = pop_surface(L, -1);
 	engine->display.draw_on(surface);
 	return 0;
 }
 static int mlua_draw_from(lua_State* L)
 {
-	Surface* surface = static_cast<Surface *>(lua_touserdata(L, -1));
+	Surface* surface = pop_surface(L, -1);
 	engine->display.draw_from(surface);
 	return 0;
 }
@@ -526,6 +534,7 @@ static int mlua_draw_quad(lua_State* L)
 	return 0;
 }
 
+DECLARE_PUSHPOP(Shader, shader)
 
 static int mlua_new_shader(lua_State* L)
 {
@@ -542,7 +551,7 @@ static int mlua_new_shader(lua_State* L)
 	// null code will be set to defaut shader
 	Shader* shader = engine->display.new_shader(vert, frag_color, frag_tex);
 	if (shader) {
-		lua_pushlightuserdata(L, shader);
+		push_shader(L, shader);
 		return 1;
 	}
 	return 0; // returns nil
@@ -552,7 +561,7 @@ static int mlua_use_shader(lua_State* L)
 	if (lua_gettop(L) == 0) { // use defaut shader
 		engine->display.use_shader(NULL);
 	} else {
-		Shader* shader = static_cast<Shader *>(lua_touserdata(L, -1));
+		Shader* shader = pop_shader(L, -1);
 		engine->display.use_shader(shader);
 	}
 	return 0;
@@ -560,7 +569,7 @@ static int mlua_use_shader(lua_State* L)
 
 static int mlua_feed_shader(lua_State* L)
 {
-	Shader* shader = static_cast<Shader*>(lua_touserdata(L, 1));
+	Shader* shader = pop_shader(L, 1);
 	const char* name = lua_tostring(L, 2);
 	float value = lua_tonumber(L, 3);
 	engine->display.feed_shader(shader, name, value);
@@ -568,10 +577,13 @@ static int mlua_feed_shader(lua_State* L)
 }
 static int mlua_free_shader(lua_State* L)
 {
-	Shader* shader = static_cast<Shader*>(lua_touserdata(L, 1));
+	DEBUG("");
+	Shader* shader = pop_shader(L, 1);
 	engine->display.free_shader(shader);
 	return 0;
 }
+
+DECLARE_PUSHPOP(Buffer, buffer)
 
 static int mlua_new_buffer(lua_State* L)
 {
@@ -583,7 +595,7 @@ static int mlua_new_buffer(lua_State* L)
 		buffer = engine->display.new_buffer(); // let Display choose a size
 	}
 	if (buffer) {
-		lua_pushlightuserdata(L, buffer);
+		push_buffer(L, buffer);
 		return 1;
 	}
 	return 0; // returns nil
@@ -593,14 +605,14 @@ static int mlua_use_buffer(lua_State* L)
 	if (lua_gettop(L) == 0) { // use defaut buffer
 		engine->display.use_buffer(NULL);
 	} else {
-		Buffer* buffer = static_cast<Buffer *>(lua_touserdata(L, -1));
+		Buffer* buffer = pop_buffer(L, -1);
 		engine->display.use_buffer(buffer);
 	}
 	return 0;
 }
 static int mlua_draw_buffer(lua_State* L)
 {
-	Buffer* buffer = static_cast<Buffer *>(lua_touserdata(L, 1));
+	Buffer* buffer = pop_buffer(L, -1);
 	lua_Number dx = 0, dy = 0;
 	if (lua_gettop(L) >= 2)
 		dx = luaL_checknumber(L, 2);
@@ -611,28 +623,32 @@ static int mlua_draw_buffer(lua_State* L)
 }
 static int mlua_reset_buffer(lua_State* L)
 {
-	Buffer* buffer = static_cast<Buffer *>(lua_touserdata(L, -1));
+	Buffer* buffer = pop_buffer(L, -1);
 	engine->display.reset_buffer(buffer);
 	return 0;
 }
 static int mlua_upload_and_free_buffer(lua_State* L)
 {
-	Buffer* buffer = static_cast<Buffer *>(lua_touserdata(L, -1));
+	Buffer* buffer = pop_buffer(L, -1);
 	engine->display.upload_and_free_buffer(buffer);
 	return 0;
 }
 static int mlua_free_buffer(lua_State* L)
 {
-	Buffer* buffer = static_cast<Buffer *>(lua_touserdata(L, -1));
+	DEBUG("");
+	Buffer* buffer = pop_buffer(L, -1);
 	engine->display.free_buffer(buffer);
 	return 0;
 }
 
+DECLARE_PUSHPOP(Sound, sound)
+DECLARE_PUSHPOP(Music, music)
+
 static int mlua_load_sound(lua_State *L)
 {
 	const char *filepath = lua_tostring(L, -1);
-	void *chunk = engine->audio.load_sound(filepath);
-	lua_pushlightuserdata(L, chunk);
+	Sound *chunk = engine->audio.load_sound(filepath);
+	push_sound(L, chunk);
 	return 1;
 }
 
@@ -679,14 +695,14 @@ static int mlua_create_sound(lua_State *L)
 		}
 	}
 
-	void* chunk = engine->audio.create_sound(len, buffer);
-	lua_pushlightuserdata(L, chunk);
+	Sound *chunk = engine->audio.create_sound(len, buffer);
+	push_sound(L, chunk);
 	return 1;
 }
 
 static int mlua_play_sound(lua_State *L)
 {
-	Sound* chunk = static_cast<Sound *>(lua_touserdata(L, 1));
+	Sound* chunk = pop_sound(L, 1);
 
 	float volume = 1;
 	float x = 0;
@@ -704,14 +720,16 @@ static int mlua_play_sound(lua_State *L)
 
 static int mlua_free_sound(lua_State *L)
 {
-	Sound* chunk = static_cast<Sound *>(lua_touserdata(L, -1));
+	DEBUG("");
+	Sound* chunk = pop_sound(L, 1);
 	engine->audio.free_sound(chunk);
 	return 0;
 }
 
 static int mlua_free_music(lua_State *L)
 {
-	Music* music = static_cast<Music *>(lua_touserdata(L, -1));
+	DEBUG("");
+	Music* music = pop_music(L, 1);
 	engine->audio.free_music(music);
 	return 0;
 }
@@ -774,13 +792,13 @@ static int mlua_load_music(lua_State *L)
 		int samplesrate = luaL_optnumber(L, 2, DEFAULT_SAMPLES_RATE);
 		music = engine->audio.load_music(callback, samplesrate);
 	}
-	lua_pushlightuserdata(L, music);
+	push_music(L, music);
 	return 1;
 }
 
 static int mlua_play_music(lua_State *L)
 {
-	Music* music = static_cast<Music *>(lua_touserdata(L, 1));
+	Music* music = pop_music(L, 1);
 	engine->audio.play_music(music);
 	return 0;
 }
@@ -801,7 +819,7 @@ static int mlua_set_music_volume(lua_State *L)
 
 static int mlua_stop_music(lua_State* L)
 {
-	Music* music = static_cast<Music *>(lua_touserdata(L, 1));
+	Music* music = pop_music(L, 1);
 	engine->audio.stop_music(music);
 	return 0;
 }
@@ -812,7 +830,18 @@ static int mlua_stop_music(lua_State* L)
 
 int luaopen_drystal(lua_State* L)
 {
-#define DECLARE_FUNCTION(name) {#name, mlua_##name}
+	DECLARE_GC(sound, mlua_free_sound)
+	DECLARE_GC(music, mlua_free_music)
+	DECLARE_GC(buffer, mlua_free_buffer)
+	DECLARE_GC(shader, mlua_free_shader)
+	DECLARE_GC(surface, mlua_free_surface)
+
+	REGISTER_GC(sound);
+	REGISTER_GC(music);
+	REGISTER_GC(shader);
+	REGISTER_GC(buffer);
+	REGISTER_GC(surface);
+
 	static const luaL_Reg lib[] = {
 		{"engine_stop", mlua_stop},
 		DECLARE_FUNCTION(stop),
@@ -868,17 +897,17 @@ int luaopen_drystal(lua_State* L)
 		DECLARE_FUNCTION(free_buffer),
 
 		/* AUDIO */
+		DECLARE_FUNCTION(set_music_volume),
 		DECLARE_FUNCTION(load_music),
 		DECLARE_FUNCTION(play_music),
-		DECLARE_FUNCTION(set_music_volume),
 		DECLARE_FUNCTION(stop_music),
 		DECLARE_FUNCTION(free_music),
 
 		DECLARE_FUNCTION(load_sound),
 		DECLARE_FUNCTION(create_sound),
 		DECLARE_FUNCTION(play_sound),
-		DECLARE_FUNCTION(set_sound_volume),
 		DECLARE_FUNCTION(free_sound),
+		DECLARE_FUNCTION(set_sound_volume),
 
 		{NULL, NULL}
 	};
