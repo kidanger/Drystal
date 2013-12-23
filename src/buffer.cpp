@@ -33,7 +33,7 @@ void Buffer::allocate()
 {
 	glGenBuffers(4, buffers);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glEnableVertexAttribArray(ATTR_POSITION_INDEX);
 	glEnableVertexAttribArray(ATTR_COLOR_INDEX);
 	type = TRIANGLE_BUFFER;
@@ -185,10 +185,13 @@ void Buffer::draw(float dx, float dy)
 	assert(type != POINT_BUFFER || current_color == current_point_size);
 
 	GLint prog;
+	VarLocationIndex locationIndex;
 	if (has_texture) {
 		prog = shader->prog_tex;
+		locationIndex = TEX;
 	} else {
 		prog = shader->prog_color;
+		locationIndex = COLOR;
 	}
 	glUseProgram(prog);
 
@@ -213,11 +216,10 @@ void Buffer::draw(float dx, float dy)
 
 	dx += camera->dx_transformed;
 	dy += camera->dy_transformed;
-	glUniform1f(glGetUniformLocation(prog, "dx"), dx);
-	glUniform1f(glGetUniformLocation(prog, "dy"), dy);
-	glUniform1f(glGetUniformLocation(prog, "zoom"), camera->zoom);
-	glUniformMatrix2fv(glGetUniformLocation(prog, "rotationMatrix"),
-	                   1, GL_FALSE, camera->matrix);
+	glUniform1f(shader->vars[locationIndex].dxLocation, dx);
+	glUniform1f(shader->vars[locationIndex].dyLocation, dy);
+	glUniform1f(shader->vars[locationIndex].zoomLocation, camera->zoom);
+	glUniformMatrix2fv(shader->vars[locationIndex].rotationMatrixLocation, 1, GL_FALSE, camera->matrix);
 
 	GLint draw_type;
 	if (type == POINT_BUFFER) {

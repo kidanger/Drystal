@@ -756,11 +756,22 @@ Shader * Display::new_shader(const char* strvert, const char* strfragcolor, cons
 	}
 
 	Shader* shader = new Shader;
-	shader->prog_color = prog_color;
-	shader->prog_tex = prog_tex;
 	shader->vert = vert;
 	shader->frag_color = frag_color;
 	shader->frag_tex = frag_tex;
+	shader->prog_color = prog_color;
+	shader->prog_tex = prog_tex;
+
+	shader->vars[COLOR].dxLocation = glGetUniformLocation(prog_color, "dx");
+	shader->vars[COLOR].dyLocation = glGetUniformLocation(prog_color, "dy");
+	shader->vars[COLOR].zoomLocation = glGetUniformLocation(prog_color, "zoom");
+	shader->vars[COLOR].rotationMatrixLocation = glGetUniformLocation(prog_color, "rotationMatrix");
+
+	shader->vars[TEX].dxLocation = glGetUniformLocation(prog_tex, "dx");
+	shader->vars[TEX].dyLocation = glGetUniformLocation(prog_tex, "dy");
+	shader->vars[TEX].zoomLocation = glGetUniformLocation(prog_tex, "zoom");
+	shader->vars[TEX].rotationMatrixLocation = glGetUniformLocation(prog_tex, "rotationMatrix");
+
 	return shader;
 }
 

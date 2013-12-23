@@ -29,12 +29,23 @@ struct Surface {
 };
 
 
+enum VarLocationIndex {
+	COLOR,
+	TEX,
+};
 struct Shader {
 	GLuint prog_color;
 	GLuint prog_tex;
 	GLuint vert;
 	GLuint frag_color;
 	GLuint frag_tex;
+
+	struct {
+		GLuint dxLocation;
+		GLuint dyLocation;
+		GLuint zoomLocation;
+		GLuint rotationMatrixLocation;
+	} vars[2];
 };
 
 struct Camera {
