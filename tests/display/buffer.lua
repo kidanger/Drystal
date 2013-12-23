@@ -12,7 +12,7 @@ end
 
 local bufferize = true
 local buffer
-local number = 6000
+local number = 3000
 local tick = 0
 function drystal.draw()
 	tick = tick + 1
@@ -33,11 +33,12 @@ function drystal.draw()
 	if bufferize then
 		if not buffer then
 			buffer = drystal.new_buffer(number * 6)
-			drystal.use_buffer(buffer)
+			buffer:use()
 			heavy_draw(number)
+			buffer:upload_and_free()
 			drystal.use_buffer()
 		end
-		drystal.draw_buffer(buffer, math.sin(tick/10)*50)
+		buffer:draw(math.sin(tick/10)*50)
 	else
 		heavy_draw(number)
 	end

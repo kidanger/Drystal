@@ -10,7 +10,7 @@ local R = 64 -- _ pixels = 1 meter
 
 local Body = setmetatable({
 	num_collide=0,
-}, physic.__body_class)
+}, physic.Body)
 Body.__index = Body
 
 function Body:begin_collide(other)

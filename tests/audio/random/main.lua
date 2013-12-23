@@ -13,11 +13,11 @@ local loaded = {}
 for i, s in pairs(sounds) do
 	if not drystal.file_exists(s) then
 		web.wget('gamedata/' .. s, s, function ()
-			sound = drystal.load_sound(s)
+			local sound = drystal.load_sound(s)
 			loaded[i] = sound
 		end, function() print('can\'t download sound', s) end)
 	else
-		sound = drystal.load_sound(s)
+		local sound = drystal.load_sound(s)
 		print(sound)
 		loaded[i] = sound
 	end
@@ -29,12 +29,12 @@ function drystal.init()
 end
 
 function drystal.mouse_motion()
-	drystal.play_sound(loaded[math.random(#loaded)])
+	loaded[math.random(#loaded)]:play()
 end
 
 function quick_play(str)
 	local sound = drystal.load_sound(str)
-	drystal.play_sound(sound)
+	sound:play()
 end
 
 function drystal.key_press(k)

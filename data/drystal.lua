@@ -274,7 +274,7 @@ function drystal.display_logo(sprite, background)
 	local duration = 6000
 	local shader = drystal.new_shader(weird_shader_vertex)
 	if shader then
-		drystal.use_shader(shader)
+		shader:use()
 	end
 	local time = 0
 	local _update = drystal.update
@@ -289,9 +289,6 @@ function drystal.display_logo(sprite, background)
 		if time > duration then
 			drystal.update = _update
 			drystal.draw = _draw
-			if shader then
-				drystal.free_shader(shader)
-			end
 			drystal.set_alpha(255)
 		end
 	end
@@ -301,7 +298,7 @@ function drystal.display_logo(sprite, background)
 		hfactor=hs/sprite.h,
 	}
 	drystal.draw = function()
-		if shader then drystal.feed_shader(shader, 'tick', time*0.1) end
+		if shader then shader:feed('tick', time*0.1) end
 
 		drystal.set_alpha(255)
 		drystal.set_color(unpack(background))
@@ -311,8 +308,6 @@ function drystal.display_logo(sprite, background)
 		local a = 255 - (math.cos(time*math.pi/(duration/2))/2+0.5)*255
 		drystal.set_alpha(a)
 		drystal.draw_sprite(sprite, (wr-ws)/2, (hr-hs)/2, transform)
-
-		drystal.flip()
 	end
 end
 

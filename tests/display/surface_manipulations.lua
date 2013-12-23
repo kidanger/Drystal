@@ -40,14 +40,15 @@ local x = 0
 local y = 0
 local width = 0
 local height = 0
+local shader
 function drystal.init()
 	print("initialized from lua")
 	drystal.resize(600, 400)
 	image = drystal.load_surface(spritesheet.meta.image)
-	drystal.draw_from(image)
+	image:draw_from()
 	drystal.set_alpha(0)
 	surf = drystal.new_surface(64, 32)
-	drystal.draw_on(surf)
+	surf:draw_on()
 	drystal.set_color(255, 0, 0)
 	drystal.set_alpha(105)
 	drystal.draw_rect(32, 0, 40, 40)
@@ -56,7 +57,7 @@ function drystal.init()
 	drystal.set_alpha(255)
 	local sprite = spritesheet.frames['character.png'].frame
 	drystal.draw_sprite(sprite, 0, 0)
-	drystal.draw_on(drystal.screen)
+	drystal.screen:draw_on()
 
 	shader = drystal.new_shader(vert)
 	if not shader then
@@ -71,13 +72,13 @@ function drystal.update(dt)
 end
 
 function drystal.draw()
-	drystal.draw_from(image)
+	image:draw_from()
 	drystal.set_alpha(255)
 	drystal.set_color(10, 10, 30)
 	drystal.draw_background()
 
-	drystal.use_shader(shader)
-	drystal.feed_shader(shader, 'tick', tick)
+	shader:use()
+	shader:feed('tick', tick)
 	drystal.set_color(255, 0, 0)
 	drystal.set_alpha(105)
 	drystal.draw_rect(16, 64, 40, 40)
@@ -94,10 +95,9 @@ function drystal.draw()
 
 	drystal.set_color(255,255,255)
 	drystal.set_alpha((math.sin(tick/500)/2+0.5)*255)
-	drystal.draw_from(surf)
+	surf:draw_from()
 
 	drystal.draw_image(0, 0, 64, 32, 0, 256)
-	drystal.draw_from(image)
 end
 
 function drystal.key_press(key)
@@ -112,12 +112,5 @@ end
 function drystal.mouse_motion(_x, _y)
 	x = _x
 	y = _y
-end
-
-function _resize_event(w, h)
-	width = w
-	height = h
-	drystal.resize(w, h)
-	drystal.use_shader(shader)
 end
 

@@ -50,7 +50,7 @@ function drystal.draw()
 	drystal.set_color(0, 0, 0)
 	drystal.draw_background()
 
-	drystal.use_shader(shader)
+	shader:use()
 	drystal.set_color(255, 255, 255)
 	drystal.draw_rect(0, 0, width, height)
 	for ii = 0, 5 do
@@ -63,13 +63,13 @@ end
 
 function drystal.key_press(key)
 	if key == 'a' then
-		drystal.engine_stop()
+		drystal.stop()
 	end
 end
 
 function drystal.mouse_motion(x, y)
 	mx, my = x, y
-	drystal.feed_shader(shader, 'mx', (mx/width) * 2 - 1)
-	drystal.feed_shader(shader, 'my', (1-my/height) * 2 - 1)
+	shader:feed('mx', (mx/width) * 2 - 1)
+	shader:feed('my', (1-my/height) * 2 - 1)
 end
 

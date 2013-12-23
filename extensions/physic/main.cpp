@@ -740,6 +740,9 @@ static const luaL_Reg lib[] =
 
 DEFINE_EXTENSION(physic)
 {
+	luaL_newlib(L, lib);
+	luaL_setfuncs(L, lib, 0);
+
 	BEGIN_CLASS(body)
 		DECLARE_GETSET(position),
 		DECLARE_GETSET(angle),
@@ -758,6 +761,19 @@ DEFINE_EXTENSION(physic)
 		{ "destroy", body_destroy },
 		END_CLASS();
 	REGISTER_CLASS(body);
+	lua_setfield(L, -2, "Body");
+	/*
+	 * Set field so gamedevs can do:
+	 * local MyBody = setmetatable({
+	 *     somevars...,
+	 * }, physic.Body)
+	 * MyBody.__index = MyBody
+	 *
+	 * ...
+	 *
+	 * local body = setmetatable(physic.new_body(.., shape), MyBody)
+	 * body.somevars = ...
+	 */
 
 	BEGIN_CLASS(shape)
 		DECLARE_SHAPE_GETSET(density),
@@ -767,6 +783,7 @@ DEFINE_EXTENSION(physic)
 		{"__gc", shape_gc},
 		END_CLASS();
 	REGISTER_CLASS(shape);
+	lua_setfield(L, -2, "Shape");
 
 	BEGIN_CLASS(joint)
 		DECLARE_FUNCTION(destroy),
@@ -782,9 +799,7 @@ DEFINE_EXTENSION(physic)
 		DECLARE_FUNCTION(set_motor_speed),
 		END_CLASS();
 	REGISTER_CLASS(joint);
-
-	luaL_newlib(L, lib);
-	luaL_setfuncs(L, lib, 0);
+	lua_setfield(L, -2, "Joint");
 	return 1;
 }
 

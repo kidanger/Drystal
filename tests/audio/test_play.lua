@@ -10,17 +10,18 @@ function drystal.init()
 	drystal.resize(40, 40)
 end
 
+local music = drystal.load_music("test.ogg")
+
 function drystal.key_press(key)
 	if key == 'a' then
 		drystal.stop()
 	elseif key == 'p' then
-		drystal.play_sound(piou)
+		piou:play()
 	elseif key == 'l' then
 		drystal.set_music_volume(0.3)
 	elseif key == 'z' then
 		drystal.set_sound_volume(0.3)
 	elseif key == 'i' then
-		local music = drystal.load_music("test.ogg")
-		drystal.play_music(music)
+		music:play()
 	end
 end

@@ -6,7 +6,6 @@ local x = w/2
 local y = h/2
 local RATE = 44100
 
-local sound
 local current = 0
 
 function play(time, ...)
@@ -20,10 +19,8 @@ function play(time, ...)
 		s = s / #freqs
 		return s
 	end, time*RATE)
-	drystal.play_sound(new)
+	new:play()
 	print("play at", ...)
-
-	sound = new
 end
 
 local cursor = 0
@@ -41,7 +38,7 @@ function drystal.init()
 	drystal.resize(w, h)
 	drystal.set_music_volume(.2)
 	local music = drystal.load_music(music_callback, RATE)
-	drystal.play_music(music)
+	music:play()
 end
 
 function drystal.update(dt)
