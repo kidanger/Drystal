@@ -860,7 +860,6 @@ int luaopen_drystal(lua_State* L)
 		/* DISPLAY SURFACE */
 		DECLARE_FUNCTION(load_surface),
 		DECLARE_FUNCTION(new_surface),
-		DECLARE_FUNCTION(free_surface),
 		DECLARE_FUNCTION(surface_size),
 		DECLARE_FUNCTION(draw_on),
 		DECLARE_FUNCTION(draw_from),
@@ -886,7 +885,6 @@ int luaopen_drystal(lua_State* L)
 		DECLARE_FUNCTION(new_shader),
 		DECLARE_FUNCTION(use_shader),
 		DECLARE_FUNCTION(feed_shader),
-		DECLARE_FUNCTION(free_shader),
 
 		/* DISPLAY BUFFER */
 		DECLARE_FUNCTION(new_buffer),
@@ -894,19 +892,16 @@ int luaopen_drystal(lua_State* L)
 		DECLARE_FUNCTION(draw_buffer),
 		DECLARE_FUNCTION(reset_buffer),
 		DECLARE_FUNCTION(upload_and_free_buffer),
-		DECLARE_FUNCTION(free_buffer),
 
 		/* AUDIO */
 		DECLARE_FUNCTION(set_music_volume),
 		DECLARE_FUNCTION(load_music),
 		DECLARE_FUNCTION(play_music),
 		DECLARE_FUNCTION(stop_music),
-		DECLARE_FUNCTION(free_music),
 
 		DECLARE_FUNCTION(load_sound),
 		DECLARE_FUNCTION(create_sound),
 		DECLARE_FUNCTION(play_sound),
-		DECLARE_FUNCTION(free_sound),
 		DECLARE_FUNCTION(set_sound_volume),
 
 		{NULL, NULL}

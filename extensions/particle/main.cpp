@@ -471,7 +471,6 @@ static const luaL_Reg lib[] =
 	DECLARE_FUNCTION(stop),
 	DECLARE_FUNCTION(pause),
 	DECLARE_FUNCTION(draw),
-	DECLARE_FUNCTION(free),
 
 	DECLARE_FUNCTION(is_running),
 	DECLARE_FUNCTION(set_running),

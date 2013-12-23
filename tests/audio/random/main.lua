@@ -35,7 +35,6 @@ end
 function quick_play(str)
 	local sound = drystal.load_sound(str)
 	drystal.play_sound(sound)
-	drystal.free_sound(sound)
 end
 
 function drystal.key_press(k)

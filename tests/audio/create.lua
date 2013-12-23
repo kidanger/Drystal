@@ -23,9 +23,6 @@ function play(time, ...)
 	drystal.play_sound(new)
 	print("play at", ...)
 
-	if sound then
-		drystal.free_sound(sound)
-	end
 	sound = new
 end
 

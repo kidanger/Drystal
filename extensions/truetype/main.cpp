@@ -339,7 +339,6 @@ static const luaL_Reg lib[] =
 	{"use", use_font_wrap},
 	{"sizeof", sizeof_wrap},
 	{"sizeof_color", sizeof_color_wrap},
-	{"free", free_font_wrap},
 	{NULL, NULL}
 };
 
