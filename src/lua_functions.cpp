@@ -606,14 +606,14 @@ static int mlua_use_buffer(lua_State* L)
 	if (lua_gettop(L) == 0) { // use defaut buffer
 		engine->display.use_buffer(NULL);
 	} else {
-		Buffer* buffer = pop_buffer(L, -1);
+		Buffer* buffer = pop_buffer(L, 1);
 		engine->display.use_buffer(buffer);
 	}
 	return 0;
 }
 static int mlua_draw_buffer(lua_State* L)
 {
-	Buffer* buffer = pop_buffer(L, -1);
+	Buffer* buffer = pop_buffer(L, 1);
 	lua_Number dx = 0, dy = 0;
 	if (lua_gettop(L) >= 2)
 		dx = luaL_checknumber(L, 2);
@@ -624,20 +624,20 @@ static int mlua_draw_buffer(lua_State* L)
 }
 static int mlua_reset_buffer(lua_State* L)
 {
-	Buffer* buffer = pop_buffer(L, -1);
+	Buffer* buffer = pop_buffer(L, 1);
 	engine->display.reset_buffer(buffer);
 	return 0;
 }
 static int mlua_upload_and_free_buffer(lua_State* L)
 {
-	Buffer* buffer = pop_buffer(L, -1);
+	Buffer* buffer = pop_buffer(L, 1);
 	engine->display.upload_and_free_buffer(buffer);
 	return 0;
 }
 static int mlua_free_buffer(lua_State* L)
 {
 	DEBUG("");
-	Buffer* buffer = pop_buffer(L, -1);
+	Buffer* buffer = pop_buffer(L, 1);
 	engine->display.free_buffer(buffer);
 	return 0;
 }
