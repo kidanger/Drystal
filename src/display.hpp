@@ -30,8 +30,8 @@ struct Surface {
 
 
 enum VarLocationIndex {
-	COLOR,
-	TEX,
+    COLOR,
+    TEX,
 };
 struct Shader {
 	GLuint prog_color;

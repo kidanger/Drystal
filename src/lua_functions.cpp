@@ -20,6 +20,13 @@ static Engine *engine;
 
 static int luaopen_drystal(lua_State*); // defined at the end of this file
 
+DECLARE_PUSHPOP(Shader, shader)
+DECLARE_PUSHPOP(Surface, surface)
+DECLARE_PUSHPOP(Buffer, buffer)
+DECLARE_PUSHPOP(Sound, sound)
+DECLARE_PUSHPOP(Music, music)
+
+
 LuaFunctions::LuaFunctions(Engine& eng, const char *filename) :
 	L(luaL_newstate()),
 	drystal_table_ref(LUA_NOREF),
@@ -368,7 +375,7 @@ static int mlua_resize(lua_State* L)
 	lua_rawgeti(L, LUA_REGISTRYINDEX, engine->lua.drystal_table_ref);
 	Surface* screen = engine->display.get_screen();
 	if (screen)
-		lua_pushlightuserdata(L, screen);
+		push_surface(L, screen);
 	else
 		lua_pushnil(L);
 	lua_setfield(L, -2, "screen");
@@ -403,8 +410,6 @@ static int mlua_stop_text(lua_State*)
 	engine->event.stop_text();
 	return 0;
 }
-
-DECLARE_PUSHPOP(Surface, surface)
 
 static int mlua_load_surface(lua_State* L)
 {
@@ -535,8 +540,6 @@ static int mlua_draw_quad(lua_State* L)
 	return 0;
 }
 
-DECLARE_PUSHPOP(Shader, shader)
-
 static int mlua_new_shader(lua_State* L)
 {
 	const char *vert = NULL, *frag_color = NULL, *frag_tex = NULL;
@@ -583,8 +586,6 @@ static int mlua_free_shader(lua_State* L)
 	engine->display.free_shader(shader);
 	return 0;
 }
-
-DECLARE_PUSHPOP(Buffer, buffer)
 
 static int mlua_new_buffer(lua_State* L)
 {
@@ -641,9 +642,6 @@ static int mlua_free_buffer(lua_State* L)
 	engine->display.free_buffer(buffer);
 	return 0;
 }
-
-DECLARE_PUSHPOP(Sound, sound)
-DECLARE_PUSHPOP(Music, music)
 
 static int mlua_load_sound(lua_State *L)
 {
@@ -915,7 +913,7 @@ int luaopen_drystal(lua_State* L)
 		// screen
 		Surface* screen = engine->display.get_screen();
 		if (screen)
-			lua_pushlightuserdata(L, screen);
+			push_surface(L, screen);
 		else
 			lua_pushnil(L);
 		lua_setfield(L, -2, "screen");
