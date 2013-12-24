@@ -35,6 +35,7 @@ const char* SHADER_PREFIX = SHADER_STRING
                                 precision mediump float; \n
                                 HASH(#)endif \n
                             );
+const size_t SHADER_PREFIX_LEN = strlen(SHADER_PREFIX);
 
 const char* DEFAULT_VERTEX_SHADER = SHADER_STRING
                                     (
@@ -698,13 +699,13 @@ Shader * Display::new_shader(const char* strvert, const char* strfragcolor, cons
 		strfragtex = DEFAULT_FRAGMENT_SHADER_TEX;
 	}
 
-	char* new_strvert = new char[strlen(SHADER_PREFIX) + strlen(strvert) + 1];
+	char* new_strvert = new char[SHADER_PREFIX_LEN + strlen(strvert) + 1];
 	strcpy(new_strvert, SHADER_PREFIX);
 	strcat(new_strvert, strvert);
-	char* new_strfragcolor = new char[strlen(SHADER_PREFIX) + strlen(strfragcolor) + 1];
+	char* new_strfragcolor = new char[SHADER_PREFIX_LEN + strlen(strfragcolor) + 1];
 	strcpy(new_strfragcolor, SHADER_PREFIX);
 	strcat(new_strfragcolor, strfragcolor);
-	char* new_strfragtex = new char[strlen(SHADER_PREFIX) + strlen(strfragtex) + 1];
+	char* new_strfragtex = new char[SHADER_PREFIX_LEN + strlen(strfragtex) + 1];
 	strcpy(new_strfragtex, SHADER_PREFIX);
 	strcat(new_strfragtex, strfragtex);
 
