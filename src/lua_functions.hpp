@@ -47,6 +47,8 @@ private:
 #define DECLARE_PUSHPOP(T, name) \
 	static void push_ ## name(lua_State *L, T *name)\
 	{\
+		assert(L);\
+		assert(name);\
 		T **p = static_cast<T **>(lua_newuserdata(L, sizeof(T **)));\
 		*p = name;\
 		luaL_getmetatable(L, #name);\
@@ -54,9 +56,11 @@ private:
 	}\
 	static T *pop_ ## name(lua_State *L, int index)\
 	{\
+		assert(L);\
 		luaL_checktype(L, index, LUA_TUSERDATA);\
 		T **p = static_cast<T **>(luaL_checkudata(L, index, #name));\
 		if (p == NULL) luaL_argerror(L, index, #name" expected");\
+		assert(p);\
 		return *p;\
 	}
 

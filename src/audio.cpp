@@ -118,6 +118,7 @@ void Audio::update(float dt)
 
 Sound* Audio::load_sound(const char *filepath)
 {
+	assert(filepath);
 	INIT_IF_NEEDED(NULL);
 
 	void* buffer;
@@ -144,6 +145,7 @@ Sound* Audio::load_sound(const char *filepath)
 
 Sound* Audio::create_sound(unsigned int len, const float* buffer, int samplesrate)
 {
+	assert(buffer);
 	INIT_IF_NEEDED(NULL);
 	ALushort converted_buffer[len]; // 16bits per sample
 	for (unsigned int i = 0; i < len; i++) {
@@ -162,6 +164,7 @@ Sound* Audio::create_sound(unsigned int len, const float* buffer, int samplesrat
 
 void Audio::free_sound(Sound* sound)
 {
+	assert(sound);
 	bool can_free = true;
 	// stop sources which used the sound
 	for (int i = 0; i < NUM_SOURCES; i++) {
@@ -226,6 +229,7 @@ void Audio::play_sound(Sound* sound, float volume, float x, float y)
 
 Music* Audio::load_music(MusicCallback* callback, int samplesrate, int num_channels)
 {
+	assert(callback);
 	INIT_IF_NEEDED(NULL);
 	Music* music = new Music;
 	music->callback = callback;
@@ -257,6 +261,7 @@ public:
 };
 Music* Audio::load_music_from_file(const char* filename)
 {
+	assert(filename);
 	INIT_IF_NEEDED(NULL);
 	VorbisMusicCallback* callback = new VorbisMusicCallback;
 
@@ -304,6 +309,7 @@ void Audio::play_music(Music* music)
 
 void Audio::stream_music(Music* music)
 {
+	assert(music);
 	Source* source = music->source;
 
 	ALint processed;
@@ -330,6 +336,7 @@ void Audio::stream_music(Music* music)
 
 void Audio::stop_music(Music* music)
 {
+	assert(music);
 	Source* source = music->source;
 	alSourceStop(source->alSource);
 	source->used = false;
@@ -337,6 +344,7 @@ void Audio::stop_music(Music* music)
 
 void Audio::free_music(Music* music)
 {
+	assert(music);
 	if (music->source) {
 		stop_music(music);
 	}

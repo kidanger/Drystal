@@ -8,6 +8,7 @@
 #include <SDL/SDL_opengl.h>
 #endif
 
+#include <cassert>
 
 struct SDL_Surface;
 struct SDL_Window;
@@ -136,11 +137,17 @@ public:
 	void set_alpha(int a);
 
 	void get_color(int *r, int *g, int *b) {
+		assert(r);
+		assert(g);
+		assert(b);
+
 		*r = this->r * 255;
 		*g = this->g * 255;
 		*b = this->b * 255;
 	};
 	void get_alpha(int *a) {
+		assert(a);
+
 		*a = this->alpha * 255;
 	};
 

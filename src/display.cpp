@@ -260,6 +260,10 @@ void Display::toggle_debug_mode()
 
 void Display::set_color(int r, int g, int b)
 {
+	assert(r >= 0 && r <= 255);
+	assert(g >= 0 && g <= 255);
+	assert(b >= 0 && b <= 255);
+
 	this->r = r / 255.;
 	this->g = g / 255.;
 	this->b = b / 255.;
@@ -267,16 +271,20 @@ void Display::set_color(int r, int g, int b)
 
 void Display::set_alpha(int a)
 {
+	assert(a >= 0 && a <= 255);
+
 	this->alpha = a / 255.;
 }
 
 void Display::set_point_size(float size)
 {
+	assert(size >= 0);
 	this->point_size = size;
 }
 
 void Display::set_line_width(float width)
 {
+	assert(width >= 0);
 	glLineWidth(width);
 }
 
@@ -394,6 +402,8 @@ void Display::draw_on(const Surface* surf)
 
 Surface * Display::create_surface(int w, int h, int texw, int texh, unsigned char* pixels) const
 {
+	assert(pixels);
+
 	// gen texture
 	GLuint tex;
 	glGenTextures(1, &tex);
@@ -642,6 +652,7 @@ void Display::draw_quad(float xi1, float yi1, float xi2, float yi2, float xi3, f
  */
 static void printLog(GLuint obj, const char* prefix)
 {
+	assert(prefix);
 	int infologLength = 0;
 	int maxLength;
 
@@ -666,9 +677,7 @@ Shader * Display::create_default_shader()
 	const char* strvert = DEFAULT_VERTEX_SHADER;
 	const char* strfragcolor = DEFAULT_FRAGMENT_SHADER_COLOR;
 	const char* strfragtex = DEFAULT_FRAGMENT_SHADER_TEX;
-	Shader* shader = new_shader(strvert, strfragcolor, strfragtex);
-	assert(shader);
-	return shader;
+	return new_shader(strvert, strfragcolor, strfragtex);
 }
 
 Shader * Display::new_shader(const char* strvert, const char* strfragcolor, const char* strfragtex)
@@ -814,6 +823,7 @@ void Display::feed_shader(Shader* shader, const char* name, float value)
 
 void Display::free_shader(Shader* shader)
 {
+	assert(shader);
 	GLuint prog;
 	glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*)&prog);
 	if (prog == shader->prog_color)
@@ -845,6 +855,7 @@ void Display::use_buffer(Buffer* buffer)
 }
 void Display::draw_buffer(Buffer* buffer, float dx, float dy)
 {
+	assert(buffer);
 	dx /= current->w;
 	dy /= current->h;
 	current_buffer->assert_empty();
@@ -852,14 +863,17 @@ void Display::draw_buffer(Buffer* buffer, float dx, float dy)
 }
 void Display::reset_buffer(Buffer* buffer)
 {
+	assert(buffer);
 	buffer->reset();
 }
 void Display::upload_and_free_buffer(Buffer* buffer)
 {
+	assert(buffer);
 	buffer->upload_and_free();
 }
 void Display::free_buffer(Buffer* buffer)
 {
+	assert(buffer);
 	delete buffer;
 }
 
