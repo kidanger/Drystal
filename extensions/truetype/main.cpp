@@ -47,7 +47,8 @@ Font* load_font(const char* filename, float size, int first_char=32, int num_cha
 	font->char_data = new stbtt_bakedchar[num_chars];
 	font->size = size;
 
-	assert(fread(file_content, 1, 1<<20, file));
+	size_t read = fread(file_content, 1, 1<<20, file);
+	assert(read);
 	fclose(file);
 
 	stbtt_BakeFontBitmap(file_content, 0, size, pixels, w, h,

@@ -1,3 +1,9 @@
+set(CMAKE_USE_RELATIVE_PATHS ON)
+set(LINK_FLAGS "--switchify -s ASM_JS=1 -s DLOPEN_SUPPORT=1 -s FORCE_ALIGNED_MEMORY=1 -s RELOOP=1 -s OUTLINING_LIMIT=10000 -s DISABLE_EXCEPTION_CATCHING=1 -s TOTAL_MEMORY=67108864")
+
+set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} ${LINK_FLAGS}")
+set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} ${LINK_FLAGS}")
+
 # This file is a 'toolchain description file' for CMake.
 # It teaches CMake about the Emscripten compiler, so that CMake can generate makefiles
 # from CMakeLists.txt that invoke emcc.
@@ -99,9 +105,9 @@ endif()
 #SET(CMAKE_FIND_LIBRARY_SUFFIXES ".bc")
 
 SET(CMAKE_C_USE_RESPONSE_FILE_FOR_OBJECTS 1)
-SET(CMAKE_CXX_USE_RESPONSE_FILE_FOR_OBJECTS 0)
+SET(CMAKE_CXX_USE_RESPONSE_FILE_FOR_OBJECTS 1)
 SET(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES 1)
-SET(CMAKE_CXX_USE_RESPONSE_FILE_FOR_INCLUDES 0)
+SET(CMAKE_CXX_USE_RESPONSE_FILE_FOR_INCLUDES 1)
 
 set(CMAKE_C_RESPONSE_FILE_LINK_FLAG "@")
 set(CMAKE_CXX_RESPONSE_FILE_LINK_FLAG "@")
@@ -116,16 +122,16 @@ set(EMSCRIPTEN 1)
 
 # We are cross-compiling, so unset the common CMake variables that represent the target platform. Leave UNIX define enabled, since Emscripten
 # mimics a Linux environment.
-SET(WIN32)
-SET(APPLE)
+# SET(WIN32)
+# SET(APPLE)
 
 set(CMAKE_C_SIZEOF_DATA_PTR 4)
 set(CMAKE_CXX_SIZEOF_DATA_PTR 4)
 
-set(CMAKE_C_FLAGS_RELEASE "-DNDEBUG" CACHE STRING "Emscripten-overridden CMAKE_C_FLAGS_RELEASE")
+set(CMAKE_C_FLAGS_RELEASE "-DNDEBUG -O2" CACHE STRING "Emscripten-overridden CMAKE_C_FLAGS_RELEASE")
 set(CMAKE_C_FLAGS_MINSIZEREL "-DNDEBUG" CACHE STRING "Emscripten-overridden CMAKE_C_FLAGS_MINSIZEREL")
 set(CMAKE_C_FLAGS_RELWITHDEBINFO "" CACHE STRING "Emscripten-overridden CMAKE_C_FLAGS_RELWITHDEBINFO")
-set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG" CACHE STRING "Emscripten-overridden CMAKE_CXX_FLAGS_RELEASE")
+set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O2" CACHE STRING "Emscripten-overridden CMAKE_CXX_FLAGS_RELEASE")
 set(CMAKE_CXX_FLAGS_MINSIZEREL "-DNDEBUG" CACHE STRING "Emscripten-overridden CMAKE_CXX_FLAGS_MINSIZEREL")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "" CACHE STRING "Emscripten-overridden CMAKE_CXX_FLAGS_RELWITHDEBINFO")
 
@@ -150,7 +156,7 @@ set(link_js_counter 1)
 function(em_add_tracked_link_flag target flagname)
 	get_target_property(props ${target} LINK_FLAGS)
 	if(NOT props)
-	    set(props "")
+		set(props "")
 	endif()
 
 	# User can input list of JS files either as a single list, or as variable arguments to this function, so iterate over varargs, and treat each
@@ -159,11 +165,11 @@ function(em_add_tracked_link_flag target flagname)
 		foreach(jsfile ${jsFileList})
 			# Add link command to the given JS file.
 			set(props "${props} ${flagname} \"${jsfile}\"")
-			
+
 			# If the user edits the JS file, we want to relink the emscripten application, but unfortunately it is not possible to make a link step
 			# depend directly on a source file. Instead, we must make a dummy no-op build target on that source file, and make the project depend on
 			# that target.
-			
+
 			# Sanitate the source .js filename to a good symbol name to use as a dummy filename.
 			get_filename_component(jsname "${jsfile}" NAME)
 			string(REGEX REPLACE "[/:\\\\.\ ]" "_" dummy_js_target ${jsname})

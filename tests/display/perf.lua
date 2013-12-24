@@ -14,7 +14,7 @@ function drystal.update(dt)
 		if dt > target then
 			number = number - 5
 		else
-			number = number + 10
+			number = number + 30
 		end
 	end
 	tick = tick + 1
