@@ -67,7 +67,6 @@ void Engine::loop()
 #ifdef EMSCRIPTEN
 	if (successful_load)
 		emscripten_set_main_loop(_engine_update, 0, true);
-	(void) target_fps;
 #else
 	run = run && successful_load;
 	while (run) {
