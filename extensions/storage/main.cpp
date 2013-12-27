@@ -21,7 +21,7 @@ const char* storage_fetch(const char* key)
 	snprintf(buf, size, js, key);
 
 	const char* value = emscripten_run_script_string(buf);
-	delete buf;
+	delete[] buf;
 
 	return value;
 }
@@ -34,7 +34,7 @@ void storage_store(const char* key, const char* value)
 	snprintf(buf, size, js, key, value);
 
 	emscripten_run_script(buf);
-	delete buf;
+	delete[] buf;
 }
 #else
 
