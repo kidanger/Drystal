@@ -132,18 +132,7 @@ void Engine::update()
 
 #ifdef STATS
 	if (stats_activated) {
-		stats.ticks_passed++;
-		stats.event = stats.event * .99 + (at_event - at_start) * .01;
-		stats.audio = stats.audio * .99 + (at_audio - at_event) * .01;
-		stats.game = stats.game * .99 + (at_game - at_audio) * .01;
-		stats.display = stats.display * .99 + (at_display - at_game) * .01;
-		stats.active = stats.active * .99 + (at_display - at_start) * .01;
-		stats.total_active += at_display - at_start;
-
-		stats.average_dt = dt * 0.01 + stats.average_dt * 0.99;
-		stats.slept = stats.slept * .99 + (at_start - stats.last) * .01;
-		stats.nb_flushed = 0;
-		stats.last = get_now();
+		stats.compute(get_now(), dt);
 	}
 #endif
 }
