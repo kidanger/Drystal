@@ -18,13 +18,16 @@ DESTINATION_DIRECTORY_REL = 'gamedata'
 DESTINATION_DIRECTORY = os.path.abspath(DESTINATION_DIRECTORY_REL)
 INCLUDE_DIRECTORY = os.path.abspath('data')
 
-BUILD_NATIVE = os.path.abspath('build-native')
+BUILD_NATIVE_RELEASE = os.path.abspath('build-native-release')
+BUILD_NATIVE_DEBUG = os.path.abspath('build-native-debug')
 BUILD_WEB_REL = 'build-web'
 BUILD_WEB = os.path.abspath(BUILD_WEB_REL)
 
-BINARY_DIRECTORY_NATIVE = os.path.join(BUILD_NATIVE, 'src')
+BINARY_DIRECTORY_NATIVE_RELEASE = os.path.join(BUILD_NATIVE_RELEASE, 'src')
+BINARY_DIRECTORY_NATIVE_DEBUG = os.path.join(BUILD_NATIVE_DEBUG, 'src')
 EXTENSIONS_DIRECTORY = os.path.abspath('extensions')
-EXTENSIONS_DIRECTORY_NATIVE = os.path.join(BUILD_NATIVE, 'extensions')
+EXTENSIONS_DIRECTORY_NATIVE_RELEASE = os.path.join(BUILD_NATIVE_RELEASE, 'extensions')
+EXTENSIONS_DIRECTORY_NATIVE_DEBUG = os.path.join(BUILD_NATIVE_DEBUG, 'extensions')
 EXTENSIONS_DIRECTORY_WEB = os.path.join(BUILD_WEB, 'extensions')
 
 EMSCRIPTEN_ROOT_PATH='/usr/lib/emscripten'
@@ -32,7 +35,8 @@ EMSCRIPTEN_CMAKE_DEFINES = ['CMAKE_TOOLCHAIN_FILE=../cmake/Emscripten.cmake',
                             'EMSCRIPTEN_ROOT_PATH=' + EMSCRIPTEN_ROOT_PATH,
                             'EMSCRIPTEN=1',
                             'CMAKE_BUILD_TYPE=Release']
-LIB_PATH = os.path.join(BUILD_NATIVE, 'external')
+LIB_PATH_RELEASE = os.path.join(BUILD_NATIVE_RELEASE, 'external')
+LIB_PATH_DEBUG = os.path.join(BUILD_NATIVE_DEBUG, 'external')
 VALGRIND_ARGS = '--tool=callgrind'
 
 BROWSERS = 'chromium', 'firefox'
@@ -223,15 +227,24 @@ def prepare_data(path):
     copy_files(directory, file)
     return directory, file
 
-def prepare_native():
-    cmake_update('build-native', ['CMAKE_BUILD_TYPE=Debug'])
-    copy_extensions(EXTENSIONS_DIRECTORY_NATIVE,
-                    [f for f in os.listdir(EXTENSIONS_DIRECTORY)
-                       if os.path.isdir(os.path.join(EXTENSIONS_DIRECTORY, f))])
+def prepare_native(release=False):
+    if release:
+        cmake_update('build-native-release', ['CMAKE_BUILD_TYPE=Release'])
+        copy_extensions(EXTENSIONS_DIRECTORY_NATIVE_RELEASE,
+                        [f for f in os.listdir(EXTENSIONS_DIRECTORY)
+                        if os.path.isdir(os.path.join(EXTENSIONS_DIRECTORY, f))])
 
+        os.environ['LD_LIBRARY_PATH'] = LIB_PATH_RELEASE
+        program = os.path.join(BINARY_DIRECTORY_NATIVE_RELEASE, 'drystal')
+    else:
+        cmake_update('build-native-debug', ['CMAKE_BUILD_TYPE=Debug'])
+        copy_extensions(EXTENSIONS_DIRECTORY_NATIVE_DEBUG,
+                        [f for f in os.listdir(EXTENSIONS_DIRECTORY)
+                        if os.path.isdir(os.path.join(EXTENSIONS_DIRECTORY, f))])
+
+        os.environ['LD_LIBRARY_PATH'] = LIB_PATH_DEBUG
+        program = os.path.join(BINARY_DIRECTORY_NATIVE_DEBUG, 'drystal')
     os.chdir(DESTINATION_DIRECTORY)
-    os.environ['LD_LIBRARY_PATH'] = LIB_PATH
-    program = os.path.join(BINARY_DIRECTORY_NATIVE, 'drystal')
     return program
 
 def run_repack(args):
@@ -292,7 +305,7 @@ def setup_live_coding(directory, file, drystal):
 
 def run_native(args):
     directory, file = prepare_data(args.PATH)
-    program = prepare_native()
+    program = prepare_native(args.release)
     if args.debug:
         if args.live:
             drystal = execute([program], fork=True)
@@ -336,6 +349,7 @@ parser_native = subparsers.add_parser('native', help='run with drystal', descrip
 parser_native.add_argument('PATH', help='<directory>[/filename.lua]', type=valid_path)
 parser_native.set_defaults(func=run_native)
 parser_native.add_argument('-l', '--live', help='live coding (reload code when it has been modified)', action='store_true', default=False)
+parser_native.add_argument('-r', '--release', help='compile in release mode', action='store_true', default=False)
 group = parser_native.add_mutually_exclusive_group()
 group.add_argument('-d', '--debug', help='debug with gdb', action='store_true', default=False)
 group.add_argument('-p', '--profile', help='profile with valgrind', action='store_true', default=False)
