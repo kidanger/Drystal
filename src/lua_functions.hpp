@@ -18,14 +18,14 @@ public:
 	LuaFunctions(Engine&, const char *filename);
 	~LuaFunctions();
 
-	void add_search_path(const char* path);
+	void add_search_path(const char* path) const;
 
 	bool load_code();
 	bool reload_code();
-	bool call_init();
+	bool call_init() const;
 
-	void call_update(float dt);
-	void call_draw();
+	void call_update(float dt) const;
+	void call_draw() const;
 
 	void call_resize_event(int w, int h) const;
 	void call_mouse_motion(int mx, int my, int dx, int dy) const;
@@ -41,7 +41,7 @@ private:
 	bool library_loaded;
 
 	bool get_function(lua_State*, const char* name) const;
-	void remove_userpackages(lua_State* L);
+	void remove_userpackages(lua_State* L) const;
 };
 
 #define DECLARE_PUSHPOP(T, name) \

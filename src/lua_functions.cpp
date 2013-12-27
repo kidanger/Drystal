@@ -26,7 +26,6 @@ DECLARE_PUSHPOP(Buffer, buffer)
 DECLARE_PUSHPOP(Sound, sound)
 DECLARE_PUSHPOP(Music, music)
 
-
 LuaFunctions::LuaFunctions(Engine& eng, const char *filename) :
 	L(luaL_newstate()),
 	drystal_table_ref(LUA_NOREF),
@@ -44,7 +43,7 @@ LuaFunctions::~LuaFunctions()
 	lua_close(L);
 }
 
-void LuaFunctions::add_search_path(const char* path)
+void LuaFunctions::add_search_path(const char* path) const
 {
 	assert(path);
 
@@ -75,7 +74,7 @@ void LuaFunctions::add_search_path(const char* path)
 
 /**
  * Search for a function named 'name' in the drystal table.
- * Return true if found, and keep the function is the lua stack
+ * Return true if found, and keep the function in the lua stack
  * Otherwise, return false (stack is cleaned as needed).
  */
 bool LuaFunctions::get_function(lua_State* L, const char* name) const
@@ -96,7 +95,7 @@ bool LuaFunctions::get_function(lua_State* L, const char* name) const
 	return false;
 }
 
-void LuaFunctions::remove_userpackages(lua_State* L)
+void LuaFunctions::remove_userpackages(lua_State* L) const
 {
 	printf("Removing old packages: ");
 	const char* kept[] = {
@@ -161,7 +160,7 @@ bool LuaFunctions::reload_code()
 	return load_code() && call_init();
 }
 
-bool LuaFunctions::call_init()
+bool LuaFunctions::call_init() const
 {
 	if (!get_function(L, "init")) {
 		fprintf(stderr, "[ERROR] cannot find init function in `%s'\n", filename);
@@ -243,14 +242,15 @@ void LuaFunctions::call_resize_event(int w, int h) const
 	}
 }
 
-void LuaFunctions::call_update(float dt)
+void LuaFunctions::call_update(float dt) const
 {
 	if (get_function(L, "update")) {
 		lua_pushnumber(L, dt);
 		CALL(1);
 	}
 }
-void LuaFunctions::call_draw()
+
+void LuaFunctions::call_draw() const
 {
 	if (get_function(L, "draw")) {
 		CALL(0);
@@ -286,6 +286,7 @@ static int mlua_set_color(lua_State* L)
 	engine->display.set_color(r, g, b);
 	return 0;
 }
+
 static int mlua_set_alpha(lua_State* L)
 {
 	assert(L);
@@ -294,6 +295,7 @@ static int mlua_set_alpha(lua_State* L)
 	engine->display.set_alpha(alpha);
 	return 0;
 }
+
 static int mlua_set_point_size(lua_State* L)
 {
 	assert(L);
@@ -302,6 +304,7 @@ static int mlua_set_point_size(lua_State* L)
 	engine->display.set_point_size(point_size);
 	return 0;
 }
+
 static int mlua_set_line_width(lua_State* L)
 {
 	assert(L);
@@ -310,6 +313,7 @@ static int mlua_set_line_width(lua_State* L)
 	engine->display.set_line_width(width);
 	return 0;
 }
+
 static int mlua_set_blend_mode(lua_State* L)
 {
 	assert(L);
@@ -318,6 +322,7 @@ static int mlua_set_blend_mode(lua_State* L)
 	engine->display.set_blend_mode(mode);
 	return 0;
 }
+
 static int mlua_set_filter_mode(lua_State* L)
 {
 	assert(L);
@@ -349,6 +354,7 @@ static int mlua_camera__newindex(lua_State* L)
 	}
 	return 0;
 }
+
 static int mlua_camera__index(lua_State* L)
 {
 	const char * name = luaL_checkstring(L, 2);
@@ -371,6 +377,7 @@ static int mlua_camera__index(lua_State* L)
 	}
 	return 0;
 }
+
 static int mlua_camera_reset(lua_State*)
 {
 	engine->display.reset_camera();
@@ -385,6 +392,7 @@ static int mlua_show_cursor(lua_State* L)
 	engine->display.show_cursor(show);
 	return 0;
 }
+
 static int mlua_set_relative_mode(lua_State* L)
 {
 	assert(L);
@@ -393,6 +401,7 @@ static int mlua_set_relative_mode(lua_State* L)
 	engine->event.set_relative_mode(relative);
 	return 0;
 }
+
 static int mlua_resize(lua_State* L)
 {
 	assert(L);
@@ -413,6 +422,7 @@ static int mlua_resize(lua_State* L)
 
 	return 0;
 }
+
 static int mlua_screen2scene(lua_State* L)
 {
 	assert(L);
@@ -425,6 +435,7 @@ static int mlua_screen2scene(lua_State* L)
 	lua_pushnumber(L, ty);
 	return 2;
 }
+
 static int mlua_flip(lua_State*)
 {
 	fprintf(stderr, "[DEPRECATED] display.flip() is now deprecated !\n");
@@ -473,6 +484,7 @@ static int mlua_load_surface(lua_State* L)
 	}
 	return 0;
 }
+
 static int mlua_new_surface(lua_State* L)
 {
 	assert(L);
@@ -483,6 +495,7 @@ static int mlua_new_surface(lua_State* L)
 	push_surface(L, surface);
 	return 1;
 }
+
 static int mlua_free_surface(lua_State* L)
 {
 	assert(L);
@@ -494,6 +507,7 @@ static int mlua_free_surface(lua_State* L)
 	}
 	return 0;
 }
+
 static int mlua_surface_size(lua_State* L)
 {
 	assert(L);
@@ -505,6 +519,7 @@ static int mlua_surface_size(lua_State* L)
 	lua_pushnumber(L, h);
 	return 2;
 }
+
 static int mlua_draw_on(lua_State* L)
 {
 	assert(L);
@@ -513,6 +528,7 @@ static int mlua_draw_on(lua_State* L)
 	engine->display.draw_on(surface);
 	return 0;
 }
+
 static int mlua_draw_from(lua_State* L)
 {
 	assert(L);
@@ -527,6 +543,7 @@ static int mlua_draw_background(lua_State*)
 	engine->display.draw_background();
 	return 0;
 }
+
 static int mlua_draw_point(lua_State* L)
 {
 	assert(L);
@@ -536,6 +553,7 @@ static int mlua_draw_point(lua_State* L)
 	engine->display.draw_point(x, y);
 	return 0;
 }
+
 static int mlua_draw_point_tex(lua_State* L)
 {
 	assert(L);
@@ -547,6 +565,7 @@ static int mlua_draw_point_tex(lua_State* L)
 	engine->display.draw_point_tex(xi, yi, xd, yd);
 	return 0;
 }
+
 static int mlua_draw_line(lua_State* L)
 {
 	assert(L);
@@ -558,6 +577,7 @@ static int mlua_draw_line(lua_State* L)
 	engine->display.draw_line(x1, y1, x2, y2);
 	return 0;
 }
+
 static int mlua_draw_triangle(lua_State* L)
 {
 	assert(L);
@@ -571,6 +591,7 @@ static int mlua_draw_triangle(lua_State* L)
 	engine->display.draw_triangle(x1, y1, x2, y2, x3, y3);
 	return 0;
 }
+
 static int mlua_draw_surface(lua_State* L)
 {
 	assert(L);
@@ -591,6 +612,7 @@ static int mlua_draw_surface(lua_State* L)
 	                             o1, o2, o3, o4, o5, o6);
 	return 0;
 }
+
 static int mlua_draw_quad(lua_State* L)
 {
 	assert(L);
@@ -638,6 +660,7 @@ static int mlua_new_shader(lua_State* L)
 	}
 	return 0; // returns nil
 }
+
 static int mlua_use_shader(lua_State* L)
 {
 	assert(L);
@@ -661,6 +684,7 @@ static int mlua_feed_shader(lua_State* L)
 	engine->display.feed_shader(shader, name, value);
 	return 0;
 }
+
 static int mlua_free_shader(lua_State* L)
 {
 	assert(L);
@@ -686,6 +710,7 @@ static int mlua_new_buffer(lua_State* L)
 	}
 	return 0; // returns nil
 }
+
 static int mlua_use_buffer(lua_State* L)
 {
 	assert(L);
@@ -698,6 +723,7 @@ static int mlua_use_buffer(lua_State* L)
 	}
 	return 0;
 }
+
 static int mlua_draw_buffer(lua_State* L)
 {
 	assert(L);
@@ -711,6 +737,7 @@ static int mlua_draw_buffer(lua_State* L)
 	engine->display.draw_buffer(buffer, dx, dy);
 	return 0;
 }
+
 static int mlua_reset_buffer(lua_State* L)
 {
 	assert(L);
@@ -719,6 +746,7 @@ static int mlua_reset_buffer(lua_State* L)
 	engine->display.reset_buffer(buffer);
 	return 0;
 }
+
 static int mlua_upload_and_free_buffer(lua_State* L)
 {
 	assert(L);
@@ -727,6 +755,7 @@ static int mlua_upload_and_free_buffer(lua_State* L)
 	engine->display.upload_and_free_buffer(buffer);
 	return 0;
 }
+
 static int mlua_free_buffer(lua_State* L)
 {
 	assert(L);
@@ -949,20 +978,20 @@ int luaopen_drystal(lua_State* L)
 		DECLARE_FUNCTION(draw_on),
 		DECLARE_FUNCTION(draw_from),
 		ADD_GC(free_surface)
-		END_CLASS();
+	END_CLASS();
 	REGISTER_CLASS_WITH_INDEX(surface);
 
 	BEGIN_CLASS(sound)
 		ADD_METHOD(sound, play)
 		ADD_GC(free_sound)
-		END_CLASS();
+	END_CLASS();
 	REGISTER_CLASS(sound);
 
 	BEGIN_CLASS(music)
 		ADD_METHOD(music, play)
 		ADD_METHOD(music, stop)
 		ADD_GC(free_music)
-		END_CLASS();
+	END_CLASS();
 	REGISTER_CLASS(music);
 
 	BEGIN_CLASS(buffer)
@@ -971,14 +1000,14 @@ int luaopen_drystal(lua_State* L)
 		ADD_METHOD(buffer, reset)
 		ADD_METHOD(buffer, upload_and_free)
 		ADD_GC(free_buffer)
-		END_CLASS();
+	END_CLASS();
 	REGISTER_CLASS(buffer);
 
 	BEGIN_CLASS(shader)
 		ADD_METHOD(shader, use)
 		ADD_METHOD(shader, feed)
 		ADD_GC(free_shader)
-		END_CLASS();
+	END_CLASS();
 	REGISTER_CLASS(shader);
 
 	static const luaL_Reg lib[] = {
@@ -1099,4 +1128,3 @@ int luaopen_drystal(lua_State* L)
 
 	return 1;
 }
-
