@@ -23,8 +23,8 @@ static Engine *engine;
 Stats stats;
 #endif
 
-Engine::Engine(const char* filename, int target_fps) :
-	target_fps(target_fps),
+Engine::Engine(const char* filename, unsigned int target_fps) :
+	target_ms_per_frame(1000 / target_fps),
 	run(true),
 	last_update(get_now()),
 	update_activated(true),
@@ -78,8 +78,9 @@ void Engine::loop()
 
 		// wait few millis to stay at the targeted fps value
 		unsigned long now = get_now();
-		if ((now - at_start) / 1000 < 1000 / target_fps) {
-			long sleep_time = 1000 / target_fps - (now - at_start) / 1000;
+		long ms_per_frame = (now - at_start) / 1000;
+		if (ms_per_frame < target_ms_per_frame) {
+			long sleep_time = target_ms_per_frame - ms_per_frame;
 			if (sleep_time > 0) {
 				SDL_Delay(sleep_time);
 			}
@@ -99,7 +100,6 @@ long unsigned Engine::get_now() const
 void Engine::update()
 {
 	AT(start)
-	static int tick = 0;
 	event.poll();
 	AT(event)
 
@@ -127,8 +127,6 @@ void Engine::update()
 
 	display.flip();
 	AT(display);
-
-	tick += 1;
 
 #ifdef STATS
 	if (stats_activated) {

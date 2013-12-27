@@ -11,7 +11,7 @@ struct lua_State;
 class Engine
 {
 private:
-	unsigned int target_fps;
+	unsigned int target_ms_per_frame;
 	bool run;
 	long unsigned last_update;
 
@@ -25,7 +25,7 @@ public:
 	Audio audio;
 	LuaFunctions lua;
 
-	Engine(const char* filename, int target_fps);
+	Engine(const char* filename, unsigned int target_fps);
 	~Engine();
 
 	void loop();
