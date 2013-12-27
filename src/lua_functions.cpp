@@ -77,7 +77,7 @@ void LuaFunctions::add_search_path(const char* path) const
  * Return true if found, and keep the function in the lua stack
  * Otherwise, return false (stack is cleaned as needed).
  */
-bool LuaFunctions::get_function(lua_State* L, const char* name) const
+bool LuaFunctions::get_function(const char* name) const
 {
 	assert(name);
 
@@ -95,7 +95,7 @@ bool LuaFunctions::get_function(lua_State* L, const char* name) const
 	return false;
 }
 
-void LuaFunctions::remove_userpackages(lua_State* L) const
+void LuaFunctions::remove_userpackages() const
 {
 	printf("Removing old packages: ");
 	const char* kept[] = {
@@ -154,7 +154,7 @@ bool LuaFunctions::load_code()
 
 bool LuaFunctions::reload_code()
 {
-	remove_userpackages(L);
+	remove_userpackages();
 
 	printf("Reloading code...\n");
 	return load_code() && call_init();
@@ -162,7 +162,7 @@ bool LuaFunctions::reload_code()
 
 bool LuaFunctions::call_init() const
 {
-	if (!get_function(L, "init")) {
+	if (!get_function("init")) {
 		fprintf(stderr, "[ERROR] cannot find init function in `%s'\n", filename);
 		return false;
 	} else if (lua_pcall(L, 0, 0, 0)) {
@@ -174,7 +174,7 @@ bool LuaFunctions::call_init() const
 
 void LuaFunctions::call_mouse_motion(int mx, int my, int dx, int dy) const
 {
-	if (get_function(L, "mouse_motion")) {
+	if (get_function("mouse_motion")) {
 		lua_pushnumber(L, mx);
 		lua_pushnumber(L, my);
 		lua_pushnumber(L, dx);
@@ -185,7 +185,7 @@ void LuaFunctions::call_mouse_motion(int mx, int my, int dx, int dy) const
 
 void LuaFunctions::call_mouse_press(int mx, int my, int button) const
 {
-	if (get_function(L, "mouse_press")) {
+	if (get_function("mouse_press")) {
 		lua_pushnumber(L, mx);
 		lua_pushnumber(L, my);
 		lua_pushnumber(L, button);
@@ -195,7 +195,7 @@ void LuaFunctions::call_mouse_press(int mx, int my, int button) const
 
 void LuaFunctions::call_mouse_release(int mx, int my, int button) const
 {
-	if (get_function(L, "mouse_release")) {
+	if (get_function("mouse_release")) {
 		lua_pushnumber(L, mx);
 		lua_pushnumber(L, my);
 		lua_pushnumber(L, button);
@@ -207,7 +207,7 @@ void LuaFunctions::call_key_press(const char* key_string) const
 {
 	assert(key_string);
 
-	if (get_function(L, "key_press")) {
+	if (get_function("key_press")) {
 		lua_pushstring(L, key_string);
 		CALL(1);
 	}
@@ -217,7 +217,7 @@ void LuaFunctions::call_key_release(const char* key_string) const
 {
 	assert(key_string);
 
-	if (get_function(L, "key_release")) {
+	if (get_function("key_release")) {
 		lua_pushstring(L, key_string);
 		CALL(1);
 	}
@@ -227,7 +227,7 @@ void LuaFunctions::call_key_text(const char* string) const
 {
 	assert(string);
 
-	if (get_function(L, "key_text")) {
+	if (get_function("key_text")) {
 		lua_pushstring(L, string);
 		CALL(1);
 	}
@@ -235,7 +235,7 @@ void LuaFunctions::call_key_text(const char* string) const
 
 void LuaFunctions::call_resize_event(int w, int h) const
 {
-	if (get_function(L, "resize_event")) {
+	if (get_function("resize_event")) {
 		lua_pushnumber(L, w);
 		lua_pushnumber(L, h);
 		CALL(2);
@@ -244,7 +244,7 @@ void LuaFunctions::call_resize_event(int w, int h) const
 
 void LuaFunctions::call_update(float dt) const
 {
-	if (get_function(L, "update")) {
+	if (get_function("update")) {
 		lua_pushnumber(L, dt);
 		CALL(1);
 	}
@@ -252,14 +252,14 @@ void LuaFunctions::call_update(float dt) const
 
 void LuaFunctions::call_draw() const
 {
-	if (get_function(L, "draw")) {
+	if (get_function("draw")) {
 		CALL(0);
 	}
 }
 
 void LuaFunctions::call_atexit() const
 {
-	if (get_function(L, "atexit")) {
+	if (get_function("atexit")) {
 		CALL(0);
 	}
 }

@@ -40,8 +40,8 @@ private:
 	const char* filename;
 	bool library_loaded;
 
-	bool get_function(lua_State*, const char* name) const;
-	void remove_userpackages(lua_State* L) const;
+	bool get_function(const char* name) const;
+	void remove_userpackages() const;
 };
 
 #define DECLARE_PUSHPOP(T, name) \
