@@ -6,7 +6,7 @@
 
 #define GL_VERTEX_PROGRAM_POINT_SIZE 0x8642
 
-#include <iostream>
+#include <cstdio>
 #include <cassert>
 #include <cmath>
 
