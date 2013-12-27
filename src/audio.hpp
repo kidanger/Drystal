@@ -1,5 +1,4 @@
-#ifndef AUDIO_H
-#define AUDIO_H
+#pragma once
 
 #include <AL/al.h>
 #include <AL/alc.h>
@@ -75,5 +74,3 @@ private:
 	bool init();
 	void stream_music(Music* music);
 };
-
-#endif

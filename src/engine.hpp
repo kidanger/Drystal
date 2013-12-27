@@ -1,5 +1,4 @@
-#ifndef ENGINE_H
-#define ENGINE_H
+#pragma once
 
 #include "display.hpp"
 #include "event.hpp"
@@ -52,6 +51,4 @@ Engine &get_engine();
 #define DEFINE_EXTENSION(name) extern "C" int __attribute__((used)) luaopen_##name(lua_State *L)
 #else
 #define DEFINE_EXTENSION(name) extern "C" int luaopen_##name(lua_State *L)
-#endif
-
 #endif

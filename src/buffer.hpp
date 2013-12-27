@@ -68,4 +68,3 @@ public:
 	void upload_and_free();
 	void allocate();
 };
-

@@ -1,5 +1,4 @@
-#ifndef DISPLAY_HPP
-#define DISPLAY_HPP
+#pragma once
 
 #define GL_GLEXT_PROTOTYPES
 #ifndef EMSCRIPTEN
@@ -208,5 +207,3 @@ public:
 	void flip();
 	bool is_available() const;
 };
-
-#endif

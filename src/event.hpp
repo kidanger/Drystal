@@ -1,5 +1,4 @@
-#ifndef EVENT_HPP
-#define EVENT_HPP
+#pragma once
 
 union SDL_Event;
 
@@ -20,5 +19,3 @@ public:
 	void start_text() const;
 	void stop_text() const;
 };
-
-#endif

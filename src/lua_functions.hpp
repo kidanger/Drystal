@@ -1,5 +1,4 @@
-#ifndef LUA_FUNCTIONS_H
-#define LUA_FUNCTIONS_H
+#pragma once
 
 #ifndef EMSCRIPTEN
 #include <ctime>
@@ -81,6 +80,3 @@ private:
 	luaL_setfuncs(L, __ ## name ## _class, 0); \
 	lua_pushcfunction(L, __ ## name ## _class_index); \
 	lua_setfield(L, -2, "__index")
-
-#endif
-
