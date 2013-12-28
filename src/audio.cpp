@@ -339,6 +339,7 @@ void Audio::stop_music(Music* music)
 	assert(music);
 	Source* source = music->source;
 	alSourceStop(source->alSource);
+	alSourcei(source->alSource, AL_BUFFER, 0);
 	source->used = false;
 }
 

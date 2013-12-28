@@ -34,10 +34,11 @@ function music_callback(data, len)
 	return len
 end
 
+local music
 function drystal.init()
 	drystal.resize(w, h)
 	drystal.set_music_volume(.2)
-	local music = drystal.load_music(music_callback, RATE)
+	music = drystal.load_music(music_callback, RATE)
 	music:play()
 end
 
@@ -54,7 +55,11 @@ function drystal.mouse_motion(xx, yy)
 end
 
 function drystal.key_press(k)
-	if k == 'a' then
+	if k == 'p' then
+		music:stop()
+	elseif k == 'o' then
+		music:play()
+	elseif k == 'a' then
 		drystal.stop()
 	end
 end
