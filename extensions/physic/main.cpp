@@ -211,7 +211,7 @@ int raycast(lua_State* L)
 	CustomRayCastCallback callback;
 	callback.L = L;
 	callback.ref = callback_ref;
-	if (x1 != x2 and y1 != y2) {
+	if (x1 != x2 || y1 != y2) {
 		world->RayCast(&callback, b2Vec2(x1, y1), b2Vec2(x2, y2));
 	}
 	luaL_unref(L, LUA_REGISTRYINDEX, callback_ref);
