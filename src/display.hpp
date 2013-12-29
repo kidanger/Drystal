@@ -26,6 +26,7 @@ struct Surface {
 	GLuint h;
 	GLuint texw;
 	GLuint texh;
+	bool has_fbo;
 };
 
 
@@ -120,7 +121,7 @@ private:
 	}
 
 	void update_camera_matrix();
-
+	void create_fbo(Surface*) const;
 	Shader* create_default_shader();
 
 public:
@@ -173,7 +174,7 @@ public:
 	void surface_size(Surface* surface, int *w, int *h);
 	void free_surface(Surface*);
 
-	void draw_on(const Surface*);
+	void draw_on(Surface*);
 	void draw_from(const Surface*);
 	const Surface* get_draw_on() const {
 		return current;

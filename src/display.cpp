@@ -182,6 +182,7 @@ void Display::resize(int w, int h)
 		screen->texw = w;
 		screen->texh = h;
 		screen->fbo = 0; // back buffer
+		screen->has_fbo = true;
 
 		draw_on(screen);
 
@@ -381,12 +382,15 @@ void Display::draw_from(const Surface* surf)
 	}
 }
 
-void Display::draw_on(const Surface* surf)
+void Display::draw_on(Surface* surf)
 {
 	DEBUG("");
 	assert(surf);
 	if (current != surf) {
 		default_buffer.assert_empty();
+		if (!surf->has_fbo) {
+			create_fbo(surf);
+		}
 		this->current = surf;
 		glBindFramebuffer(GL_FRAMEBUFFER, current->fbo);
 
@@ -418,29 +422,36 @@ Surface * Display::create_surface(int w, int h, int texw, int texh, unsigned cha
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	// gen framebuffer object
-	GLuint fbo;
-	glGenFramebuffers(1, &fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
-	GLDEBUG();
-
-	GLenum status;
-	status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	assert(status == GL_FRAMEBUFFER_COMPLETE);
-
 	Surface* surface = new Surface;
 	surface->tex = tex;
 	surface->w = w;
 	surface->h = h;
 	surface->texw = texw;
 	surface->texh = texh;
-	surface->fbo = fbo;
+	surface->has_fbo = false;
 
 	glBindFramebuffer(GL_FRAMEBUFFER, current->fbo);
 	glBindTexture(GL_TEXTURE_2D, current_from ? current_from->tex : 0);
 	DEBUG("end");
 	return surface;
+}
+
+void Display::create_fbo(Surface* surface) const
+{
+	// gen framebuffer object
+	GLuint fbo;
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+			GL_TEXTURE_2D, surface->tex, 0);
+	GLDEBUG();
+
+	GLenum status;
+	status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	assert(status == GL_FRAMEBUFFER_COMPLETE);
+
+	surface->fbo = fbo;
+	surface->has_fbo = true;
 }
 
 #define RGBA_SIZE 4
