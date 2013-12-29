@@ -113,6 +113,7 @@ Display::Display() :
 		fprintf(stderr, "[ERROR] cannot initialize SDL\n");
 		return;
 	}
+	resize(1, 1);
 
 	default_buffer.use_camera(&camera);
 
@@ -430,8 +431,8 @@ Surface * Display::create_surface(int w, int h, int texw, int texh, unsigned cha
 	surface->texh = texh;
 	surface->has_fbo = false;
 
-	glBindFramebuffer(GL_FRAMEBUFFER, current->fbo);
 	glBindTexture(GL_TEXTURE_2D, current_from ? current_from->tex : 0);
+
 	DEBUG("end");
 	return surface;
 }
@@ -449,6 +450,8 @@ void Display::create_fbo(Surface* surface) const
 	GLenum status;
 	status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	assert(status == GL_FRAMEBUFFER_COMPLETE);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, current->fbo);
 
 	surface->fbo = fbo;
 	surface->has_fbo = true;
