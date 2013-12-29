@@ -30,7 +30,7 @@
       <input type="button" value="Fullscreen" onclick="Module.requestFullScreen(document.getElementById('pointerLock').checked, 
                                                                                 document.getElementById('resize').checked)">
     </div>
-    
+
     <hr/>
     <textarea class="emscripten" id="output" rows="8"></textarea>
     <hr>
@@ -87,45 +87,7 @@
       };
       Module.setStatus('Downloading...');
     </script>
-    <script type='text/javascript'>
-        var decompressWorker = new Worker('decompress.js');
-        var decompressCallbacks = [];
-        var decompressions = 0;
-        Module["decompress"] = function(data, callback) {
-          var id = decompressCallbacks.length;
-          decompressCallbacks.push(callback);
-          decompressWorker.postMessage({ data: data, id: id });
-          if (Module['setStatus']) {
-            decompressions++;
-            Module['setStatus']('Decompressing...');
-          }
-        };
-        decompressWorker.onmessage = function(event) {
-          decompressCallbacks[event.data.id](event.data.data);
-          decompressCallbacks[event.data.id] = null;
-          if (Module['setStatus']) {
-            decompressions--;
-            if (decompressions == 0) {
-              Module['setStatus']('');
-            }
-          }
-        };
-        var compiledCodeXHR = new XMLHttpRequest();
-        compiledCodeXHR.open('GET', 'index.js.compress', true);
-        compiledCodeXHR.responseType = 'arraybuffer';
-        compiledCodeXHR.onload = function() {
-          var arrayBuffer = compiledCodeXHR.response;
-          if (!arrayBuffer) throw('Loading compressed code failed.');
-          var byteArray = new Uint8Array(arrayBuffer);
-          Module.decompress(byteArray, function(decompressed) {
-            var source = Array.prototype.slice.apply(decompressed).map(function(x) { return String.fromCharCode(x) }).join(''); // createObjectURL instead?
-            var scriptTag = document.createElement('script');
-            scriptTag.setAttribute('type', 'text/javascript');
-            scriptTag.innerHTML = source;
-            document.body.appendChild(scriptTag);
-          });
-        };
-        compiledCodeXHR.send(null);
-</script>
+    {{{DRYSTAL_LOAD_DATA}}}
+    {{{DRYSTAL_LOAD_COMPRESSED}}}
   </body>
 </html>

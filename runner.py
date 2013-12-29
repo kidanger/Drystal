@@ -30,11 +30,16 @@ EXTENSIONS_DIRECTORY_NATIVE_RELEASE = os.path.join(BUILD_NATIVE_RELEASE, 'extens
 EXTENSIONS_DIRECTORY_NATIVE_DEBUG = os.path.join(BUILD_NATIVE_DEBUG, 'extensions')
 EXTENSIONS_DIRECTORY_WEB = os.path.join(BUILD_WEB, 'extensions')
 
-EMSCRIPTEN_ROOT_PATH='/usr/lib/emscripten'
+EMSCRIPTEN_ROOT_PATH = '/usr/lib/emscripten'
 EMSCRIPTEN_CMAKE_DEFINES = ['CMAKE_TOOLCHAIN_FILE=../cmake/Emscripten.cmake',
                             'EMSCRIPTEN_ROOT_PATH=' + EMSCRIPTEN_ROOT_PATH,
                             'EMSCRIPTEN=1',
                             'CMAKE_BUILD_TYPE=Release']
+PACKAGER = '/usr/lib/emscripten/tools/file_packager.py'
+COMPRESSOR = '/usr/lib/emscripten/third_party/lzma.js/lzma-native'
+DECOMPRESS_JS = '/usr/lib/emscripten/third_party/lzma.js/lzma-decoder.js'
+DECOMPRESS_NAME = 'LZMA.decompress'
+
 LIB_PATH_RELEASE = os.path.join(BUILD_NATIVE_RELEASE, 'external')
 LIB_PATH_DEBUG = os.path.join(BUILD_NATIVE_DEBUG, 'external')
 VALGRIND_ARGS = '--tool=callgrind'
@@ -46,16 +51,88 @@ IGNORE_FILES = ['index.html', 'drystal.cfg']
 SUBDIRS = []
 
 HAS_NINJA = subprocess.call(['which', 'ninja'], stdout=subprocess.DEVNULL) == 0
+COMPRESS_DATA = True
+
+DRYSTAL_LOAD_DATA = '<script async type="text/javascript" src="FILE"></script>'
+
+DECOMPRESS_CODE = '''
+<script type='text/javascript'>
+var decompressWorker = new Worker('decompress.js');
+var decompressCallbacks = [];
+var decompressions = 0;
+Module["decompress"] = function(data, callback) {
+    var id = decompressCallbacks.length;
+    decompressCallbacks.push(callback);
+    decompressWorker.postMessage({ data: data, id: id });
+    if (Module['setStatus']) {
+        decompressions++;
+        Module['setStatus']('Decompressing...');
+    }
+};
+decompressWorker.onmessage = function(event) {
+      decompressCallbacks[event.data.id](event.data.data);
+      decompressCallbacks[event.data.id] = null;
+      if (Module['setStatus']) {
+              decompressions--;
+              if (decompressions == 0) {
+                        Module['setStatus']('');
+                      }
+            }
+};
+</script>
+'''
+
+# decompress will be used for data
+DRYSTAL_LOAD = DECOMPRESS_CODE + \
+    '<script type="text/javascript" src="drystal.js"></script>'
+
+DRYSTAL_LOAD_COMPRESSED = '''
+''' + DECOMPRESS_CODE + '''
+<script type='text/javascript'>
+var compiledCodeXHR = new XMLHttpRequest();
+compiledCodeXHR.open('GET', 'drystal.js.compress', true);
+compiledCodeXHR.responseType = 'arraybuffer';
+compiledCodeXHR.onload = function() {
+    var arrayBuffer = compiledCodeXHR.response;
+    if (!arrayBuffer) throw('Loading compressed code failed.');
+    var byteArray = new Uint8Array(arrayBuffer);
+    Module.decompress(byteArray, function(decompressed) {
+        var source = Array.prototype.slice.apply(decompressed)
+            .map(function(x) {
+            return String.fromCharCode(x)
+        }).join(''); // createObjectURL instead?
+        var scriptTag = document.createElement('script');
+        scriptTag.setAttribute('type', 'text/javascript');
+        scriptTag.innerHTML = source;
+        document.body.appendChild(scriptTag);
+    });
+};
+compiledCodeXHR.send(null);
+</script>
+'''
+
 
 def parent(directory):
     return os.path.abspath(os.path.join(directory, os.pardir))
 
-def execute(args, fork=False, cwd='.'):
-    print(I, ' '.join(args), 'from', cwd, N)
+
+def execute(args, fork=False, cwd=None, stdin=None, stdout=None):
+    strcmd = ' '.join(args)
+    if stdin:
+        strcmd += ' < ' + stdin
+        stdin = open(stdin, 'r')
+    if stdout:
+        strcmd += ' > ' + stdout
+        stdout = open(stdout, 'w')
+    if cwd:
+        strcmd += ' from ' + cwd
+
+    print(I, strcmd, N)
     if fork:
-        return subprocess.Popen(args, cwd=cwd)
+        return subprocess.Popen(args, cwd=cwd, stdin=stdin, stdout=stdout)
     else:
-        return subprocess.call(args, cwd=cwd)
+        return subprocess.call(args, cwd=cwd, stdin=stdin, stdout=stdout)
+
 
 def has_been_modified(fullpath, old):
     if not os.path.exists(old):
@@ -69,6 +146,7 @@ def has_been_modified(fullpath, old):
     elif os.path.getmtime(fullpath) > os.path.getmtime(old):
         return True
     return False
+
 
 def copy_files_maybe(from_directory, get_subdir=False, verbose=True):
     if verbose:
@@ -101,6 +179,7 @@ def copy_files_maybe(from_directory, get_subdir=False, verbose=True):
             _print(I, '    already\t', f)
     return did_copy
 
+
 def remove_old_wget():
     destination = os.path.join(BUILD_WEB, DESTINATION_DIRECTORY_REL)
     if not os.path.exists(destination):
@@ -113,6 +192,7 @@ def remove_old_wget():
         else:
             shutil.rmtree(fullpath)
 
+
 def load_config(from_directory):
     import json
     cfg = os.path.join(from_directory, 'drystal.cfg')
@@ -123,6 +203,7 @@ def load_config(from_directory):
         WGET_FILES += 'wget' in config and config['wget'] or []
         IGNORE_FILES += 'ignore' in config and config['ignore'] or []
         SUBDIRS += 'subdirs' in config and config['subdirs'] or []
+
 
 def move_wget_files(from_directory, destination):
     print(G, '- processing for wget: ', from_directory, 'to', destination, N)
@@ -136,11 +217,12 @@ def move_wget_files(from_directory, destination):
             print(G, '    wget\t', f)
             shutil.move(fullpath, destination)
 
+
 def copy_extensions(from_dir, ext_list):
     for extension in ext_list:
         src_path = os.path.join(from_dir,
                                 extension,
-                                'lib'+extension+'.so')
+                                'lib' + extension + '.so')
         dst_path = os.path.join(DESTINATION_DIRECTORY,
                                 extension + '.so')
         if os.path.exists(src_path):
@@ -148,6 +230,7 @@ def copy_extensions(from_dir, ext_list):
             print(G, '- add extension ', src_path)
         else:
             print(G, '! extension not available: ', src_path)
+
 
 def locate_index_html(from_dir, to_dir):
     directory = from_dir
@@ -158,11 +241,13 @@ def locate_index_html(from_dir, to_dir):
         directory = parent(directory)
     return None
 
+
 def clean(directory):
     if not os.path.exists(directory):
         return False
     shutil.rmtree(directory)
     return True
+
 
 def run_clean(args=[]):
     if clean(DESTINATION_DIRECTORY):
@@ -173,12 +258,14 @@ def run_clean(args=[]):
     if clean(webdata):
         print(G, '-', webdata, 'deleted', N)
 
+
 def tup_update(build=''):
     if '.tup' not in os.listdir('.'):
         execute(['tup', 'init'])
     if execute(['tup', 'upd', build]) != 0:
         print(E, 'compilation failed, stopping.', N)
         sys.exit(1)
+
 
 def cmake_update(build, definitions=[]):
     generator = HAS_NINJA and 'Ninja' or 'Unix Makefiles'
@@ -193,6 +280,7 @@ def cmake_update(build, definitions=[]):
         print(E, compiler, 'failed, stopping.', N)
         sys.exit(1)
 
+
 def create_token(token):
     if not os.path.exists(DESTINATION_DIRECTORY):
         print(G, '- create', DESTINATION_DIRECTORY)
@@ -200,24 +288,28 @@ def create_token(token):
     print(W, '- add token', token)
     open(token, 'w').close()
 
+
 def check_token(path):
-    token = os.path.join(DESTINATION_DIRECTORY, '.' + path.replace('/', '\\'))
+    token = os.path.join(DESTINATION_DIRECTORY, '._' + path.replace('/', '\\'))
     if not os.path.exists(token):
         run_clean()
         create_token(token)
     else:
         print(W, '- token exists, don\'t clean')
 
+
 def split_path(path):
     # here, if file is not null, it will be renamed to 'main.lua'
     # if it's null, we asume there's already a 'main.lua' in directory
     if os.path.isdir(path):
-        # in case the trailing '/' is omitted, because path.split wouldn't behave as we want
+        # in case the trailing '/' is omitted
+        # because path.split wouldn't behave as we want
         dirpath = path
         file = None
     else:
         dirpath, file = os.path.split(path)
     return os.path.abspath(dirpath), file
+
 
 def prepare_data(path):
     check_token(path)
@@ -226,6 +318,7 @@ def prepare_data(path):
     load_config(directory)
     copy_files(directory, file)
     return directory, file
+
 
 def prepare_native(release=False):
     if release:
@@ -247,18 +340,65 @@ def prepare_native(release=False):
     os.chdir(DESTINATION_DIRECTORY)
     return program
 
+
+def prepare_drystaljs():
+    '''
+        create build-web/decompress.js
+        compress build-web/src/drystal.js to build-web/drystal.js.compressed
+        copy build-web/src/drystal.js to build-web/drystal.js
+    '''
+    srcjs = 'build-web/src/drystal.js'
+    decompressjs = 'build-web/decompress.js'
+    jscompressed = 'build-web/drystal.js.compress'
+    js = 'build-web/drystal.js'
+    if not os.path.exists(decompressjs):
+        decompressor = open(decompressjs, 'w')
+        decompressor.write(open(DECOMPRESS_JS).read())
+        decompressor.write('''
+                onmessage = function(event) {
+                postMessage({ data: %s(event.data.data), id: event.data.id });
+                };
+                ''' % DECOMPRESS_NAME)
+        decompressor.close()
+
+    if has_been_modified(srcjs, jscompressed):
+        execute([COMPRESSOR], stdin=srcjs, stdout=jscompressed)
+
+    if has_been_modified(srcjs, js):
+        shutil.copyfile(srcjs, js)
+
+
+def package_data(compress, js_file):
+    compress_opt = compress and ['--compress', COMPRESSOR] or []
+    execute(['python2', PACKAGER, 'build-web/data', '--no-heap-copy',
+             '--preload', DESTINATION_DIRECTORY + '@/'] + compress_opt,
+            stdout=os.path.join(BUILD_WEB, js_file))
+
+
+def copy_and_modify_html(gamedir, fs_js):
+    htmlfile = locate_index_html(os.path.abspath(gamedir), os.getcwd())
+    html = open(htmlfile, 'r').read()
+    html = html.replace('{{{DRYSTAL_LOAD_DATA}}}',
+                        DRYSTAL_LOAD_DATA.replace('FILE', fs_js))
+    html = html.replace('{{{DRYSTAL_LOAD}}}', DRYSTAL_LOAD)
+    html = html.replace('{{{DRYSTAL_LOAD_COMPRESSED}}}',
+                        DRYSTAL_LOAD_COMPRESSED)
+    open(os.path.join(BUILD_WEB, 'index.html'), 'w').write(html)
+
+
 def run_repack(args):
     directory, file = prepare_data(args.PATH)
     cmake_update('build-web', EMSCRIPTEN_CMAKE_DEFINES)
+    prepare_drystaljs()
+
     remove_old_wget()
-    move_wget_files(DESTINATION_DIRECTORY, os.path.join(BUILD_WEB, DESTINATION_DIRECTORY_REL))
-    htmlfile = locate_index_html(os.path.abspath(directory), os.getcwd())
-    import repacker
-    os.chdir(BUILD_WEB)
-    repacker.DATADIR = os.path.join('..', repacker.DATADIR)
-    repacker.INPUT = 'src/drystal'
-    repacker.repack(htmlfile)
-    os.chdir('..')
+    move_wget_files(DESTINATION_DIRECTORY,
+                    os.path.join(BUILD_WEB, DESTINATION_DIRECTORY_REL))
+
+    fs_js = 'fs.js'
+    package_data(not args.no_compress, fs_js)
+    copy_and_modify_html(directory, fs_js)
+
 
 def run_web(args):
     run_repack(args)
@@ -272,6 +412,7 @@ def run_web(args):
         else:
             print(W, '! unable to open a browser', N)
     httpd.serve_forever()
+
 
 def get_gdb_args(program, pid=None):
     # if debug, run with 'gdb' (and give it path to sources)
@@ -290,6 +431,7 @@ def get_gdb_args(program, pid=None):
         args += ['-ex', 'run', program]
     return args
 
+
 def setup_live_coding(directory, file, drystal):
     print(G, '- settings up live coding', N)
     import time
@@ -302,6 +444,7 @@ def setup_live_coding(directory, file, drystal):
     except KeyboardInterrupt:
         drystal.terminate()
         sys.exit(1)
+
 
 def run_native(args):
     directory, file = prepare_data(args.PATH)
@@ -320,6 +463,7 @@ def run_native(args):
     if args.live:
         setup_live_coding(directory, file, drystal)
 
+
 def copy_files(directory, file, verbose=True):
     has_copied_some_files = copy_files_maybe(INCLUDE_DIRECTORY, get_subdir=True, verbose=verbose)
     has_copied_some_files = copy_files_maybe(directory, get_subdir=True, verbose=verbose) or has_copied_some_files
@@ -336,11 +480,13 @@ def copy_files(directory, file, verbose=True):
             os.utime(main, None)
     return has_copied_some_files
 
+
 def valid_path(path):
     if not os.path.exists(path):
         msg = "%r does not exist" % path
         raise argparse.ArgumentTypeError(msg)
     return path
+
 
 parser = argparse.ArgumentParser(description='Drystal roadrunner !')
 subparsers = parser.add_subparsers(help='sub-commands')
@@ -357,10 +503,12 @@ group.add_argument('-p', '--profile', help='profile with valgrind', action='stor
 parser_web = subparsers.add_parser('web', help='run in a browser', description='run in a browser')
 parser_web.add_argument('PATH', help='<directory>[/filename.lua]', type=valid_path)
 parser_web.set_defaults(func=run_web)
+parser_web.add_argument('-n', '--no-compress', help='don\'t compress datas', action='store_true', default=False)
 
 parser_repack = subparsers.add_parser('repack', help='repack', description='repack')
 parser_repack.add_argument('PATH', help='<directory>[/filename.lua]', type=valid_path)
 parser_repack.set_defaults(func=run_repack)
+parser_repack.add_argument('-n', '--no-compress', help='don\'t compress data', action='store_true', default=False)
 
 parser_clean = subparsers.add_parser('clean', help='cleanup gamedata/', description='cleanup gamedata/')
 parser_clean.set_defaults(func=run_clean)
