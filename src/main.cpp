@@ -16,16 +16,18 @@ void reload(int)
 int main(int argc, const char* argv[])
 {
 	const char* filename = "main.lua";
-	const char* searchpath = NULL;
+	const char* paths[8] = {NULL}; // 8 paths is enough, I guess
+	int num_paths = 0;
 
 	// handle arguments
 	{
 		int i;
-		const char* search_option = "--lib_path=";
-		size_t size_search_option = strlen(search_option);
+		const char* add_path_option = "--add-path=";
+		size_t size_add_path_option = strlen(add_path_option);
 		for (i = 1; i < argc; i++) {
-			if (!strncmp(argv[i], search_option, size_search_option)) {
-				searchpath = argv[i] + size_search_option;
+			if (!strncmp(argv[i], add_path_option, size_add_path_option)) {
+				paths[num_paths] = argv[i] + size_add_path_option;
+				num_paths += 1;
 			} else {
 				filename = argv[i];
 			}
@@ -39,8 +41,9 @@ int main(int argc, const char* argv[])
 	signal(SIGUSR1, reload);
 #endif
 
-	if (searchpath)
-		e.lua.add_search_path(searchpath);
+	for (int i = 0; i < num_paths; i++) {
+		e.lua.add_search_path(paths[i]);
+	}
 	e.lua.add_search_path("/usr/share/drystal");
 	e.loop();
 
