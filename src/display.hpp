@@ -128,6 +128,7 @@ public:
 	Display();
 	~Display();
 
+	void set_title(const char *title) const;
 	void show_cursor(bool) const;
 	void resize(int w, int h);
 	void screen2scene(float x, float y, float * tx, float * ty) const;

@@ -146,6 +146,14 @@ bool Display::is_available() const
  * Screen
  */
 
+void Display::set_title(const char *title) const
+{
+	assert(title);
+	assert(sdl_window);
+
+	SDL_SetWindowTitle(sdl_window, title);
+}
+
 void Display::resize(int w, int h)
 {
 	DEBUG("");
@@ -446,7 +454,7 @@ void Display::create_fbo(Surface* surface) const
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-			GL_TEXTURE_2D, surface->tex, 0);
+	                       GL_TEXTURE_2D, surface->tex, 0);
 	GLDEBUG();
 
 	GLenum status;

@@ -314,6 +314,15 @@ static int mlua_set_line_width(lua_State* L)
 	return 0;
 }
 
+static int mlua_set_title(lua_State* L)
+{
+	assert(L);
+
+	const char *title = lua_tostring(L, 1);
+	engine->display.set_title(title);
+	return 0;
+}
+
 static int mlua_set_blend_mode(lua_State* L)
 {
 	assert(L);
@@ -1019,6 +1028,7 @@ int luaopen_drystal(lua_State* L)
 		DECLARE_FUNCTION(set_relative_mode),
 
 		DECLARE_FUNCTION(resize),
+		DECLARE_FUNCTION(set_title),
 		DECLARE_FUNCTION(screen2scene),
 		DECLARE_FUNCTION(flip), // DEPRECATED
 
