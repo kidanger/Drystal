@@ -113,6 +113,8 @@ Display::Display() :
 		fprintf(stderr, "[ERROR] cannot initialize SDL\n");
 		return;
 	}
+	// create the window in the constructor
+	// so we have an opengl context ready for the user
 	resize(1, 1);
 
 	default_buffer.use_camera(&camera);
@@ -147,7 +149,7 @@ bool Display::is_available() const
 void Display::resize(int w, int h)
 {
 	DEBUG("");
-	if (sdl_window) {
+	if (screen) {
 #ifdef EMSCRIPTEN
 		emscripten_set_canvas_size(w, h);
 #else
@@ -522,7 +524,9 @@ void Display::free_surface(Surface* surface)
 		current = NULL;
 	}
 	glDeleteTextures(1, &surface->tex);
-	glDeleteFramebuffers(1, &surface->fbo);
+	if (surface->has_fbo) {
+		glDeleteFramebuffers(1, &surface->fbo);
+	}
 	delete surface;
 }
 
