@@ -515,7 +515,7 @@ parser_web.add_argument('-n', '--no-compress', help='don\'t compress datas',
 parser_web.add_argument('-i', '--show-include', help='show files that are (not) included',
                         action='store_true', default=False)
 parser_web.add_argument('-d', '--destination', help='folder where web files will be put',
-                        action='store_true', default='web')
+                        default='web')
 
 parser_repack = subparsers.add_parser('repack', help='repack',
                                       description='repack')
@@ -527,7 +527,7 @@ parser_repack.add_argument('-n', '--no-compress', help='don\'t compress data',
 parser_repack.add_argument('-i', '--show-include', help='show files that are (not) included',
                         action='store_true', default=False)
 parser_repack.add_argument('-d', '--destination', help='folder where web files will be put',
-                        action='store_true', default='web')
+                        default='web')
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
