@@ -44,22 +44,13 @@
           element.value = ''; // clear browser cache
           return function(text) {
             text = Array.prototype.slice.call(arguments).join(' ');
-            // These replacements are necessary if you render to raw HTML
-            //text = text.replace(/&/g, "&amp;");
-            //text = text.replace(/</g, "&lt;");
-            //text = text.replace(/>/g, "&gt;");
-            //text = text.replace('\n', '<br>', 'g');
             element.value += text + "\n";
             element.scrollTop = 99999; // focus on bottom
           };
         })(),
         printErr: function(text) {
           text = Array.prototype.slice.call(arguments).join(' ');
-          if (0) { // XXX disabled for safety typeof dump == 'function') {
-            dump(text + '\n'); // fast, straight to the real console
-          } else {
-            console.log(text);
-          }
+          console.log(text);
         },
         canvas: document.getElementById('canvas'),
         setStatus: function(text) {
@@ -87,6 +78,7 @@
       };
       Module.setStatus('Downloading...');
     </script>
+    {{{DRYSTAL_ADD_ARGUMENTS}}}
     {{{DRYSTAL_LOAD_DATA}}}
     {{{DRYSTAL_LOAD_COMPRESSED}}}
   </body>
