@@ -249,7 +249,7 @@ void Display::draw_background() const
 void Display::flip()
 {
 	DEBUG("");
-	default_buffer.assert_empty();
+	default_buffer.check_empty();
 	glBindFramebuffer(GL_FRAMEBUFFER, screen->fbo);
 	glFlush();
 	SDL_GL_SwapWindow(sdl_window);
@@ -303,7 +303,7 @@ void Display::set_line_width(float width)
 
 void Display::set_blend_mode(BlendMode mode)
 {
-	current_buffer->assert_empty();
+	current_buffer->check_empty();
 
 	switch (mode) {
 		case ALPHA:
@@ -327,7 +327,7 @@ void Display::set_filter_mode(FilterMode mode)
 
 void Display::reset_camera()
 {
-	current_buffer->assert_empty();
+	current_buffer->check_empty();
 
 	camera.dx = camera.dy = 0;
 	camera.dx_transformed = camera.dy_transformed = 0;
@@ -338,7 +338,7 @@ void Display::reset_camera()
 
 void Display::set_camera_position(float dx, float dy)
 {
-	current_buffer->assert_empty();
+	current_buffer->check_empty();
 
 	camera.dx = dx;
 	camera.dy = dy;
@@ -348,7 +348,7 @@ void Display::set_camera_position(float dx, float dy)
 
 void Display::set_camera_angle(float angle)
 {
-	current_buffer->assert_empty();
+	current_buffer->check_empty();
 
 	camera.angle = angle;
 
@@ -357,7 +357,7 @@ void Display::set_camera_angle(float angle)
 
 void Display::set_camera_zoom(float zoom)
 {
-	current_buffer->assert_empty();
+	current_buffer->check_empty();
 
 	camera.zoom = zoom;
 }
@@ -387,7 +387,7 @@ void Display::draw_from(const Surface* surf)
 	DEBUG("");
 	assert(surf);
 	if (current_from != surf) {
-		default_buffer.assert_empty();
+		default_buffer.check_empty();
 		this->current_from = surf;
 		glBindTexture(GL_TEXTURE_2D, current_from->tex);
 	}
@@ -398,7 +398,7 @@ void Display::draw_on(Surface* surf)
 	DEBUG("");
 	assert(surf);
 	if (current != surf) {
-		default_buffer.assert_empty();
+		default_buffer.check_empty();
 		if (!surf->has_fbo) {
 			create_fbo(surf);
 		}
@@ -523,7 +523,7 @@ void Display::free_surface(Surface* surface)
 {
 	assert(surface);
 	if (surface == current_from) {
-		default_buffer.assert_not_use_texture();
+		default_buffer.check_not_use_texture();
 		glBindTexture(GL_TEXTURE_2D, 0);
 		current_from = NULL;
 	}
@@ -557,8 +557,8 @@ void Display::draw_point(float x, float y)
 	float xx, yy;
 	convert_coords(x, y, &xx, &yy);
 
-	current_buffer->assert_type(POINT_BUFFER);
-	current_buffer->assert_not_use_texture();
+	current_buffer->check_type(POINT_BUFFER);
+	current_buffer->check_not_use_texture();
 
 	current_buffer->push_vertex(xx, yy);
 	current_buffer->push_point_size(point_size);
@@ -573,9 +573,9 @@ void Display::draw_point_tex(float xi, float yi, float xd, float yd)
 	float xxi, yyi;
 	convert_texcoords(xi, yi, &xxi, &yyi);
 
-	current_buffer->assert_type(POINT_BUFFER);
-	current_buffer->assert_use_texture();
-	current_buffer->assert_not_full();
+	current_buffer->check_type(POINT_BUFFER);
+	current_buffer->check_use_texture();
+	current_buffer->check_not_full();
 
 	current_buffer->push_vertex(xxd, yyd);
 	current_buffer->push_tex_coord(xxi, yyi);
@@ -591,9 +591,9 @@ void Display::draw_line(float x1, float y1, float x2, float y2)
 	convert_coords(x1, y1, &xx1, &yy1);
 	convert_coords(x2, y2, &xx2, &yy2);
 
-	current_buffer->assert_type(LINE_BUFFER);
-	current_buffer->assert_not_use_texture();
-	current_buffer->assert_not_full();
+	current_buffer->check_type(LINE_BUFFER);
+	current_buffer->check_not_use_texture();
+	current_buffer->check_not_full();
 
 	current_buffer->push_vertex(xx1, yy1);
 	current_buffer->push_vertex(xx2, yy2);
@@ -616,9 +616,9 @@ void Display::draw_triangle(float x1, float y1, float x2, float y2, float x3, fl
 	convert_coords(x2, y2, &xx2, &yy2);
 	convert_coords(x3, y3, &xx3, &yy3);
 
-	current_buffer->assert_type(TRIANGLE_BUFFER);
-	current_buffer->assert_not_use_texture();
-	current_buffer->assert_not_full();
+	current_buffer->check_type(TRIANGLE_BUFFER);
+	current_buffer->check_not_use_texture();
+	current_buffer->check_not_full();
 
 	current_buffer->push_vertex(xx1, yy1);
 	current_buffer->push_vertex(xx2, yy2);
@@ -650,9 +650,9 @@ void Display::draw_surface(float xi1, float yi1, float xi2, float yi2, float xi3
 	convert_coords(xo2, yo2, &xxo2, &yyo2);
 	convert_coords(xo3, yo3, &xxo3, &yyo3);
 
-	current_buffer->assert_type(TRIANGLE_BUFFER);
-	current_buffer->assert_use_texture();
-	current_buffer->assert_not_full();
+	current_buffer->check_type(TRIANGLE_BUFFER);
+	current_buffer->check_use_texture();
+	current_buffer->check_not_full();
 
 	current_buffer->push_tex_coord(xxi1, yyi1);
 	current_buffer->push_tex_coord(xxi2, yyi2);
@@ -814,7 +814,7 @@ Shader * Display::new_shader(const char* strvert, const char* strfragcolor, cons
 void Display::use_shader(Shader* shader)
 {
 	DEBUG();
-	current_buffer->assert_empty();
+	current_buffer->check_empty();
 
 	if (!shader) {
 		shader = default_shader;
@@ -885,7 +885,7 @@ void Display::draw_buffer(Buffer* buffer, float dx, float dy)
 	assert(buffer);
 	dx /= current->w;
 	dy /= current->h;
-	current_buffer->assert_empty();
+	current_buffer->check_empty();
 	buffer->draw(dx, dy);
 }
 void Display::reset_buffer(Buffer* buffer)

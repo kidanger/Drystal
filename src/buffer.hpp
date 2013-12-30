@@ -58,11 +58,11 @@ public:
 	void use_shader(Shader* shader);
 	void draw(float dx = 0, float dy = 0);
 
-	void assert_type(BufferType);
-	void assert_empty();
-	void assert_use_texture();
-	void assert_not_use_texture();
-	void assert_not_full();
+	void check_type(BufferType);
+	void check_empty();
+	void check_use_texture();
+	void check_not_use_texture();
+	void check_not_full();
 
 	void reset();
 	void upload_and_free();
