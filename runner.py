@@ -158,7 +158,8 @@ def has_been_modified(fullpath, old):
 def load_config(from_directory):
     config = configparser.ConfigParser(allow_no_value=True)
     config.optionxform = str  # upper case is important too
-    cfg = locate_recursively(from_directory, os.getcwd(), 'drystal.cfg')
+    cfg = locate_recursively(os.path.abspath(from_directory),
+                             os.getcwd(), 'drystal.cfg')
     if os.path.exists(cfg):
         print(G, '- reading configuration from', cfg)
         config.read(cfg)
@@ -197,7 +198,7 @@ def config_include_file(config, directory, file):
 
 
 def copy_wget_files(path, config, destination, verbose=False):
-    print(G, '- copying wgetted files', N)
+    print(G, '- copying wgot files', N)
     files = []
 
     def collect(path, directory):
@@ -296,11 +297,11 @@ def prepare_native(release=False, filename=None):
     return program, arguments
 
 
-def prepare_drystaljs(destination):
+def prepare_drystaljs(destination, use_compress_drystal):
     '''
         create web/decompress.js
         compress build-web/src/drystal.js to web/drystal.js.compressed
-        copy build-web/src/drystal.js to web/drystal.js
+        or copy build-web/src/drystal.js to web/drystal.js
         create a package with drystal's .lua inside
     '''
     srcjs = join(BINARY_DIRECTORY_NATIVE_WEB, 'drystal.js')
@@ -318,11 +319,11 @@ def prepare_drystaljs(destination):
                 ''' % DECOMPRESS_NAME)
         decompressor.close()
 
-    if has_been_modified(srcjs, js):
+    if has_been_modified(srcjs, js) and not use_compress_drystal:
         print(G, '- copy drystal.js', N)
         shutil.copyfile(srcjs, js)
 
-    if has_been_modified(srcjs, jscompressed):
+    if has_been_modified(srcjs, jscompressed) and use_compress_drystal:
         print(G, '- compress drystal.js to drystal.js.compress', N)
         execute([COMPRESSOR], stdin=srcjs, stdout=jscompressed)
 
@@ -383,9 +384,12 @@ def package_data(path, compress, data_js, destination, config, verbose=False):
     execute(['python2', PACKAGER, fulldest, '--no-heap-copy',
              '--preload'] + files + compress_opt,
             stdout=fulldestjs)
+    if compress:  # not sure why emscripten generate this
+        os.remove(fulldest)
 
 
 def copy_and_modify_html(gamedir, data_js, destination, mainfile=None):
+    use_compress_drystal = False
     mainfile = mainfile or 'main.lua'
     htmlfile = locate_recursively(os.path.abspath(gamedir), os.getcwd(),
                                   'index.html')
@@ -393,28 +397,43 @@ def copy_and_modify_html(gamedir, data_js, destination, mainfile=None):
     html = open(htmlfile, 'r').read()
     html = html.replace('{{{DRYSTAL_LOAD_DATA}}}',
                         DRYSTAL_LOAD_DATA.replace('FILE', data_js))
-    html = html.replace('{{{DRYSTAL_LOAD}}}', DRYSTAL_LOAD)
-    html = html.replace('{{{DRYSTAL_LOAD_COMPRESSED}}}',
-                        DRYSTAL_LOAD_COMPRESSED)
+
+    if '{{{DRYSTAL_LOAD}}}' in html:
+        html = html.replace('{{{DRYSTAL_LOAD}}}', DRYSTAL_LOAD)
+    else:
+        html = html.replace('{{{DRYSTAL_LOAD_COMPRESSED}}}',
+                            DRYSTAL_LOAD_COMPRESSED)
+        use_compress_drystal = True
     html = html.replace('{{{DRYSTAL_ADD_ARGUMENTS}}}',
                         DRYSTAL_ADD_ARGUMENTS.replace('ARGS', str([mainfile])))
     open(join(destination, 'index.html'), 'w').write(html)
+    return use_compress_drystal
 
 
 def run_repack(args):
+    data_js = 'game.data.js'
     if not os.path.exists(args.destination):
         os.mkdir(args.destination)
 
-    directory, file = os.path.split(args.PATH)
+    if os.path.isdir(args.PATH):
+        directory = args.PATH
+        file = None
+    else:
+        directory, file = os.path.split(args.PATH)
+
     cmake_update('build-web', EMSCRIPTEN_CMAKE_DEFINES)
-    prepare_drystaljs(args.destination)
 
+    # copy html (and check which version of drystaljs is used
+    use_compress_drystal = copy_and_modify_html(directory, data_js,
+                                                args.destination,
+                                                mainfile=file)
+    # copy drystaljs and its data
+    prepare_drystaljs(args.destination, use_compress_drystal)
+
+    # pack game data and copy wgot files
     config = load_config(directory)
-
-    data_js = 'game.data.js'
     package_data(directory, not args.no_compress, data_js, args.destination,
                  config, args.show_include)
-    copy_and_modify_html(directory, data_js, args.destination, mainfile=file)
     copy_wget_files(directory, config, args.destination, args.show_include)
 
 
