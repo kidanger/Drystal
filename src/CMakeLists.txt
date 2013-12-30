@@ -5,6 +5,11 @@ if(EMSCRIPTEN)
     set(DRYSTAL_OUT drystal.js)
 endif(EMSCRIPTEN)
 
+if(CMAKE_COMPILER_IS_GNUCC)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ftrapv -Wall -Wextra -Wundef -Wunreachable-code -Wwrite-strings -Weffc++")
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ftrapv -Wall -Wextra -Wundef -Wunreachable-code -Wwrite-strings -Wstrict-prototypes")
+endif(CMAKE_COMPILER_IS_GNUCC)
+
 add_executable(${DRYSTAL_OUT} ${SOURCES})
 
 

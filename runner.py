@@ -263,7 +263,7 @@ def cmake_update(build, definitions=[]):
             print(E, 'cmake failed. Fix CMakeLists.txt and try again!', N)
             clean(build)
             sys.exit(1)
-    if execute([compiler, '-v'], cwd=build) != 0:
+    if execute([compiler], cwd=build) != 0:
         print(E, compiler, 'failed, stopping.', N)
         sys.exit(1)
 
