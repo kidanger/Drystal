@@ -155,19 +155,6 @@ def has_been_modified(fullpath, old):
     return False
 
 
-def remove_old_wget():
-    destination = join(BUILD_WEB, DESTINATION_DIRECTORY_REL)
-    if not os.path.exists(destination):
-        return
-    print(G, '- remove old wget: ', destination)
-    for f in os.listdir(destination):
-        fullpath = join(destination, f)
-        if os.path.isfile(fullpath):
-            os.remove(fullpath)
-        else:
-            shutil.rmtree(fullpath)
-
-
 def load_config(from_directory):
     config = configparser.ConfigParser(allow_no_value=True)
     config.optionxform = str  # upper case is important too
@@ -178,18 +165,66 @@ def load_config(from_directory):
     return config
 
 
-def move_wget_files(from_directory, destination):
-    print(G, '- processing for wget: ', from_directory, 'to', destination, N)
-    if not os.path.exists(destination):
-        os.mkdir(destination)
-    for f in os.listdir(from_directory):
-        if f in ('.', '..') or f.startswith('.'):
-            continue
-        fullpath = join(from_directory, f)
-        if (os.path.isfile(fullpath)
-                and os.path.splitext(fullpath)[1] in WGET_FILES):
-            print(G, '    wget\t', f)
-            shutil.move(fullpath, destination)
+def config_include_directory(config, directory):
+    return directory in config
+
+
+def config_is_wgetted(config, directory, file):
+    if directory != '*' and config_is_wgetted(config, '*', file):
+        return True
+    if directory == '':
+        directory = '.'
+    if directory not in config or 'wget' not in config[directory]:
+        return False
+    for rule in config[directory]['wget'].split():
+        if fnmatch.fnmatch(file, rule):
+            return True
+    return False
+
+
+def config_include_file(config, directory, file):
+    # magic directory
+    if directory != '*' and config_include_file(config, '*', file):
+        return True
+    if directory == '':
+        directory = '.'
+    if directory not in config:
+        return False
+    for rule in config[directory]:
+        if fnmatch.fnmatch(file, rule):
+            return True
+    return False
+
+
+def copy_wget_files(path, config, destination, verbose=False):
+    print(G, '- copying wgetted files', N)
+    files = []
+
+    def collect(path, directory):
+        dirs = []
+        for f in os.listdir(join(path, directory)):
+            if f.startswith('.'):
+                continue
+            dest = join(directory, f)
+            full = join(path, dest)
+            if os.path.isdir(full) and config_include_directory(config, dest):
+                dirs.append(dest)
+            elif os.path.isfile(full):
+                if config_is_wgetted(config, directory, f):
+                    files.append(dest)
+        for d in dirs:
+            collect(path, join(directory, d))
+
+    collect(path, '')
+
+    for f in files:
+        dir = join(destination, os.path.split(f)[0])
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+
+        if verbose:
+            print(G, '\t@ ', f, N)
+        shutil.copy(join(path, f), join(destination, f))
 
 
 def locate_recursively(from_dir, to_dir, name):
@@ -227,7 +262,7 @@ def cmake_update(build, definitions=[]):
             print(E, 'cmake failed. Fix CMakeLists.txt and try again!', N)
             clean(build)
             sys.exit(1)
-    if execute([compiler], cwd=build) != 0:
+    if execute([compiler, '-v'], cwd=build) != 0:
         print(E, compiler, 'failed, stopping.', N)
         sys.exit(1)
 
@@ -316,22 +351,6 @@ def prepare_drystaljs(destination):
 def package_data(path, compress, data_js, destination, config, verbose=False):
     files = []
 
-    def include_file(directory, file):
-        # magic directory
-        if directory != '*' and include_file('*', file):
-            return True
-        if directory == '':
-            directory = '.'
-        if directory not in config:
-            return False
-        for rule in config[directory]:
-            if fnmatch.fnmatch(file, rule):
-                return True
-        return False
-
-    def include_directory(directory):
-        return directory in config
-
     def collect(path, directory):
         dirs = []
         for f in os.listdir(join(path, directory)):
@@ -339,10 +358,10 @@ def package_data(path, compress, data_js, destination, config, verbose=False):
                 continue
             dest = join(directory, f)
             full = join(path, dest)
-            if os.path.isdir(full) and include_directory(dest):
+            if os.path.isdir(full) and config_include_directory(config, dest):
                 dirs.append(dest)
             elif os.path.isfile(full):
-                if include_file(directory, f):
+                if config_include_file(config, directory, f):
                     if verbose:
                         print(G, '\t+ ', dest, N)
                     files.append(full + '@/' + dest)
@@ -391,14 +410,12 @@ def run_repack(args):
     prepare_drystaljs(args.destination)
 
     config = load_config(directory)
-    #remove_old_wget()
-    #move_wget_files(DESTINATION_DIRECTORY,
-    #                os.path.join(BUILD_WEB, DESTINATION_DIRECTORY_REL))
 
     data_js = 'game.data.js'
     package_data(directory, not args.no_compress, data_js, args.destination,
                  config, args.show_include)
     copy_and_modify_html(directory, data_js, args.destination, mainfile=file)
+    copy_wget_files(directory, config, args.destination, args.show_include)
 
 
 def run_web(args):

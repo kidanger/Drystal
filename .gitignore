@@ -1,7 +1,6 @@
 tags
 .vim_syntax
 build-*/
-.tup
+web
 *.pyc
-gamedata
 remove.sh
