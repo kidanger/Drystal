@@ -162,12 +162,11 @@ bool LuaFunctions::reload_code()
 
 bool LuaFunctions::call_init() const
 {
-	if (!get_function("init")) {
-		fprintf(stderr, "[ERROR] cannot find init function in `%s'\n", filename);
-		return false;
-	} else if (lua_pcall(L, 0, 0, 0)) {
-		fprintf(stderr, "[ERROR] cannot call init: %s\n", lua_tostring(L, -1));
-		return false;
+	if (get_function("init")) {
+		if (lua_pcall(L, 0, 0, 0)) {
+			fprintf(stderr, "[ERROR] cannot call init: %s\n", lua_tostring(L, -1));
+			return false;
+		}
 	}
 	return true;
 }
