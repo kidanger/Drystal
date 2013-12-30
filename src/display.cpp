@@ -115,7 +115,7 @@ Display::Display() :
 	}
 	// create the window in the constructor
 	// so we have an opengl context ready for the user
-	resize(1, 1);
+	create_window(1, 1);
 
 	default_buffer.use_camera(&camera);
 
@@ -156,60 +156,59 @@ void Display::set_title(const char *title) const
 
 void Display::resize(int w, int h)
 {
-	DEBUG("");
-	if (screen) {
 #ifdef EMSCRIPTEN
-		emscripten_set_canvas_size(w, h);
+	emscripten_set_canvas_size(w, h);
 #else
-		SDL_SetWindowSize(sdl_window, w, h);
+	SDL_SetWindowSize(sdl_window, w, h);
 #endif
-		SDL_GetWindowSize(sdl_window, &w, &h);
-		screen->w = w;
-		screen->h = h;
-		screen->texw = w;
-		screen->texh = h;
-		current = NULL; // force update
-		draw_on(screen);
-	} else {
-		w = w > 0 ? w : 1;
-		h = h > 0 ? h : 1;
+	SDL_GetWindowSize(sdl_window, &w, &h);
+	screen->w = w;
+	screen->h = h;
+	screen->texw = w;
+	screen->texh = h;
+	current = NULL; // force update
+	draw_on(screen);
+}
+
+void Display::create_window(int w, int h)
+{
+	w = w > 0 ? w : 1;
+	h = h > 0 ? h : 1;
 
 #ifndef EMSCRIPTEN
-		sdl_window = SDL_CreateWindow("Drystal",
-		                              SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-		                              w, h, SDL_WINDOW_OPENGL);
-		SDL_GL_CreateContext(sdl_window);
-		assert(sdl_window);
+	sdl_window = SDL_CreateWindow("Drystal",
+			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+			w, h, SDL_WINDOW_OPENGL);
+	SDL_GL_CreateContext(sdl_window);
+	assert(sdl_window);
 #else
-		SDL_SetVideoMode(w, h, 32, SDL_OPENGL);
+	SDL_SetVideoMode(w, h, 32, SDL_OPENGL);
 #endif
 
-		SDL_GL_SetSwapInterval(1);
-		SDL_GetWindowSize(sdl_window, &w, &h);
+	SDL_GL_SetSwapInterval(1);
+	SDL_GetWindowSize(sdl_window, &w, &h);
 
-		screen = new Surface;
-		screen->w = w;
-		screen->h = h;
-		screen->texw = w;
-		screen->texh = h;
-		screen->fbo = 0; // back buffer
-		screen->has_fbo = true;
+	screen = new Surface;
+	screen->w = w;
+	screen->h = h;
+	screen->texw = w;
+	screen->texh = h;
+	screen->fbo = 0; // back buffer
+	screen->has_fbo = true;
 
-		draw_on(screen);
+	draw_on(screen);
 
-		default_shader = create_default_shader();
-		use_shader(default_shader);
-		default_buffer.allocate();
+	default_shader = create_default_shader();
+	use_shader(default_shader);
+	default_buffer.allocate();
 
-		glEnable(GL_BLEND);
-		set_blend_mode(DEFAULT);
-		glDisable(GL_DEPTH_TEST);
+	set_blend_mode(DEFAULT);
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
 
 #ifndef EMSCRIPTEN
-		glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+	glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 #endif
-	}
-	DEBUG("end");
 }
 
 void Display::screen2scene(float x, float y, float * tx, float * ty) const

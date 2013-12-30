@@ -120,6 +120,7 @@ private:
 		*dy = y / current_from->texh;
 	}
 
+	void create_window(int w, int h);
 	void update_camera_matrix();
 	void create_fbo(Surface*) const;
 	Shader* create_default_shader();

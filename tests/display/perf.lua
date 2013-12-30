@@ -6,6 +6,7 @@ local number = 300
 
 function drystal.init()
 	drystal.resize(W, H)
+	drystal.set_blend_mode(drystal.BLEND_NONE)
 end
 
 local tick = 0
