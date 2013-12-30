@@ -166,7 +166,7 @@ public:
 	CustomRayCastCallback() : fixture(NULL)
 	{}
 
-	virtual float32 ReportFixture(b2Fixture* fixture, const b2Vec2& point,
+	virtual float32 ReportFixture(b2Fixture* _fixture, const b2Vec2& _point,
 								  const b2Vec2& normal, float32 fraction)
 	{
 		(void) normal;
@@ -186,8 +186,8 @@ public:
 		}
 
 		if (save_data) {
-			this->fixture = fixture;
-			this->point = point;
+			this->fixture = _fixture;
+			this->point = _point;
 		}
 
 		return new_fraction;
@@ -370,11 +370,6 @@ int shape_gc(lua_State* L)
 
 #define DECLARE_SHAPE_FUNCTION(name) {#name, shape_##name}
 #define DECLARE_SHAPE_GETSET(x) DECLARE_SHAPE_FUNCTION(set_##x), DECLARE_SHAPE_FUNCTION(get_##x)
-
-static const luaL_Reg __shape_class[] = {
-	{NULL, NULL},
-};
-
 
 // Body methods
 

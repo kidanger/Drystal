@@ -247,6 +247,11 @@ public:
 	stb_vorbis* stream;
 	stb_vorbis_info info;
 
+	VorbisMusicCallback()
+		: stream(NULL),
+		  info() {
+	}
+
 	~VorbisMusicCallback() {
 		stb_vorbis_close(stream);
 	}
@@ -258,6 +263,9 @@ public:
 		size *= this->info.channels;
 		return size;
 	}
+private:
+	VorbisMusicCallback(const VorbisMusicCallback&);
+	VorbisMusicCallback& operator=(const VorbisMusicCallback&);
 };
 Music* Audio::load_music_from_file(const char* filename)
 {

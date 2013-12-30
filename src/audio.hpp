@@ -73,4 +73,6 @@ private:
 
 	bool init();
 	void stream_music(Music* music);
+	Audio(const Audio&);
+	Audio& operator=(const Audio&);
 };

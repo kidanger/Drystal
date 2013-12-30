@@ -14,7 +14,7 @@ public:
 	lua_State* L;
 	int drystal_table_ref;
 
-	LuaFunctions(Engine&, const char *filename);
+	LuaFunctions(Engine&, const char *_filename);
 	~LuaFunctions();
 
 	void add_search_path(const char* path) const;
@@ -39,6 +39,8 @@ private:
 	const char* filename;
 	bool library_loaded;
 
+	LuaFunctions(const LuaFunctions&);
+	LuaFunctions& operator=(const LuaFunctions&);
 	bool get_function(const char* name) const;
 	void remove_userpackages() const;
 };

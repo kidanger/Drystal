@@ -92,6 +92,7 @@ const char* DEFAULT_FRAGMENT_SHADER_TEX = SHADER_STRING
         );
 
 Display::Display() :
+	default_buffer(),
 	sdl_window(NULL),
 	screen(NULL),
 	default_shader(NULL),
@@ -104,6 +105,7 @@ Display::Display() :
 	g(1),
 	b(1),
 	alpha(1),
+	camera(),
 	point_size(1),
 	available(false),
 	debug_mode(false)
@@ -270,15 +272,15 @@ void Display::toggle_debug_mode()
  * State
  */
 
-void Display::set_color(int r, int g, int b)
+void Display::set_color(int red, int green, int blue)
 {
-	assert(r >= 0 && r <= 255);
-	assert(g >= 0 && g <= 255);
-	assert(b >= 0 && b <= 255);
+	assert(red >= 0 && red <= 255);
+	assert(green >= 0 && green <= 255);
+	assert(blue >= 0 && blue <= 255);
 
-	this->r = r / 255.;
-	this->g = g / 255.;
-	this->b = b / 255.;
+	this->r = red / 255.;
+	this->g = green / 255.;
+	this->b = blue / 255.;
 }
 
 void Display::set_alpha(int a)

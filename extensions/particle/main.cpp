@@ -123,7 +123,7 @@ public:
 
 			float liferatio = 1 - p->life / p->lifetime;
 
-			float size;
+			float _size;
 			{
 				Size& sA = sizes[p->size_state];
 				Size& sB = sizes[p->size_state + 1];
@@ -132,7 +132,7 @@ public:
 
 				float sizeA = p->sizeseed * (sA.max - sA.min) + sA.min;
 				float sizeB = p->sizeseed * (sB.max - sB.min) + sB.min;
-				size = sizeA * (1 - ratio) + sizeB * ratio;
+				_size = sizeA * (1 - ratio) + sizeB * ratio;
 			}
 
 			float r, g, b;
@@ -157,7 +157,7 @@ public:
 
 
 			engine.display.set_color(r, g, b);
-			engine.display.set_point_size(size);
+			engine.display.set_point_size(_size);
 			engine.display.draw_point(dx + p->x, dy + p->y);
 		}
 	}

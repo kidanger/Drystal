@@ -10,7 +10,7 @@ struct lua_State;
 class Engine
 {
 private:
-	unsigned int target_ms_per_frame;
+	unsigned long target_ms_per_frame;
 	bool run;
 	long unsigned last_update;
 
@@ -44,6 +44,7 @@ public:
 	void toggle_stats();
 
 	void stop();
+
 };
 
 Engine &get_engine();

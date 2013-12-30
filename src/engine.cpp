@@ -30,7 +30,9 @@ Engine::Engine(const char* filename, unsigned int target_fps) :
 	update_activated(true),
 	draw_activated(true),
 	stats_activated(false),
+	display(),
 	event(*this),
+	audio(),
 	lua(*this, filename)
 {
 	engine = this;
@@ -76,8 +78,7 @@ void Engine::loop()
 		update();
 
 		// wait few millis to stay at the targeted fps value
-		unsigned long now = get_now();
-		long ms_per_frame = (now - at_start) / 1000;
+		unsigned long ms_per_frame = (get_now() - at_start) / 1000;
 		if (ms_per_frame < target_ms_per_frame) {
 			long sleep_time = target_ms_per_frame - ms_per_frame;
 			if (sleep_time > 0) {

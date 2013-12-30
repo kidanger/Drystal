@@ -23,6 +23,7 @@ class Buffer
 {
 private:
 	Buffer(const Buffer&);
+	Buffer& operator=(const Buffer&);
 	BufferType type;
 
 	unsigned int size;
@@ -46,7 +47,7 @@ private:
 	void partial_free();
 
 public:
-	Buffer(unsigned int size = BUFFER_DEFAULT_SIZE);
+	Buffer(unsigned int _size = BUFFER_DEFAULT_SIZE);
 	~Buffer();
 
 	void push_vertex(GLfloat, GLfloat);
@@ -54,8 +55,8 @@ public:
 	void push_tex_coord(GLfloat, GLfloat);
 	void push_point_size(GLfloat);
 
-	void use_camera(const Camera* camera);
-	void use_shader(Shader* shader);
+	void use_camera(const Camera* _camera);
+	void use_shader(Shader* _shader);
 	void draw(float dx = 0, float dy = 0);
 
 	void check_type(BufferType);

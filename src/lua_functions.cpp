@@ -26,10 +26,10 @@ DECLARE_PUSHPOP(Buffer, buffer)
 DECLARE_PUSHPOP(Sound, sound)
 DECLARE_PUSHPOP(Music, music)
 
-LuaFunctions::LuaFunctions(Engine& eng, const char *filename) :
+LuaFunctions::LuaFunctions(Engine& eng, const char *_filename) :
 	L(luaL_newstate()),
 	drystal_table_ref(LUA_NOREF),
-	filename(filename),
+	filename(_filename),
 	library_loaded(false)
 {
 	engine = &eng;
@@ -915,6 +915,9 @@ public:
 		if (table_ref != LUA_NOREF)
 			luaL_unref(L, LUA_REGISTRYINDEX, table_ref);
 	}
+private:
+	LuaMusicCallback(const LuaMusicCallback&);
+	LuaMusicCallback& operator=(const LuaMusicCallback&);
 };
 
 static int mlua_load_music(lua_State *L)

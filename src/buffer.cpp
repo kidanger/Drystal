@@ -7,9 +7,9 @@
 #include "display.hpp"
 
 
-Buffer::Buffer(unsigned int size) :
+Buffer::Buffer(unsigned int _size) :
 	type(TRIANGLE_BUFFER),
-	size(size),
+	size(_size),
 	positions(new GLfloat[size * 2]),
 	colors(new GLfloat[size * 4]),
 	tex_coords(NULL),
@@ -58,14 +58,14 @@ void Buffer::partial_free()
 	positions = colors = tex_coords = point_sizes = NULL;
 }
 
-void Buffer::use_camera(const Camera* camera)
+void Buffer::use_camera(const Camera* _camera)
 {
-	this->camera = camera;
+	this->camera = _camera;
 }
 
-void Buffer::use_shader(Shader* shader)
+void Buffer::use_shader(Shader* _shader)
 {
-	this->shader = shader;
+	this->shader = _shader;
 }
 
 void Buffer::check_type(BufferType atype)

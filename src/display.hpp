@@ -109,6 +109,9 @@ private:
 	bool available;
 	bool debug_mode;
 
+	Display(const Display&);
+	Display& operator=(const Display&);
+
 	inline void convert_coords(float x, float y, float *dx, float *dy) const {
 		*dx = (2. * x / current->w) - 1;
 		*dy = (2. * y / current->h) - 1;
@@ -135,17 +138,17 @@ public:
 	void screen2scene(float x, float y, float * tx, float * ty) const;
 	void toggle_debug_mode();
 
-	void set_color(int r, int g, int b);
+	void set_color(int red, int green, int blue);
 	void set_alpha(int a);
 
-	void get_color(int *r, int *g, int *b) {
-		assert(r);
-		assert(g);
-		assert(b);
+	void get_color(int *red, int *green, int *blue) {
+		assert(red);
+		assert(green);
+		assert(blue);
 
-		*r = this->r * 255;
-		*g = this->g * 255;
-		*b = this->b * 255;
+		*red = this->r * 255;
+		*green = this->g * 255;
+		*blue = this->b * 255;
 	};
 	void get_alpha(int *a) {
 		assert(a);
