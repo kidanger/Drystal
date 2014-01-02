@@ -474,11 +474,13 @@ def setup_live_coding(directory, file, drystal):
 
     def has_modifications(directory, latest):
         for f in os.listdir(directory):
+            if f.startswith('.'):
+                continue
             full = os.path.join(directory, f)
-            if os.path.isdir(f):
+            if os.path.isdir(full):
                 if has_modifications(full, latest):
                     return True
-            elif os.path.isfile(f):
+            elif os.path.isfile(full):
                 if os.path.getmtime(full) > latest:
                     return True
         return False
