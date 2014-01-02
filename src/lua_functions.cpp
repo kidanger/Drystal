@@ -10,10 +10,15 @@
 
 #define DECLARE_FUNCTION(name) {#name, mlua_##name}
 
+#ifdef EMSCRIPTEN
+#define CALL(num_args) \
+	lua_call(L, num_args, 0);
+#else
 #define CALL(num_args) \
 	if (lua_pcall(L, num_args, 0, 0)) { \
 		luaL_error(L, "[ERROR] calling %s: %s", __func__, lua_tostring(L, -1)); \
 	}
+#endif
 
 // used to access some engine's fields from lua callbacks
 static Engine *engine;
