@@ -41,8 +41,6 @@ end
 
 function drystal.key_press(k)
 	if k == 'a' then
-		tt.free(font)
-		tt.free(font_big)
 		drystal.stop()
 	end
 end
