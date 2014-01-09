@@ -22,6 +22,8 @@ add_subdirectory(src)
 include_directories(src)
 add_subdirectory(extensions)
 
+add_subdirectory(data)
+
 add_custom_target(astyle COMMAND
     astyle --indent=tab --indent-preprocessor --style=kr
     --pad-oper --pad-header --unpad-paren -S -n

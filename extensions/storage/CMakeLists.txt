@@ -7,3 +7,5 @@ include_directories(lua-cjson)
 add_library(lua-cjson STATIC lua-cjson/fpconv.c lua-cjson/strbuf.c lua_cjson_patched.c)
 add_library(storage SHARED main.cpp)
 target_link_libraries(storage lua-cjson)
+
+install(TARGETS storage DESTINATION /usr/share/drystal)

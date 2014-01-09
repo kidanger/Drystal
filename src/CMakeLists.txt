@@ -35,3 +35,4 @@ endif(EMSCRIPTEN)
 
 target_link_libraries(${DRYSTAL_OUT} lua-drystal ${EXTENSIONS})
 
+install(TARGETS ${DRYSTAL_OUT} DESTINATION /usr/bin)
