@@ -19,7 +19,7 @@
 	int base = lua_gettop(L) - num_args; \
 	lua_pushcfunction(L, traceback); \
 	lua_insert(L, base);  \
-	if (lua_pcall(L, num_args, 0, lua_gettop(L) - 1 - num_args)) { \
+	if (lua_pcall(L, num_args, 0, base)) { \
 		luaL_error(L, "%s: %s", __func__, lua_tostring(L, -1)); \
 	} \
 	lua_remove(L, base);
@@ -185,11 +185,14 @@ bool LuaFunctions::reload_code()
 
 bool LuaFunctions::call_init() const
 {
+	lua_pushcfunction(L, traceback);
 	if (get_function("init")) {
-		if (lua_pcall(L, 0, 0, -2)) {
+		if (lua_pcall(L, 0, 0, lua_gettop(L) - 2)) {
 			fprintf(stderr, "[ERROR] cannot call init: %s\n", lua_tostring(L, -1));
 			return false;
 		}
+	} else {
+		lua_pop(L, 1);
 	}
 	return true;
 }
