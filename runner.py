@@ -160,9 +160,11 @@ def load_config(from_directory):
     config.optionxform = str  # upper case is important too
     cfg = locate_recursively(os.path.abspath(from_directory),
                              os.getcwd(), 'drystal.cfg')
-    if os.path.exists(cfg):
-        print(G, '- reading configuration from', cfg)
-        config.read(cfg)
+    if not cfg:
+        print(E, 'cannot find drystal.cfg', N)
+        sys.exit(1)
+    print(G, '- reading configuration from', cfg)
+    config.read(cfg)
     return config
 
 
@@ -230,7 +232,7 @@ def copy_wget_files(path, config, destination, verbose=False):
 
 def locate_recursively(from_dir, to_dir, name):
     directory = from_dir
-    while directory != to_dir:
+    while directory != to_dir and directory != '/':
         files = os.listdir(directory)
         if name in files:
             return join(directory, name)
@@ -393,6 +395,9 @@ def copy_and_modify_html(gamedir, data_js, destination, mainfile=None):
     mainfile = mainfile or 'main.lua'
     htmlfile = locate_recursively(os.path.abspath(gamedir), os.getcwd(),
                                   'index.html')
+    if not htmlfile:
+        print(E, 'canno\'t find index.html', N)
+        sys.exit(1)
     print(G, '- copy', htmlfile, N)
     html = open(htmlfile, 'r').read()
     html = html.replace('{{{DRYSTAL_LOAD_DATA}}}',
