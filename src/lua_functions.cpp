@@ -15,9 +15,14 @@
 	lua_call(L, num_args, 0);
 #else
 #define CALL(num_args) \
-	if (lua_pcall(L, num_args, 0, 0)) { \
-		luaL_error(L, "[ERROR] calling %s: %s", __func__, lua_tostring(L, -1)); \
-	}
+	/* from lua/src/lua.c */ \
+	int base = lua_gettop(L) - num_args; \
+	lua_pushcfunction(L, traceback); \
+	lua_insert(L, base);  \
+	if (lua_pcall(L, num_args, 0, lua_gettop(L) - 1 - num_args)) { \
+		luaL_error(L, "%s: %s", __func__, lua_tostring(L, -1)); \
+	} \
+	lua_remove(L, base);
 #endif
 
 // used to access some engine's fields from lua callbacks
@@ -77,9 +82,21 @@ void LuaFunctions::add_search_path(const char* path) const
 	lua_pop(L, 1);
 }
 
+static int traceback(lua_State *L) {
+	// from lua/src/lua.c
+	const char *msg = lua_tostring(L, 1);
+	if (msg)
+		luaL_traceback(L, L, msg, 1);
+	else if (!lua_isnoneornil(L, 1)) {  /* is there an error object? */
+		if (!luaL_callmeta(L, 1, "__tostring"))  /* try its 'tostring' metamethod */
+			lua_pushliteral(L, "(no error message)");
+	}
+	return 1;
+}
+
 /**
  * Search for a function named 'name' in the drystal table.
- * Return true if found, and keep the function in the lua stack
+ * Return true if found and keep the function in the lua stack
  * Otherwise, return false (stack is cleaned as needed).
  */
 bool LuaFunctions::get_function(const char* name) const
@@ -149,11 +166,11 @@ bool LuaFunctions::load_code()
 		library_loaded = true;
 	}
 
-	if (luaL_dofile(L, filename)) {
+	lua_pushcfunction(L, traceback);
+	if (luaL_loadfile(L, filename) || lua_pcall(L, 0, 0, -2)) {
 		fprintf(stderr, "[ERROR] cannot run script: %s\n", lua_tostring(L, -1));
 		return false;
 	}
-
 	return true;
 }
 
@@ -168,7 +185,7 @@ bool LuaFunctions::reload_code()
 bool LuaFunctions::call_init() const
 {
 	if (get_function("init")) {
-		if (lua_pcall(L, 0, 0, 0)) {
+		if (lua_pcall(L, 0, 0, -2)) {
 			fprintf(stderr, "[ERROR] cannot call init: %s\n", lua_tostring(L, -1));
 			return false;
 		}
