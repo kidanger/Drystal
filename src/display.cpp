@@ -161,7 +161,14 @@ void Display::resize(int w, int h)
 #ifdef EMSCRIPTEN
 	emscripten_set_canvas_size(w, h);
 #else
-	SDL_SetWindowSize(sdl_window, w, h);
+	int oldw, oldh;
+	int posx, posy;
+	SDL_GetWindowSize(sdl_window, &oldw, &oldh);
+	SDL_GetWindowPosition(sdl_window, &posx, &posy);
+	SDL_SetWindowSize(sdl_window, w, h); // resize
+	SDL_SetWindowPosition(sdl_window,
+			posx + oldw / 2 - w / 2,
+			posy + oldh / 2 - h / 2); // and move it back
 #endif
 	SDL_GetWindowSize(sdl_window, &w, &h);
 	screen->w = w;
