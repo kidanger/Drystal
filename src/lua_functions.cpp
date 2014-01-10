@@ -82,7 +82,8 @@ void LuaFunctions::add_search_path(const char* path) const
 	lua_pop(L, 1);
 }
 
-static int traceback(lua_State *L) {
+static int traceback(lua_State *L)
+{
 	// from lua/src/lua.c
 	const char *msg = lua_tostring(L, 1);
 	if (msg)
@@ -906,10 +907,12 @@ public:
 	LuaMusicCallback() :
 		L(NULL),
 		ref(LUA_NOREF),
-		table_ref(LUA_NOREF) {
+		table_ref(LUA_NOREF)
+	{
 	}
 
-	unsigned int feed_buffer(unsigned short* buffer, unsigned int len) {
+	unsigned int feed_buffer(unsigned short* buffer, unsigned int len)
+	{
 		if (table_ref == LUA_NOREF) {
 			lua_createtable(L, len, 0);
 			this->table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -932,7 +935,8 @@ public:
 		return i;
 	}
 
-	~LuaMusicCallback() {
+	~LuaMusicCallback()
+	{
 		luaL_unref(L, LUA_REGISTRYINDEX, ref);
 		if (table_ref != LUA_NOREF)
 			luaL_unref(L, LUA_REGISTRYINDEX, table_ref);
@@ -1008,38 +1012,38 @@ int luaopen_drystal(lua_State* L)
 	assert(L);
 
 	BEGIN_CLASS(surface)
-		DECLARE_FUNCTION(draw_on),
-		DECLARE_FUNCTION(draw_from),
-		ADD_GC(free_surface)
-	END_CLASS();
+	DECLARE_FUNCTION(draw_on),
+	                 DECLARE_FUNCTION(draw_from),
+	                 ADD_GC(free_surface)
+	                 END_CLASS();
 	REGISTER_CLASS_WITH_INDEX(surface);
 
 	BEGIN_CLASS(sound)
-		ADD_METHOD(sound, play)
-		ADD_GC(free_sound)
+	ADD_METHOD(sound, play)
+	ADD_GC(free_sound)
 	END_CLASS();
 	REGISTER_CLASS(sound);
 
 	BEGIN_CLASS(music)
-		ADD_METHOD(music, play)
-		ADD_METHOD(music, stop)
-		ADD_GC(free_music)
+	ADD_METHOD(music, play)
+	ADD_METHOD(music, stop)
+	ADD_GC(free_music)
 	END_CLASS();
 	REGISTER_CLASS(music);
 
 	BEGIN_CLASS(buffer)
-		ADD_METHOD(buffer, use)
-		ADD_METHOD(buffer, draw)
-		ADD_METHOD(buffer, reset)
-		ADD_METHOD(buffer, upload_and_free)
-		ADD_GC(free_buffer)
+	ADD_METHOD(buffer, use)
+	ADD_METHOD(buffer, draw)
+	ADD_METHOD(buffer, reset)
+	ADD_METHOD(buffer, upload_and_free)
+	ADD_GC(free_buffer)
 	END_CLASS();
 	REGISTER_CLASS(buffer);
 
 	BEGIN_CLASS(shader)
-		ADD_METHOD(shader, use)
-		ADD_METHOD(shader, feed)
-		ADD_GC(free_shader)
+	ADD_METHOD(shader, use)
+	ADD_METHOD(shader, feed)
+	ADD_GC(free_shader)
 	END_CLASS();
 	REGISTER_CLASS(shader);
 

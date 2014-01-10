@@ -15,19 +15,24 @@ public:
 	void add_flush(int used);
 	void draw(Engine& engine);
 	void compute(long unsigned now, float dt);
-	inline void set_display(long unsigned now) {
+	inline void set_display(long unsigned now)
+	{
 		at_display = now;
 	}
-	inline void set_start(long unsigned now) {
+	inline void set_start(long unsigned now)
+	{
 		at_start = now;
 	}
-	inline void set_event(long unsigned now) {
+	inline void set_event(long unsigned now)
+	{
 		at_event = now;
 	}
-	inline void set_audio(long unsigned now) {
+	inline void set_audio(long unsigned now)
+	{
 		at_audio = now;
 	}
-	inline void set_game(long unsigned now) {
+	inline void set_game(long unsigned now)
+	{
 		at_game = now;
 	}
 

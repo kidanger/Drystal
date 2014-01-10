@@ -14,9 +14,9 @@ struct Camera;
 const unsigned int BUFFER_DEFAULT_SIZE = 2 * 3 * 4096;
 
 enum BufferType {
-    POINT_BUFFER,
-    LINE_BUFFER,
-    TRIANGLE_BUFFER,
+	POINT_BUFFER,
+	LINE_BUFFER,
+	TRIANGLE_BUFFER,
 };
 
 class Buffer

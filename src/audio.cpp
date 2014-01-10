@@ -249,14 +249,17 @@ public:
 
 	VorbisMusicCallback()
 		: stream(NULL),
-		  info() {
+		  info()
+	{
 	}
 
-	~VorbisMusicCallback() {
+	~VorbisMusicCallback()
+	{
 		stb_vorbis_close(stream);
 	}
 
-	unsigned int feed_buffer(unsigned short * buffer, unsigned int len) {
+	unsigned int feed_buffer(unsigned short * buffer, unsigned int len)
+	{
 		int size = stb_vorbis_get_samples_short_interleaved(
 		               this->stream, this->info.channels,
 		               reinterpret_cast<short*>(buffer), len);

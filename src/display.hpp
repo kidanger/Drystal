@@ -31,8 +31,8 @@ struct Surface {
 
 
 enum VarLocationIndex {
-    COLOR,
-    TEX,
+	COLOR,
+	TEX,
 };
 struct Shader {
 	GLuint prog_color;
@@ -61,7 +61,8 @@ struct Camera {
 	Camera() :
 		dx(0), dy(0),
 		dx_transformed(0), dy_transformed(0),
-		zoom(1), angle(0) {
+		zoom(1), angle(0)
+	{
 		matrix[0] = 0;
 		matrix[1] = 0;
 		matrix[2] = 0;
@@ -70,15 +71,15 @@ struct Camera {
 };
 
 enum BlendMode {
-    DEFAULT = 0,
-    ALPHA = 0,
-    ADD,
-    MULT,
+	DEFAULT = 0,
+	ALPHA = 0,
+	ADD,
+	MULT,
 };
 
 enum FilterMode {
-    NEAREST = GL_NEAREST,
-    LINEAR = GL_LINEAR,
+	NEAREST = GL_NEAREST,
+	LINEAR = GL_LINEAR,
 };
 
 class Display
@@ -112,13 +113,15 @@ private:
 	Display(const Display&);
 	Display& operator=(const Display&);
 
-	inline void convert_coords(float x, float y, float *dx, float *dy) const {
+	inline void convert_coords(float x, float y, float *dx, float *dy) const
+	{
 		*dx = (2. * x / current->w) - 1;
 		*dy = (2. * y / current->h) - 1;
 		if (current == screen)
 			*dy *= -1.;
 	}
-	inline void convert_texcoords(float x, float y, float *dx, float *dy) const {
+	inline void convert_texcoords(float x, float y, float *dx, float *dy) const
+	{
 		*dx = x / current_from->texw;
 		*dy = y / current_from->texh;
 	}
@@ -141,7 +144,8 @@ public:
 	void set_color(int red, int green, int blue);
 	void set_alpha(int a);
 
-	void get_color(int *red, int *green, int *blue) {
+	void get_color(int *red, int *green, int *blue)
+	{
 		assert(red);
 		assert(green);
 		assert(blue);
@@ -150,14 +154,16 @@ public:
 		*green = this->g * 255;
 		*blue = this->b * 255;
 	};
-	void get_alpha(int *a) {
+	void get_alpha(int *a)
+	{
 		assert(a);
 
 		*a = this->alpha * 255;
 	};
 
 	void set_point_size(float size);
-	void get_point_size(float *size) {
+	void get_point_size(float *size)
+	{
 		*size = this->point_size;
 	};
 	void set_line_width(float width);
@@ -168,7 +174,8 @@ public:
 	void set_camera_position(float dx, float dy);
 	void set_camera_angle(float angle);
 	void set_camera_zoom(float zoom);
-	const Camera& get_camera() const {
+	const Camera& get_camera() const
+	{
 		return camera;
 	};
 
@@ -181,10 +188,12 @@ public:
 
 	void draw_on(Surface*);
 	void draw_from(const Surface*);
-	const Surface* get_draw_on() const {
+	const Surface* get_draw_on() const
+	{
 		return current;
 	};
-	const Surface* get_draw_from() const {
+	const Surface* get_draw_from() const
+	{
 		return current_from;
 	};
 

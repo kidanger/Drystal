@@ -179,8 +179,8 @@ void Display::create_window(int w, int h)
 
 #ifndef EMSCRIPTEN
 	sdl_window = SDL_CreateWindow("Drystal",
-			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-			w, h, SDL_WINDOW_OPENGL);
+	                              SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+	                              w, h, SDL_WINDOW_OPENGL);
 	SDL_GL_CreateContext(sdl_window);
 	assert(sdl_window);
 #else
