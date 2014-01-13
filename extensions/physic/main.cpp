@@ -377,12 +377,20 @@ int new_body(lua_State* L)
 {
 	assert(world);
 
-	bool dynamic = lua_toboolean(L, 1);
+	int index = 1;
+	bool dynamic = lua_toboolean(L, index++);
 
-	int number_of_shapes = lua_gettop(L) - 1;
+	lua_Number x = 0;
+	lua_Number y = 0;
+	if (lua_isnumber(L, index)) { // x, y
+		x = lua_tonumber(L, index++);
+		y = lua_tonumber(L, index++);
+	}
+
+	int number_of_shapes = lua_gettop(L) - index + 1;
 	b2FixtureDef* fixtureDefs[number_of_shapes];
 	for (int i = 0; i < number_of_shapes; i++) {
-		fixtureDefs[i] = luam_tofixture(L, i + 1 + 1);
+		fixtureDefs[i] = luam_tofixture(L, index++);
 		assert(fixtureDefs[i]);
 		assert(fixtureDefs[i]->shape);
 	}
@@ -391,6 +399,7 @@ int new_body(lua_State* L)
 	if (dynamic) {
 		def.type = b2_dynamicBody;
 	}
+	def.position.Set(x, y);
 
 	b2Body* body = world->CreateBody(&def);
 	for (int i = 0; i < number_of_shapes; i++) {
@@ -458,6 +467,14 @@ BODY_GETSET_FLOAT(angle, body->GetAngle(), body->SetTransform(body->GetPosition(
 BODY_GETSET_FLOAT(angular_velocity, body->GetAngularVelocity(), body->SetAngularVelocity(angular_velocity))
 BODY_GETSET_FLOAT(linear_damping, body->GetLinearDamping(), body->SetLinearDamping(linear_damping))
 BODY_GETSET_FLOAT(angular_damping, body->GetAngularDamping(), body->SetAngularDamping(angular_damping))
+
+int set_active(lua_State* L)
+{
+	b2Body* body = luam_tobody(L, 1);
+	bool active = lua_toboolean(L, 2);
+	body->SetActive(active);
+	return 0;
+}
 
 int get_mass(lua_State* L)
 {
@@ -746,6 +763,7 @@ DEFINE_EXTENSION(physic)
 		DECLARE_GETSET(linear_damping),
 		DECLARE_GETSET(angular_damping),
 		DECLARE_GETSET(fixed_rotation),
+		DECLARE_FUNCTION(set_active),
 		DECLARE_FUNCTION(get_mass),
 		DECLARE_FUNCTION(set_mass_center),
 		DECLARE_FUNCTION(apply_force),
