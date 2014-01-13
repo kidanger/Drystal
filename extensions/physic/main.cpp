@@ -166,7 +166,7 @@ public:
 	CustomRayCastCallback() : fixture(NULL)
 	{}
 
-	virtual float32 ReportFixture(b2Fixture* _fixture, const b2Vec2& _point,
+	virtual float32 ReportFixture(b2Fixture* fixture, const b2Vec2& point,
 								  const b2Vec2& normal, float32 fraction)
 	{
 		(void) normal;
@@ -186,8 +186,8 @@ public:
 		}
 
 		if (save_data) {
-			this->fixture = _fixture;
-			this->point = _point;
+			this->fixture = fixture;
+			this->point = point;
 		}
 
 		return new_fraction;
