@@ -476,6 +476,14 @@ int set_active(lua_State* L)
 	return 0;
 }
 
+int set_bullet(lua_State* L)
+{
+	b2Body* body = luam_tobody(L, 1);
+	bool bullet = lua_toboolean(L, 2);
+	body->SetBullet(bullet);
+	return 0;
+}
+
 int get_mass(lua_State* L)
 {
 	b2Body* body = luam_tobody(L, 1);
@@ -764,6 +772,7 @@ DEFINE_EXTENSION(physic)
 		DECLARE_GETSET(angular_damping),
 		DECLARE_GETSET(fixed_rotation),
 		DECLARE_FUNCTION(set_active),
+		DECLARE_FUNCTION(set_bullet),
 		DECLARE_FUNCTION(get_mass),
 		DECLARE_FUNCTION(set_mass_center),
 		DECLARE_FUNCTION(apply_force),
