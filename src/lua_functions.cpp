@@ -305,9 +305,14 @@ static int mlua_set_color(lua_State* L)
 {
 	assert(L);
 
-	int r = lua_tointeger(L, -3);
-	int g = lua_tointeger(L, -2);
-	int b = lua_tointeger(L, -1);
+	if (lua_istable(L, 1)) {
+		lua_rawgeti(L, 1, 1);
+		lua_rawgeti(L, 1, 2);
+		lua_rawgeti(L, 1, 3);
+	}
+	int r = luaL_checkint(L, -3);
+	int g = luaL_checkint(L, -2);
+	int b = luaL_checkint(L, -1);
 	engine->display.set_color(r, g, b);
 	return 0;
 }
@@ -316,7 +321,7 @@ static int mlua_set_alpha(lua_State* L)
 {
 	assert(L);
 
-	int alpha = lua_tointeger(L, 1);
+	int alpha = luaL_checkint(L, 1);
 	engine->display.set_alpha(alpha);
 	return 0;
 }
@@ -325,7 +330,7 @@ static int mlua_set_point_size(lua_State* L)
 {
 	assert(L);
 
-	int point_size = lua_tointeger(L, 1);
+	lua_Number point_size = luaL_checknumber(L, 1);
 	engine->display.set_point_size(point_size);
 	return 0;
 }
@@ -334,7 +339,7 @@ static int mlua_set_line_width(lua_State* L)
 {
 	assert(L);
 
-	int width = lua_tointeger(L, 1);
+	lua_Number width = luaL_checknumber(L, 1);
 	engine->display.set_line_width(width);
 	return 0;
 }
@@ -343,7 +348,7 @@ static int mlua_set_title(lua_State* L)
 {
 	assert(L);
 
-	const char *title = lua_tostring(L, 1);
+	const char *title = luaL_checkstring(L, 1);
 	engine->display.set_title(title);
 	return 0;
 }
@@ -440,8 +445,8 @@ static int mlua_resize(lua_State* L)
 {
 	assert(L);
 
-	int w = lua_tointeger(L, 1);
-	int h = lua_tointeger(L, 2);
+	int w = luaL_checkint(L, 1);
+	int h = luaL_checkint(L, 2);
 	engine->display.resize(w, h);
 
 	// update screen
@@ -461,8 +466,8 @@ static int mlua_screen2scene(lua_State* L)
 {
 	assert(L);
 
-	lua_Number x = lua_tointeger(L, 1);
-	lua_Number y = lua_tointeger(L, 2);
+	lua_Number x = luaL_checknumber(L, 1);
+	lua_Number y = luaL_checknumber(L, 2);
 	float tx, ty;
 	engine->display.screen2scene(x, y, &tx, &ty);
 	lua_pushnumber(L, tx);
@@ -495,11 +500,11 @@ static int __surface_class_index(lua_State* L)
 
 	Surface* surface = pop_surface(L, 1);
 	const char* index = luaL_checkstring(L, 2);
-	if (strcmp(index, "w") == 0)
+	if (strcmp(index, "w") == 0) {
 		lua_pushnumber(L, surface->w);
-	else if (strcmp(index, "h") == 0)
+	} else if (strcmp(index, "h") == 0) {
 		lua_pushnumber(L, surface->h);
-	else {
+	} else {
 		lua_getmetatable(L, 1);
 		lua_getfield(L, -1, index);
 	}
@@ -510,21 +515,21 @@ static int mlua_load_surface(lua_State* L)
 {
 	assert(L);
 
-	const char * filename = lua_tostring(L, -1);
+	const char * filename = luaL_checkstring(L, 1);
 	Surface* surface = engine->display.load_surface(filename);
 	if (surface) {
 		push_surface(L, surface);
 		return 1;
 	}
-	return 0;
+	return luaL_fileresult(L, 0, filename);
 }
 
 static int mlua_new_surface(lua_State* L)
 {
 	assert(L);
 
-	int w = lua_tointeger(L, -2);
-	int h = lua_tointeger(L, -1);
+	int w = luaL_checkint(L, -2);
+	int h = luaL_checkint(L, -1);
 	Surface* surface = engine->display.new_surface(w, h);
 	push_surface(L, surface);
 	return 1;
@@ -582,8 +587,8 @@ static int mlua_draw_point(lua_State* L)
 {
 	assert(L);
 
-	lua_Number x = lua_tonumber(L, 1);
-	lua_Number y = lua_tonumber(L, 2);
+	lua_Number x = luaL_checknumber(L, 1);
+	lua_Number y = luaL_checknumber(L, 2);
 	engine->display.draw_point(x, y);
 	return 0;
 }
@@ -592,10 +597,10 @@ static int mlua_draw_point_tex(lua_State* L)
 {
 	assert(L);
 
-	lua_Number xi = lua_tonumber(L, 1);
-	lua_Number yi = lua_tonumber(L, 2);
-	lua_Number xd = lua_tonumber(L, 3);
-	lua_Number yd = lua_tonumber(L, 4);
+	lua_Number xi = luaL_checknumber(L, 1);
+	lua_Number yi = luaL_checknumber(L, 2);
+	lua_Number xd = luaL_checknumber(L, 3);
+	lua_Number yd = luaL_checknumber(L, 4);
 	engine->display.draw_point_tex(xi, yi, xd, yd);
 	return 0;
 }
@@ -604,10 +609,10 @@ static int mlua_draw_line(lua_State* L)
 {
 	assert(L);
 
-	lua_Number x1 = lua_tonumber(L, 1);
-	lua_Number y1 = lua_tonumber(L, 2);
-	lua_Number x2 = lua_tonumber(L, 3);
-	lua_Number y2 = lua_tonumber(L, 4);
+	lua_Number x1 = luaL_checknumber(L, 1);
+	lua_Number y1 = luaL_checknumber(L, 2);
+	lua_Number x2 = luaL_checknumber(L, 3);
+	lua_Number y2 = luaL_checknumber(L, 4);
 	engine->display.draw_line(x1, y1, x2, y2);
 	return 0;
 }
@@ -616,12 +621,12 @@ static int mlua_draw_triangle(lua_State* L)
 {
 	assert(L);
 
-	lua_Number x1 = lua_tonumber(L, 1);
-	lua_Number y1 = lua_tonumber(L, 2);
-	lua_Number x2 = lua_tonumber(L, 3);
-	lua_Number y2 = lua_tonumber(L, 4);
-	lua_Number x3 = lua_tonumber(L, 5);
-	lua_Number y3 = lua_tonumber(L, 6);
+	lua_Number x1 = luaL_checknumber(L, 1);
+	lua_Number y1 = luaL_checknumber(L, 2);
+	lua_Number x2 = luaL_checknumber(L, 3);
+	lua_Number y2 = luaL_checknumber(L, 4);
+	lua_Number x3 = luaL_checknumber(L, 5);
+	lua_Number y3 = luaL_checknumber(L, 6);
 	engine->display.draw_triangle(x1, y1, x2, y2, x3, y3);
 	return 0;
 }
@@ -630,18 +635,18 @@ static int mlua_draw_surface(lua_State* L)
 {
 	assert(L);
 
-	lua_Number i1 = lua_tonumber(L, 1);
-	lua_Number i2 = lua_tonumber(L, 2);
-	lua_Number i3 = lua_tonumber(L, 3);
-	lua_Number i4 = lua_tonumber(L, 4);
-	lua_Number i5 = lua_tonumber(L, 5);
-	lua_Number i6 = lua_tonumber(L, 6);
-	lua_Number o1 = lua_tonumber(L, 7);
-	lua_Number o2 = lua_tonumber(L, 8);
-	lua_Number o3 = lua_tonumber(L, 9);
-	lua_Number o4 = lua_tonumber(L, 10);
-	lua_Number o5 = lua_tonumber(L, 11);
-	lua_Number o6 = lua_tonumber(L, 12);
+	lua_Number i1 = luaL_checknumber(L, 1);
+	lua_Number i2 = luaL_checknumber(L, 2);
+	lua_Number i3 = luaL_checknumber(L, 3);
+	lua_Number i4 = luaL_checknumber(L, 4);
+	lua_Number i5 = luaL_checknumber(L, 5);
+	lua_Number i6 = luaL_checknumber(L, 6);
+	lua_Number o1 = luaL_checknumber(L, 7);
+	lua_Number o2 = luaL_checknumber(L, 8);
+	lua_Number o3 = luaL_checknumber(L, 9);
+	lua_Number o4 = luaL_checknumber(L, 10);
+	lua_Number o5 = luaL_checknumber(L, 11);
+	lua_Number o6 = luaL_checknumber(L, 12);
 	engine->display.draw_surface(i1, i2, i3, i4, i5, i6,
 	                             o1, o2, o3, o4, o5, o6);
 	return 0;
@@ -651,22 +656,22 @@ static int mlua_draw_quad(lua_State* L)
 {
 	assert(L);
 
-	lua_Number i1 = lua_tonumber(L, 1);
-	lua_Number i2 = lua_tonumber(L, 2);
-	lua_Number i3 = lua_tonumber(L, 3);
-	lua_Number i4 = lua_tonumber(L, 4);
-	lua_Number i5 = lua_tonumber(L, 5);
-	lua_Number i6 = lua_tonumber(L, 6);
-	lua_Number i7 = lua_tonumber(L, 7);
-	lua_Number i8 = lua_tonumber(L, 8);
-	lua_Number o1 = lua_tonumber(L, 9);
-	lua_Number o2 = lua_tonumber(L, 10);
-	lua_Number o3 = lua_tonumber(L, 11);
-	lua_Number o4 = lua_tonumber(L, 12);
-	lua_Number o5 = lua_tonumber(L, 13);
-	lua_Number o6 = lua_tonumber(L, 14);
-	lua_Number o7 = lua_tonumber(L, 15);
-	lua_Number o8 = lua_tonumber(L, 16);
+	lua_Number i1 = luaL_checknumber(L, 1);
+	lua_Number i2 = luaL_checknumber(L, 2);
+	lua_Number i3 = luaL_checknumber(L, 3);
+	lua_Number i4 = luaL_checknumber(L, 4);
+	lua_Number i5 = luaL_checknumber(L, 5);
+	lua_Number i6 = luaL_checknumber(L, 6);
+	lua_Number i7 = luaL_checknumber(L, 7);
+	lua_Number i8 = luaL_checknumber(L, 8);
+	lua_Number o1 = luaL_checknumber(L, 9);
+	lua_Number o2 = luaL_checknumber(L, 10);
+	lua_Number o3 = luaL_checknumber(L, 11);
+	lua_Number o4 = luaL_checknumber(L, 12);
+	lua_Number o5 = luaL_checknumber(L, 13);
+	lua_Number o6 = luaL_checknumber(L, 14);
+	lua_Number o7 = luaL_checknumber(L, 15);
+	lua_Number o8 = luaL_checknumber(L, 16);
 	engine->display.draw_quad(i1, i2, i3, i4, i5, i6, i7, i8,
 	                          o1, o2, o3, o4, o5, o6, o7, o8);
 	return 0;
@@ -678,21 +683,25 @@ static int mlua_new_shader(lua_State* L)
 
 	const char *vert = NULL, *frag_color = NULL, *frag_tex = NULL;
 	if (lua_gettop(L) >= 1) { // one argument, it's the vertex shader
-		vert = lua_tostring(L, 1);
+		vert = luaL_checkstring(L, 1);
 	}
 	if (lua_gettop(L) >= 2) {
-		frag_color = lua_tostring(L, 2);
+		frag_color = luaL_checkstring(L, 2);
 	}
 	if (lua_gettop(L) >= 3) {
-		frag_tex = lua_tostring(L, 3);
+		frag_tex = luaL_checkstring(L, 3);
 	}
-	// null code will be set to defaut shader
-	Shader* shader = engine->display.new_shader(vert, frag_color, frag_tex);
+	char* error;
+	Shader* shader = engine->display.new_shader(vert, frag_color, frag_tex, &error);
 	if (shader) {
 		push_shader(L, shader);
 		return 1;
+	} else {
+		lua_pushnil(L);
+		lua_pushstring(L, error);
+		delete[] error;
+		return 2;
 	}
-	return 0; // returns nil
 }
 
 static int mlua_use_shader(lua_State* L)
@@ -714,7 +723,7 @@ static int mlua_feed_shader(lua_State* L)
 
 	Shader* shader = pop_shader(L, 1);
 	const char* name = lua_tostring(L, 2);
-	float value = lua_tonumber(L, 3);
+	float value = luaL_checknumber(L, 3);
 	engine->display.feed_shader(shader, name, value);
 	return 0;
 }
@@ -804,10 +813,13 @@ static int mlua_load_sound(lua_State *L)
 {
 	assert(L);
 
-	const char *filepath = lua_tostring(L, -1);
-	Sound *chunk = engine->audio.load_sound(filepath);
-	push_sound(L, chunk);
-	return 1;
+	const char* filename = lua_tostring(L, 1);
+	Sound *chunk = engine->audio.load_sound(filename);
+	if (chunk) {
+		push_sound(L, chunk);
+		return 1;
+	}
+	return luaL_fileresult(L, 0, filename);
 }
 
 static int mlua_create_sound(lua_State *L)
@@ -870,11 +882,11 @@ static int mlua_play_sound(lua_State *L)
 	float x = 0;
 	float y = 0;
 	if (!lua_isnone(L, 2))
-		volume = lua_tonumber(L, 2);
+		volume = luaL_checknumber(L, 2);
 	if (!lua_isnone(L, 3))
-		x = lua_tonumber(L, 3);
+		x = luaL_checknumber(L, 3);
 	if (!lua_isnone(L, 4))
-		y = lua_tonumber(L, 4);
+		y = luaL_checknumber(L, 4);
 
 	engine->audio.play_sound(chunk, volume, x, y);
 	return 0;
@@ -957,6 +969,9 @@ static int mlua_load_music(lua_State *L)
 	if (lua_isstring(L, 1)) {
 		const char* filename = lua_tostring(L, 1);
 		music = engine->audio.load_music_from_file(filename);
+		if (!music) {
+			return luaL_fileresult(L, 0, filename);
+		}
 	} else {
 		LuaMusicCallback* callback = new LuaMusicCallback;
 		callback->L = L;
@@ -983,7 +998,7 @@ static int mlua_set_sound_volume(lua_State *L)
 {
 	assert(L);
 
-	float volume = lua_tonumber(L, 1);
+	float volume = luaL_checknumber(L, 1);
 	engine->audio.set_sound_volume(volume);
 	return 0;
 }
@@ -992,7 +1007,7 @@ static int mlua_set_music_volume(lua_State *L)
 {
 	assert(L);
 
-	float volume = lua_tonumber(L, 1);
+	float volume = luaL_checknumber(L, 1);
 	engine->audio.set_music_volume(volume);
 	return 0;
 }
@@ -1013,42 +1028,6 @@ static int mlua_stop_music(lua_State* L)
 int luaopen_drystal(lua_State* L)
 {
 	assert(L);
-
-	BEGIN_CLASS(surface)
-	DECLARE_FUNCTION(draw_on),
-	                 DECLARE_FUNCTION(draw_from),
-	                 ADD_GC(free_surface)
-	                 END_CLASS();
-	REGISTER_CLASS_WITH_INDEX(surface);
-
-	BEGIN_CLASS(sound)
-	ADD_METHOD(sound, play)
-	ADD_GC(free_sound)
-	END_CLASS();
-	REGISTER_CLASS(sound);
-
-	BEGIN_CLASS(music)
-	ADD_METHOD(music, play)
-	ADD_METHOD(music, stop)
-	ADD_GC(free_music)
-	END_CLASS();
-	REGISTER_CLASS(music);
-
-	BEGIN_CLASS(buffer)
-	ADD_METHOD(buffer, use)
-	ADD_METHOD(buffer, draw)
-	ADD_METHOD(buffer, reset)
-	ADD_METHOD(buffer, upload_and_free)
-	ADD_GC(free_buffer)
-	END_CLASS();
-	REGISTER_CLASS(buffer);
-
-	BEGIN_CLASS(shader)
-	ADD_METHOD(shader, use)
-	ADD_METHOD(shader, feed)
-	ADD_GC(free_shader)
-	END_CLASS();
-	REGISTER_CLASS(shader);
 
 	static const luaL_Reg lib[] = {
 		{"engine_stop", mlua_stop},
@@ -1110,7 +1089,42 @@ int luaopen_drystal(lua_State* L)
 	};
 
 	luaL_newlib(L, lib);
-	luaL_setfuncs(L, lib, 0);
+
+	BEGIN_CLASS(surface)
+	DECLARE_FUNCTION(draw_on),
+	DECLARE_FUNCTION(draw_from),
+	ADD_GC(free_surface)
+	END_CLASS();
+	REGISTER_CLASS_WITH_INDEX(surface, "__Surface");
+
+	BEGIN_CLASS(sound)
+	ADD_METHOD(sound, play)
+	ADD_GC(free_sound)
+	END_CLASS();
+	REGISTER_CLASS(sound, "__Sound");
+
+	BEGIN_CLASS(music)
+	ADD_METHOD(music, play)
+	ADD_METHOD(music, stop)
+	ADD_GC(free_music)
+	END_CLASS();
+	REGISTER_CLASS(music, "__Music");
+
+	BEGIN_CLASS(buffer)
+	ADD_METHOD(buffer, use)
+	ADD_METHOD(buffer, draw)
+	ADD_METHOD(buffer, reset)
+	ADD_METHOD(buffer, upload_and_free)
+	ADD_GC(free_buffer)
+	END_CLASS();
+	REGISTER_CLASS(buffer, "__Buffer");
+
+	BEGIN_CLASS(shader)
+	ADD_METHOD(shader, use)
+	ADD_METHOD(shader, feed)
+	ADD_GC(free_shader)
+	END_CLASS();
+	REGISTER_CLASS(shader, "__Shader");
 
 	{
 		// screen
@@ -1120,32 +1134,25 @@ int luaopen_drystal(lua_State* L)
 		else
 			lua_pushnil(L);
 		lua_setfield(L, -2, "screen");
-		lua_pushvalue(L, -1);
 	}
 
 	{
 		// blend modes
 		lua_pushnumber(L, DEFAULT);
 		lua_setfield(L, -2, "BLEND_DEFAULT");
-		lua_pushvalue(L, -1);
 		lua_pushnumber(L, ALPHA);
 		lua_setfield(L, -2, "BLEND_ALPHA");
-		lua_pushvalue(L, -1);
 		lua_pushnumber(L, ADD);
 		lua_setfield(L, -2, "BLEND_ADD");
-		lua_pushvalue(L, -1);
 		lua_pushnumber(L, MULT);
 		lua_setfield(L, -2, "BLEND_MULT");
-		lua_pushvalue(L, -1);
 	}
 	{
 		// filter modes
 		lua_pushnumber(L, LINEAR);
 		lua_setfield(L, -2, "FILTER_LINEAR");
-		lua_pushvalue(L, -1);
 		lua_pushnumber(L, NEAREST);
 		lua_setfield(L, -2, "FILTER_NEAREST");
-		lua_pushvalue(L, -1);
 	}
 
 	{
@@ -1162,10 +1169,11 @@ int luaopen_drystal(lua_State* L)
 
 		// glue it on drystal table
 		lua_setfield(L, -2, "camera");
-		lua_pushvalue(L, -1);
 	}
 
+	lua_pushvalue(L, -1);
 	engine->lua.drystal_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 
+	assert(lua_gettop(L) == 2);
 	return 1;
 }

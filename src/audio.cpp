@@ -128,7 +128,6 @@ Sound* Audio::load_sound(const char *filepath)
 	int samplerate;
 	int err = load_wav(filepath, &buffer, &length, &format, &channels, &samplerate);
 	if (err) {
-		fprintf(stderr, "could not load %s\n", filepath);
 		return NULL;
 	}
 
@@ -247,9 +246,9 @@ public:
 	stb_vorbis* stream;
 	stb_vorbis_info info;
 
-	VorbisMusicCallback()
-		: stream(NULL),
-		  info()
+	VorbisMusicCallback(stb_vorbis* stream) :
+		stream(stream),
+		info(stb_vorbis_get_info(stream))
 	{
 	}
 
@@ -274,15 +273,13 @@ Music* Audio::load_music_from_file(const char* filename)
 {
 	assert(filename);
 	INIT_IF_NEEDED(NULL);
-	VorbisMusicCallback* callback = new VorbisMusicCallback;
 
-	callback->stream = stb_vorbis_open_filename((char*) filename, NULL, NULL);
-	if (!callback->stream) {
-		fprintf(stderr, "cannot load %s\n", filename);
+	stb_vorbis* stream = stb_vorbis_open_filename((char*) filename, NULL, NULL);
+	if (!stream) {
 		return NULL;
 	}
 
-	callback->info = stb_vorbis_get_info(callback->stream);
+	VorbisMusicCallback* callback = new VorbisMusicCallback(stream);
 
 	return load_music(callback, callback->info.sample_rate, callback->info.channels);
 }

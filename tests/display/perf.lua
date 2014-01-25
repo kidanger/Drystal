@@ -23,11 +23,11 @@ local font = nil
 local font_big = nil
 
 function set_state(s)
-    state = s
-    s.max = 0
-    if state.init then
-        state:init()
-    end
+	state = s
+	s.max = 0
+	if state.init then
+		state:init()
+	end
 end
 
 function draw_triangle:draw()
@@ -69,7 +69,7 @@ function draw_sprite_rotated:draw()
 	for i = 1, number do
 		local x = random(W)
 		local y = random(H)
-        local r = random(math.pi)
+		local r = random(math.pi)
 		drystal.draw_sprite_rotated(sprite, x, y, r)
 	end
 end
@@ -106,10 +106,10 @@ function draw_font_nocolor:draw()
 	drystal.set_color(255, 0, 0)
 	local text = 'abd {r0|big|b150|bla} {small|test} {big|50%|defghi}'
 	for i = 1, number do
-        local x = random(W)
-        local y = random(H)
-	    tt.draw_align(text, x, y, 'center')
-    end
+		local x = random(W)
+		local y = random(H)
+		tt.draw_align(text, x, y, 'center')
+	end
 end
 
 function draw_font_color:init()
@@ -125,25 +125,25 @@ function draw_font_color:draw()
 	drystal.set_color(255, 0, 0)
 	local text = 'abd {r0|big|b150|bla} {small|test} {big|50%|defghi}'
 	for i = 1, number do
-        local x = random(W)
-        local y = random(H)
-	    tt.draw_align(text, x, y, 'center')
-    end
+		local x = random(W)
+		local y = random(H)
+		tt.draw_align(text, x, y, 'center')
+	end
 end
 
 function drystal.init()
 	drystal.resize(W, H)
-	font = tt.load('arial.ttf', 16)
-    spritesheet = drystal.load_surface('spritesheet.png')
-    drystal.draw_from(spritesheet)
-    set_state(states[current_state])
+	font = assert(tt.load('arial.ttf', 16))
+	spritesheet = assert(drystal.load_surface('spritesheet.png'))
+	drystal.draw_from(spritesheet)
+	set_state(states[current_state])
 
-    print('name                max')
+	print('name                max')
 end
 
 function drystal.update(dt)
 	if tick > 100 then
-        state.max = math.max(state.max, number)
+		state.max = math.max(state.max, number)
 		if dt > target then
 			number = number - 5
 		else
@@ -151,25 +151,25 @@ function drystal.update(dt)
 		end
 	end
 	tick = tick + 1
-    if tick > 600 and dt - target <= 1 then
-        print(state.name .. '        ' .. state.max)
-        current_state = current_state + 1
-        if states[current_state] then
-            tick = 0
-            number = 0
-            set_state(states[current_state])
-        else
-            perf_stop()
-        end
-    end
+	if tick > 600 and dt - target <= 1 then
+		print(state.name .. '        ' .. state.max)
+		current_state = current_state + 1
+		if states[current_state] then
+			tick = 0
+			number = 0
+			set_state(states[current_state])
+		else
+			perf_stop()
+		end
+	end
 end
 
 function perf_stop()
-    drystal.stop()
+	drystal.stop()
 end
 
 function drystal.draw()
-    state:draw()
+	state:draw()
 end
 
 function drystal.key_press(k)

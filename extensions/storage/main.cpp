@@ -101,8 +101,7 @@ static const luaL_Reg lib[] =
 
 DEFINE_EXTENSION(storage)
 {
-	luaL_newlibtable(L, lib);
-	luaL_setfuncs(L, lib, 0);
+	luaL_newlib(L, lib);
 
 	lua_cjson_init();
 

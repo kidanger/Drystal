@@ -383,8 +383,8 @@ int new_body(lua_State* L)
 	lua_Number x = 0;
 	lua_Number y = 0;
 	if (lua_isnumber(L, index)) { // x, y
-		x = lua_tonumber(L, index++);
-		y = lua_tonumber(L, index++);
+		x = luaL_checknumber(L, index++);
+		y = luaL_checknumber(L, index++);
 	}
 
 	int number_of_shapes = lua_gettop(L) - index + 1;
@@ -597,7 +597,7 @@ int new_joint(lua_State* L)
 		b2MouseJointDef* def = new b2MouseJointDef;
 		def->bodyA = luam_tobody(L, i++);
 		def->bodyB = luam_tobody(L, i++);
-		def->maxForce = lua_tonumber(L, i++);
+		def->maxForce = luaL_checknumber(L, i++);
 		def->target = def->bodyB->GetWorldCenter();
 		joint_def = def;
 	} else if (!strcmp(type, "distance")) {
@@ -761,7 +761,6 @@ static const luaL_Reg lib[] =
 DEFINE_EXTENSION(physic)
 {
 	luaL_newlib(L, lib);
-	luaL_setfuncs(L, lib, 0);
 
 	BEGIN_CLASS(body)
 		DECLARE_GETSET(position),
@@ -782,8 +781,7 @@ DEFINE_EXTENSION(physic)
 		DECLARE_FUNCTION(dump),
 		{ "destroy", body_destroy },
 		END_CLASS();
-	REGISTER_CLASS(body);
-	lua_setfield(L, -2, "Body");
+	REGISTER_CLASS(body, "Body");
 	/*
 	 * Set field so gamedevs can do:
 	 * local MyBody = setmetatable({
@@ -804,8 +802,7 @@ DEFINE_EXTENSION(physic)
 		DECLARE_SHAPE_FUNCTION(set_sensor),
 		{"__gc", shape_gc},
 		END_CLASS();
-	REGISTER_CLASS(shape);
-	lua_setfield(L, -2, "Shape");
+	REGISTER_CLASS(shape, "Shape");
 
 	BEGIN_CLASS(joint)
 		DECLARE_FUNCTION(destroy),
@@ -820,8 +817,8 @@ DEFINE_EXTENSION(physic)
 		DECLARE_FUNCTION(set_angle_limits),
 		DECLARE_FUNCTION(set_motor_speed),
 		END_CLASS();
-	REGISTER_CLASS(joint);
-	lua_setfield(L, -2, "Joint");
+	REGISTER_CLASS(joint, "Joint");
+
 	return 1;
 }
 

@@ -11,16 +11,17 @@ char reception_buffer[128];
 
 static int mlua_connect(lua_State* L)
 {
-	const char* host = lua_tostring(L, 1);
-	int port = lua_tointeger(L, 2);
+	const char* host = luaL_checkstring(L, 1);
+	int port = luaL_checkint(L, 2);
 	ErrorCode error = net.connect(host, port);
 	lua_pushnumber(L, error);
 	return 1;
 }
 static int mlua_send(lua_State* L)
 {
-	const char* message = lua_tostring(L, 1);
-	int sent_or_error = net.send(message, strlen(message));
+	size_t size;
+	const char* message = luaL_checklstring(L, 1, &size);
+	int sent_or_error = net.send(message, size);
 	lua_pushnumber(L, sent_or_error);
 	return 1;
 }
@@ -73,9 +74,6 @@ DEFINE_EXTENSION(net)
 	lua_pushnumber(L, CANNOT_CLOSE_SOCKET);
 	lua_setfield(L, -2, "CANNOT_CLOSE_SOCKET");
 
-	luaL_setfuncs(L, lib, 0);
-
 	return 1;
 }
-
 

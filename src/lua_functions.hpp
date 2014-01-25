@@ -46,23 +46,23 @@ private:
 };
 
 #define DECLARE_PUSHPOP(T, name) \
-	static void push_ ## name(lua_State *L, T *name)\
-	{\
-		assert(L);\
-		assert(name);\
-		T **p = static_cast<T **>(lua_newuserdata(L, sizeof(T **)));\
-		*p = name;\
-		luaL_getmetatable(L, #name);\
-		lua_setmetatable(L, -2);\
-	}\
-	static T *pop_ ## name(lua_State *L, int index)\
-	{\
-		assert(L);\
-		luaL_checktype(L, index, LUA_TUSERDATA);\
-		T **p = static_cast<T **>(luaL_checkudata(L, index, #name));\
-		if (p == NULL) luaL_argerror(L, index, #name" expected");\
-		assert(p);\
-		return *p;\
+	static void push_ ## name(lua_State *L, T *name) \
+	{ \
+		assert(L); \
+		assert(name); \
+		T **p = static_cast<T **>(lua_newuserdata(L, sizeof(T **))); \
+		*p = name; \
+		luaL_getmetatable(L, #name); \
+		lua_setmetatable(L, -2); \
+	} \
+	static T *pop_ ## name(lua_State *L, int index) \
+	{ \
+		assert(L); \
+		luaL_checktype(L, index, LUA_TUSERDATA); \
+		T **p = static_cast<T **>(luaL_checkudata(L, index, #name)); \
+		if (p == NULL) luaL_argerror(L, index, #name" expected"); \
+		assert(p); \
+		return *p; \
 	}
 
 #define BEGIN_CLASS(name) static const luaL_Reg __ ## name ## _class[] = {
@@ -71,14 +71,16 @@ private:
 #define ADD_METHOD(class, name) { #name, mlua_ ## name ## _ ## class },
 #define END_CLASS() {NULL, NULL} }
 
-#define REGISTER_CLASS(name) \
-	luaL_newmetatable(L, #name);\
+#define REGISTER_CLASS(name, name_in_module) \
+	luaL_newmetatable(L, #name); \
 	luaL_setfuncs(L, __ ## name ## _class, 0); \
 	lua_pushvalue(L, -1); \
-	lua_setfield(L, -2, "__index")
+	lua_setfield(L, -2, "__index"); \
+	lua_setfield(L, -2, name_in_module)
 
-#define REGISTER_CLASS_WITH_INDEX(name) \
-	luaL_newmetatable(L, #name);\
+#define REGISTER_CLASS_WITH_INDEX(name, name_in_module) \
+	luaL_newmetatable(L, #name); \
 	luaL_setfuncs(L, __ ## name ## _class, 0); \
 	lua_pushcfunction(L, __ ## name ## _class_index); \
-	lua_setfield(L, -2, "__index")
+	lua_setfield(L, -2, "__index"); \
+	lua_setfield(L, -2, name_in_module)

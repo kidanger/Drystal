@@ -207,7 +207,7 @@ public:
 	void draw_quad(float, float, float, float, float, float, float, float,
 	               float, float, float, float, float, float, float, float);
 
-	Shader* new_shader(const char* strvert, const char* strfragcolor, const char* strfragtex);
+	Shader* new_shader(const char* strvert, const char* strfragcolor, const char* strfragtex, char** error);
 	void use_shader(Shader*);
 	void feed_shader(Shader*, const char*, float);
 	void free_shader(Shader*);

@@ -47,8 +47,8 @@ static void onerror(const char* filename)
 
 static int wget(lua_State *L)
 {
-	const char *url = lua_tostring(L, 1);
-	const char *filename = lua_tostring(L, 2);
+	const char *url = luaL_checkstring(L, 1);
+	const char *filename = luaL_checkstring(L, 2);
 	emscripten_async_wget(url, filename, onsuccess, onerror);
 	lua_pushboolean(L, true);
 	return 1;
@@ -83,8 +83,7 @@ static const luaL_Reg lib[] =
 
 DEFINE_EXTENSION(web)
 {
-	luaL_newlibtable(L, lib);
-	luaL_setfuncs(L, lib, 0);
+	luaL_newlib(L, lib);
 	return 1;
 }
 

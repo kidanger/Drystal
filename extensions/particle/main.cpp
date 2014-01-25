@@ -497,13 +497,12 @@ static const luaL_Reg lib[] =
 
 DEFINE_EXTENSION(particle)
 {
+	luaL_newlib(L, lib);
+
 	BEGIN_CLASS(system)
 		ADD_GC(particle_free)
 		END_CLASS();
-	REGISTER_CLASS(system);
-
-	luaL_newlib(L, lib);
-	luaL_setfuncs(L, lib, 0);
+	REGISTER_CLASS(system, "__System");
 
 	return 1;
 }

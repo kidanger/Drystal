@@ -685,26 +685,27 @@ void Display::draw_quad(float xi1, float yi1, float xi2, float yi2, float xi3, f
 /**
  * Shader
  */
-static void printLog(GLuint obj, const char* prefix)
+static char* getShaderError(GLuint obj)
 {
-	assert(prefix);
-	int infologLength = 0;
-	int maxLength;
+	int length;
 
-	if (glIsShader(obj))
-		glGetShaderiv(obj, GL_INFO_LOG_LENGTH, &maxLength);
-	else
-		glGetProgramiv(obj, GL_INFO_LOG_LENGTH, &maxLength);
+	if (glIsShader(obj)) {
+		glGetShaderiv(obj, GL_INFO_LOG_LENGTH, &length);
+	} else {
+		glGetProgramiv(obj, GL_INFO_LOG_LENGTH, &length);
+	}
 
-	char infoLog[maxLength];
+	char* error = NULL;
+	if (length) {
+		error = new char[length];
 
-	if (glIsShader(obj))
-		glGetShaderInfoLog(obj, maxLength, &infologLength, infoLog);
-	else
-		glGetProgramInfoLog(obj, maxLength, &infologLength, infoLog);
+		if (glIsShader(obj))
+			glGetShaderInfoLog(obj, length, NULL, error);
+		else
+			glGetProgramInfoLog(obj, length, NULL, error);
+	}
 
-	if (infologLength > 0)
-		printf("Err %s: %s\n", prefix, infoLog);
+	return error;
 }
 
 Shader * Display::create_default_shader()
@@ -712,10 +713,16 @@ Shader * Display::create_default_shader()
 	const char* strvert = DEFAULT_VERTEX_SHADER;
 	const char* strfragcolor = DEFAULT_FRAGMENT_SHADER_COLOR;
 	const char* strfragtex = DEFAULT_FRAGMENT_SHADER_TEX;
-	return new_shader(strvert, strfragcolor, strfragtex);
+	char* error;
+	Shader* shader = new_shader(strvert, strfragcolor, strfragtex, &error);
+	if (!shader) {
+		printf("Error compiling default shader:\n%s\n", error);
+		delete[] error;
+	}
+	return shader;
 }
 
-Shader * Display::new_shader(const char* strvert, const char* strfragcolor, const char* strfragtex)
+Shader * Display::new_shader(const char* strvert, const char* strfragcolor, const char* strfragtex, char** error)
 {
 	GLuint vert = 0;
 	GLuint frag_color = 0;
@@ -785,17 +792,25 @@ Shader * Display::new_shader(const char* strvert, const char* strfragcolor, cons
 	GLint status;
 	glGetProgramiv(prog_color, GL_LINK_STATUS, &status);
 	if (status != GL_TRUE) {
-		printLog(vert, "vertex");
-		printLog(frag_color, "fragment");
-		printLog(prog_color, "program");
+		if (error) {
+			*error = getShaderError(vert);
+			if (!*error)
+				*error = getShaderError(frag_color);
+			if (!*error)
+				*error = getShaderError(prog_color);
+		}
 		return NULL;
 	}
 
 	glGetProgramiv(prog_tex, GL_LINK_STATUS, &status);
 	if (status != GL_TRUE) {
-		printLog(vert, "vertex");
-		printLog(frag_tex, "fragment");
-		printLog(prog_tex, "program");
+		if (error) {
+			*error = getShaderError(vert);
+			if (!*error)
+				*error = getShaderError(frag_tex);
+			if (!*error)
+				*error = getShaderError(prog_tex);
+		}
 		return NULL;
 	}
 

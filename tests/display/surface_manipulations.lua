@@ -44,7 +44,7 @@ local shader
 function drystal.init()
 	print("initialized from lua")
 	drystal.resize(600, 400)
-	image = drystal.load_surface(spritesheet.meta.image)
+	image = assert(drystal.load_surface(spritesheet.meta.image))
 	image:draw_from()
 	drystal.set_alpha(0)
 	surf = drystal.new_surface(64, 32)
@@ -59,10 +59,7 @@ function drystal.init()
 	drystal.draw_sprite(sprite, 0, 0)
 	drystal.screen:draw_on()
 
-	shader = drystal.new_shader(vert)
-	if not shader then
-		drystal.stop()
-	end
+	shader = assert(drystal.new_shader(vert))
 	drystal.display_logo(spritesheet.frames['logo.png'].frame)
 end
 

@@ -272,16 +272,16 @@ void free_font(Font* font)
 int draw_text_wrap(lua_State* L)
 {
 	const char* text = luaL_checkstring(L, 1);
-	lua_Number x = lua_tonumber(L, 2);
-	lua_Number y = lua_tonumber(L, 3);
+	lua_Number x = luaL_checknumber(L, 2);
+	lua_Number y = luaL_checknumber(L, 3);
 	draw_text((const unsigned char*)text, x, y);
 	return 0;
 }
 int draw_text_color_wrap(lua_State* L)
 {
 	const char* text = luaL_checkstring(L, 1);
-	lua_Number x = lua_tonumber(L, 2);
-	lua_Number y = lua_tonumber(L, 3);
+	lua_Number x = luaL_checknumber(L, 2);
+	lua_Number y = luaL_checknumber(L, 3);
 	draw_text_color((const unsigned char*)text, x, y);
 	return 0;
 }
@@ -289,13 +289,13 @@ int draw_text_color_wrap(lua_State* L)
 int load_font_wrap(lua_State* L)
 {
 	const char* filename = luaL_checkstring(L, 1);
-	lua_Number size = lua_tonumber(L, 2);
+	lua_Number size = luaL_checknumber(L, 2);
 	Font* font = load_font(filename, size);
 	if (font) {
         push_font(L, font);
 		return 1;
 	}
-	return 0;
+	return luaL_fileresult(L, 0, filename);
 }
 
 int use_font_wrap(lua_State* L)
@@ -345,13 +345,13 @@ static const luaL_Reg lib[] =
 
 DEFINE_EXTENSION(truetype)
 {
+	luaL_newlib(L, lib);
+
 	BEGIN_CLASS(font)
 		ADD_GC(free_font)
 		END_CLASS();
-	REGISTER_CLASS(font);
+	REGISTER_CLASS(font, "__Font");
 
-	luaL_newlibtable(L, lib);
-	luaL_setfuncs(L, lib, 0);
 	return 1;
 }
 
