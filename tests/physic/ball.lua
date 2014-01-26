@@ -167,7 +167,7 @@ function drystal.draw()
 	drystal.set_color(0, 0, 0)
 
 	ground:draw()
-	drystal.set_color(math.sin(time)*120, 120, 102)
+	drystal.set_color((math.sin(time)*.5 + .5)*120, 120, 102)
 	ground2:draw()
 	drystal.set_color(0, 0, 0)
 
