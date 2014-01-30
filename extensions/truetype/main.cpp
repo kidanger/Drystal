@@ -79,6 +79,22 @@ static inline void draw_quad(Engine& engine, const stbtt_aligned_quad& q)
 			q.x0, q.y1
 	);
 }
+static inline void draw_quad_fancy(Engine& engine, const stbtt_aligned_quad& q,
+		float italic=0.0, float dx=0.0, float dy=0.0)
+{
+	engine.display.draw_quad(
+			// texture coordinates
+			q.s0, q.t0,
+			q.s1, q.t0,
+			q.s1, q.t1,
+			q.s0, q.t1,
+			// screen coordinates
+			q.x0 + italic + dx, q.y0 + dy,
+			q.x1 + italic + dx, q.y0 + dy,
+			q.x1 + dx, q.y1 + dy,
+			q.x0 + dx, q.y1 + dy
+	);
+}
 
 void draw_text(const unsigned char* text, float x, float y)
 {
@@ -115,8 +131,13 @@ void draw_text_color(const unsigned char* text, float x, float y)
 	while (*text) {
 		if (*text == '{') {
 			float size = 1.0;
+			float italic = 0.0;
 			int r, g, b;
 			int alpha;
+			bool outlined = false;
+			int outr = 0, outg = 0, outb = 0;
+			bool shadow = false;
+			float shadow_x = 0, shadow_y = 0;
 			engine.display.get_color(&r, &g, &b);
 			engine.display.get_alpha(&alpha);
 			int oldr = r, oldg = g, oldb = b;
@@ -144,7 +165,23 @@ token:
 					size = 0.8;
 				else if (!strncmp((const char*) start_text, (const char*) "tiny", text - start_text))
 					size = 0.6;
-				else {
+				else if (!strncmp((const char*) start_text, (const char*) "italic", text - start_text))
+					italic = 3.5;
+				else if (!strncmp((const char*) start_text, (const char*) "outline", text - start_text))
+					outlined = true;
+				else if (!strncmp((const char*) start_text, (const char*) "outr", 4))
+					outr = atoi((const char*) start_text + 4);
+				else if (!strncmp((const char*) start_text, (const char*) "outg", 4))
+					outg = atoi((const char*) start_text + 4);
+				else if (!strncmp((const char*) start_text, (const char*) "outb", 4))
+					outb = atoi((const char*) start_text + 4);
+				else if (!strncmp((const char*) start_text, (const char*) "shadowx", 7)) {
+					shadow_x = atof((const char*) start_text + 7);
+					shadow = true;
+				} else if (!strncmp((const char*) start_text, (const char*) "shadowy", 7)) {
+					shadow_y = atof((const char*) start_text + 7);
+					shadow = true;
+				} else {
 					printf("truetype.draw_color: unknown command %.*s\n", (int)(text - start_text), start_text);
 				}
 				text++;
@@ -159,12 +196,31 @@ token:
 					if (chr >= start && chr < end) {
 						stbtt_aligned_quad q;
 						stbtt_GetBakedQuad(current_font->char_data, chr - start, &x, &y, &q, size);
-						draw_quad(engine, q);
+						if (shadow) {
+							engine.display.set_color(0, 0, 0);
+							draw_quad_fancy(engine, q, italic,  shadow_x, shadow_y);
+							engine.display.set_color(r, g, b);
+						}
+						if (outlined) {
+							engine.display.set_color(outr, outg, outb);
+							float f = current_font->size * 0.04;
+							draw_quad_fancy(engine, q, italic,       -1*f,        0*f);
+							draw_quad_fancy(engine, q, italic,        1*f,        0*f);
+							draw_quad_fancy(engine, q, italic,        0*f,       -1*f);
+							draw_quad_fancy(engine, q, italic,        0*f,        1*f);
+							draw_quad_fancy(engine, q, italic,  M_SQRT1_2*f,  M_SQRT1_2*f);
+							draw_quad_fancy(engine, q, italic, -M_SQRT1_2*f,  M_SQRT1_2*f);
+							draw_quad_fancy(engine, q, italic, -M_SQRT1_2*f, -M_SQRT1_2*f);
+							draw_quad_fancy(engine, q, italic,  M_SQRT1_2*f, -M_SQRT1_2*f);
+							engine.display.set_color(r, g, b);
+						}
+						draw_quad_fancy(engine, q, italic);
 					}
 					i++;
 				}
 				engine.display.set_color(oldr, oldg, oldb);
 				engine.display.set_alpha(oldalpha);
+				x += italic;
 			}
 		}
 		else if (*text >= start && *text < end) {
@@ -210,6 +266,7 @@ void sizeof_color(const unsigned char* text, int* w, int* h)
 	while (*text) {
 		if (*text == '{') {
 			float size = 1.0;
+			float italic = 0.0;
 			text++;
 token:
 			const unsigned char * start_text = text;
@@ -225,6 +282,8 @@ token:
 					size = 0.8;
 				else if (!strncmp((const char*) start_text, (const char*) "tiny", text - start_text))
 					size = 0.6;
+				else if (!strncmp((const char*) start_text, (const char*) "italic", text - start_text))
+					italic = 3.5;
 				text++;
 				goto token;
 			} else {
@@ -239,6 +298,7 @@ token:
 						maxx = q.x1;
 					}
 					i++;
+					x += italic;
 				}
 			}
 		}

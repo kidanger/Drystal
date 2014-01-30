@@ -104,7 +104,7 @@ function draw_font_nocolor:draw()
 	drystal.draw_background()
 
 	drystal.set_color(255, 0, 0)
-	local text = 'abd {r0|big|b150|bla} {small|test} {big|50%|defghi}'
+	local text = 'abd bla test defghi'
 	for i = 1, number do
 		local x = random(W)
 		local y = random(H)
@@ -123,7 +123,7 @@ function draw_font_color:draw()
 	drystal.draw_background()
 
 	drystal.set_color(255, 0, 0)
-	local text = 'abd {r0|big|b150|bla} {small|test} {big|50%|defghi}'
+	local text = 'abd {r0|out|big|b150|bla} {small|test} {big|50%|defghi}'
 	for i = 1, number do
 		local x = random(W)
 		local y = random(H)
