@@ -84,3 +84,4 @@ private:
 	lua_pushcfunction(L, __ ## name ## _class_index); \
 	lua_setfield(L, -2, "__index"); \
 	lua_setfield(L, -2, name_in_module)
+

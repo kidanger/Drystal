@@ -20,7 +20,7 @@ function drystal.draw()
 	drystal.draw_background()
 
 	drystal.set_color(0, 0, 0)
-	local text = '{outline|r255|g255|b255|outg%d|yeah it\' cool}'
+	local text = '{outline|r255|g255|b255|outg%d|yeah it\'s cool}'
 	text = text:format((math.sin(time) / 2 + .5)*255)
 	local y = 20
 	local x = 20
