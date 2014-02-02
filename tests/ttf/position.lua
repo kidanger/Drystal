@@ -20,7 +20,7 @@ function drystal.draw()
 	drystal.draw_background()
 
 	drystal.set_color(0, 0, 0)
-	local text = '{outline|r255|g255|b255|outg%d|yeah it\'s cool}'
+	local text = '{outline|r:255|g:255|b:255|outg:%d|yeah it\'s cool}'
 	text = text:format((math.sin(time) / 2 + .5)*255)
 	local y = 20
 	local x = 20
@@ -37,7 +37,7 @@ function drystal.draw()
 	font.draw(text, x, y)
 
 	font.use_color(true)
-	local shadowed = 'Oh {shadowx%.2f|shadowy%.2f|outline|r200|waw!}'
+	local shadowed = 'Oh {shadowx:%.2f|shadowy:%.2f|outline|r:200|waw!}'
 	shadowed = shadowed:format(shadowx, shadowy)
 	font.draw_align(shadowed, 300, 200, 'center')
 end

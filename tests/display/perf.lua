@@ -13,7 +13,6 @@ local draw_font_nocolor = {name='draw_font_nocolor'}
 local draw_font_color = {name='draw_font_color'}
 local state = {}
 local states = { draw_triangle, draw_sprite_simple, draw_sprite_rotated, draw_sprite_resized, draw_font_nocolor, draw_font_color }
-local states = { draw_font_nocolor, draw_font_color }
 local current_state = 1
 local number = 0
 local tick = 0
@@ -124,7 +123,7 @@ function draw_font_color:draw()
 	drystal.draw_background()
 
 	drystal.set_color(255, 0, 0)
-	local text = 'abd {r0|out|big|b150|bla} {small|test} {big|50%|defghi}'
+	local text = 'abd {r:0|outline|big|b:150|bla} {small|test} {big|%:50|defghi}'
 	for i = 1, number do
 		local x = random(W)
 		local y = random(H)
