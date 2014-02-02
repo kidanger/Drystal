@@ -128,6 +128,7 @@ void Font::draw(const char* text, float x, float y)
 
 	TextState* state;
 	const char* textend = text;
+	reset_parser();
 	while (parse(&state, text, textend)) {
 		engine.display.set_color(state->r, state->g, state->b);
 		engine.display.set_alpha(state->alpha);

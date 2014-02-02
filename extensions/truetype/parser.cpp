@@ -152,20 +152,29 @@ static const char* next_token(const char* text)
 	return text;
 }
 
+void reset_parser()
+{
+	g_index = 0;
+}
 bool parse(TextState** state, const char*& start, const char*& end)
 {
 	*state = &g_states[g_index];
 
 	const char* next = next_token(start);
-	if (!*next) {
+	if (*next == 0) {
 		end = next;
-	} else if (*next == END) {
+	} else if (*start == END) {
+		if (g_index > 0)
+			g_index--;
 		start++;
 		end++;
+	} else if (*next == END) {
+		end = next_token(start);
 	} else if (*next == START && start < next) {
 		end = next;
 	} else if (*next == START) {
-		g_index++;
+		if (g_index < MAX_STATES)
+			g_index++;
 		g_states[g_index] = g_states[g_index - 1];
 
 		do {
@@ -175,10 +184,9 @@ bool parse(TextState** state, const char*& start, const char*& end)
 				evaluate(&g_states[g_index], start);
 			}
 		} while (*next != END && *next != START);
-		end = next - 1;
+		end = next;
 
 		*state = &g_states[g_index];
-		g_index--;
 	}
 	return *start != '\0';
 }

@@ -26,4 +26,4 @@ struct TextState {
 };
 
 bool parse(TextState** state, const char*& text, const char*& end);
-
+void reset_parser();
