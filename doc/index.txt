@@ -1,0 +1,342 @@
+Drystal, a lightweight extensible game engine
+=============================================
+Jérémy Anger
+v0b11101, 2014
+:doctype: book
+:backend: html5
+:theme: flask
+:toc2:
+:data-uri:
+:icons:
+
+
+
+Introduction
+------------
+
+CAUTION: Make sure you understand how to write lua code before read this documentation.
+
+// .An example table
+// [width="60%",options="header"]
+// |==============================================
+// | Option          | Description
+// | -a 'USER GROUP' | Add 'USER' to 'GROUP'.
+// | -R 'GROUP'      | Disables access to 'GROUP'.
+// |==============================================
+
+
+
+What is Drystal ?
+~~~~~~~~~~~~~~~~~
+A game engine. Or a game framework. Or whatever you like to call it.
+
+It's quite similar (and inspired) to https://love2d.org/[LÖVE].
+It's main difference is the fact that it is compilable to JavaScript.
+This means that you can play your game within a browser without any plugin (no Flash, no Unity).
+
+The main goal is to be able to rapidly develop games and publish them as simple HTML files.
+For those two aspects, it is very well suited for the http://ludumdare.com[Ludum Dare] game jam.
+
+
+Should I use it for my project ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In short: yes.
+
+
+
+
+
+Installation
+------------
+
+
+Downloading
+~~~~~~~~~~~
+
+[source,bash]
+git clone http://git.kidanger.net/drystal.git/
+
+
+
+Compiling
+~~~~~~~~~
+
+Compile native version
+^^^^^^^^^^^^^^^^^^^^^^
+test
+
+Compile web version
+^^^^^^^^^^^^^^^^^^^
+test
+
+
+
+Small example
+~~~~~~~~~~~~~
+
+Let's see how to create a window and draw a colored background.
+
+
+.example1.lua
+[source,lua]
+-----
+include::example1.lua[]
+-----
+
+
+.Run it
+[source,bash]
+----
+./runner.py native example1.lua
+----
+
+
+
+
+
+
+
+
+
+Your first game: Pong
+---------------------
+
+Let's write a pong, step by step!
+This will include some image manipulation, as well as player input and text drawing.
+
+NOTE: Text drawing is handled by the <<truetype_extension>>
+
+
+Publish
+~~~~~~~
+
+Configuration file
+^^^^^^^^^^^^^^^^^^
+* drystal.cfg
+
+
+Pack the game
+^^^^^^^^^^^^^
+
+.index.html
+NOTE: You need a *index.html* file.
+[source,bash]
+------
+mkdir web
+./runner.py repack . -d web
+your_favorite_browser web/index.html
+------
+
+
+
+
+
+Engine
+------
+
+Let's have a look at features Drystal offers.
+
+
+Window manipulation
+~~~~~~~~~~~~~~~~~~~
+
+Resize
+Cursor hide, grab
+
+
+Graphics
+~~~~~~~~
+
+* set_color, set_alpha
+* draw_background
+
+Drawing primitives
+^^^^^^^^^^^^^^^^^^
+The following sections are about non-textured rendering.
+
+Point
++++++
+
+* set_point_size
+* draw_point
+
+Line
+++++
+
+* set_line_width
+* draw_line
+
+Triangle
+++++++++
+
+* draw_triangle
+
+Others
+++++++
+Everything else can be made out of lines and triangles.
+
+* draw_polygon
+* draw_polyline
+* draw_square
+
+
+Surfaces
+^^^^^^^^
+They are textures (on which you can draw, like the screen).
+
+* load_surface
+* new_surface
+* .w, .h
+* draw_on, draw_from
+
+* draw_surface, draw_quad
+
+Filter mode
++++++++++++
+Oh, sure.
+
+Buffers
+^^^^^^^
+Faaaast
+
+Shaders
+^^^^^^^
+Yeah man.
+
+CAUTION: You have to use *WebGL* compatible shaders (GLES2).
+
+Misc
+^^^^
+
+Blend mode
+++++++++++
+
+
+
+User inputs
+~~~~~~~~~~~
+
+Two kinds of user inputs: *mouse* or *keyboard*.
+
+Mouse
+^^^^^
+Motion, click, release
+
+Keyboard
+^^^^^^^^
+* drystal.key_press, drystal.key_release
+* start_text, end_text, drystal.key_text
+
+.Key repeat
+[NOTE]
+As _key repeat_ can't be disable in JavaScript, it can't be controlled in Drystal.
+Sometimes, the key_release callback will be called, and key_press called just after.
+
+
+
+
+Audio
+~~~~~
+How to play some sounds, some musics? Let's see!
+
+.Supported formats
+[NOTE]
+Drystal can load WAV files for sounds and OGG files for musics.
+WAV files should be 44100Hz 16bits mono channel.
+
+
+
+Camera
+~~~~~~
+Drystal doesn't use scene graph.
+You have to manually tell him where to draw entities.
+
+Nevertheless, the camera object is here to simply some position computation.
+
+* x, y
+* zoom
+* angle
+
+* screen2scene
+
+
+Live coding
+~~~~~~~~~~~
+Can be useful.
+
+
+Close the engine
+~~~~~~~~~~~~~~~~
+
+drystal.stop
+
+drystal.atexit
+
+
+
+
+
+Extension system
+----------------
+
+//See <<extensions_api,extensions API>>
+
+
+Available extensions
+~~~~~~~~~~~~~~~~~~~~
+
+[[truetype_extension]]
+Truetype extension
+^^^^^^^^^^^^^^^^^^
+Fast rendering, with fancy features
+
+CAUTION: don't use _too big_ (80 should be fine) font size
+
+[[physic_extension]]
+Physic extension
+^^^^^^^^^^^^^^^^
+Complex, but simpler than Box2d
+
+[[particle_extension]]
+Particle extension
+^^^^^^^^^^^^^^^^
+
+[[storage_extension]]
+Storage extension
+^^^^^^^^^^^^^^^^^
+
+[[net_extension]]
+Network extension
+^^^^^^^^^^^^^^^^^
+
+[[web_extension]]
+Web extension
+^^^^^^^^^^^^^
+
+
+Write an extension
+~~~~~~~~~~~~~~~~~~
+Easy!
+
+Maybe not...
+
+
+
+
+
+
+:numbered!:
+[appendix]
+
+API
+---
+
+Drystal API
+~~~~~~~~~~~
+Bla
+
+[[extensions_api]]
+Extensions API
+~~~~~~~~~~~~~~
+Bla
+
