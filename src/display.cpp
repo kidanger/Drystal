@@ -126,16 +126,16 @@ Display::Display() :
 
 Display::~Display()
 {
+	if (default_shader) {
+		free_shader(default_shader);
+		default_shader = NULL;
+	}
 	if (sdl_window) {
 		SDL_DestroyWindow(sdl_window);
 	}
 	if (screen) {
 		delete screen;
 		screen = NULL;
-	}
-	if (default_shader) {
-		free_shader(default_shader);
-		default_shader = NULL;
 	}
 }
 

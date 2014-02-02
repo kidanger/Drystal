@@ -46,6 +46,7 @@ DECOMPRESS_NAME = 'LZMA.decompress'
 LIB_PATH_RELEASE = join(BUILD_NATIVE_RELEASE, 'external')
 LIB_PATH_DEBUG = join(BUILD_NATIVE_DEBUG, 'external')
 VALGRIND_ARGS = '--tool=callgrind'
+#VALGRIND_ARGS = '--tool=memcheck'
 
 BROWSERS = 'chromium', 'firefox'
 
