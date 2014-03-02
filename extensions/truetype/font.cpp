@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <cassert>
 
 #ifndef EMSCRIPTEN

@@ -507,6 +507,7 @@ static int __surface_class_index(lua_State* L)
 	} else {
 		lua_getmetatable(L, 1);
 		lua_getfield(L, -1, index);
+		return 0;
 	}
 	return 1;
 }

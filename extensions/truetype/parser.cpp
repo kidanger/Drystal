@@ -116,7 +116,7 @@ std::pair<const char*, StateModifier> keywords_data[] = {
 
 struct keyword_cmp
 {
-	bool operator()(char const *a, char const *b)
+	bool operator()(char const *a, char const *b) const
 	{
 		return std::strcmp(a, b) < 0;
 	}

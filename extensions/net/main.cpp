@@ -30,7 +30,7 @@ static int mlua_receive(lua_State* L)
 	reception_buffer[0] = 0; // assure that even if Network doesn't touch the buffer, it's still valid
 	long received_or_error = net.receive(reception_buffer, sizeof(reception_buffer));
 	lua_pushnumber(L, received_or_error);
-	if (received_or_error >= 0) {
+	if (received_or_error > 0) {
 		reception_buffer[received_or_error] = 0;
 		lua_pushstring(L, reception_buffer);
 		return 2;
