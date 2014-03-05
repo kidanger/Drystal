@@ -14,9 +14,6 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-int (*_connect)(int, const struct sockaddr*, socklen_t) = connect;
-ssize_t (*_send)(int, const void*, size_t, int) = send;
-
 #ifdef EMSCRIPTEN
 #include "emscripten.h"
 #endif
@@ -50,11 +47,11 @@ ErrorCode Network::connect(const char* hostname, int port)
 #endif
 	serv_addr.sin_port = htons(port);
 
-	if (_connect(sockfd, (const struct sockaddr*) &serv_addr, sizeof(serv_addr)) < 0)
-	{
-		sockfd = UNDEFINED_SOCKET;
-		return UNABLE_TO_CONNECT;
-	}
+	//if (_connect(sockfd, (const struct sockaddr*) &serv_addr, sizeof(serv_addr)) < 0)
+	//{
+		//sockfd = UNDEFINED_SOCKET;
+		//return UNABLE_TO_CONNECT;
+	//}
 	return NO_ERROR;
 }
 
@@ -73,11 +70,14 @@ long Network::send(const char* data, unsigned long len)
 		return NOT_CONNECTED;
 	}
 
-	int n = _send(sockfd, data, len, 0);
-	if (n < 0) {
-		sockfd = UNDEFINED_SOCKET;
-		return CONNECTION_LOST;
-	}
+	(void) data;
+	(void) len;
+	int n = 0;
+	//int n = _send(sockfd, data, len, 0);
+	//if (n < 0) {
+		//sockfd = UNDEFINED_SOCKET;
+		//return CONNECTION_LOST;
+	//}
 
 #ifndef EMSCRIPTEN
 	// XXX: emscripten add a buffer, so it will never blocks

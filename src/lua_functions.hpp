@@ -85,3 +85,28 @@ private:
 	lua_setfield(L, -2, "__index"); \
 	lua_setfield(L, -2, name_in_module)
 
+#define REGISTER_CLASS_WITH_INDEX_AND_NEWINDEX(name, name_in_module) \
+	luaL_newmetatable(L, #name); \
+	luaL_setfuncs(L, __ ## name ## _class, 0); \
+	lua_pushcfunction(L, __ ## name ## _class_index); \
+	lua_setfield(L, -2, "__index"); \
+	lua_pushcfunction(L, __ ## name ## _class_newindex); \
+	lua_setfield(L, -2, "__newindex"); \
+	lua_setfield(L, -2, name_in_module)
+
+extern int traceback(lua_State *L);
+#ifdef EMSCRIPTEN
+#define CALL(num_args) \
+	lua_call(L, num_args, 0);
+#else
+#define CALL(num_args) \
+	/* from lua/src/lua.c */ \
+	int base = lua_gettop(L) - num_args; \
+	lua_pushcfunction(L, traceback); \
+	lua_insert(L, base);  \
+	if (lua_pcall(L, num_args, 0, base)) { \
+		luaL_error(L, "%s: %s", __func__, lua_tostring(L, -1)); \
+	} \
+	lua_remove(L, base);
+#endif
+

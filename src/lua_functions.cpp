@@ -10,21 +10,6 @@
 
 #define DECLARE_FUNCTION(name) {#name, mlua_##name}
 
-#ifdef EMSCRIPTEN
-#define CALL(num_args) \
-	lua_call(L, num_args, 0);
-#else
-#define CALL(num_args) \
-	/* from lua/src/lua.c */ \
-	int base = lua_gettop(L) - num_args; \
-	lua_pushcfunction(L, traceback); \
-	lua_insert(L, base);  \
-	if (lua_pcall(L, num_args, 0, base)) { \
-		luaL_error(L, "%s: %s", __func__, lua_tostring(L, -1)); \
-	} \
-	lua_remove(L, base);
-#endif
-
 // used to access some engine's fields from lua callbacks
 static Engine *engine;
 
@@ -82,7 +67,7 @@ void LuaFunctions::add_search_path(const char* path) const
 	lua_pop(L, 1);
 }
 
-static int traceback(lua_State *L)
+int traceback(lua_State *L)
 {
 	// from lua/src/lua.c
 	const char *msg = lua_tostring(L, 1);

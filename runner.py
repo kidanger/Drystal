@@ -271,7 +271,7 @@ def cmake_update(build, definitions=[]):
         sys.exit(1)
 
 
-def prepare_native(release=False, filename=None):
+def prepare_native(release=False):
     directory = ''
     build_type = ''
     lib_path = ''
@@ -295,8 +295,6 @@ def prepare_native(release=False, filename=None):
     program = join(bin_path, 'drystal')
     arguments = ['--add-path=' + extensions_directory,
                  '--add-path=' + DRYSTAL_DATA]
-    if filename:  # other main file
-        arguments.append(filename)
     return program, arguments
 
 
@@ -506,7 +504,13 @@ def setup_live_coding(directory, file, drystal):
 
 def run_native(args):
     wd, filename = os.path.split(args.PATH)
-    program, arguments = prepare_native(args.release, filename)
+    program, arguments = prepare_native(args.release)
+
+    if filename:  # other main file
+        arguments.append(filename)
+    if args.server:
+        arguments.append("--server")
+
     if args.debug:
         if args.live:
             drystal = execute([program] + arguments, fork=True, cwd=wd)
@@ -545,6 +549,8 @@ parser_native.add_argument('-l', '--live', help='live coding (reload code \
                            when it has been modified)',
                            action='store_true', default=False)
 parser_native.add_argument('-r', '--release', help='compile in release mode',
+                           action='store_true', default=False)
+parser_native.add_argument('-s', '--server', help='launch drystal in server mode',
                            action='store_true', default=False)
 group = parser_native.add_mutually_exclusive_group()
 group.add_argument('-d', '--debug', help='debug with gdb',

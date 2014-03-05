@@ -23,14 +23,15 @@ static Engine *engine;
 Stats stats;
 #endif
 
-Engine::Engine(const char* filename, unsigned int target_fps) :
+Engine::Engine(const char* filename, unsigned int target_fps, bool server_mode) :
+	server_mode(server_mode),
 	target_ms_per_frame(1000 / target_fps),
 	run(true),
 	last_update(get_now()),
 	update_activated(true),
 	draw_activated(true),
 	stats_activated(false),
-	display(),
+	display(server_mode),
 	event(*this),
 	audio(),
 	lua(*this, filename)
@@ -117,16 +118,18 @@ void Engine::update()
 		lua.call_update(dt);
 	AT(game);
 
-	if (draw_activated)
-		lua.call_draw();
+	if (!server_mode) {
+		if (draw_activated)
+			lua.call_draw();
 
 #ifdef STATS
-	if (stats_activated)
-		stats.draw(*this);
+		if (stats_activated)
+			stats.draw(*this);
 #endif
 
-	display.flip();
-	AT(display);
+		display.flip();
+		AT(display);
+	}
 
 #ifdef STATS
 	if (stats_activated) {

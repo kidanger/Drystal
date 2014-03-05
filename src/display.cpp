@@ -91,7 +91,7 @@ const char* DEFAULT_FRAGMENT_SHADER_TEX = SHADER_STRING
 }
         );
 
-Display::Display() :
+Display::Display(bool server_mode) :
 	default_buffer(),
 	sdl_window(NULL),
 	screen(NULL),
@@ -104,12 +104,16 @@ Display::Display() :
 	r(1),
 	g(1),
 	b(1),
-	alpha(1),
+	alpha( 1),
 	camera(),
 	point_size(1),
 	available(false),
 	debug_mode(false)
 {
+	if (server_mode) { // fix those hacks!
+		available = true;
+		return;
+	}
 	int err = SDL_Init(SDL_INIT_VIDEO);
 	if (err) {
 		fprintf(stderr, "[ERROR] cannot initialize SDL\n");
