@@ -189,7 +189,7 @@ void LuaFunctions::call_mouse_motion(int mx, int my, int dx, int dy) const
 		lua_pushnumber(L, my);
 		lua_pushnumber(L, dx);
 		lua_pushnumber(L, dy);
-		CALL(4);
+		CALL(4, 0);
 	}
 }
 
@@ -199,7 +199,7 @@ void LuaFunctions::call_mouse_press(int mx, int my, int button) const
 		lua_pushnumber(L, mx);
 		lua_pushnumber(L, my);
 		lua_pushnumber(L, button);
-		CALL(3);
+		CALL(3, 0);
 	}
 }
 
@@ -209,7 +209,7 @@ void LuaFunctions::call_mouse_release(int mx, int my, int button) const
 		lua_pushnumber(L, mx);
 		lua_pushnumber(L, my);
 		lua_pushnumber(L, button);
-		CALL(3);
+		CALL(3, 0);
 	}
 }
 
@@ -219,7 +219,7 @@ void LuaFunctions::call_key_press(const char* key_string) const
 
 	if (get_function("key_press")) {
 		lua_pushstring(L, key_string);
-		CALL(1);
+		CALL(1, 0);
 	}
 }
 
@@ -229,7 +229,7 @@ void LuaFunctions::call_key_release(const char* key_string) const
 
 	if (get_function("key_release")) {
 		lua_pushstring(L, key_string);
-		CALL(1);
+		CALL(1, 0);
 	}
 }
 
@@ -239,7 +239,7 @@ void LuaFunctions::call_key_text(const char* string) const
 
 	if (get_function("key_text")) {
 		lua_pushstring(L, string);
-		CALL(1);
+		CALL(1, 0);
 	}
 }
 
@@ -248,7 +248,7 @@ void LuaFunctions::call_resize_event(int w, int h) const
 	if (get_function("resize_event")) {
 		lua_pushnumber(L, w);
 		lua_pushnumber(L, h);
-		CALL(2);
+		CALL(2, 0);
 	}
 }
 
@@ -256,21 +256,21 @@ void LuaFunctions::call_update(float dt) const
 {
 	if (get_function("update")) {
 		lua_pushnumber(L, dt);
-		CALL(1);
+		CALL(1, 0);
 	}
 }
 
 void LuaFunctions::call_draw() const
 {
 	if (get_function("draw")) {
-		CALL(0);
+		CALL(0, 0);
 	}
 }
 
 void LuaFunctions::call_atexit() const
 {
 	if (get_function("atexit")) {
-		CALL(0);
+		CALL(0, 0);
 	}
 }
 

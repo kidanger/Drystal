@@ -96,15 +96,15 @@ private:
 
 extern int traceback(lua_State *L);
 #ifdef EMSCRIPTEN
-#define CALL(num_args) \
-	lua_call(L, num_args, 0);
+#define CALL(num_args, num_ret) \
+	lua_call(L, num_args, num_ret);
 #else
-#define CALL(num_args) \
+#define CALL(num_args, num_ret) \
 	/* from lua/src/lua.c */ \
 	int base = lua_gettop(L) - num_args; \
 	lua_pushcfunction(L, traceback); \
 	lua_insert(L, base);  \
-	if (lua_pcall(L, num_args, 0, base)) { \
+	if (lua_pcall(L, num_args, num_ret, base)) { \
 		luaL_error(L, "%s: %s", __func__, lua_tostring(L, -1)); \
 	} \
 	lua_remove(L, base);
