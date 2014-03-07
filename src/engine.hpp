@@ -4,6 +4,7 @@
 #include "event.hpp"
 #include "audio.hpp"
 #include "lua_functions.hpp"
+#include "storage.hpp"
 
 struct lua_State;
 
@@ -24,6 +25,7 @@ public:
 	EventManager event;
 	Audio audio;
 	LuaFunctions lua;
+	Storage storage;
 
 	Engine(const char* filename, unsigned int target_fps, bool server_mode);
 	~Engine();

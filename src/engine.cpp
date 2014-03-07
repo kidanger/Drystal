@@ -34,7 +34,8 @@ Engine::Engine(const char* filename, unsigned int target_fps, bool server_mode) 
 	display(server_mode),
 	event(*this),
 	audio(),
-	lua(*this, filename)
+	lua(*this, filename),
+	storage()
 {
 	engine = this;
 #ifdef STATS

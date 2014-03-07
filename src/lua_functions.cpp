@@ -1007,6 +1007,46 @@ static int mlua_stop_music(lua_State* L)
 	return 0;
 }
 
+extern "C" {
+	extern int json_encode(lua_State* L);
+	extern int json_decode(lua_State* L);
+	extern void lua_cjson_init();
+}
+static int mlua_store(lua_State* L)
+{
+	assert(L);
+
+	const char* key = luaL_checkstring(L, 1);
+
+	lua_pushcfunction(L, json_encode);
+	lua_pushvalue(L, 2);
+
+	CALL(1, 1); // table in param, returns json
+
+	const char* value = luaL_checkstring(L, -1);
+	engine->storage.store(key, value);
+	return 0;
+}
+
+static int mlua_fetch(lua_State* L)
+{
+	assert(L);
+
+	const char* key = luaL_checkstring(L, 1);
+	const char* value = engine->storage.fetch(key);
+
+	if (!value[0]) {
+		return 0;
+	}
+
+	lua_pushcfunction(L, json_decode);
+	lua_pushstring(L, value);
+	CALL(1, 1);
+	// table is returned by json_decode
+	return 1;
+}
+
+
 //
 // Lua load
 //
@@ -1070,6 +1110,10 @@ int luaopen_drystal(lua_State* L)
 		DECLARE_FUNCTION(load_sound),
 		DECLARE_FUNCTION(create_sound),
 		DECLARE_FUNCTION(set_sound_volume),
+
+		/* STORAGE */
+		DECLARE_FUNCTION(store),
+		DECLARE_FUNCTION(fetch),
 
 		{NULL, NULL}
 	};
@@ -1159,6 +1203,8 @@ int luaopen_drystal(lua_State* L)
 
 	lua_pushvalue(L, -1);
 	engine->lua.drystal_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+
+	lua_cjson_init();
 
 	assert(lua_gettop(L) == 2);
 	return 1;

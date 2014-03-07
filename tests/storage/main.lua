@@ -1,17 +1,16 @@
 local drystal = drystal
-local storage = require 'storage'
 
-local data = storage.load('test_storage')
+local data = drystal.fetch('test_storage')
 print(data)
 if data then
 	print(data.text)
 end
 
 print('saving...')
-storage.save('test_storage', {text='blabla'})
+drystal.store('test_storage', {text='blabla'})
 print('saved')
 
-data = storage.load('test_storage')
+data = drystal.fetch('test_storage')
 
 if not data then
 	print('data not loaded')

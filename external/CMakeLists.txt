@@ -41,3 +41,11 @@ add_custom_command(OUTPUT loadlib_patched.c
 add_definitions(-DLUA_COMPAT_ALL -DLUA_USE_DLOPEN)
 add_library(lua-drystal SHARED ${CORE_C} ${LIB_C})
 
+
+
+add_custom_command(OUTPUT lua_cjson_patched.c
+    COMMAND patch ${CMAKE_CURRENT_SOURCE_DIR}/lua-cjson/lua_cjson.c ${CMAKE_CURRENT_SOURCE_DIR}/cjson.patch -o lua_cjson_patched.c
+    COMMENT "Patching lua-cjson")
+
+include_directories(lua-cjson)
+add_library(lua-cjson STATIC lua-cjson/fpconv.c lua-cjson/strbuf.c lua_cjson_patched.c)
