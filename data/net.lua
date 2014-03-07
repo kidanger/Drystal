@@ -6,8 +6,8 @@ package.path = _path
 
 local allsockets = {}
 
-net.old_connect = net.connect
-net.old_accept = net.accept
+net.rawconnect = net.connect
+net.rawaccept = net.accept
 
 local function wrap(socket)
 	socket.tosend = {}
@@ -15,12 +15,12 @@ local function wrap(socket)
 	socket.autoflush = false
 	socket.has_errors = false
 
-	socket.oldsend = socket.send
+	socket.rawsend = socket.send
 	socket.send = function(socket, data)
 		if socket.autoflush then
 			socket:flush()
 			if not socket.has_errors then
-				local _, err = socket:oldsend(data)
+				local _, err = socket:rawsend(data)
 				if err then
 					print('send', err)
 					socket.has_errors = true
@@ -34,10 +34,14 @@ local function wrap(socket)
 	socket.sendline = function(socket, line)
 		socket:send(line .. '\n')
 	end
+	socket.sendlua = function(socket, data)
+		socket:send(drystal.serialize(data))
+	end
 
 	socket.flush = function(socket)
 		if socket.tosend[1] then
-			local _, err = socket:oldsend(table.concat(socket.tosend))
+			local data = table.concat(socket.tosend)
+			local _, err = socket:rawsend(data)
 			if err then
 				print('flush', err)
 				socket.has_errors = true
@@ -47,17 +51,25 @@ local function wrap(socket)
 		end
 	end
 
-	socket.recvline = function(socket)
-		local str, err = socket:recv()
+	socket.rawrecv = socket.recv
+	socket.recv = function(socket)
+		local str, err = socket:rawrecv()
 		if err then
 			print('recv', err)
 			socket.has_errors = true
 			return nil, err
 		end
-
 		if str then
 			socket.buffer = socket.buffer .. str
 		end
+		return str
+	end
+	socket.recvline = function(socket)
+		local str, err = socket:recv()
+		if err then
+			return nil, err
+		end
+
 		if not socket.buffer then
 			return nil
 		end
@@ -67,6 +79,24 @@ local function wrap(socket)
 			socket.buffer = socket.buffer:sub(#line + 1)
 			line = line:sub(1, -2)
 			return line
+		end
+		return nil
+	end
+	socket.recvlua = function(socket)
+		local str, err = socket:recv()
+		if err then
+			return nil, err
+		end
+
+		if not socket.buffer then
+			return nil
+		end
+
+		local data = string.match(socket.buffer, "({.-})")
+		if data then
+		print(data)
+			socket.buffer = socket.buffer:sub(#data + 1)
+			return drystal.deserialize(data)
 		end
 		return nil
 	end
@@ -100,7 +130,7 @@ local function wrap(socket)
 end
 
 function net.connect(...)
-	local socket = net.old_connect(...)
+	local socket = net.rawconnect(...)
 	if socket then
 		wrap(socket)
 		socket.autoflush = true
@@ -109,7 +139,7 @@ function net.connect(...)
 end
 
 function net.accept(cb, ...)
-	return net.old_accept(function (socket)
+	return net.rawaccept(function (socket)
 		wrap(socket)
 		if cb(socket) ~= false then
 			table.insert(allsockets, socket)
@@ -146,12 +176,18 @@ end
 function net.sendline_all(...)
 	return net.generic_send_all('sendline', ...)
 end
+function net.sendlua_all(...)
+	return net.generic_send_all('sendlua', ...)
+end
 
 function net.recv_all(...)
 	return net.generic_recv_all('recv', ...)
 end
 function net.recvline_all(...)
 	return net.generic_recv_all('recvline', ...)
+end
+function net.recvlua_all(...)
+	return net.generic_recv_all('recvlua', ...)
 end
 
 function net.flush_all(sockets)

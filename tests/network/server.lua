@@ -17,10 +17,14 @@ while not client do
 	end
 end
 
-client:send 'hi'
+client:sendlua {
+	msg='hi'
+}
 net.flush_all()
 
-waittoken(client, 'hello')
+for i = 1, 5 do
+	waittoken(client, 'hello')
+end
 
 client:sendline(1)
 

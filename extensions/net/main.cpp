@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <arpa/inet.h>
+#include <sys/select.h>
 #include <netdb.h>
 #include <lua.hpp>
 
@@ -292,7 +293,7 @@ static int mlua_send_socket(lua_State* L)
 static int mlua_recv_socket(lua_State* L)
 {
 	Socket* socket = pop_socket(L, 1);
-	char buffer[64];
+	char buffer[256];
 	bool error = false;
 	int len = socket->receive(buffer, sizeof(buffer), &error);
 	if (error) {

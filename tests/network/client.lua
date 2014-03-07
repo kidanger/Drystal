@@ -10,7 +10,11 @@ function drystal.init()
 
 	sock = assert(net.connect(hostname, port))
 	sock:set_debug()
-	sock:send 'hello'
+	for i = 1, 5 do
+		sock:sendlua {
+			msg='hello'
+		}
+	end
 	waittoken(sock, 'hi')
 end
 

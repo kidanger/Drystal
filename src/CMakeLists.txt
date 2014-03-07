@@ -32,7 +32,7 @@ endif()
 target_link_libraries(${DRYSTAL_OUT} lua-drystal)
 target_link_libraries(${DRYSTAL_OUT} lua-cjson)
 if(EMSCRIPTEN)
-    target_link_libraries(${DRYSTAL_OUT} physic truetype particle net web storage)
+    target_link_libraries(${DRYSTAL_OUT} physic truetype particle net web)
 endif(EMSCRIPTEN)
 
 install(TARGETS ${DRYSTAL_OUT} DESTINATION /usr/bin)

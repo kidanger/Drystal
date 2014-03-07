@@ -1115,6 +1115,10 @@ int luaopen_drystal(lua_State* L)
 		DECLARE_FUNCTION(store),
 		DECLARE_FUNCTION(fetch),
 
+		/* SERIALIZER */
+		{"serialize", json_encode},
+		{"deserialize", json_decode},
+
 		{NULL, NULL}
 	};
 

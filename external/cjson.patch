@@ -28,7 +28,7 @@ index c14a1c5..e6e9109 100644
 +    config.encode_invalid_numbers = DEFAULT_ENCODE_INVALID_NUMBERS;
 +    config.decode_invalid_numbers = DEFAULT_DECODE_INVALID_NUMBERS;
 +    config.encode_keep_buffer = DEFAULT_ENCODE_KEEP_BUFFER;
-+    config.encode_number_precision = DEFAULT_ENCODE_NUMBER_PRECISION;
++    config.encode_number_precision = 6;
 +
 +#if DEFAULT_ENCODE_KEEP_BUFFER > 0
 +    strbuf_init(&config.encode_buf, 0);

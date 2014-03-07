@@ -1,9 +1,9 @@
 port = '5544'
 
 function waittoken(sock, token)
-	local str
-	while not str do
-		str = sock:recv()
+	local table
+	while not table do
+		table = sock:recvlua()
 	end
-	assert(str == token)
+	assert(table.msg == token)
 end
