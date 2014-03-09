@@ -60,6 +60,10 @@ public:
 		(void) len;
 		output += msg;
 
+		flush(error);
+	}
+
+	void flush(bool* error) {
 		int totallen = output.length();
 		if (totallen && readyToSend()) {
 			int n = _send(fd, output.c_str(), totallen, 0);
@@ -74,7 +78,7 @@ public:
 
 	int receive(char* buffer, int capacity, bool* error) {
 		if (readyToRead()) {
-			int n = recv(fd, buffer, capacity - 1, 0);
+			int n = recv(fd, buffer, capacity, 0);
 			if (n <= 0) {
 				fd = -1;
 				*error = true;
@@ -290,10 +294,10 @@ static int mlua_send_socket(lua_State* L)
 	return 0;
 }
 
+static char buffer[1024];
 static int mlua_recv_socket(lua_State* L)
 {
 	Socket* socket = pop_socket(L, 1);
-	char buffer[256];
 	bool error = false;
 	int len = socket->receive(buffer, sizeof(buffer), &error);
 	if (error) {
@@ -307,6 +311,20 @@ static int mlua_recv_socket(lua_State* L)
 	}
 	return 0;
 }
+
+static int mlua_flush_socket(lua_State* L)
+{
+	Socket* socket = pop_socket(L, 1);
+	bool error = false;
+	socket->flush(&error);
+	if (error) {
+		lua_pushnil(L);
+		lua_pushstring(L, strerror(errno));
+		return 2;
+	}
+	return 0;
+}
+
 
 static int mlua_disconnect_socket(lua_State* L)
 {
@@ -344,6 +362,7 @@ DEFINE_EXTENSION(net)
 	BEGIN_CLASS(socket)
 		ADD_METHOD(socket, send)
 		ADD_METHOD(socket, recv)
+		ADD_METHOD(socket, flush)
 		ADD_METHOD(socket, disconnect)
 		ADD_GC(free_socket)
 		END_CLASS();

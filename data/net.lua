@@ -14,6 +14,7 @@ net.rawaccept = net.accept
 Socket.rawsend = Socket.send
 Socket.rawrecv = Socket.recv
 Socket.rawdisconnect = Socket.disconnect
+Socket.rawflush = Socket.flush
 
 
 function Socket:init()
@@ -51,6 +52,12 @@ function Socket:flush()
 		end
 		self.tosend = {}
 	end
+	local _, err = self:rawflush() -- some data might be stuck in the C++ buffer
+	if err then
+		print('rawflush', err)
+		self.has_errors = true
+		return nil, err
+	end
 end
 
 function Socket:recv()
@@ -59,9 +66,6 @@ function Socket:recv()
 		print('recv', err)
 		self.has_errors = true
 		return nil, err
-	end
-	if str then
-		self.buffer = self.buffer .. str
 	end
 	return str
 end
@@ -77,6 +81,9 @@ function Socket:recvline()
 		return nil, err
 	end
 
+	if str then
+		self.buffer = self.buffer .. str
+	end
 	if not self.buffer then
 		return nil
 	end
@@ -91,10 +98,15 @@ function Socket:recvline()
 end
 
 
-function Socket:sendlua(data)
-	local serialized = drystal.serialize(data)
+local function convert_lua_to_data(lua)
+	local serialized = drystal.serialize(lua)
 	local netstring = table.concat({#serialized, ':', serialized})
-	self:send(netstring)
+	return netstring
+end
+
+function Socket:sendlua(lua)
+	local data = convert_lua_to_data(lua)
+	self:send(data)
 end
 
 function Socket:recvlua()
@@ -103,6 +115,9 @@ function Socket:recvlua()
 		return nil, err
 	end
 
+	if str then
+		self.buffer = self.buffer .. str
+	end
 	if not self.buffer then
 		return nil
 	end
@@ -203,8 +218,9 @@ end
 function net.sendline_all(...)
 	return net.generic_send_all('sendline', ...)
 end
-function net.sendlua_all(...)
-	return net.generic_send_all('sendlua', ...)
+function net.sendlua_all(message, ...)
+	local data = convert_lua_to_data(message) -- cache the serialized lua
+	return net.generic_send_all('send', data, ...)
 end
 
 function net.recv_all(...)
