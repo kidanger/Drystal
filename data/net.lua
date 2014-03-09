@@ -4,135 +4,160 @@ package.path = ''
 local net = require 'net'
 package.path = _path
 
-local allsockets = {}
+local Socket = net.__Socket
+
+net.all = {}
 
 net.rawconnect = net.connect
 net.rawaccept = net.accept
 
-local function wrap(socket)
-	socket.tosend = {}
-	socket.buffer = ''
-	socket.autoflush = false
-	socket.has_errors = false
+Socket.rawsend = Socket.send
+Socket.rawrecv = Socket.recv
+Socket.rawdisconnect = Socket.disconnect
 
-	socket.rawsend = socket.send
-	socket.send = function(socket, data)
-		if socket.autoflush then
-			socket:flush()
-			if not socket.has_errors then
-				local _, err = socket:rawsend(data)
-				if err then
-					print('send', err)
-					socket.has_errors = true
-					return nil, err
-				end
-			end
-		else
-			table.insert(socket.tosend, data)
-		end
-	end
-	socket.sendline = function(socket, line)
-		socket:send(line .. '\n')
-	end
-	socket.sendlua = function(socket, data)
-		socket:send(drystal.serialize(data))
-	end
 
-	socket.flush = function(socket)
-		if socket.tosend[1] then
-			local data = table.concat(socket.tosend)
-			local _, err = socket:rawsend(data)
+function Socket:init()
+	self.tosend = {}
+	self.buffer = ''
+	self.autoflush = false
+	self.has_errors = false
+end
+
+
+function Socket:send(data)
+	if self.autoflush then
+		self:flush()
+		if not self.has_errors then
+			local _, err = self:rawsend(data)
 			if err then
-				print('flush', err)
-				socket.has_errors = true
+				print('send', err)
+				self.has_errors = true
 				return nil, err
 			end
-			socket.tosend = {}
 		end
+	else
+		table.insert(self.tosend, data)
 	end
+end
 
-	socket.rawrecv = socket.recv
-	socket.recv = function(socket)
-		local str, err = socket:rawrecv()
+function Socket:flush()
+	if self.tosend[1] then
+		local data = table.concat(self.tosend)
+		local _, err = self:rawsend(data)
 		if err then
-			print('recv', err)
-			socket.has_errors = true
+			print('flush', err)
+			self.has_errors = true
 			return nil, err
 		end
+		self.tosend = {}
+	end
+end
+
+function Socket:recv()
+	local str, err = self:rawrecv()
+	if err then
+		print('recv', err)
+		self.has_errors = true
+		return nil, err
+	end
+	if str then
+		self.buffer = self.buffer .. str
+	end
+	return str
+end
+
+
+function Socket:sendline(line)
+	self:send(line .. '\n')
+end
+
+function Socket:recvline()
+	local str, err = self:recv()
+	if err then
+		return nil, err
+	end
+
+	if not self.buffer then
+		return nil
+	end
+
+	local line = string.match(self.buffer, "[^\n]+\n")
+	if line then
+		self.buffer = self.buffer:sub(#line + 1)
+		line = line:sub(1, -2)
+		return line
+	end
+	return nil
+end
+
+
+function Socket:sendlua(data)
+	local serialized = drystal.serialize(data)
+	local netstring = table.concat({#serialized, ':', serialized})
+	self:send(netstring)
+end
+
+function Socket:recvlua()
+	local str, err = self:recv()
+	if err then
+		return nil, err
+	end
+
+	if not self.buffer then
+		return nil
+	end
+
+	if not self.current_size then
+		-- try to get the size of the data from the buffer
+		local _, stop = self.buffer:find('(%d+):')
+		if stop then
+			self.current_size = tonumber(self.buffer:sub(1, stop - 1))
+			self.buffer = self.buffer:sub(stop + 1)
+		end
+	elseif self.current_size and #self.buffer >= self.current_size then
+		-- we know the current message length,
+		-- and the buffer is longer than that : EXTRACT
+		local data = self.buffer:sub(1, self.current_size)
+		self.buffer = self.buffer:sub(self.current_size + 1)
+		self.current_size = nil
+		return drystal.deserialize(data)
+	end
+
+	return nil
+end
+
+function Socket:disconnect()
+	local all = net.all
+	for i, s in ipairs(all) do
+		if s == self then
+			all[i] = all[#all]
+			all[#all] = nil
+			break
+		end
+	end
+	self:rawdisconnect()
+end
+
+function Socket:set_debug()
+	local oldsend = self.send
+	local oldrecv = self.recv
+	self.send = function(c, msg)
+		print('<', msg)
+		return oldsend(c, msg)
+	end
+	self.recv = function(c)
+		local str = oldrecv(c)
 		if str then
-			socket.buffer = socket.buffer .. str
+			print('>', str)
 		end
 		return str
-	end
-	socket.recvline = function(socket)
-		local str, err = socket:recv()
-		if err then
-			return nil, err
-		end
-
-		if not socket.buffer then
-			return nil
-		end
-
-		local line = string.match(socket.buffer, "[^\n]+\n")
-		if line then
-			socket.buffer = socket.buffer:sub(#line + 1)
-			line = line:sub(1, -2)
-			return line
-		end
-		return nil
-	end
-	socket.recvlua = function(socket)
-		local str, err = socket:recv()
-		if err then
-			return nil, err
-		end
-
-		if not socket.buffer then
-			return nil
-		end
-
-		local data = string.match(socket.buffer, "({.-})")
-		if data then
-		print(data)
-			socket.buffer = socket.buffer:sub(#data + 1)
-			return drystal.deserialize(data)
-		end
-		return nil
-	end
-
-	socket.set_debug = function(socket)
-		local oldsend = socket.send
-		local oldrecv = socket.recv
-		socket.send = function(c, msg)
-			print('<', msg)
-			return oldsend(c, msg)
-		end
-		socket.recv = function(c)
-			local str = oldrecv(c)
-			if str then
-				print('>', str)
-			end
-			return str
-		end
-	end
-
-	socket.old_disconnect = socket.disconnect
-	socket.disconnect = function(socket)
-		for i, s in ipairs(allsockets) do
-			if s == socket then
-				allsockets[i] = allsockets[#allsockets]
-				allsockets[#allsockets] = nil
-			end
-		end
-		socket:old_disconnect()
 	end
 end
 
 function net.connect(...)
 	local socket = net.rawconnect(...)
 	if socket then
-		wrap(socket)
+		socket:init()
 		socket.autoflush = true
 	end
 	return socket
@@ -140,9 +165,11 @@ end
 
 function net.accept(cb, ...)
 	return net.rawaccept(function (socket)
-		wrap(socket)
+		if socket then
+			socket:init()
+		end
 		if cb(socket) ~= false then
-			table.insert(allsockets, socket)
+			table.insert(net.all, socket)
 			return true
 		end
 		socket:disconnect()
@@ -152,7 +179,7 @@ end
 
 
 function net.generic_send_all(method, message, sockets, except)
-	for _, s in ipairs(sockets or allsockets) do
+	for _, s in ipairs(sockets or net.all) do
 		if s ~= except then
 			s[method](s, message)
 		end
@@ -160,7 +187,7 @@ function net.generic_send_all(method, message, sockets, except)
 end
 
 function net.generic_recv_all(method, callback, sockets)
-	for _, s in ipairs(sockets or allsockets) do
+	for _, s in ipairs(sockets or net.all) do
 		repeat
 			local msg = s[method](s)
 			if msg then
@@ -191,20 +218,20 @@ function net.recvlua_all(...)
 end
 
 function net.flush_all(sockets)
-	for _, s in ipairs(sockets or allsockets) do
+	for _, s in ipairs(sockets or net.all) do
 		s:flush()
 	end
 end
 
 function net.drop_clients(on_drop, sockets)
 	local i = 1
-	sockets = sockets or allsockets
+	sockets = sockets or net.all
 	while sockets[i] do
 		local s = sockets[i]
 		if s.has_errors then
 			s:disconnect()
 			on_drop(s)
-			if sockets ~= allsockets then
+			if sockets ~= net.all then
 				-- otherwise, we miss some sockets
 				i = i + 1
 			end
@@ -212,9 +239,5 @@ function net.drop_clients(on_drop, sockets)
 			i = i + 1
 		end
 	end
-end
-
-function net.get_all_sockets()
-	return allsockets
 end
 

@@ -18,7 +18,9 @@ while not client do
 end
 
 client:sendlua {
-	msg='hi'
+	msg='hi',
+	other={
+	}
 }
 net.flush_all()
 
