@@ -41,6 +41,7 @@ local y = 0
 local width = 0
 local height = 0
 local shader
+
 function drystal.init()
 	print("initialized from lua")
 	drystal.resize(600, 400)
