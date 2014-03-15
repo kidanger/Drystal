@@ -95,11 +95,6 @@ bool LuaFunctions::get_function(const char* name) const
 		return true;
 	}
 	lua_pop(L, 2);
-	lua_getglobal(L, name); // fallback api, TOBEREMOVED
-	if (lua_isfunction(L, -1)) {
-		return true;
-	}
-	lua_pop(L, 1);
 	return false;
 }
 
