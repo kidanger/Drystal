@@ -126,7 +126,6 @@ function drystal.init()
 local dir = ''
 local time = 0
 function drystal.update(dt)
-	delta = dt / 1000
 	if delta > .6 then
 		delta = .6
 	end

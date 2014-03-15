@@ -109,7 +109,7 @@ void Engine::update()
 	if (!run)
 		return;
 
-	float dt = (get_now() - last_update) / 1000;
+	float dt = (get_now() - last_update) / 1000000.;
 	last_update = get_now();
 
 	audio.update(dt);

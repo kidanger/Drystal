@@ -460,12 +460,6 @@ static int mlua_screen2scene(lua_State* L)
 	return 2;
 }
 
-static int mlua_flip(lua_State*)
-{
-	fprintf(stderr, "[DEPRECATED] display.flip() is now deprecated !\n");
-	return 0;
-}
-
 static int mlua_start_text(lua_State*)
 {
 	engine->event.start_text();
@@ -492,7 +486,6 @@ static int __surface_class_index(lua_State* L)
 	} else {
 		lua_getmetatable(L, 1);
 		lua_getfield(L, -1, index);
-		return 0;
 	}
 	return 1;
 }
@@ -531,18 +524,6 @@ static int mlua_free_surface(lua_State* L)
 		engine->display.free_surface(surface);
 	}
 	return 0;
-}
-
-static int mlua_surface_size(lua_State* L)
-{
-	assert(L);
-
-	Surface* surface = pop_surface(L, -1);
-	int w, h;
-	engine->display.surface_size(surface, &w, &h);
-	lua_pushnumber(L, w);
-	lua_pushnumber(L, h);
-	return 2;
 }
 
 static int mlua_draw_on(lua_State* L)
@@ -668,14 +649,15 @@ static int mlua_new_shader(lua_State* L)
 	assert(L);
 
 	const char *vert = NULL, *frag_color = NULL, *frag_tex = NULL;
+	// strings can be nil
 	if (lua_gettop(L) >= 1) { // one argument, it's the vertex shader
-		vert = luaL_checkstring(L, 1);
+		vert = lua_tostring(L, 1);
 	}
 	if (lua_gettop(L) >= 2) {
-		frag_color = luaL_checkstring(L, 2);
+		frag_color = lua_tostring(L, 2);
 	}
 	if (lua_gettop(L) >= 3) {
-		frag_tex = luaL_checkstring(L, 3);
+		frag_tex = lua_tostring(L, 3);
 	}
 	char* error;
 	Shader* shader = engine->display.new_shader(vert, frag_color, frag_tex, &error);
@@ -1066,7 +1048,6 @@ int luaopen_drystal(lua_State* L)
 		DECLARE_FUNCTION(resize),
 		DECLARE_FUNCTION(set_title),
 		DECLARE_FUNCTION(screen2scene),
-		DECLARE_FUNCTION(flip), // DEPRECATED
 
 		DECLARE_FUNCTION(start_text),
 		DECLARE_FUNCTION(stop_text),
@@ -1074,7 +1055,6 @@ int luaopen_drystal(lua_State* L)
 		/* DISPLAY SURFACE */
 		DECLARE_FUNCTION(load_surface),
 		DECLARE_FUNCTION(new_surface),
-		DECLARE_FUNCTION(surface_size), // DEPRECATE IT SOON
 		DECLARE_FUNCTION(draw_on),
 		DECLARE_FUNCTION(draw_from),
 

@@ -42,13 +42,6 @@ function drystal.init()
 	music:play()
 end
 
-function drystal.update(dt)
-	dt = dt / 1000
-end
-
-function drystal.draw(dt)
-end
-
 function drystal.mouse_motion(xx, yy)
 	x = xx
 	y = yy

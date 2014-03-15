@@ -23,7 +23,6 @@ function drystal.init()
 end
 
 function drystal.update(dt)
-	dt = dt / 1000
 	if dt > .06 then
 		dt = .06
 	end

@@ -181,7 +181,6 @@ function right_loose()
 end
 
 function drystal.update(dt)
-	dt = dt / 1000
 	if state == 'run' then
 		if right.ai then
 			update_ai(right, dt)

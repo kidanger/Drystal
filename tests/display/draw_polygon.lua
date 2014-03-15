@@ -7,9 +7,6 @@ function drystal.init()
 	drystal.resize(600, 400)
 end
 
-function drystal.update(dt)
-end
-
 function drystal.draw()
 	drystal.set_alpha(255)
 	drystal.set_color(255, 255, 255)

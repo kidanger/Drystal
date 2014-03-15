@@ -10,7 +10,7 @@ end
 local time = 0
 
 function drystal.update(dt)
-	time = time + dt / 1000
+	time = time + dt
 end
 
 local shadowx = 0

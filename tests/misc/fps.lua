@@ -5,7 +5,7 @@ function drystal.init()
 end
 
 function drystal.update(dt)
-	print(1000/dt, dt)
+	print(1/dt, dt)
 end
 
 function drystal.key_press(key)

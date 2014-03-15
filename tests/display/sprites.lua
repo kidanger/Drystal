@@ -11,8 +11,6 @@ function drystal.init()
 end
 
 function drystal.update(dt)
-    dt = dt / 1000
-
     for _, s in ipairs(sprites) do
         s:update(dt)
     end

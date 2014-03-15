@@ -22,7 +22,7 @@ function drystal.draw()
 
 	for y = 0, 400, 8 do
 		for x = 0, 600, 8 do
-			local r = math.sin((x + y + time)/100)/2+0.5
+			local r = math.sin((x + y + time*1000)/100)/2+0.5
 			drystal.set_point_size(8)
 			drystal.set_color(r*255, 0, 0)
 			drystal.draw_point(x, y)

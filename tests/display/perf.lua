@@ -2,7 +2,7 @@ local drystal = require 'drystal'
 local tt = require 'truetype'
 
 local W, H = 600, 400
-local target = 16
+local target = 0.016
 local number = 300
 
 local draw_triangle = {name='draw_triangle'}

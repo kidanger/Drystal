@@ -29,9 +29,6 @@ function drystal.init()
 	drystal.draw_on(drystal.screen)
 end
 
-function drystal.update(dt)
-end
-
 function drystal.draw()
 	drystal.set_alpha(255)
 	drystal.set_color(255, 255, 255)
