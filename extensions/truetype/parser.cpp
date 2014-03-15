@@ -66,6 +66,11 @@ static void change_outline(const char* str, TextState* state)
 	(void) str;
 	state->outlined = true;
 }
+static void change_nooutline(const char* str, TextState* state)
+{
+	(void) str;
+	state->outlined = false;
+}
 static void change_outr(const char* str, TextState* state)
 {
 	state->outr = atoi(str);
@@ -107,6 +112,7 @@ std::pair<const char*, StateModifier> keywords_data[] = {
 	std::make_pair("BIG",		change_BIG),
 	std::make_pair("italic",	change_italic),
 	std::make_pair("outline",	change_outline),
+	std::make_pair("nooutline",	change_nooutline),
 	std::make_pair("outr:",		change_outr),
 	std::make_pair("outg:",		change_outg),
 	std::make_pair("outb:",		change_outb),
@@ -152,9 +158,13 @@ static const char* next_token(const char* text)
 	return text;
 }
 
-void reset_parser()
+void reset_parser(int r, int g, int b, int a)
 {
 	g_index = 0;
+	g_states[g_index].r = r;
+	g_states[g_index].g = g;
+	g_states[g_index].b = b;
+	g_states[g_index].alpha = a;
 }
 bool parse(TextState** state, const char*& start, const char*& end)
 {
@@ -187,6 +197,9 @@ bool parse(TextState** state, const char*& start, const char*& end)
 		end = next;
 
 		*state = &g_states[g_index];
+	} else {
+		// something went wrong, moving on
+		end++;
 	}
 	return *start != '\0';
 }

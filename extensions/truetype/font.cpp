@@ -98,7 +98,7 @@ static inline void draw_quad_fancy(Engine& engine, const stbtt_aligned_quad& q,
 
 void Font::draw_plain(const char* text, float x, float y)
 {
-	int start = this->first_char;
+	int start = first_char;
 	int end = start + num_chars;
 	y += font_size * 3 / 4;
 
@@ -129,7 +129,10 @@ void Font::draw(const char* text, float x, float y)
 
 	TextState* state;
 	const char* textend = text;
-	reset_parser();
+	int r, g, b, a;
+	engine.display.get_color(&r, &g, &b);
+	engine.display.get_alpha(&a);
+	reset_parser(r, g, b, a);
 	while (parse(&state, text, textend)) {
 		engine.display.set_color(state->r, state->g, state->b);
 		engine.display.set_alpha(state->alpha);
@@ -158,10 +161,12 @@ void Font::draw(const char* text, float x, float y)
 					engine.display.set_color(state->r, state->g, state->b);
 				}
 				draw_quad_fancy(engine, q, italic);
-				text++;
 			}
+			text++;
 		}
 	}
+	engine.display.set_color(r, g, b);
+	engine.display.set_alpha(a);
 	if (old_surface)
 		engine.display.draw_from(old_surface);
 }
@@ -171,13 +176,16 @@ void Font::get_textsize_plain(const char* text, float* w, float* h)
 	float x = 0, y = 0;
 	int maxy = 0;
 	int maxx = 0;
+	y += font_size * 3 / 4;
+
 	int start = first_char;
 	int end = start + num_chars;
+
 	while (*text) {
 		if (*text >= start && *text < end) {
 			stbtt_aligned_quad q;
 			stbtt_GetBakedQuad(char_data, *text - start, &x, &y, &q);
-			maxy = q.y1 - q.y0 > maxy ? q.y1 - q.y0 : maxy;
+			maxy = q.y1;
 			maxx = q.x1;
 		}
 		text++;
@@ -191,54 +199,27 @@ void Font::get_textsize(const char* text, float* w, float* h)
 	float x = 0, y = 0;
 	int maxy = 0;
 	int maxx = 0;
+	y += font_size * 3 / 4;
+
 	int start = first_char;
 	int end = start + num_chars;
-	while (*text) {
-		if (*text == '{') {
-			float size = 1.0;
-			float italic = 0.0;
+
+	TextState* state;
+	const char* textend = text;
+	reset_parser(0, 0, 0, 0);
+	while (parse(&state, text, textend)) {
+		while (text < textend) {
+			unsigned char chr = *text;
+			if (chr >= start && chr < end) {
+				float italic = state->italic;
+				stbtt_aligned_quad q;
+				stbtt_GetBakedQuad(char_data, chr - start, &x, &y, &q, state->size);
+				maxy = q.y1;
+				maxx = q.x1;
+				x += italic;
+			}
 			text++;
-token:
-			const char * start_text = text; //(const unsigned char*) text;
-			while (*text != '|' and *text != '}') {
-				text++;
-			}
-			if (*text == '|') {
-				if (!strncmp((const char*) start_text, (const char*) "big", text - start_text))
-					size = 1.3;
-				else if (!strncmp((const char*) start_text, (const char*) "BIG", text - start_text))
-					size = 1.7;
-				else if (!strncmp((const char*) start_text, (const char*) "small", text - start_text))
-					size = 0.8;
-				else if (!strncmp((const char*) start_text, (const char*) "tiny", text - start_text))
-					size = 0.6;
-				else if (!strncmp((const char*) start_text, (const char*) "italic", text - start_text))
-					italic = 3.5;
-				text++;
-				goto token;
-			} else {
-				// end of command, start_text -> text is the text to render
-				int i = 0;
-				while (start_text + i < text) {
-					unsigned char chr = *(start_text + i);
-					if (chr >= start && chr < end) {
-						stbtt_aligned_quad q;
-						stbtt_GetBakedQuad(char_data, chr - start, &x, &y, &q, size);
-						maxy = q.y1 - q.y0 > maxy ? q.y1 - q.y0 : maxy;
-						maxx = q.x1;
-					}
-					i++;
-					x += italic;
-				}
-			}
 		}
-		else if (*text >= start && *text < end) {
-			stbtt_aligned_quad q;
-			stbtt_GetBakedQuad(char_data, *text - start, &x, &y, &q);
-			maxy = q.y1 - q.y0 > maxy ? q.y1 - q.y0 : maxy;
-			maxx = q.x1;
-		}
-		text++;
 	}
 	*w = maxx;
 	*h = maxy;

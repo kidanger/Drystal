@@ -30,7 +30,7 @@ function drystal.draw()
 	tt.use(font_big)
 	tt.use_color(true)
 
-	local text = 'abd {r0|big|b150|bla} {small|test} {big|50%|defghi}'
+	local text = 'abd {r:0|big|b:150|bla} {small|test} {big|%:50|defghi}'
 	text = highlight(text, (math.sin(time)/2+0.5)*#text + 1)
 	tt.draw_align(text, 512 / 2, 512 / 2, 'center')
 
