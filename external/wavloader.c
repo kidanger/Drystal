@@ -32,25 +32,25 @@ int load_wav(const char* filename, void** buffer, int* length, int* format, int*
 	FILE* file = fopen(filename, "rb");
 	unsigned int filesize;
 
-	int errno = 1;
+	int err = 1;
 #define SKIP(n) { char skip[n]; fread(skip, n, 1, file); }
 #define READ_STR(n, correct) { \
 		char str[n]; \
 		fread(str, n, 1, file); \
 		if (strncmp(str, correct, n)) { \
 			printf("failed to read %s was %s.\n", correct, str); \
-			return errno; \
+			return err; \
 		} \
-		errno++; \
+		err++; \
 	}
 #define READ_NUM(type, correct) { \
 		type num; \
 		fread(&num, sizeof(num), 1, file); \
 		if (num != correct) { \
 			printf("failed to read %d was %d\n", correct, num); \
-			return errno; \
+			return err; \
 		} \
-		errno++; \
+		err++; \
 	}
 	READ_STR(4, "RIFF"); /* ChunkID */
 	fread(&filesize, sizeof(filesize), 1, file); /* ChunkSize */
@@ -78,7 +78,7 @@ int load_wav(const char* filename, void** buffer, int* length, int* format, int*
 	int read = fread(*buffer, sizeof(unsigned short), *length, file);
 
 	if (*length != read)
-		return errno;
+		return err;
 
 #undef SKIP
 #undef READ_STR
