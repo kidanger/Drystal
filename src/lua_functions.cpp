@@ -157,10 +157,19 @@ bool LuaFunctions::load_code()
 
 bool LuaFunctions::reload_code()
 {
+	if (get_function("prereload")) {
+		CALL(0, 0);
+	}
 	remove_userpackages();
 
 	printf("Reloading code...\n");
-	return load_code() && call_init();
+	bool ok = load_code() && call_init();
+	if (ok) {
+		if (get_function("postreload")) {
+			CALL(0, 0);
+		}
+	}
+	return ok;
 }
 
 bool LuaFunctions::call_init() const
