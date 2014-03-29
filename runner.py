@@ -498,7 +498,7 @@ def setup_live_coding(directory, file, drystal):
                 drystal.send_signal(signal.SIGUSR1)
                 now = time.time()
     except KeyboardInterrupt:
-        drystal.terminate()
+        drystal.kill()
         sys.exit(1)
 
 
