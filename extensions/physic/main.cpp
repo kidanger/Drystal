@@ -45,66 +45,63 @@ public:
 		luaL_unref(L, LUA_REGISTRYINDEX, presolve);
 		luaL_unref(L, LUA_REGISTRYINDEX, postsolve);
 	}
+
+	void pushBodies(b2Contact* contact)
+	{
+		b2Body* bA = contact->GetFixtureA()->GetBody();
+		b2Body* bB = contact->GetFixtureB()->GetBody();
+
+		int refA = (int) (long) bA->GetUserData();
+		lua_rawgeti(L, LUA_REGISTRYINDEX, refA);
+		int refB = (int) (long) bB->GetUserData();
+		lua_rawgeti(L, LUA_REGISTRYINDEX, refB);
+	}
+
 	virtual void BeginContact(b2Contact* contact)
 	{
 		if (begin_contact == LUA_REFNIL)
 			return;
-		b2Body* bA = contact->GetFixtureA()->GetBody();
-		b2Body* bB = contact->GetFixtureB()->GetBody();
+		b2WorldManifold manifold;
+		contact->GetWorldManifold(&manifold);
 
 		lua_rawgeti(L, LUA_REGISTRYINDEX, begin_contact);
 
-		// fetch bodies tables
-		int refA = (int) (size_t) bA->GetUserData();
-		lua_rawgeti(L, LUA_REGISTRYINDEX, refA);
-		int refB = (int) (size_t) bB->GetUserData();
-		lua_rawgeti(L, LUA_REGISTRYINDEX, refB);
-		// TODO: push contact
+		pushBodies(contact);
 
-		if (lua_pcall(L, 2, 0, 0)) {
-			luaL_error(L, "error calling begin_contact: %s", lua_tostring(L, -1));
-		}
+		lua_pushnumber(L, manifold.points[0].x);
+		lua_pushnumber(L, manifold.points[0].y);
+		lua_pushnumber(L, manifold.normal.x);
+		lua_pushnumber(L, manifold.normal.y);
+
+		CALL(6, 0);
 	}
 	virtual void EndContact(b2Contact* contact)
 	{
 		if (end_contact == LUA_REFNIL)
 			return;
-		b2Body* bA = contact->GetFixtureA()->GetBody();
-		b2Body* bB = contact->GetFixtureB()->GetBody();
 
 		lua_rawgeti(L, LUA_REGISTRYINDEX, end_contact);
+		pushBodies(contact);
 
-		// fetch bodies tables
-		int refA = (int) (long) bA->GetUserData();
-		lua_rawgeti(L, LUA_REGISTRYINDEX, refA);
-		int refB = (int) (long) bB->GetUserData();
-		lua_rawgeti(L, LUA_REGISTRYINDEX, refB);
-		// TODO: push contact
-
-		if (lua_pcall(L, 2, 0, 0)) {
-			luaL_error(L, "error calling end_contact: %s", lua_tostring(L, -1));
-		}
+		CALL(2, 0);
 	}
 
 	virtual void PreSolve(b2Contact* contact, const b2Manifold*)
 	{
 		if (presolve == LUA_REFNIL)
 			return;
-		b2Body* bA = contact->GetFixtureA()->GetBody();
-		b2Body* bB = contact->GetFixtureB()->GetBody();
+		b2WorldManifold manifold;
+		contact->GetWorldManifold(&manifold);
 
 		lua_rawgeti(L, LUA_REGISTRYINDEX, presolve);
+		pushBodies(contact);
 
-		// fetch bodies tables
-		int refA = (int) (long) bA->GetUserData();
-		lua_rawgeti(L, LUA_REGISTRYINDEX, refA);
-		int refB = (int) (long) bB->GetUserData();
-		lua_rawgeti(L, LUA_REGISTRYINDEX, refB);
-		// TODO: push contact
+		lua_pushnumber(L, manifold.points[0].x);
+		lua_pushnumber(L, manifold.points[0].y);
+		lua_pushnumber(L, manifold.normal.x);
+		lua_pushnumber(L, manifold.normal.y);
 
-		if (lua_pcall(L, 2, 1, 0)) {
-			luaL_error(L, "error calling presolve: %s", lua_tostring(L, -1));
-		}
+		CALL(6, 1);
 		bool enabled = lua_toboolean(L, -1);
 		contact->SetEnabled(enabled);
 	}
@@ -112,21 +109,11 @@ public:
 	{
 		if (postsolve == LUA_REFNIL)
 			return;
-		b2Body* bA = contact->GetFixtureA()->GetBody();
-		b2Body* bB = contact->GetFixtureB()->GetBody();
 
 		lua_rawgeti(L, LUA_REGISTRYINDEX, postsolve);
+		pushBodies(contact);
 
-		// fetch bodies tables
-		int refA = (int) (long) bA->GetUserData();
-		lua_rawgeti(L, LUA_REGISTRYINDEX, refA);
-		int refB = (int) (long) bB->GetUserData();
-		lua_rawgeti(L, LUA_REGISTRYINDEX, refB);
-		// TODO: push contact
-
-		if (lua_pcall(L, 2, 1, 0)) {
-			luaL_error(L, "error calling postsolve: %s", lua_tostring(L, -1));
-		}
+		CALL(2, 0);
 	}
 };
 int on_collision(lua_State* L)

@@ -5,6 +5,7 @@ local particle = require 'particle'
 local ground, ground2, ball, ball2
 local joint
 local mouse_joint
+local normal_sys
 
 local R = 64 -- _ pixels = 1 meter
 
@@ -84,7 +85,7 @@ function drystal.init()
 
 	-- create ball
 	ball = create_circle(0.2, {restitution=0.4}, true)
-	ball:set_position(3.5, 0)
+	ball:set_position(3.5, 4)
 
 	ball2 = create_circle(0.2, {restitution=0.4}, true)
 	ball2:set_position(4, 0)
@@ -100,7 +101,10 @@ function drystal.init()
 --	joint = physic.new_joint('rope', ball2, ball, true)
 --	joint:set_max_length(100/R)
 
-	function presolve(b1, b2)
+	function presolve(b1, b2, x, y, dx, dy)
+		normal_sys:set_position(x*R, y*R)
+		normal_sys:set_direction(math.atan2(dy, dx))
+		normal_sys:emit()
 		local collide = true
 		if b1.collide_with and not b1:collide_with(b2) then
 			collide = false
@@ -121,16 +125,23 @@ function drystal.init()
 		end,
 		presolve
 	)
-	end
+
+	normal_sys = particle.new_system(0, 0)
+	normal_sys:set_lifetime(1)
+	normal_sys:add_size(0, 2)
+	normal_sys:add_size(1, 1)
+	normal_sys:add_color(0, 0, 0, 0)
+	normal_sys:add_color(1, 0, 0, 0)
+end
 
 local dir = ''
 local time = 0
 function drystal.update(dt)
-	if delta > .6 then
-		delta = .6
+	if dt > .6 then
+		dt = .6
 	end
-	physic.update(delta * 2)
-	time = time + delta
+	physic.update(dt)
+	time = time + dt
 
 	if dir == 'left' then
 		ball:set_angular_velocity(-6)
@@ -149,14 +160,15 @@ function drystal.update(dt)
 		ball.p_system:set_min_initial_velocity((dx+dy)*R)
 		ball.p_system:set_max_initial_velocity((dx+dy)*R)
 		if ball.num_collide > 0 then
-			ball.p_system:set_emission_rate(100)
-		else
 			ball.p_system:set_emission_rate(10)
+		else
+			ball.p_system:set_emission_rate(1)
 		end
-		ball.p_system:update(delta)
+		ball.p_system:update(dt)
 	end
 	update_system(ball)
 	update_system(ball2)
+	normal_sys:update(dt)
 end
 
 function drystal.draw()
@@ -180,6 +192,7 @@ function drystal.draw()
 
 	ball.p_system:draw()
 	ball2.p_system:draw()
+	normal_sys:draw()
 end
 
 function drystal.key_press(key)
@@ -196,9 +209,7 @@ function drystal.key_press(key)
 	end
 end
 function drystal.key_release(key)
-	if key == 'a' then
-		drystal.stop()
-	elseif key == 'left' then
+	if key == 'left' then
 		dir = ''
 	elseif key == 'right' then
 		dir = ''
@@ -219,12 +230,11 @@ end
 function drystal.mouse_press(x, y, b)
 	if b == 1 then
 		if not mouse_joint then
-			mouse_joint = physic.new_joint('mouse', ground, ball, 7*ball:get_mass(), true)
+			mouse_joint = physic.new_joint('mouse', ground, ball, 15*ball:get_mass(), true)
 		end
 		mouse_joint:set_target(x/R, y/R)
 	end
 	if b == 3 then
-		physic.on_collision()
 		ball:set_position(x/R, y/R)
 		ball:set_angular_velocity(0)
 		ball:set_linear_velocity(0, 0)

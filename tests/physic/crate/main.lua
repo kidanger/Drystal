@@ -90,7 +90,7 @@ function drystal.update(dt)
 		nudgeToSquare(c.body, sq, 20)
 	end
 
-	physic.update(dt)
+	physic.update(dt * 1000)
 end
 
 function max_speed(body, spd)
@@ -128,3 +128,4 @@ end
 function drystal.mouse_press(x, y)
 	table.insert(crates, makeCrate(x/32, y/32))
 end
+
