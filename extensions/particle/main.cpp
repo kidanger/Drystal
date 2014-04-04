@@ -164,6 +164,9 @@ public:
 
 	void emit()
 	{
+		if (used == size) {
+			return;
+		}
 		Particle* p = &particles[used];
 		p->x = x + RAND(-offx, offx);
 		p->y = y + RAND(-offy, offy);
