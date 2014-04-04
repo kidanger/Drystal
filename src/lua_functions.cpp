@@ -174,14 +174,8 @@ bool LuaFunctions::reload_code()
 
 bool LuaFunctions::call_init() const
 {
-	lua_pushcfunction(L, traceback);
 	if (get_function("init")) {
-		if (lua_pcall(L, 0, 0, lua_gettop(L) - 2)) {
-			fprintf(stderr, "[ERROR] cannot call init: %s\n", lua_tostring(L, -1));
-			return false;
-		}
-	} else {
-		lua_pop(L, 1);
+		CALL(0, 0);
 	}
 	return true;
 }
