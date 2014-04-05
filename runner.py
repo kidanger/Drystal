@@ -170,6 +170,10 @@ def load_config(from_directory):
 
 
 def config_include_directory(config, directory):
+    for rule in config:
+        if rule != '*':
+            if fnmatch.fnmatch(directory, rule):
+                return True
     return directory in config
 
 
@@ -192,7 +196,7 @@ def config_include_file(config, directory, file):
         return True
     if directory == '':
         directory = '.'
-    if directory not in config:
+    if not config_include_directory(config, directory):
         return False
     for rule in config[directory]:
         if fnmatch.fnmatch(file, rule):
@@ -217,7 +221,7 @@ def copy_wget_files(path, config, destination, verbose=False):
                 if config_is_wgetted(config, directory, f):
                     files.append(dest)
         for d in dirs:
-            collect(path, join(directory, d))
+            collect(path, d)
 
     collect(path, '')
 
