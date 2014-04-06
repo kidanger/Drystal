@@ -15,7 +15,6 @@ function drystal.init()
 			msg='hello'
 		}
 	end
-	waittoken(sock, 'hi')
 end
 
 function drystal.key_press(key)
@@ -30,5 +29,6 @@ function drystal.update(dt)
 	if x then
 		sock:sendline(x + 1)
 	end
+	sock:flush()
 end
 

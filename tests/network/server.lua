@@ -3,6 +3,7 @@ local net = require 'net'
 require 'common'
 
 net.listen(port)
+print('listening on', port)
 
 local client
 while not client do
@@ -17,18 +18,13 @@ while not client do
 	end
 end
 
-client:sendlua {
-	msg='hi',
-	other={
-	}
-}
 net.flush_all()
 
 for i = 1, 5 do
 	waittoken(client, 'hello')
 end
 
-client:sendline(1)
+client:sendline(1321)
 
 function drystal.update(dt)
 	local x = client:recvline()

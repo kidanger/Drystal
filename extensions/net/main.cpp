@@ -2,11 +2,15 @@
 #include <sstream>
 #include <unistd.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <arpa/inet.h>
 #include <sys/select.h>
 #include <netdb.h>
 #include <lua.hpp>
 
+extern "C" {
+#include "websocket.h"
+}
 #include "engine.hpp"
 
 int (*_socket)(int, int, int) = socket;
@@ -19,13 +23,15 @@ class Socket {
 private:
 	int fd;
 	int tableref;
+	ws_ctx_t* wsctx;
 	std::string address;
 	std::string output;
 	std::stringbuf buf;
 public:
-	Socket(int fd, const char* address):
+	Socket(int fd, const char* address, ws_ctx_t* ctx):
 		fd(fd),
 		tableref(LUA_REFNIL),
+		wsctx(ctx),
 		address(address)
 	{
 	}
@@ -38,6 +44,7 @@ public:
 		if (fd == -1) {
 			return NULL;
 		}
+		//fcntl(fd, F_SETFL, O_NONBLOCK);
 
 		server = gethostbyname(hostname);
 		if (server == NULL) {
@@ -48,12 +55,13 @@ public:
 		serv_addr.sin_family = AF_INET;
 		memcpy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
 		serv_addr.sin_port = htons(port);
-		if (_connect(fd, (const struct sockaddr*) &serv_addr, sizeof(serv_addr)) < 0) {
+		if (_connect(fd, (const struct sockaddr*) &serv_addr, sizeof(serv_addr)) != -1
+				&& errno != EINPROGRESS) {
 			perror("connect");
 			return NULL;
 		}
 
-		return new Socket(fd, hostname);
+		return new Socket(fd, hostname, NULL);
 	}
 
 	void send(const char* msg, int len, bool* error) {
@@ -65,28 +73,60 @@ public:
 
 	void flush(bool* error) {
 		int totallen = output.length();
-		if (totallen && readyToSend()) {
-			int n = _send(fd, output.c_str(), totallen, 0);
-			if (n < 0) {
+		if (totallen == 0 || !readyToSend()) {
+			return;
+		}
+
+		int n;
+		if (wsctx) {
+			n = ws_send(wsctx, output.c_str(), totallen);
+		} else {
+			n = _send(fd, output.c_str(), totallen, 0);
+		}
+
+		if (n < 0) {
+#ifdef EMSCRIPTEN
+			if (errno == EAGAIN) {
+				// connecting, try again later
+#else
+			if (0) {
+#endif
+			} else {
 				*error = true;
 				fd = -1;
-				return;
 			}
+		} else {
 			output.erase(0, n);
 		}
 	}
 
 	int receive(char* buffer, int capacity, bool* error) {
-		if (readyToRead()) {
-			int n = recv(fd, buffer, capacity, 0);
-			if (n <= 0) {
+		if (!readyToRead()) {
+			return 0;
+		}
+
+		int n;
+		if (wsctx) {
+			n = ws_recv(wsctx, buffer, capacity);
+		} else {
+			n = recv(fd, buffer, capacity, 0);
+		}
+		if (n)
+			printf("received %s %d\n\n", buffer, n);
+
+		if (n == -1) {
+#ifdef EMSCRIPTEN
+			if (errno == EAGAIN || errno == EWOULDBLOCK) {
+#else
+			if (0) {
+#endif
+			} else {
 				fd = -1;
 				*error = true;
-			} else {
-				return n;
 			}
+			return 0;
 		}
-		return 0;
+		return n;
 	}
 
 	void disconnect() {
@@ -176,7 +216,8 @@ public:
 			char address[512];
 			getnameinfo((struct sockaddr*)&cliaddr, clilen, address, sizeof(address),
 					NULL, 0, NI_NUMERICHOST);
-			return new Socket(sockfd, address);
+			ws_ctx_t* wsctx = do_handshake(sockfd);
+			return new Socket(sockfd, address, wsctx);
 		}
 		return NULL;
 	}
