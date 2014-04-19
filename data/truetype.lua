@@ -16,11 +16,8 @@ package.path = _path
 truetype.rawdraw = truetype.draw
 truetype.rawsizeof = truetype.sizeof
 
-local color = false
-
 function truetype.use_color(col)
-	color = col
-	if color then
+	if col then
 		truetype.draw = truetype.rawdraw
 		truetype.sizeof = truetype.rawsizeof
 	else

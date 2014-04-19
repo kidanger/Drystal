@@ -2,7 +2,7 @@ local drystal = require 'drystal'
 local tt = require 'truetype'
 
 local W, H = 600, 400
-local target = 0.016
+local target = 1 / 60
 local number = 300
 
 local draw_triangle = {name='draw_triangle'}
@@ -13,7 +13,7 @@ local draw_font_nocolor = {name='draw_font_nocolor'}
 local draw_font_color = {name='draw_font_color'}
 local state = {}
 local states = { draw_triangle, draw_sprite_simple, draw_sprite_rotated, draw_sprite_resized, draw_font_nocolor, draw_font_color }
---local states = { draw_font_nocolor, draw_font_color }
+local states = { draw_font_nocolor, draw_font_color }
 local current_state = 1
 local number = 0
 local tick = 0
@@ -145,7 +145,7 @@ end
 function drystal.update(dt)
 	if tick > 100 then
 		state.max = math.max(state.max, number)
-		if dt > target then
+		if dt > target * 1.2 then
 			number = number - 5
 		else
 			number = number + 30
