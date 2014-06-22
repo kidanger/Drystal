@@ -197,6 +197,8 @@ drystal.__Sprite = Sprite
 
 function drystal.Sprite(args)
 	local sprite = setmetatable({data=args}, Sprite)
+	sprite.w = (sprite.w > 0 and sprite.w) or (sprite.source and sprite.source.w) or 0
+	sprite.h = (sprite.h > 0 and sprite.h) or (sprite.source and sprite.source.h) or 0
 	sprite._updated = true
 	return sprite
 end
