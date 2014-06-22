@@ -19,6 +19,20 @@ const GLuint ATTR_COLOR_INDEX = 1;
 const GLuint ATTR_TEXCOORD_INDEX = 2;
 const GLuint ATTR_POINTSIZE_INDEX = 3;
 
+enum BlendMode {
+	DEFAULT = 0,
+	ALPHA = 0,
+	ADD,
+	MULT,
+};
+
+enum FilterMode {
+	NEAREST = GL_NEAREST,
+	LINEAR = GL_LINEAR,
+	BILINEAR = GL_LINEAR_MIPMAP_NEAREST,
+	TRILINEAR = GL_LINEAR_MIPMAP_LINEAR,
+};
+
 struct Surface {
 	GLuint tex;
 	GLuint fbo;
@@ -26,7 +40,9 @@ struct Surface {
 	GLuint h;
 	GLuint texw;
 	GLuint texh;
+	FilterMode filter;
 	bool has_fbo;
+	bool has_mipmap;
 };
 
 
@@ -70,18 +86,6 @@ struct Camera {
 	}
 };
 
-enum BlendMode {
-	DEFAULT = 0,
-	ALPHA = 0,
-	ADD,
-	MULT,
-};
-
-enum FilterMode {
-	NEAREST = GL_NEAREST,
-	LINEAR = GL_LINEAR,
-};
-
 class Display
 {
 private:
@@ -92,9 +96,8 @@ private:
 	Shader * default_shader;
 	Shader * current_shader;
 
-	const Surface * current;
-	const Surface * current_from;
-	FilterMode filter_mode;
+	Surface * current;
+	Surface * current_from;
 
 	Buffer * current_buffer;
 
@@ -168,7 +171,7 @@ public:
 	};
 	void set_line_width(float width);
 	void set_blend_mode(BlendMode mode);
-	void set_filter_mode(FilterMode mode);
+	void set_filter(Surface* surface, FilterMode mode) const;
 
 	void reset_camera();
 	void set_camera_position(float dx, float dy);
@@ -187,12 +190,12 @@ public:
 	void free_surface(Surface*);
 
 	void draw_on(Surface*);
-	void draw_from(const Surface*);
-	const Surface* get_draw_on() const
+	void draw_from(Surface*);
+	Surface* get_draw_on() const
 	{
 		return current;
 	};
-	const Surface* get_draw_from() const
+	Surface* get_draw_from() const
 	{
 		return current_from;
 	};

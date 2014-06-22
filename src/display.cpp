@@ -99,7 +99,6 @@ Display::Display(bool server_mode) :
 	current_shader(NULL),
 	current(NULL),
 	current_from(NULL),
-	filter_mode(LINEAR),
 	current_buffer(&default_buffer),
 	r(1),
 	g(1),
@@ -218,6 +217,8 @@ void Display::create_window(int w, int h)
 	set_blend_mode(DEFAULT);
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
+	glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
+	glEnable(GL_TEXTURE_2D);
 
 #ifndef EMSCRIPTEN
 	glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
@@ -260,13 +261,12 @@ void Display::draw_background() const
 
 void Display::flip()
 {
-	DEBUG("");
+	GLDEBUG();
 	default_buffer.check_empty();
 	glBindFramebuffer(GL_FRAMEBUFFER, screen->fbo);
-	glFlush();
 	SDL_GL_SwapWindow(sdl_window);
 	glBindFramebuffer(GL_FRAMEBUFFER, current->fbo);
-	DEBUG("end");
+	GLDEBUG();
 }
 
 Surface * Display::get_screen() const
@@ -332,9 +332,23 @@ void Display::set_blend_mode(BlendMode mode)
 			break;
 	}
 }
-void Display::set_filter_mode(FilterMode mode)
+void Display::set_filter(Surface* surface, FilterMode filter) const
 {
-	filter_mode = mode;
+	if (surface->filter != filter) {
+		surface->filter = filter;
+
+		glBindTexture(GL_TEXTURE_2D, surface->tex);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter > LINEAR ? LINEAR : filter);
+		//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16.);
+		GLDEBUG();
+		//float maximumAnisotropy;
+		//glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maximumAnisotropy);
+		//DEBUGV("ani: %f", maximumAnisotropy);
+
+		glBindTexture(GL_TEXTURE_2D, current_from ? current_from->tex : 0);
+	}
 }
 
 void Display::reset_camera()
@@ -394,26 +408,35 @@ void Display::update_camera_matrix()
 	camera.dy_transformed = ddy;
 }
 
-void Display::draw_from(const Surface* surf)
+void Display::draw_from(Surface* surf)
 {
-	DEBUG("");
 	assert(surf);
 	if (current_from != surf) {
+		//DEBUG("");
+
 		default_buffer.check_empty();
 		this->current_from = surf;
 		glBindTexture(GL_TEXTURE_2D, current_from->tex);
+
+		if (!surf->has_mipmap) {
+			glGenerateMipmap(GL_TEXTURE_2D);
+			surf->has_mipmap = true;
+			GLDEBUG();
+			DEBUG("mipmap");
+		}
 	}
 }
 
 void Display::draw_on(Surface* surf)
 {
-	DEBUG("");
 	assert(surf);
 	if (current != surf) {
+		DEBUG("");
 		default_buffer.check_empty();
 		if (!surf->has_fbo) {
 			create_fbo(surf);
 		}
+		surf->has_mipmap = false;
 		this->current = surf;
 		glBindFramebuffer(GL_FRAMEBUFFER, current->fbo);
 
@@ -432,18 +455,19 @@ Surface * Display::create_surface(int w, int h, int texw, int texh, unsigned cha
 {
 	assert(pixels);
 
-	// gen texture
 	GLuint tex;
 	glGenTextures(1, &tex);
 	glBindTexture(GL_TEXTURE_2D, tex);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texw, texh, 0,
 	             GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+	glGenerateMipmap(GL_TEXTURE_2D);
 	GLDEBUG();
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter_mode);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter_mode);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	GLDEBUG();
 
 	Surface* surface = new Surface;
 	surface->tex = tex;
@@ -452,10 +476,11 @@ Surface * Display::create_surface(int w, int h, int texw, int texh, unsigned cha
 	surface->texw = texw;
 	surface->texh = texh;
 	surface->has_fbo = false;
+	surface->has_mipmap = true;
+	surface->filter = LINEAR;
 
 	glBindTexture(GL_TEXTURE_2D, current_from ? current_from->tex : 0);
 
-	DEBUG("end");
 	return surface;
 }
 
@@ -565,7 +590,6 @@ void Display::surface_size(Surface* surface, int *w, int *h)
 
 void Display::draw_point(float x, float y)
 {
-	DEBUG("");
 	float xx, yy;
 	convert_coords(x, y, &xx, &yy);
 
@@ -578,7 +602,6 @@ void Display::draw_point(float x, float y)
 }
 void Display::draw_point_tex(float xi, float yi, float xd, float yd)
 {
-	DEBUG("");
 	float xxd, yyd;
 	convert_coords(xd, yd, &xxd, &yyd);
 
@@ -597,7 +620,6 @@ void Display::draw_point_tex(float xi, float yi, float xd, float yd)
 
 void Display::draw_line(float x1, float y1, float x2, float y2)
 {
-	DEBUG("");
 	float xx1, xx2;
 	float yy1, yy2;
 	convert_coords(x1, y1, &xx1, &yy1);
@@ -615,7 +637,6 @@ void Display::draw_line(float x1, float y1, float x2, float y2)
 
 void Display::draw_triangle(float x1, float y1, float x2, float y2, float x3, float y3)
 {
-	DEBUG("");
 	if (debug_mode) {
 		draw_line(x1, y1, x2, y2);
 		draw_line(x2, y2, x3, y3);
@@ -642,7 +663,6 @@ void Display::draw_triangle(float x1, float y1, float x2, float y2, float x3, fl
 void Display::draw_surface(float xi1, float yi1, float xi2, float yi2, float xi3, float yi3,
                            float xo1, float yo1, float xo2, float yo2, float xo3, float yo3)
 {
-	DEBUG("");
 	if (debug_mode) {
 		draw_line(xo1, yo1, xo2, yo2);
 		draw_line(xo2, yo2, xo3, yo3);
@@ -931,3 +951,19 @@ void Display::free_buffer(Buffer* buffer)
 	delete buffer;
 }
 
+const char* getGLError(GLenum error)
+{
+#define casereturn(x) case x: return #x
+	switch (error) {
+			casereturn(GL_INVALID_ENUM);
+			casereturn(GL_INVALID_VALUE);
+			casereturn(GL_INVALID_OPERATION);
+			casereturn(GL_INVALID_FRAMEBUFFER_OPERATION);
+			casereturn(GL_OUT_OF_MEMORY);
+		default:
+		case GL_NO_ERROR:
+			return "";
+	}
+#undef casereturn
+	return "";
+}

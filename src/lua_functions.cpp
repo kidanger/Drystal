@@ -345,15 +345,6 @@ static int mlua_set_blend_mode(lua_State* L)
 	return 0;
 }
 
-static int mlua_set_filter_mode(lua_State* L)
-{
-	assert(L);
-
-	FilterMode mode = static_cast<FilterMode>(luaL_checknumber(L, 1));
-	engine->display.set_filter_mode(mode);
-	return 0;
-}
-
 static int mlua_camera__newindex(lua_State* L)
 {
 	assert(L);
@@ -505,8 +496,8 @@ static int mlua_new_surface(lua_State* L)
 {
 	assert(L);
 
-	int w = luaL_checkint(L, -2);
-	int h = luaL_checkint(L, -1);
+	int w = luaL_checkint(L, 1);
+	int h = luaL_checkint(L, 2);
 	Surface* surface = engine->display.new_surface(w, h);
 	push_surface(L, surface);
 	return 1;
@@ -517,7 +508,7 @@ static int mlua_free_surface(lua_State* L)
 	assert(L);
 
 	DEBUG("");
-	Surface* surface = pop_surface(L, -1);
+	Surface* surface = pop_surface(L, 1);
 	if (surface != engine->display.get_screen()) {
 		engine->display.free_surface(surface);
 	}
@@ -528,7 +519,7 @@ static int mlua_draw_on(lua_State* L)
 {
 	assert(L);
 
-	Surface* surface = pop_surface(L, -1);
+	Surface* surface = pop_surface(L, 1);
 	engine->display.draw_on(surface);
 	return 0;
 }
@@ -537,8 +528,18 @@ static int mlua_draw_from(lua_State* L)
 {
 	assert(L);
 
-	Surface* surface = pop_surface(L, -1);
+	Surface* surface = pop_surface(L, 1);
 	engine->display.draw_from(surface);
+	return 0;
+}
+
+static int mlua_set_filter(lua_State* L)
+{
+	assert(L);
+
+	Surface* surface = pop_surface(L, 1);
+	FilterMode mode = static_cast<FilterMode>(luaL_checknumber(L, 2));
+	engine->display.set_filter(surface, mode);
 	return 0;
 }
 
@@ -1071,7 +1072,6 @@ int luaopen_drystal(lua_State* L)
 		DECLARE_FUNCTION(set_point_size),
 		DECLARE_FUNCTION(set_line_width),
 		DECLARE_FUNCTION(set_blend_mode),
-		DECLARE_FUNCTION(set_filter_mode),
 
 		/* DISPLAY SHADER */
 		DECLARE_FUNCTION(new_shader),
@@ -1105,6 +1105,7 @@ int luaopen_drystal(lua_State* L)
 	BEGIN_CLASS(surface)
 	DECLARE_FUNCTION(draw_on),
 	DECLARE_FUNCTION(draw_from),
+	DECLARE_FUNCTION(set_filter),
 	ADD_GC(free_surface)
 	END_CLASS();
 	REGISTER_CLASS_WITH_INDEX(surface, "__Surface");
@@ -1161,10 +1162,14 @@ int luaopen_drystal(lua_State* L)
 	}
 	{
 		// filter modes
-		lua_pushnumber(L, LINEAR);
-		lua_setfield(L, -2, "FILTER_LINEAR");
 		lua_pushnumber(L, NEAREST);
-		lua_setfield(L, -2, "FILTER_NEAREST");
+		lua_setfield(L, -2, "NEAREST");
+		lua_pushnumber(L, LINEAR);
+		lua_setfield(L, -2, "LINEAR");
+		lua_pushnumber(L, BILINEAR);
+		lua_setfield(L, -2, "BILINEAR");
+		lua_pushnumber(L, TRILINEAR);
+		lua_setfield(L, -2, "TRILINEAR");
 	}
 
 	{

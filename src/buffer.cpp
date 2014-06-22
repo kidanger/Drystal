@@ -179,7 +179,6 @@ void Buffer::draw(float dx, float dy)
 		return;
 	}
 
-	DEBUG();
 	assert(current_color == current_position);
 	assert(!has_texture || current_color == current_tex_coord);
 	assert(type != POINT_BUFFER || current_color == current_point_size);

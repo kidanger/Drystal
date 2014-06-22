@@ -103,7 +103,7 @@ void Font::draw_plain(const char* text, float x, float y)
 	y += font_size * 3 / 4;
 
 	Engine& engine = get_engine();
-	const Surface* old_surface = engine.display.get_draw_from();
+	Surface* old_surface = engine.display.get_draw_from();
 	engine.display.draw_from(surface);
 	while (*text) {
 		if (*text >= start && *text < end) {
@@ -124,7 +124,7 @@ void Font::draw(const char* text, float x, float y)
 	y += font_size * 3 / 4;
 
 	Engine& engine = get_engine();
-	const Surface* old_surface = engine.display.get_draw_from();
+	Surface* old_surface = engine.display.get_draw_from();
 	engine.display.draw_from(surface);
 
 	TextState* state;

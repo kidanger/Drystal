@@ -233,7 +233,7 @@ Music* Audio::load_music(MusicCallback* callback, int samplesrate, int num_chann
 	Music* music = new Music;
 	music->callback = callback;
 	music->samplesrate = samplesrate;
-	music->buffersize = samplesrate * .1 * num_channels;
+	music->buffersize = samplesrate * .2 * num_channels;
 	music->format = num_channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
 	alGenBuffers(STREAM_NUM_BUFFERS, music->alBuffers);
 	error();
