@@ -27,19 +27,18 @@ function truetype.use_color(col)
 end
 
 function truetype.draw_align(text, x, y, alignement)
-	if alignement == 'center' then
-		local w = truetype.sizeof(text)
-		x = x - w / 2
-	elseif alignement == 'right' then
-		local w = truetype.sizeof(text)
-		x = x - w
+	oldx = x
+	for str in text:gmatch("[^\n]*") do
+		local w, h = truetype.sizeof(str)
+		if alignement == 'center' then
+			x = x - w / 2
+		elseif alignement == 'right' then
+			x = x - w
+		end
+		truetype.draw(str, x, y)
+		y = y + h
+		x = oldx
 	end
-	if get_offset then
-		local ox, oy = get_offset()
-		x = x + ox
-		y = y + oy
-	end
-	truetype.draw(text, x, y)
 end
 
 return truetype

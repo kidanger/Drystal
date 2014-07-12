@@ -120,7 +120,7 @@ Display::Display(bool server_mode) :
 	}
 	// create the window in the constructor
 	// so we have an opengl context ready for the user
-	create_window(1, 1);
+	create_window(2, 2);
 
 	default_buffer.use_camera(&camera);
 
@@ -137,7 +137,7 @@ Display::~Display()
 		SDL_DestroyWindow(sdl_window);
 	}
 	if (screen) {
-		delete screen;
+		// freed by lua's gc
 		screen = NULL;
 	}
 }
@@ -174,10 +174,8 @@ void Display::resize(int w, int h)
 			posy + oldh / 2 - h / 2); // and move it back
 #endif
 	SDL_GetWindowSize(sdl_window, &w, &h);
-	screen->w = w;
-	screen->h = h;
-	screen->texw = w;
-	screen->texh = h;
+	// freed by lua's gc
+	screen = new_surface(w, h);
 	current = NULL; // force update
 	draw_on(screen);
 }
@@ -200,14 +198,8 @@ void Display::create_window(int w, int h)
 	SDL_GL_SetSwapInterval(1);
 	SDL_GetWindowSize(sdl_window, &w, &h);
 
-	screen = new Surface;
-	screen->w = w;
-	screen->h = h;
-	screen->texw = w;
-	screen->texh = h;
-	screen->fbo = 0; // back buffer
-	screen->has_fbo = true;
-
+	screen = new_surface(w, h);
+	assert(screen);
 	draw_on(screen);
 
 	default_shader = create_default_shader();
@@ -262,10 +254,39 @@ void Display::draw_background() const
 void Display::flip()
 {
 	GLDEBUG();
-	default_buffer.check_empty();
-	glBindFramebuffer(GL_FRAMEBUFFER, screen->fbo);
+	// save context
+	Surface* oldfrom = current_from;
+	Buffer* oldbuffer = current_buffer;
+	float oldr = r;
+	float oldg = g;
+	float oldb = b;
+	float oldalpha = alpha;
+	bool olddebug = debug_mode;
+
+	// draw 'screen' on real screen, using default context (buffer, color, no debug, etc)
+	use_buffer(NULL);
+	draw_from(screen);
+	use_shader(default_shader);
+	set_color(255, 255, 255);
+	set_alpha(255);
+	float w = screen->w;
+	float h = screen->h;
+	debug_mode = false;
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	draw_quad(0, 0, w, 0, w, h, 0, h,
+				0, h, w, h, w, 0, 0, 0); // y reversed
+	current_buffer->check_empty();
 	SDL_GL_SwapWindow(sdl_window);
+
+	// restore context
 	glBindFramebuffer(GL_FRAMEBUFFER, current->fbo);
+	if (oldfrom)
+		draw_from(oldfrom);
+	debug_mode = olddebug;
+	use_buffer(oldbuffer);
+	set_color(oldr, oldg, oldb);
+	set_alpha(oldalpha);
+
 	GLDEBUG();
 }
 
@@ -402,8 +423,6 @@ void Display::update_camera_matrix()
 
 	float ddx = 2 * (- camera.dx / current->w);
 	float ddy = 2 * (- camera.dy / current->h);
-	if (current == screen)
-		ddy *= -1.0;
 	camera.dx_transformed = ddx;
 	camera.dy_transformed = ddy;
 }
@@ -412,17 +431,15 @@ void Display::draw_from(Surface* surf)
 {
 	assert(surf);
 	if (current_from != surf) {
-		//DEBUG("");
-
-		default_buffer.check_empty();
+		current_buffer->check_empty();
 		this->current_from = surf;
 		glBindTexture(GL_TEXTURE_2D, current_from->tex);
+		GLDEBUG();
 
 		if (!surf->has_mipmap) {
 			glGenerateMipmap(GL_TEXTURE_2D);
-			surf->has_mipmap = true;
 			GLDEBUG();
-			DEBUG("mipmap");
+			surf->has_mipmap = true;
 		}
 	}
 }
@@ -431,8 +448,7 @@ void Display::draw_on(Surface* surf)
 {
 	assert(surf);
 	if (current != surf) {
-		DEBUG("");
-		default_buffer.check_empty();
+		current_buffer->check_empty();
 		if (!surf->has_fbo) {
 			create_fbo(surf);
 		}
@@ -493,15 +509,16 @@ void Display::create_fbo(Surface* surface) const
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
 	                       GL_TEXTURE_2D, surface->tex, 0);
 	GLDEBUG();
+	assert(fbo != 0);
 
 	GLenum status;
 	status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	assert(status == GL_FRAMEBUFFER_COMPLETE);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, current->fbo);
-
 	surface->fbo = fbo;
 	surface->has_fbo = true;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, current ? current->fbo : 0);
 }
 
 #define RGBA_SIZE 4
@@ -560,12 +577,13 @@ void Display::free_surface(Surface* surface)
 {
 	assert(surface);
 	if (surface == current_from) {
-		default_buffer.check_not_use_texture();
+		current_buffer->check_not_use_texture();
 		glBindTexture(GL_TEXTURE_2D, 0);
 		current_from = NULL;
 	}
 	if (surface == current) {
-		glBindFramebuffer(GL_FRAMEBUFFER, screen->fbo);
+		current_buffer->check_empty();
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		current = NULL;
 	}
 	glDeleteTextures(1, &surface->tex);
@@ -720,7 +738,7 @@ static char* getShaderError(GLuint obj)
 	}
 
 	char* error = NULL;
-	if (length) {
+	if (length > 1) { // make sure the error is explained here
 		error = new char[length];
 
 		if (glIsShader(obj))
@@ -860,7 +878,6 @@ Shader * Display::new_shader(const char* strvert, const char* strfragcolor, cons
 
 void Display::use_shader(Shader* shader)
 {
-	DEBUG();
 	current_buffer->check_empty();
 
 	if (!shader) {
@@ -878,19 +895,21 @@ void Display::feed_shader(Shader* shader, const char* name, float value)
 	GLint prog;
 	glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
 
-	glUseProgram(shader->prog_color);
-	GLint loc = glGetUniformLocation(shader->prog_color, name);
-	if (loc >= 0)
-		glUniform1f(loc, value);
-	else
-		printf("no location for %s\n", name);
+	GLint locColor = glGetUniformLocation(shader->prog_color, name);
+	GLint locTex = glGetUniformLocation(shader->prog_tex, name);
 
-	glUseProgram(shader->prog_tex);
-	loc = glGetUniformLocation(shader->prog_tex, name);
-	if (loc >= 0)
-		glUniform1f(loc, value);
-	else
-		printf("no location for %s\n", name);
+	if (locColor >= 0) {
+		glUseProgram(shader->prog_color);
+		glUniform1f(locColor, value);
+	}
+	if (locTex >= 0) {
+		glUseProgram(shader->prog_tex);
+		glUniform1f(locTex, value);
+	}
+
+	if (locTex < 0 && locColor < 0) {
+		printf("No location for %s.\n", name);
+	}
 
 	glUseProgram(prog);
 }

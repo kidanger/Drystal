@@ -43,6 +43,7 @@ struct Surface {
 	FilterMode filter;
 	bool has_fbo;
 	bool has_mipmap;
+	int ref;
 };
 
 
@@ -120,8 +121,6 @@ private:
 	{
 		*dx = (2. * x / current->w) - 1;
 		*dy = (2. * y / current->h) - 1;
-		if (current == screen)
-			*dy *= -1.;
 	}
 	inline void convert_texcoords(float x, float y, float *dx, float *dy) const
 	{

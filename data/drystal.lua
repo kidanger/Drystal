@@ -1,7 +1,5 @@
 local drystal = drystal
 
-local _draw_from = drystal.draw_from
-local _draw_on = drystal.draw_on
 local _draw_quad = drystal.draw_quad
 drystal.draw_freeshape = _draw_quad
 
@@ -255,10 +253,6 @@ end
 
 
 local weird_shader_vertex = [[
-#ifdef GL_ES
-precision highp float;
-#endif
-
 attribute vec2 position;
 attribute vec4 color;
 attribute vec2 texCoord;
@@ -341,6 +335,85 @@ function drystal.file_exists(name)
 		return true
 	end
 	return false
+end
+
+drystal.postfxs = {}
+local backsurface
+
+function drystal.create_postfx(name, code, uniforms)
+	uniforms = uniforms or {}
+	local uniforms_code = ''
+	for name, value in pairs(uniforms) do
+		uniforms_code = uniforms_code .. [[
+			uniform float ]] .. name .. [[;
+		]]
+	end
+	code = [[
+		varying vec2 fTexCoord;
+		uniform sampler2D tex;
+		]] .. uniforms_code .. [[
+		]] .. code .. [[
+		void main()
+		{
+			gl_FragColor = vec4(effect(tex, fTexCoord), 1.0);
+		}
+	]]
+	--print(code)
+	local shader = assert(drystal.new_shader(nil, nil, code))
+	local fx = function(...)
+		local screen = drystal.screen
+
+		drystal.set_color(255, 255, 255)
+		drystal.set_alpha(255)
+
+		shader:use()
+		local i = 1
+		for u, v in pairs(uniforms) do
+			v = select(i, ...) or v
+			shader:feed(u, v)
+			i = i + 1
+		end
+		local old = screen:draw_from()
+		backsurface:draw_on()
+		drystal.draw_image(0, 0, backsurface.w, backsurface.h, 0, 0)
+
+		drystal.use_shader()
+		backsurface:draw_from()
+		screen:draw_on()
+		drystal.draw_image(0, 0, backsurface.w, backsurface.h, 0, 0)
+
+		if old then
+			old:draw_from()
+		end
+	end
+	drystal.postfxs[name] = fx
+end
+
+drystal.create_postfx('gray', [[
+	vec3 effect(sampler2D tex, vec2 coord)
+	{
+		vec3 texval = texture2D(tex, coord).rgb;
+		return vec3((texval.r + texval.g + texval.b) / 3.0);
+	}
+]])
+
+drystal.create_postfx('red', [[
+	vec3 effect(sampler2D tex, vec2 coord)
+	{
+		vec3 texval = texture2D(tex, coord).rgb;
+		return vec3(red, 0., 0.) + texval;
+	}
+]], {red=1})
+
+function drystal.postfx(name, ...)
+	if not drystal.postfxs[name] then
+		error('Post FX ' .. name .. ' not found.')
+	end
+	local screen = drystal.screen
+	if not backsurface or backsurface.w ~= screen.w or backsurface.h ~= screen.h then
+		backsurface = drystal.new_surface(screen.w, screen.h)
+	end
+	drystal.postfxs[name](...)
 end
 
 return drystal

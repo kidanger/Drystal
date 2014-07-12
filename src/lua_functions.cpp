@@ -487,6 +487,8 @@ static int mlua_load_surface(lua_State* L)
 	Surface* surface = engine->display.load_surface(filename);
 	if (surface) {
 		push_surface(L, surface);
+		lua_pushvalue(L, -1);
+		surface->ref = luaL_ref(L, LUA_REGISTRYINDEX);
 		return 1;
 	}
 	return luaL_fileresult(L, 0, filename);
@@ -500,6 +502,9 @@ static int mlua_new_surface(lua_State* L)
 	int h = luaL_checkint(L, 2);
 	Surface* surface = engine->display.new_surface(w, h);
 	push_surface(L, surface);
+
+	lua_pushvalue(L, -1);
+	surface->ref = luaL_ref(L, LUA_REGISTRYINDEX);
 	return 1;
 }
 
@@ -509,9 +514,7 @@ static int mlua_free_surface(lua_State* L)
 
 	DEBUG("");
 	Surface* surface = pop_surface(L, 1);
-	if (surface != engine->display.get_screen()) {
-		engine->display.free_surface(surface);
-	}
+	engine->display.free_surface(surface);
 	return 0;
 }
 
@@ -519,8 +522,14 @@ static int mlua_draw_on(lua_State* L)
 {
 	assert(L);
 
+	Surface* old = engine->display.get_draw_on();
 	Surface* surface = pop_surface(L, 1);
 	engine->display.draw_on(surface);
+
+	if (old) {
+		lua_rawgeti(L, LUA_REGISTRYINDEX, old->ref);
+		return 1;
+	}
 	return 0;
 }
 
@@ -528,8 +537,14 @@ static int mlua_draw_from(lua_State* L)
 {
 	assert(L);
 
+	Surface* old = engine->display.get_draw_from();
 	Surface* surface = pop_surface(L, 1);
 	engine->display.draw_from(surface);
+
+	if (old) {
+		lua_rawgeti(L, LUA_REGISTRYINDEX, old->ref);
+		return 1;
+	}
 	return 0;
 }
 

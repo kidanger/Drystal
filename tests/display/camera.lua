@@ -21,9 +21,9 @@ function drystal.draw()
 	drystal.draw_circle(300, 200, 10)
 end
 
-function mouse_motion(x, y)
-	drystal.camera.x = x
-	drystal.camera.y = y
+function drystal.mouse_motion(x, y)
+	drystal.camera.x = 300 - x
+	drystal.camera.y = 200 - y
 	drystal.camera.angle = drystal.camera.angle + math.pi/32
 end
 

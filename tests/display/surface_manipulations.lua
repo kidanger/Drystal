@@ -4,10 +4,6 @@ local json = require 'dkjson'
 spritesheet = json.decode(io.open('image.json'):read('*all'))
 
 vert = [[
-#ifdef GL_ES
-precision highp float;
-#endif
-
 attribute vec2 position;
 attribute vec4 color;
 attribute vec2 texCoord;
@@ -27,8 +23,8 @@ void main()
 {
 	vec2 p1 = position;
 	vec2 pos = position.xy;
-	pos.x += rand(vec2(p1.x, tick/10000.+100.)) * .01;
-	pos.y += rand(vec2(p1.y, tick/10000.)) * .01;
+	pos.x += rand(vec2(p1.x, tick/10.+100.)) * .01;
+	pos.y += rand(vec2(p1.y, tick/10.)) * .01;
 
 	gl_Position = vec4(pos, 0., 1.);
 	fColor = color;
