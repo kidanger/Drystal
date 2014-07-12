@@ -47,16 +47,16 @@ const char* DEFAULT_VERTEX_SHADER = SHADER_STRING
                                         varying vec4 fColor;
                                         varying vec2 fTexCoord;
 
-                                        uniform float dx;
-                                        uniform float dy;
-                                        uniform float zoom;
+                                        uniform float cameraDx;
+                                        uniform float cameraDy;
+                                        uniform float cameraZoom;
                                         uniform mat2 rotationMatrix;
-                                        mat2 cameraMatrix = rotationMatrix * zoom;
+                                        mat2 cameraMatrix = rotationMatrix * cameraZoom;
 
                                         void main()
 {
-	gl_PointSize = pointSize * zoom;
-	vec2 position2d = cameraMatrix  * (position - vec2(dx, dy));
+	gl_PointSize = pointSize * cameraZoom;
+	vec2 position2d = cameraMatrix  * (position - vec2(cameraDx, cameraDy));
 	gl_Position = vec4(position2d, 0.0, 1.0);
 	fColor = color;
 	fTexCoord = texCoord;
@@ -436,7 +436,7 @@ void Display::draw_from(Surface* surf)
 		glBindTexture(GL_TEXTURE_2D, current_from->tex);
 		GLDEBUG();
 
-		if (!surf->has_mipmap) {
+		if (!surf->has_mipmap && surf->filter >= BILINEAR) {
 			glGenerateMipmap(GL_TEXTURE_2D);
 			GLDEBUG();
 			surf->has_mipmap = true;
@@ -863,14 +863,14 @@ Shader * Display::new_shader(const char* strvert, const char* strfragcolor, cons
 	shader->prog_color = prog_color;
 	shader->prog_tex = prog_tex;
 
-	shader->vars[COLOR].dxLocation = glGetUniformLocation(prog_color, "dx");
-	shader->vars[COLOR].dyLocation = glGetUniformLocation(prog_color, "dy");
-	shader->vars[COLOR].zoomLocation = glGetUniformLocation(prog_color, "zoom");
+	shader->vars[COLOR].dxLocation = glGetUniformLocation(prog_color, "cameraDx");
+	shader->vars[COLOR].dyLocation = glGetUniformLocation(prog_color, "cameraDy");
+	shader->vars[COLOR].zoomLocation = glGetUniformLocation(prog_color, "cameraZoom");
 	shader->vars[COLOR].rotationMatrixLocation = glGetUniformLocation(prog_color, "rotationMatrix");
 
-	shader->vars[TEX].dxLocation = glGetUniformLocation(prog_tex, "dx");
-	shader->vars[TEX].dyLocation = glGetUniformLocation(prog_tex, "dy");
-	shader->vars[TEX].zoomLocation = glGetUniformLocation(prog_tex, "zoom");
+	shader->vars[TEX].dxLocation = glGetUniformLocation(prog_tex, "cameraDx");
+	shader->vars[TEX].dyLocation = glGetUniformLocation(prog_tex, "cameraDy");
+	shader->vars[TEX].zoomLocation = glGetUniformLocation(prog_tex, "cameraZoom");
 	shader->vars[TEX].rotationMatrixLocation = glGetUniformLocation(prog_tex, "rotationMatrix");
 
 	return shader;

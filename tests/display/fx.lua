@@ -4,6 +4,8 @@ drystal.resize(600, 400)
 
 local gray = false
 local red = false
+local distortion = false
+local blur = false
 
 local time = 0
 function drystal.update(dt)
@@ -27,10 +29,16 @@ function drystal.draw(dt)
 	drystal.draw_rect(100, 100, 100, 100)
 
 	if gray then
-		drystal.postfx('gray')
+		drystal.postfx('gray', math.sin(time)/2 + .5)
 	end
 	if red then
 		drystal.postfx('red', math.sin(time * 10)/2 + .5)
+	end
+	if distortion then
+		drystal.postfx('distortion', time)
+	end
+	if blur then
+		drystal.postfx('blur')
 	end
 end
 
@@ -41,5 +49,9 @@ function drystal.key_press(k)
 		gray = not gray
 	elseif k == 'r' then
 		red = not red
+	elseif k == 'd' then
+		distortion = not distortion
+	elseif k == 'b' then
+		blur = not blur
 	end
 end

@@ -705,7 +705,7 @@ static int mlua_feed_shader(lua_State* L)
 
 	Shader* shader = pop_shader(L, 1);
 	const char* name = lua_tostring(L, 2);
-	float value = luaL_checknumber(L, 3);
+	lua_Number value = luaL_checknumber(L, 3);
 	engine->display.feed_shader(shader, name, value);
 	return 0;
 }

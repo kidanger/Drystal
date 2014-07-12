@@ -343,7 +343,7 @@ local backsurface
 function drystal.create_postfx(name, code, uniforms)
 	uniforms = uniforms or {}
 	local uniforms_code = ''
-	for name, value in pairs(uniforms) do
+	for i, name in ipairs(uniforms) do
 		uniforms_code = uniforms_code .. [[
 			uniform float ]] .. name .. [[;
 		]]
@@ -367,11 +367,9 @@ function drystal.create_postfx(name, code, uniforms)
 		drystal.set_alpha(255)
 
 		shader:use()
-		local i = 1
-		for u, v in pairs(uniforms) do
-			v = select(i, ...) or v
+		for i, u in ipairs(uniforms) do
+			local v = select(i, ...) or 0
 			shader:feed(u, v)
-			i = i + 1
 		end
 		local old = screen:draw_from()
 		backsurface:draw_on()
@@ -393,9 +391,9 @@ drystal.create_postfx('gray', [[
 	vec3 effect(sampler2D tex, vec2 coord)
 	{
 		vec3 texval = texture2D(tex, coord).rgb;
-		return vec3((texval.r + texval.g + texval.b) / 3.0);
+		return mix(texval, vec3((texval.r + texval.g + texval.b) / 3.0), scale);
 	}
-]])
+]], {'scale',})
 
 drystal.create_postfx('red', [[
 	vec3 effect(sampler2D tex, vec2 coord)
@@ -403,7 +401,50 @@ drystal.create_postfx('red', [[
 		vec3 texval = texture2D(tex, coord).rgb;
 		return vec3(red, 0., 0.) + texval;
 	}
-]], {red=1})
+]], {'red',})
+
+drystal.create_postfx('distortion', [[
+	#define pi ]] .. math.pi .. [[
+
+	vec3 effect(sampler2D tex, vec2 coord)
+	{
+		coord.x += sin(coord.y * 8.*pi + time * 2. * pi * .75) / 100.;
+		return texture2D(tex, coord).rgb;
+	}
+]], {'time',})
+
+drystal.create_postfx('blurDir', [[
+	const float weight1 = 0.3989422804014327;
+	const float weight2 = 0.24197072451914536;
+	const float weight3 = 0.05399096651318985;
+	const float weight4 = 0.004431848411938341;
+
+	vec3 effect(sampler2D tex, vec2 coord)
+	{
+		vec2 dir = vec2(dx, dy);
+		vec3 acc = vec3(0., 0., 0.);
+
+		acc += texture2D(tex, coord).rgb * weight1;
+
+		acc += texture2D(tex, coord + dir).rgb * weight2;
+		acc += texture2D(tex, coord - dir).rgb * weight2;
+
+		acc += texture2D(tex, coord + dir*2.).rgb * weight3;
+		acc += texture2D(tex, coord - dir*2.).rgb * weight3;
+
+		acc += texture2D(tex, coord + dir*3.).rgb * weight4;
+		acc += texture2D(tex, coord - dir*3.).rgb * weight4;
+
+		acc /= weight1 + (weight2 + weight3 + weight4) * 2.;
+		return acc;
+	}
+]], {'dx', 'dy',})
+
+drystal.postfxs.blur = function(...)
+	drystal.postfxs.blurDir(1 / drystal.screen.w, 0)
+	drystal.postfxs.blurDir(0, 1 / drystal.screen.h)
+end
+
 
 function drystal.postfx(name, ...)
 	if not drystal.postfxs[name] then
