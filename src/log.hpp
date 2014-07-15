@@ -1,9 +1,5 @@
 #pragma once
 
-#ifndef EMSCRIPTEN
-#define DODEBUG
-#endif
-
 #ifdef DODEBUG
 #ifndef EMSCRIPTEN
 #include <SDL2/SDL_opengles2.h>

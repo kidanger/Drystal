@@ -5,8 +5,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON) # -fPIC
 project(drystal)
 
 if(CMAKE_COMPILER_IS_GNUCC)
-    set(CMAKE_CXX_FLAGS_DEBUG "-g -march=native")
-    set(CMAKE_C_FLAGS_DEBUG "-g -march=native")
+    set(CMAKE_CXX_FLAGS_DEBUG "-g -march=native -DDODEBUG")
+    set(CMAKE_C_FLAGS_DEBUG "-g -march=native -DDODEBUG")
     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -march=native -mtune=native")
     set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG -march=native -mtune=native")
 endif(CMAKE_COMPILER_IS_GNUCC)
