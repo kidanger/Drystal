@@ -284,8 +284,10 @@ void Display::flip()
 		draw_from(oldfrom);
 	debug_mode = olddebug;
 	use_buffer(oldbuffer);
-	set_color(oldr, oldg, oldb);
-	set_alpha(oldalpha);
+	this->r = oldr;
+	this->g = oldg;
+	this->b = oldb;
+	this->alpha = oldalpha;
 
 	GLDEBUG();
 }
