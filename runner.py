@@ -252,14 +252,6 @@ def clean(directory):
     return True
 
 
-def tup_update(build=''):
-    if '.tup' not in os.listdir('.'):
-        execute(['tup', 'init'])
-    if execute(['tup', 'upd', build]) != 0:
-        print(E, 'compilation failed, stopping.', N)
-        sys.exit(1)
-
-
 def cmake_update(build, definitions=[]):
     generator = HAS_NINJA and 'Ninja' or 'Unix Makefiles'
     compiler = HAS_NINJA and 'ninja' or 'make'
