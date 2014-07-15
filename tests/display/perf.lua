@@ -13,7 +13,6 @@ local draw_font_nocolor = {name='draw_font_nocolor'}
 local draw_font_color = {name='draw_font_color'}
 local state = {}
 local states = { draw_triangle, draw_sprite_simple, draw_sprite_rotated, draw_sprite_resized, draw_font_nocolor, draw_font_color }
-local states = { draw_font_nocolor, draw_font_color }
 local current_state = 1
 local number = 0
 local tick = 0
