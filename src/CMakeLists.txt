@@ -8,6 +8,8 @@ endif()
 if(CMAKE_COMPILER_IS_GNUCC)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ftrapv -Wall -Wextra -Wundef -Wunreachable-code -Wwrite-strings -Weffc++")
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ftrapv -Wall -Wextra -Wundef -Wunreachable-code -Wwrite-strings -Wstrict-prototypes")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_DEBUG} -ftrapv -Wall -Wextra -Wundef -Wunreachable-code -Wwrite-strings -Weffc++")
+    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_DEBUG} -ftrapv -Wall -Wextra -Wundef -Wunreachable-code -Wwrite-strings -Wstrict-prototypes")
 endif()
 
 add_executable(${DRYSTAL_OUT} ${SOURCES})
