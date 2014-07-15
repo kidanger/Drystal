@@ -445,6 +445,64 @@ drystal.postfxs.blur = function(...)
 	drystal.postfxs.blurDir(0, 1 / drystal.screen.h)
 end
 
+drystal.create_postfx('vignette', [[
+	vec3 effect(sampler2D tex, vec2 coord)
+	{
+		vec2 m = vec2(0.5, 0.5);
+		float d = distance(m, coord);
+		vec3 texval = texture2D(tex, coord).rgb;
+		return texval * smoothstep(outer, inner, d);
+	}
+]], {'outer', 'inner',})
+
+drystal.create_postfx('dither', [[
+	/*
+		Port of shader by Ceaphyrel, found at
+		http://www.assembla.com/code/MUL2010_OpenGLScenePostprocessing/subversion/nodes/MUL%20FBO/Shaders/dithering.frag?rev=83
+		toneburst 2011
+	*/
+	float find_closest(int x, int  y, float c0)
+	{
+		mat4 dither = mat4(
+			1.0,  33.0,  9.0, 41.0,
+			49.0, 17.0, 57.0, 25.0,
+			13.0, 45.0,  5.0, 37.0,
+			61.0, 29.0, 53.0, 21.0 );
+		
+		float limit = 0.0;
+		if(x < 4) {
+			if(y >= 4) {
+				limit = (dither[x][y-4]+3.0)/65.0;
+			} else {
+				limit = (dither[x][y])/65.0;
+			}
+		}
+			
+		if(x >= 4) {
+			if(y >= 4)
+				limit = (dither[x-4][y-4]+1.0)/65.0;
+			else
+				limit = (dither[x-4][y]+2.0)/65.0;
+		}
+			
+		if(c0 < limit)
+			return 0.0;
+		
+		return 1.0;
+	}
+
+	vec3 effect(sampler2D tex, vec2 coord)
+	{
+		vec4 texval = texture2D(tex, coord.xy);
+		float grayscale = dot(texval, vec4(0.299, 0.587, 0.114, 0));
+		vec2 xy = coord * scale;
+
+		int x = int(mod(xy.x, 8.0));
+		int y = int(mod(xy.y, 8.0));
+		float final = find_closest(x, y, grayscale);
+		return final * texval.rgb;
+	}
+]], {'scale',})
 
 function drystal.postfx(name, ...)
 	if not drystal.postfxs[name] then
@@ -452,7 +510,7 @@ function drystal.postfx(name, ...)
 	end
 	local screen = drystal.screen
 	if not backsurface or backsurface.w ~= screen.w or backsurface.h ~= screen.h then
-		backsurface = drystal.new_surface(screen.w, screen.h)
+		backsurface = drystal.new_surface(screen.w, screen.h, true)
 	end
 	drystal.postfxs[name](...)
 end

@@ -43,6 +43,7 @@ struct Surface {
 	FilterMode filter;
 	bool has_fbo;
 	bool has_mipmap;
+	bool npot;
 	int ref;
 };
 
@@ -183,7 +184,7 @@ public:
 
 	Surface* get_screen() const;
 	Surface* create_surface(int w, int h, int texw, int texh, unsigned char* pixels) const;
-	Surface* new_surface(int w, int h) const;
+	Surface* new_surface(int w, int h, bool force_npot) const;
 	Surface* load_surface(const char *) const;
 	void surface_size(Surface* surface, int *w, int *h);
 	void free_surface(Surface*);

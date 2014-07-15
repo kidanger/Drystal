@@ -175,7 +175,7 @@ void Display::resize(int w, int h)
 #endif
 	SDL_GetWindowSize(sdl_window, &w, &h);
 	// freed by lua's gc
-	screen = new_surface(w, h);
+	screen = new_surface(w, h, true);
 	current = NULL; // force update
 	draw_on(screen);
 }
@@ -198,7 +198,7 @@ void Display::create_window(int w, int h)
 	SDL_GL_SetSwapInterval(1);
 	SDL_GetWindowSize(sdl_window, &w, &h);
 
-	screen = new_surface(w, h);
+	screen = new_surface(w, h, true);
 	assert(screen);
 	draw_on(screen);
 
@@ -436,7 +436,7 @@ void Display::draw_from(Surface* surf)
 		glBindTexture(GL_TEXTURE_2D, current_from->tex);
 		GLDEBUG();
 
-		if (!surf->has_mipmap && surf->filter >= BILINEAR) {
+		if (!surf->has_mipmap && surf->filter >= BILINEAR && !surf->npot) {
 			glGenerateMipmap(GL_TEXTURE_2D);
 			GLDEBUG();
 			surf->has_mipmap = true;
@@ -477,7 +477,6 @@ Surface * Display::create_surface(int w, int h, int texw, int texh, unsigned cha
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texw, texh, 0,
 	             GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-	glGenerateMipmap(GL_TEXTURE_2D);
 	GLDEBUG();
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, LINEAR);
@@ -493,6 +492,7 @@ Surface * Display::create_surface(int w, int h, int texw, int texh, unsigned cha
 	surface->texh = texh;
 	surface->has_fbo = false;
 	surface->has_mipmap = true;
+	surface->npot = false;
 	surface->filter = LINEAR;
 
 	glBindTexture(GL_TEXTURE_2D, current_from ? current_from->tex : 0);
@@ -558,17 +558,24 @@ Surface * Display::load_surface(const char * filename) const
 	return surface;
 }
 
-Surface * Display::new_surface(int w, int h) const
+Surface * Display::new_surface(int w, int h, bool force_npot) const
 {
 	assert(w > 0);
 	assert(h > 0);
 	int potw = pow(2, ceil(log(w) / log(2)));
 	int poth = pow(2, ceil(log(h) / log(2)));
+	if (force_npot) {
+		potw = w;
+		poth = h;
+	}
 
 	unsigned char *pixels = new unsigned char[potw * poth * RGBA_SIZE];
 	memset(pixels, 0, potw * poth * RGBA_SIZE);
 
 	Surface *surface = create_surface(w, h, potw, poth, pixels);
+	if (force_npot) {
+		surface->npot = true;
+	}
 	delete[] pixels;
 	return surface;
 }

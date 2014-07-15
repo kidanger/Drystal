@@ -500,7 +500,8 @@ static int mlua_new_surface(lua_State* L)
 
 	int w = luaL_checkint(L, 1);
 	int h = luaL_checkint(L, 2);
-	Surface* surface = engine->display.new_surface(w, h);
+	bool force_npot = lua_toboolean(L, 3);
+	Surface* surface = engine->display.new_surface(w, h, force_npot);
 	push_surface(L, surface);
 
 	lua_pushvalue(L, -1);
