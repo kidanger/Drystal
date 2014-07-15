@@ -1,0 +1,22 @@
+Drystal C++ Game Engine, compilable to Javascript
+
+AUTHOR:
+    Jérémy Anger
+
+GITWEB:
+    http://git.kidanger.net/drystal.git/
+
+REQUIREMENTS:
+    - SDL2
+    - OpenAL
+    - OpenGL
+
+    For the net extension:
+    - zlib
+    - libssl
+
+    Build:
+    - CMake
+    - C++ compiler (clang, gcc,...)
+    - make or ninja
+    - patch
