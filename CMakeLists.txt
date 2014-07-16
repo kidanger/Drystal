@@ -6,12 +6,12 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON) # -fPIC
 
 project(drystal)
 
-if(CMAKE_COMPILER_IS_GNUCC)
+if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -march=native -DDODEBUG")
     set(CMAKE_C_FLAGS_DEBUG "-g -O0 -march=native -DDODEBUG")
     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -march=native -mtune=native")
     set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG -march=native -mtune=native")
-endif(CMAKE_COMPILER_IS_GNUCC)
+endif()
 
 add_subdirectory(external)
 

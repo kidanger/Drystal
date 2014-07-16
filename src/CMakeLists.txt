@@ -5,7 +5,7 @@ if(EMSCRIPTEN)
     set(DRYSTAL_OUT drystal.js)
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCC)
+if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ftrapv -Wall -Wextra -Wundef -Wunreachable-code -Wwrite-strings -Weffc++")
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ftrapv -Wall -Wextra -Wundef -Wunreachable-code -Wwrite-strings -Wstrict-prototypes")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_DEBUG} -ftrapv -Wall -Wextra -Wundef -Wunreachable-code -Wwrite-strings -Weffc++")
