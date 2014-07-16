@@ -273,20 +273,23 @@ def prepare_native(release=False):
     lib_path = ''
     bin_path = ''
     extensions_directory = ''
+    coverage = ''
     if release:
         directory = BUILD_NATIVE_RELEASE
         build_type = 'Release'
         lib_path = LIB_PATH_RELEASE
         bin_path = BINARY_DIRECTORY_NATIVE_RELEASE
         extensions_directory = EXTENSIONS_DIRECTORY_NATIVE_RELEASE
+        coverage = 'OFF'
     else:
         directory = BUILD_NATIVE_DEBUG
         build_type = 'Debug'
         lib_path = LIB_PATH_DEBUG
         bin_path = BINARY_DIRECTORY_NATIVE_DEBUG
         extensions_directory = EXTENSIONS_DIRECTORY_NATIVE_DEBUG
+        coverage = 'ON'
 
-    cmake_update(directory, ['CMAKE_BUILD_TYPE=' + build_type])
+    cmake_update(directory, ['CMAKE_BUILD_TYPE=' + build_type, 'BUILD_ENABLE_COVERAGE='+coverage])
     os.environ['LD_LIBRARY_PATH'] = lib_path
     program = join(bin_path, 'drystal')
     arguments = ['--add-path=' + extensions_directory,

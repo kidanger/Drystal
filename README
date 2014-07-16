@@ -20,3 +20,7 @@ REQUIREMENTS:
     - C++ compiler (clang, gcc,...)
     - make or ninja
     - patch
+
+    Test coverage:
+    - gcov
+    - lcov
