@@ -1,14 +1,4 @@
--- this file acts as a proxy
--- without it, 'web' extension is still usable
--- but it offers facilities to manipulate wget
--- old wget is still accessible via 'web.raw_wget'
-
--- remove Lua loading to make sure shared lib is loaded
-local _path = package.path
-package.path = ''
-
-local web = require 'web'
-package.path = _path
+local web = drystal
 
 web.raw_wget = web.wget
 local wget_requests = {}

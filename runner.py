@@ -28,10 +28,6 @@ join = os.path.join
 BINARY_DIRECTORY_NATIVE_RELEASE = join(BUILD_NATIVE_RELEASE, 'src')
 BINARY_DIRECTORY_NATIVE_DEBUG = join(BUILD_NATIVE_DEBUG, 'src')
 BINARY_DIRECTORY_NATIVE_WEB = join(BUILD_WEB, 'src')
-EXTENSIONS_DIRECTORY = os.path.abspath('extensions')
-EXTENSIONS_DIRECTORY_NATIVE_RELEASE = join(BUILD_NATIVE_RELEASE, 'extensions')
-EXTENSIONS_DIRECTORY_NATIVE_DEBUG = join(BUILD_NATIVE_DEBUG, 'extensions')
-EXTENSIONS_DIRECTORY_WEB = join(BUILD_WEB, 'extensions')
 
 EMSCRIPTEN_ROOT_PATH = '/usr/lib/emscripten'
 EMSCRIPTEN_CMAKE_DEFINES = ['CMAKE_TOOLCHAIN_FILE=../cmake/Emscripten.cmake',
@@ -272,28 +268,24 @@ def prepare_native(release=False):
     build_type = ''
     lib_path = ''
     bin_path = ''
-    extensions_directory = ''
     coverage = ''
     if release:
         directory = BUILD_NATIVE_RELEASE
         build_type = 'Release'
         lib_path = LIB_PATH_RELEASE
         bin_path = BINARY_DIRECTORY_NATIVE_RELEASE
-        extensions_directory = EXTENSIONS_DIRECTORY_NATIVE_RELEASE
         coverage = 'OFF'
     else:
         directory = BUILD_NATIVE_DEBUG
         build_type = 'Debug'
         lib_path = LIB_PATH_DEBUG
         bin_path = BINARY_DIRECTORY_NATIVE_DEBUG
-        extensions_directory = EXTENSIONS_DIRECTORY_NATIVE_DEBUG
         coverage = 'ON'
 
     cmake_update(directory, ['CMAKE_BUILD_TYPE=' + build_type, 'BUILD_ENABLE_COVERAGE='+coverage])
     os.environ['LD_LIBRARY_PATH'] = lib_path
     program = join(bin_path, 'drystal')
-    arguments = ['--add-path=' + extensions_directory,
-                 '--add-path=' + DRYSTAL_DATA]
+    arguments = ['--add-path=' + DRYSTAL_DATA]
     return program, arguments
 
 
@@ -337,16 +329,9 @@ def prepare_drystaljs(destination, use_compress_drystal):
             break
     if recreate:
         print(G, '- create drystal.data.js', N)
-        extensions = [join(DRYSTAL_DATA, e)
-                      for e in os.listdir(EXTENSIONS_DIRECTORY_WEB)
-                      if e.endswith('.so')]
-        for ext in extensions:
-            open(ext, 'a').close()
         execute(['python2', PACKAGER, drystaldata, '--no-heap-copy',
                 '--embed', DRYSTAL_DATA + '@/'],
                 stdout=js_drystaldata_loader)
-        for ext in extensions:
-            os.remove(ext)
 
 
 def package_data(path, compress, data_js, destination, config, verbose=False):
@@ -457,10 +442,6 @@ def run_web(args):
 def get_gdb_args(program, pid=None, arguments=None):
     # if debug, run with 'gdb' (and give it path to sources)
     source_directories = ['src', os.path.join('external', 'lua', 'src')]
-    for f in os.listdir(EXTENSIONS_DIRECTORY):
-        path = os.path.join(EXTENSIONS_DIRECTORY, f)
-        if os.path.isdir(path):
-            source_directories.append(path[path.find('extensions'):])
     args = ['gdb']
     for d in source_directories:
         args.append('-d')

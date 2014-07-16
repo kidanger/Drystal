@@ -1,12 +1,12 @@
 local drystal = require 'drystal'
-local tt = require 'truetype'
+require 'truetype'
 
 local font, font_big
 function drystal.init()
 	drystal.resize(512, 512)
 
-	font = tt.load('arial.ttf', 16)
-	font_big = tt.load('arial.ttf', 42)
+	font = drystal.load_font('arial.ttf', 16)
+	font_big = drystal.load_font('arial.ttf', 42)
 end
 
 local time = 0
@@ -24,19 +24,13 @@ function drystal.draw()
 	drystal.draw_background()
 
 	drystal.set_color(255, 0, 0)
-	tt.use(font)
-	tt.draw_align('abcdefghijklmopqrstuvwxyz', 512 / 2, 100, 'center')
-
-	tt.use(font_big)
-	tt.use_color(true)
+	font:draw_align('abcdefghijklmopqrstuvwxyz', 512 / 2, 100, 'center')
 
 	local text = 'abd {r:0|big|b:150|bla} {small|test} {big|%:50|defghi}'
 	text = highlight(text, (math.sin(time)/2+0.5)*#text + 1)
-	tt.draw_align(text, 512 / 2, 512 / 2, 'center')
+	font_big:draw_align(text, 512 / 2, 512 / 2, 'center')
 
-	tt.use_color(false)
-	tt.use(font)
-	tt.draw_align(text, 512 / 2, 512 * 0.7, 'center')
+	font:draw_plain_align(text, 512 / 2, 512 * 0.7, 'center')
 end
 
 function drystal.key_press(k)

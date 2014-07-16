@@ -16,13 +16,12 @@ endif()
 add_subdirectory(external)
 
 include_directories(external)
-include_directories(external/lua)
 include_directories(external/lua/src)
+include_directories(external/box2d/Box2D)
 
 add_subdirectory(src)
 
 include_directories(src)
-add_subdirectory(extensions)
 
 add_subdirectory(data)
 

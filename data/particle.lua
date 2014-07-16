@@ -1,8 +1,4 @@
-local _path = package.path
-package.path = ''
-
-local particle = require 'particle'
-package.path = _path
+local particle = drystal
 
 particle.rawnew_system = particle.new_system
 
@@ -61,7 +57,6 @@ for k, v in pairs(particle) do
 end
 
 for k, f in pairs(temp_array) do
-	particle[k] = f
 	System[k] = f
 end
 temp_array = {}

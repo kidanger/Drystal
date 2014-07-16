@@ -20,25 +20,25 @@
 #include "lua_functions.hpp"
 #include "font.hpp"
 
-static Font* current_font;
-
 DECLARE_PUSHPOP(Font, font)
 
 int mlua_draw_font(lua_State* L)
 {
-	const char* text = luaL_checkstring(L, 1);
-	lua_Number x = luaL_checknumber(L, 2);
-	lua_Number y = luaL_checknumber(L, 3);
-	current_font->draw(text, x, y);
+	Font* font = pop_font(L, 1);
+	const char* text = luaL_checkstring(L, 2);
+	lua_Number x = luaL_checknumber(L, 3);
+	lua_Number y = luaL_checknumber(L, 4);
+	font->draw(text, x, y);
 	return 0;
 }
 
 int mlua_draw_plain_font(lua_State* L)
 {
-	const char* text = luaL_checkstring(L, 1);
-	lua_Number x = luaL_checknumber(L, 2);
-	lua_Number y = luaL_checknumber(L, 3);
-	current_font->draw_plain(text, x, y);
+	Font* font = pop_font(L, 1);
+	const char* text = luaL_checkstring(L, 2);
+	lua_Number x = luaL_checknumber(L, 3);
+	lua_Number y = luaL_checknumber(L, 4);
+	font->draw_plain(text, x, y);
 	return 0;
 }
 
@@ -54,18 +54,12 @@ int load_font_wrap(lua_State* L)
 	return luaL_fileresult(L, 0, filename);
 }
 
-int mlua_use_font(lua_State* L)
-{
-	Font* font = pop_font(L, 1);
-	current_font = font;
-	return 0;
-}
-
 int mlua_sizeof_font(lua_State* L)
 {
-	const char* text = luaL_checkstring(L, 1);
+	Font* font = pop_font(L, 1);
+	const char* text = luaL_checkstring(L, 2);
 	lua_Number w, h;
-	current_font->get_textsize(text, &w, &h);
+	font->get_textsize(text, &w, &h);
 	lua_pushnumber(L, w);
 	lua_pushnumber(L, h);
 	return 2;
@@ -73,9 +67,10 @@ int mlua_sizeof_font(lua_State* L)
 
 int mlua_sizeof_plain_font(lua_State* L)
 {
-	const char* text = luaL_checkstring(L, 1);
+	Font* font = pop_font(L, 1);
+	const char* text = luaL_checkstring(L, 2);
 	lua_Number w, h;
-	current_font->get_textsize_plain(text, &w, &h);
+	font->get_textsize_plain(text, &w, &h);
 	lua_pushnumber(L, w);
 	lua_pushnumber(L, h);
 	return 2;
@@ -84,32 +79,33 @@ int mlua_sizeof_plain_font(lua_State* L)
 int mlua_free_font(lua_State* L)
 {
 	Font* font = pop_font(L, 1);
-	if (current_font == font)
-		current_font = NULL;
 	delete font;
 	return 0;
 }
 
 static const luaL_Reg lib[] =
 {
-	{"load", load_font_wrap},
-	ADD_METHOD(font, draw)
-	ADD_METHOD(font, draw_plain)
-	ADD_METHOD(font, use)
-	{"sizeof", mlua_sizeof_font},
-	ADD_METHOD(font, sizeof_plain)
+	{"load_font", load_font_wrap},
 	{NULL, NULL}
 };
 
-DEFINE_EXTENSION(truetype)
+void truetype_register(lua_State* L)
 {
-	luaL_newlib(L, lib);
+	int i = 0;
+	while (lib[i].name)
+	{
+		lua_pushcfunction(L, lib[i].func);
+		lua_setfield(L, -2, lib[i].name);
+		i++;
+	}
 
 	BEGIN_CLASS(font)
+		ADD_METHOD(font, draw)
+		ADD_METHOD(font, draw_plain)
+		ADD_METHOD(font, sizeof)
+		ADD_METHOD(font, sizeof_plain)
 		ADD_GC(free_font)
 		END_CLASS();
-	REGISTER_CLASS(font, "__Font");
-
-	return 1;
+	REGISTER_CLASS(font, "Font");
 }
 

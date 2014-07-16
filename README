@@ -1,4 +1,8 @@
-Drystal C++ Game Engine, compilable to Javascript
+Drystal
+
+ABOUT:
+    Drystal is an opensource game engine.
+    Games are programmed in Lua and can be exported to Javascript seamlessly.
 
 AUTHOR:
     Jérémy Anger
@@ -11,9 +15,9 @@ REQUIREMENTS:
     - OpenAL
     - OpenGL
 
-    For the net extension:
-    - zlib
-    - libssl
+    For the websocket layer:
+    - libresolv (from glibc)
+    - libcrypto (from OpenSSL)
 
     Build:
     - CMake

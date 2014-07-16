@@ -514,16 +514,20 @@ static const luaL_Reg lib[] =
 	{NULL, NULL}
 };
 
-DEFINE_EXTENSION(particle)
+void particle_register(lua_State* L)
 {
-	luaL_newlib(L, lib);
+	int i = 0;
+	while (lib[i].name)
+	{
+		lua_pushcfunction(L, lib[i].func);
+		lua_setfield(L, -2, lib[i].name);
+		i++;
+	}
 
 	BEGIN_CLASS(system)
 		ADD_GC(particle_free)
 		END_CLASS();
 	REGISTER_CLASS(system, "__System");
-
-	return 1;
 }
 
 

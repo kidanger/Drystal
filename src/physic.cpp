@@ -18,12 +18,12 @@
 
 #include "engine.hpp"
 
-#include "box2d/Box2D/Box2D/Box2D.h"
+#include <Box2D/Box2D.h>
 
 #define DECLARE_FUNCTION(x) {#x, x}
 #define DECLARE_GETSET(x) DECLARE_FUNCTION(set_##x), DECLARE_FUNCTION(get_##x)
 
-b2World* world;
+static b2World* world;
 
 int create_world(lua_State* L)
 {
@@ -33,7 +33,7 @@ int create_world(lua_State* L)
 	return 0;
 }
 
-int update(lua_State* L)
+int update_physic(lua_State* L)
 {
 	assert(world);
 	lua_Number dt = luaL_checknumber(L, 1);
@@ -752,7 +752,7 @@ static const luaL_Reg lib[] =
 	DECLARE_FUNCTION(new_body),
 	DECLARE_FUNCTION(new_joint),
 
-	DECLARE_FUNCTION(update),
+	DECLARE_FUNCTION(update_physic),
 	DECLARE_FUNCTION(on_collision),
 
 	DECLARE_FUNCTION(raycast),
@@ -761,9 +761,15 @@ static const luaL_Reg lib[] =
 	{NULL, NULL}
 };
 
-DEFINE_EXTENSION(physic)
+void physic_register(lua_State* L)
 {
-	luaL_newlib(L, lib);
+	int i = 0;
+	while (lib[i].name)
+	{
+		lua_pushcfunction(L, lib[i].func);
+		lua_setfield(L, -2, lib[i].name);
+		i++;
+	}
 
 	BEGIN_CLASS(body)
 		DECLARE_GETSET(position),
@@ -821,7 +827,5 @@ DEFINE_EXTENSION(physic)
 		DECLARE_FUNCTION(set_motor_speed),
 		END_CLASS();
 	REGISTER_CLASS(joint, "Joint");
-
-	return 1;
 }
 

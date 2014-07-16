@@ -1,8 +1,4 @@
-local _path = package.path
-package.path = ''
-
-local net = require 'net'
-package.path = _path
+local net = drystal
 
 local Socket = net.__Socket
 
@@ -256,4 +252,6 @@ function net.drop_clients(on_drop, sockets)
 		end
 	end
 end
+
+return net
 

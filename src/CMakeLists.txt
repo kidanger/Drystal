@@ -42,11 +42,11 @@ if(NOT DEFINED EMSCRIPTEN)
         if (NOT COVERAGE_GENHTML)
             message(FATAL_ERROR "Unable to find genhtml")
         endif()
-      
+
         set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage")
         set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage")
         set(CMAKE_LD_FLAGS_DEBUG "${CMAKE_LD_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage")
-      
+
         add_custom_target(coverage-reset DEPENDS ${DRYSTAL_OUT})
         add_custom_command(TARGET coverage-reset
             COMMAND mkdir -p coverage
@@ -65,10 +65,11 @@ if(NOT DEFINED EMSCRIPTEN)
     endif(BUILD_ENABLE_COVERAGE)
 endif()
 
-target_link_libraries(${DRYSTAL_OUT} lua-drystal)
+target_link_libraries(${DRYSTAL_OUT} lua)
 target_link_libraries(${DRYSTAL_OUT} lua-cjson)
-if(EMSCRIPTEN)
-    target_link_libraries(${DRYSTAL_OUT} physic truetype particle net web)
-endif(EMSCRIPTEN)
+target_link_libraries(${DRYSTAL_OUT} Box2D)
+if(NOT DEFINED EMSCRIPTEN)
+    target_link_libraries(${DRYSTAL_OUT} websocket)
+endif()
 
 install(TARGETS ${DRYSTAL_OUT} DESTINATION /usr/bin)

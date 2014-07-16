@@ -1,11 +1,10 @@
 local drystal = require "drystal"
-local font = require "truetype"
+require "truetype"
 
 local arial
 function drystal.init()
 	drystal.resize(600, 400);
-	arial = assert(font.load('arial.ttf', 25))
-	font.use(arial)
+	arial = assert(drystal.load_font('arial.ttf', 25))
 end
 local time = 0
 
@@ -25,23 +24,20 @@ function drystal.draw()
 	local y = 20
 	local x = 20
 
-	font.use_color(false)
-	local w, h = font.sizeof(text)
+	local w, h = arial:sizeof_plain(text)
 	drystal.draw_square(x, y, w, h)
-	font.draw(text, x, y)
+	arial:draw_plain(text, x, y)
 
 	y = y + h + 5
-	font.use_color(true)
-	local w, h = font.sizeof(text)
+	local w, h = arial:sizeof(text)
 	drystal.draw_square(x, y, w, h)
 	drystal.set_color(255, 255, 255)
-	font.draw(text, x, y)
+	arial:draw(text, x, y)
 
-	font.use_color(true)
 	drystal.set_color(0, 0, 0)
 	local shadowed = 'Oh {shadowx:%.2f|shadowy:%.2f|outline|r:200|waw!}'
 	shadowed = shadowed:format(shadowx, shadowy)
-	font.draw_align(shadowed, 300, 200, 'center')
+	arial:draw_align(shadowed, 300, 200, 'center')
 end
 
 function drystal.mouse_motion(x, y)

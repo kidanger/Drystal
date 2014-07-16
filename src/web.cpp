@@ -97,9 +97,14 @@ static const luaL_Reg lib[] =
 	{NULL, NULL}
 };
 
-DEFINE_EXTENSION(web)
+void web_register(lua_State* L)
 {
-	luaL_newlib(L, lib);
-	return 1;
+	int i = 0;
+	while (lib[i].name)
+	{
+		lua_pushcfunction(L, lib[i].func);
+		lua_setfield(L, -2, lib[i].name);
+		i++;
+	}
 }
 

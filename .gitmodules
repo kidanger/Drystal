@@ -1,9 +1,9 @@
 [submodule "external/lua"]
 	path = external/lua
 	url = https://github.com/LuaDist/lua.git
-[submodule "extensions/physic/box2d"]
-	path = extensions/physic/box2d
-	url = https://github.com/ansman/box2d.git
 [submodule "external/lua-cjson"]
 	path = external/lua-cjson
 	url = https://github.com/mpx/lua-cjson.git
+[submodule "external/box2d"]
+	path = external/box2d
+	url = https://github.com/ansman/box2d.git

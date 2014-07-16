@@ -1,5 +1,5 @@
 local drystal = require 'drystal'
-local physic = require 'physic'
+local physic = drystal
 local particle = require 'particle'
 
 local ground, ground2, ball, ball2
@@ -140,7 +140,7 @@ function drystal.update(dt)
 	if dt > .6 then
 		dt = .6
 	end
-	physic.update(dt)
+	physic.update_physic(dt)
 	time = time + dt
 
 	if dir == 'left' then

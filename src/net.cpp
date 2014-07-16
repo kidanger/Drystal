@@ -412,9 +412,15 @@ static const luaL_Reg lib[] =
 	{NULL, NULL}
 };
 
-DEFINE_EXTENSION(net)
+void net_register(lua_State* L)
 {
-	luaL_newlib(L, lib);
+	int i = 0;
+	while (lib[i].name)
+	{
+		lua_pushcfunction(L, lib[i].func);
+		lua_setfield(L, -2, lib[i].name);
+		i++;
+	}
 
 	BEGIN_CLASS(socket)
 		ADD_METHOD(socket, send)
@@ -424,7 +430,5 @@ DEFINE_EXTENSION(net)
 		ADD_GC(free_socket)
 		END_CLASS();
 	REGISTER_CLASS_WITH_INDEX_AND_NEWINDEX(socket, "__Socket");
-
-	return 1;
 }
 

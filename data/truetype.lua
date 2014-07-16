@@ -1,45 +1,44 @@
--- add the following functions
+-- adds the following functions
 -- - draw_align(text, x, y, alignment)
 --		alignement = center | right | anythingelse = left
 --		use drystal'.lua offset if loaded
 -- - use_color(use)
 --		replace draw with draw_plain and use draw_plain in draw_align
 --		replace sizeof too
+local drystal = drystal
 
--- remove Lua loading to make sure shared lib is loaded
-local _path = package.path
-package.path = ''
+local Font = drystal.Font
 
-local truetype = require 'truetype'
-package.path = _path
-
-truetype.rawdraw = truetype.draw
-truetype.rawsizeof = truetype.sizeof
-
-function truetype.use_color(col)
-	if col then
-		truetype.draw = truetype.rawdraw
-		truetype.sizeof = truetype.rawsizeof
-	else
-		truetype.draw = truetype.draw_plain
-		truetype.sizeof = truetype.sizeof_plain
-	end
-end
-
-function truetype.draw_align(text, x, y, alignement)
+function Font:draw_align(text, x, y, alignement)
 	oldx = x
 	for str in text:gmatch("[^\n]*") do
-		local w, h = truetype.sizeof(str)
+		local w, h = self:sizeof(str)
 		if alignement == 'center' then
 			x = x - w / 2
 		elseif alignement == 'right' then
 			x = x - w
 		end
-		truetype.draw(str, x, y)
+		self:draw(str, x, y)
 		y = y + h
 		x = oldx
 	end
 end
 
-return truetype
+function Font:draw_plain_align(text, x, y, alignement)
+	oldx = x
+	for str in text:gmatch("[^\n]*") do
+		local w, h = self:sizeof_plain(str)
+		if alignement == 'center' then
+			x = x - w / 2
+		elseif alignement == 'right' then
+			x = x - w
+		end
+		self:draw_plain(str, x, y)
+		y = y + h
+		x = oldx
+	end
+end
+
+
+return drystal
 

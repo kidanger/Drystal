@@ -1,5 +1,5 @@
 local drystal = require 'drystal'
-local physic = require 'physic'
+local physic = drystal
 
 require 'point'
 
@@ -90,7 +90,7 @@ function drystal.update(dt)
 		nudgeToSquare(c.body, sq, 20)
 	end
 
-	physic.update(dt * 1000)
+	physic.update_physic(dt * 1000)
 end
 
 function max_speed(body, spd)

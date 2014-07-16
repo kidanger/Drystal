@@ -160,7 +160,7 @@ static void evaluate(TextState* state, const char* text)
 	if (func) {
 		func(text + strlen(command), state);
 	} else {
-		printf("(unknow command \"%s\")\n", command);
+		printf("(unknown command \"%s\")\n", command);
 	}
 }
 
