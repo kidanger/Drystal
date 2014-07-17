@@ -494,6 +494,7 @@ drystal.create_postfx('dither', [[
 						break;
 					}
 				}
+				break;
 			}
 		}
 		if(c0 < limit)
