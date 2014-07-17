@@ -107,7 +107,7 @@ void Engine::loop()
 #endif
 }
 
-long unsigned Engine::get_now() const
+long unsigned Engine::get_now()
 {
 	// in microsecond
 	struct timeval stTimeVal;

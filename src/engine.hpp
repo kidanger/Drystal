@@ -48,7 +48,6 @@ public:
 
 	void loop();
 	void update();
-	long unsigned get_now() const;
 
 	void resize_event(int w, int h) const;
 	void mouse_motion(int x, int y, int dx, int dy) const;
@@ -64,6 +63,7 @@ public:
 
 	void stop();
 
+	static long unsigned get_now();
 };
 
 Engine &get_engine();
