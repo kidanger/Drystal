@@ -461,7 +461,7 @@ drystal.create_postfx('dither', [[
 		http://www.assembla.com/code/MUL2010_OpenGLScenePostprocessing/subversion/nodes/MUL%20FBO/Shaders/dithering.frag?rev=83
 		toneburst 2011
 	*/
-	float find_closest(int x, int  y, float c0)
+	float find_closest(int x, int y, float c0)
 	{
 		mat4 dither = mat4(
 			1.0,  33.0,  9.0, 41.0,
@@ -470,21 +470,32 @@ drystal.create_postfx('dither', [[
 			61.0, 29.0, 53.0, 21.0 );
 		
 		float limit = 0.0;
-		if(x < 4) {
-			if(y >= 4) {
-				limit = (dither[x][y-4]+3.0)/65.0;
-			} else {
-				limit = (dither[x][y])/65.0;
+		for (int xx = 0; xx < 8; xx++)
+		{
+			if (xx == x)
+			{
+				for (int yy = 0; yy < 8; yy++)
+				{
+					if (yy == y)
+					{
+						if(x < 4) {
+							if(y >= 4) {
+								limit = (dither[xx][yy-4]+3.0)/65.0;
+							} else {
+								limit = (dither[xx][yy])/65.0;
+							}
+						}
+						if(x >= 4) {
+							if(y >= 4)
+								limit = (dither[xx-4][yy-4]+1.0)/65.0;
+							else
+								limit = (dither[xx-4][yy]+2.0)/65.0;
+						}
+						break;
+					}
+				}
 			}
 		}
-			
-		if(x >= 4) {
-			if(y >= 4)
-				limit = (dither[x-4][y-4]+1.0)/65.0;
-			else
-				limit = (dither[x-4][y]+2.0)/65.0;
-		}
-			
 		if(c0 < limit)
 			return 0.0;
 		
