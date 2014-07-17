@@ -65,6 +65,8 @@ if(NOT DEFINED EMSCRIPTEN)
     endif(BUILD_ENABLE_COVERAGE)
 endif()
 
+target_link_libraries(${DRYSTAL_OUT} stb_vorbis)
+target_link_libraries(${DRYSTAL_OUT} stb_image)
 target_link_libraries(${DRYSTAL_OUT} lua)
 target_link_libraries(${DRYSTAL_OUT} lua-cjson)
 target_link_libraries(${DRYSTAL_OUT} Box2D)

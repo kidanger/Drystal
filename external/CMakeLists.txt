@@ -78,3 +78,11 @@ if(NOT DEFINED EMSCRIPTEN)
     target_link_libraries(websocket ${CRYPTO_LIBRARY})
     target_link_libraries(websocket ${RESOLV_LIBRARY})
 endif()
+
+###
+### STB
+###
+add_library(stb_vorbis STATIC stb_vorbis.c)
+
+add_library(stb_image STATIC stb_image.c)
+set_target_properties(stb_image PROPERTIES COMPILE_DEFINITIONS "STB_IMAGE_IMPLEMENTATION")

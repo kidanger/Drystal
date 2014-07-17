@@ -26,10 +26,8 @@
 #include <cassert>
 #include <cmath>
 
-extern "C" {
 #define STB_NO_HDR
-#include "stb_image.c"
-}
+#include "stb_image.h"
 
 #include "display.hpp"
 
