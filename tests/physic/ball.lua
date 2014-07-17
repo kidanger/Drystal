@@ -1,6 +1,4 @@
 local drystal = require 'drystal'
-local physic = drystal
-local particle = require 'particle'
 
 local ground, ground2, ball, ball2
 local joint
@@ -11,7 +9,7 @@ local R = 64 -- _ pixels = 1 meter
 
 local Body = setmetatable({
 	num_collide=0,
-}, physic.Body)
+}, drystal.Body)
 Body.__index = Body
 
 function Body:begin_collide(other)
@@ -22,11 +20,11 @@ function Body:end_collide(other)
 end
 
 local function create_box(w, h, args, dynamic)
-	local shape = physic.new_shape("box", w, h)
+	local shape = drystal.new_shape("box", w, h)
 	for k, v in pairs(args) do
 		shape['set_' .. k](shape, v)
 	end
-	local box = physic.new_body(dynamic, shape)
+	local box = drystal.new_body(dynamic, shape)
 	box.width = w
 	box.height = h
 	function box:draw()
@@ -44,11 +42,11 @@ local function create_box(w, h, args, dynamic)
 	return setmetatable(box, Body)
 end
 local function create_circle(radius, args, dynamic)
-	local shape = physic.new_shape("circle", radius)
+	local shape = drystal.new_shape("circle", radius)
 	for k, v in pairs(args) do
 		shape['set_' .. k](shape, v)
 	end
-	local circle = physic.new_body(dynamic, shape)
+	local circle = drystal.new_body(dynamic, shape)
 	circle.radius = radius
 	function circle:draw()
 		local angle = self:get_angle()
@@ -61,7 +59,7 @@ local function create_circle(radius, args, dynamic)
 		drystal.draw_line(x*R, y*R, x*R + self.radius*math.cos(angle)*R,
 							y*R + ball.radius * math.sin(angle)*R)
 	end
-	circle.p_system = particle.new_system(0, 0)
+	circle.p_system = drystal.new_system(0, 0)
 	circle.p_system:set_min_initial_acceleration(-5)
 	circle.p_system:set_max_initial_acceleration(-5)
 	circle.p_system:set_min_lifetime(1)
@@ -73,7 +71,7 @@ end
 function drystal.init()
 	drystal.resize(600, 400)
 
-	physic.create_world(0, 0.98)
+	drystal.create_world(0, 0.98)
 
 	-- create ground
 	ground = create_box(5, .2, {friction=5}, false)
@@ -94,11 +92,11 @@ function drystal.init()
 		return not self.immune
 	end
 
-	joint = physic.new_joint('distance', ball2, ball)
+	joint = drystal.new_joint('distance', ball2, ball)
 	joint:set_length(100/R)
 	joint:set_frequency(0.9)
 
---	joint = physic.new_joint('rope', ball2, ball, true)
+--	joint = drystal.new_joint('rope', ball2, ball, true)
 --	joint:set_max_length(100/R)
 
 	function presolve(b1, b2, x, y, dx, dy)
@@ -114,7 +112,7 @@ function drystal.init()
 		return collide
 	end
 
-	physic.on_collision(
+	drystal.on_collision(
 		function (b1, b2)
 			if b1.begin_collide then b1:begin_collide(b2) end
 			if b2.begin_collide then b2:begin_collide(b1) end
@@ -126,7 +124,7 @@ function drystal.init()
 		presolve
 	)
 
-	normal_sys = particle.new_system(0, 0)
+	normal_sys = drystal.new_system(0, 0)
 	normal_sys:set_lifetime(1)
 	normal_sys:add_size(0, 2)
 	normal_sys:add_size(1, 1)
@@ -140,7 +138,7 @@ function drystal.update(dt)
 	if dt > .6 then
 		dt = .6
 	end
-	physic.update_physic(dt)
+	drystal.update_physic(dt)
 	time = time + dt
 
 	if dir == 'left' then
@@ -230,7 +228,7 @@ end
 function drystal.mouse_press(x, y, b)
 	if b == 1 then
 		if not mouse_joint then
-			mouse_joint = physic.new_joint('mouse', ground, ball, 15*ball:get_mass(), true)
+			mouse_joint = drystal.new_joint('mouse', ground, ball, 15*ball:get_mass(), true)
 		end
 		mouse_joint:set_target(x/R, y/R)
 	end

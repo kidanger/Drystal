@@ -1,7 +1,6 @@
 local drystal = require 'drystal'
-local particle = require 'particle'
 
-local sys1 = particle.new_system(200, 300)
+local sys1 = drystal.new_system(200, 300)
 sys1:add_size(0, 6)
 sys1:add_size(1, 6)
 sys1:add_color(0, 0, 255, 0, 255, 0, 255)
@@ -11,7 +10,7 @@ local scrolling = false
 local scrollx, scrolly = 0, 0
 
 local systems = {
-	particle.new_system(400, 300),
+	drystal.new_system(400, 300),
 }
 
 function drystal.init()
@@ -52,7 +51,7 @@ end
 
 function drystal.mouse_press(x, y, b)
 	if b == 1 then
-		s = particle.new_system(x - scrollx, y - scrolly)
+		s = drystal.new_system(x - scrollx, y - scrolly)
 		s:set_direction(0, math.pi*2)
 		s:add_size(0, 6)
 		s:add_size(1, 6)

@@ -1,4 +1,8 @@
 local drystal = drystal
+require 'truetype'
+require 'particle'
+require 'web'
+require 'net'
 
 local _draw_quad = drystal.draw_quad
 drystal.draw_freeshape = _draw_quad

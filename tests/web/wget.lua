@@ -1,11 +1,10 @@
 local drystal = require 'drystal'
-local web = require 'web'
 
 function drystal.init()
-	print(web.is_web())
-	web.wget('/', 'f1', onsuccess, onerror)
-	web.wget('src/log.hpp', 'f2', onsuccess, onerror)
-	web.wget('http://google.fr', 'f3', onsuccess, onerror)
+	print(drystal.is_web())
+	drystal.wget('/', 'f1', onsuccess, onerror)
+	drystal.wget('src/log.hpp', 'f2', onsuccess, onerror)
+	drystal.wget('http://google.fr', 'f3', onsuccess, onerror)
 	print 'boom'
 end
 

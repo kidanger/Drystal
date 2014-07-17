@@ -1,13 +1,12 @@
 local drystal = drystal
-local net = require 'net'
 require 'common'
 
-net.listen(port)
+drystal.listen(port)
 print('listening on', port)
 
 local client
 while not client do
-	net.accept(function(c)
+	drystal.accept(function(c)
 		print(c.address, 'connected')
 		client = c
 		c:set_debug()
@@ -18,7 +17,7 @@ while not client do
 	end
 end
 
-net.flush_all()
+drystal.flush_all()
 
 for i = 1, 5 do
 	waittoken(client, 'hello')
@@ -32,7 +31,7 @@ function drystal.update(dt)
 		client:sendline(x + 1)
 	end
 
-	net.flush_all()
-	net.drop_clients(function(c) print(c, 'disconnected') end)
+	drystal.flush_all()
+	drystal.drop_clients(function(c) print(c, 'disconnected') end)
 end
 

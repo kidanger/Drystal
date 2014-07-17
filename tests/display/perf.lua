@@ -1,5 +1,4 @@
 local drystal = require 'drystal'
-local tt = require 'truetype'
 
 local W, H = 600, 400
 local target = 1 / 60
@@ -94,8 +93,6 @@ function highlight(text, pos)
 end
 
 function draw_font_nocolor:init()
-	tt.use(font)
-	tt.use_color(false)
 end
 
 function draw_font_nocolor:draw()
@@ -108,13 +105,11 @@ function draw_font_nocolor:draw()
 	for i = 1, number do
 		local x = random(W)
 		local y = random(H)
-		tt.draw_align(text, x, y, 'center')
+		font:draw_plain_align(text, x, y, 'center')
 	end
 end
 
 function draw_font_color:init()
-	tt.use(font)
-	tt.use_color(true)
 end
 
 function draw_font_color:draw()
@@ -127,13 +122,13 @@ function draw_font_color:draw()
 	for i = 1, number do
 		local x = random(W)
 		local y = random(H)
-		tt.draw_align(text, x, y, 'center')
+		font:draw_align(text, x, y, 'center')
 	end
 end
 
 function drystal.init()
 	drystal.resize(W, H)
-	font = assert(tt.load('arial.ttf', 16))
+	font = assert(drystal.load_font('arial.ttf', 16))
 	spritesheet = assert(drystal.load_surface('spritesheet.png'))
 	drystal.draw_from(spritesheet)
 	set_state(states[current_state])

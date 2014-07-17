@@ -1,13 +1,12 @@
 local drystal = require 'drystal'
-local physic = drystal
 
 require 'point'
 
 function drystal.init()
 	math.randomseed(os.time())
 	drystal.resize(600, 400)
-	physic.create_world(0, 0)
-	-- physic.set_ratio(32)
+	drystal.create_world(0, 0)
+	-- drystal.set_ratio(32)
 
 	crates = { makeCrate(5, 5),
 	makeCrate(5, 6) }
@@ -15,8 +14,8 @@ function drystal.init()
 end
 
 function makeCrate(x, y)
-	local s = physic.new_shape('box', 32, 32)
-	local b = physic.new_body(true, s)
+	local s = drystal.new_shape('box', 32, 32)
+	local b = drystal.new_body(true, s)
 	b:set_position(x*32 + 16, y*32 + 16)
 	b:set_fixed_rotation(true)
 	b:set_linear_damping(4)
@@ -24,8 +23,8 @@ function makeCrate(x, y)
 end
 
 function makePlayer()
-	local s = physic.new_shape('circle', 16)
-	local b = physic.new_body(true, s)
+	local s = drystal.new_shape('circle', 16)
+	local b = drystal.new_body(true, s)
 	b:set_position(48, 48)
 	return {body=b, shape=s}
 end
@@ -90,7 +89,7 @@ function drystal.update(dt)
 		nudgeToSquare(c.body, sq, 20)
 	end
 
-	physic.update_physic(dt * 1000)
+	drystal.update_physic(dt * 1000)
 end
 
 function max_speed(body, spd)

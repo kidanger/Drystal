@@ -1,4 +1,4 @@
-require "drystal"
+local drystal = require "drystal"
 
 local mouse_points = {
 }

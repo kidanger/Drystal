@@ -1,8 +1,7 @@
 local drystal = require 'drystal'
-local particle = require 'particle'
 
 if not sys1 then -- for livecoding
-sys1 = particle.new_system(100, 550)
+sys1 = drystal.new_system(100, 550)
 
 sys1:add_size(0, 15)
 sys1:add_size(.2, 7, 10)

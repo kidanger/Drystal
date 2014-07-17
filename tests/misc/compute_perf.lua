@@ -1,7 +1,7 @@
 local drystal = require 'drystal'
 
 local W, H = 600, 400
-local target = 0.016
+local target = 1 / 60
 local number = 100000
 local tick = 0
 

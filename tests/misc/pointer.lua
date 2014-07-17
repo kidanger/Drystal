@@ -1,5 +1,4 @@
 local drystal = drystal
-local web = require 'web'
 
 function drystal.init()
 	drystal.resize(400, 400)

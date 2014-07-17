@@ -1,5 +1,4 @@
 local drystal = require 'drystal'
-require 'truetype'
 
 local font, font_big
 function drystal.init()

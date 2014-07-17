@@ -1,5 +1,4 @@
 local drystal = require "drystal"
-require "truetype"
 
 local arial
 function drystal.init()

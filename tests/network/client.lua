@@ -1,5 +1,4 @@
 local drystal = drystal
-local net = require 'net'
 require 'common'
 
 local hostname = 'localhost'
@@ -8,7 +7,7 @@ local sock
 function drystal.init()
 	drystal.resize(400, 400)
 
-	sock = assert(net.connect(hostname, port))
+	sock = assert(drystal.connect(hostname, port))
 	sock:set_debug()
 	for i = 1, 5 do
 		sock:sendlua {
