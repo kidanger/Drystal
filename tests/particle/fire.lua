@@ -1,4 +1,3 @@
-for k, v in pairs(drystal) do print(k, v) end
 local drystal = require 'drystal'
 local particle = require 'particle'
 

@@ -22,7 +22,7 @@
 #include <emscripten.h>
 #endif
 
-int is_web(lua_State* L)
+int mlua_is_web(lua_State* L)
 {
 #ifdef EMSCRIPTEN
 	lua_pushboolean(L, 1);
@@ -61,7 +61,7 @@ static void onerror(const char* filename)
 	}
 }
 
-static int wget(lua_State *L)
+static int mlua_wget(lua_State *L)
 {
 	const char *url = luaL_checkstring(L, 1);
 	const char *filename = luaL_checkstring(L, 2);
@@ -71,14 +71,14 @@ static int wget(lua_State *L)
 }
 
 #else
-static int wget(lua_State *L)
+static int mlua_wget(lua_State *L)
 {
 	lua_pushboolean(L, false);
 	return 1;
 }
 #endif
 
-int run_js(lua_State* L)
+int mlua_run_js(lua_State* L)
 {
 #ifdef EMSCRIPTEN
 	const char* script = luaL_checkstring(L, 1);
@@ -89,22 +89,8 @@ int run_js(lua_State* L)
 	return 0;
 }
 
-static const luaL_Reg lib[] =
-{
-	{"is_web", is_web},
-	{"wget", wget},
-	{"run_js", run_js},
-	{NULL, NULL}
-};
-
-void web_register(lua_State* L)
-{
-	int i = 0;
-	while (lib[i].name)
-	{
-		lua_pushcfunction(L, lib[i].func);
-		lua_setfield(L, -2, lib[i].name);
-		i++;
-	}
-}
-
+BEGIN_MODULE(web)
+	DECLARE_FUNCTION(is_web)
+	DECLARE_FUNCTION(wget)
+	DECLARE_FUNCTION(run_js)
+END_MODULE()

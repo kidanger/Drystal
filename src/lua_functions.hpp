@@ -81,10 +81,21 @@ private:
 		return *p; \
 	}
 
-#define BEGIN_CLASS(name) static const luaL_Reg __ ## name ## _class[] = {
+#define BEGIN_MODULE(name) \
+	void register_##name(lua_State* L) {
+#define DECLARE_FUNCTION(name) \
+		lua_pushcfunction(L, mlua_##name); \
+		lua_setfield(L, -2, #name);
+#define END_MODULE() \
+	}
+#define IMPORT_MODULE(name) \
+	void register_##name(lua_State*); \
+	register_##name(L);
 
+#define BEGIN_CLASS(name) static const luaL_Reg __ ## name ## _class[] = {
 #define ADD_GC(func) { "__gc", mlua_ ## func},
 #define ADD_METHOD(class, name) { #name, mlua_ ## name ## _ ## class },
+#define ADD_GETSET(class, name) ADD_METHOD(class, get_##name) ADD_METHOD(class, set_##name)
 #define END_CLASS() {NULL, NULL} }
 
 #define REGISTER_CLASS(name, name_in_module) \

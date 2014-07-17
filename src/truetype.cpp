@@ -42,7 +42,7 @@ int mlua_draw_plain_font(lua_State* L)
 	return 0;
 }
 
-int load_font_wrap(lua_State* L)
+int mlua_load_font(lua_State* L)
 {
 	const char* filename = luaL_checkstring(L, 1);
 	lua_Number size = luaL_checknumber(L, 2);
@@ -83,21 +83,8 @@ int mlua_free_font(lua_State* L)
 	return 0;
 }
 
-static const luaL_Reg lib[] =
-{
-	{"load_font", load_font_wrap},
-	{NULL, NULL}
-};
-
-void truetype_register(lua_State* L)
-{
-	int i = 0;
-	while (lib[i].name)
-	{
-		lua_pushcfunction(L, lib[i].func);
-		lua_setfield(L, -2, lib[i].name);
-		i++;
-	}
+BEGIN_MODULE(truetype)
+	DECLARE_FUNCTION(load_font)
 
 	BEGIN_CLASS(font)
 		ADD_METHOD(font, draw)
@@ -107,5 +94,5 @@ void truetype_register(lua_State* L)
 		ADD_GC(free_font)
 		END_CLASS();
 	REGISTER_CLASS(font, "Font");
-}
+END_MODULE()
 

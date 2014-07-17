@@ -258,7 +258,7 @@ public:
 
 Server server;
 
-static int net_connect(lua_State* L)
+static int mlua_connect(lua_State* L)
 {
 	const char* host = luaL_checkstring(L, 1);
 	int port = luaL_checkint(L, 2);
@@ -273,14 +273,14 @@ static int net_connect(lua_State* L)
 	return 0;
 }
 
-static int net_listen(lua_State* L)
+static int mlua_listen(lua_State* L)
 {
 	int port = luaL_checknumber(L, 1);
 	server.listen(port);
 	return 0;
 }
 
-static int net_accept(lua_State* L)
+static int mlua_accept(lua_State* L)
 {
 	lua_Number timeout = luaL_optnumber(L, 2, 0);
 	lua_Number timepassed = 0;
@@ -398,29 +398,13 @@ static int mlua_free_socket(lua_State* L)
 	return 0;
 }
 
-
-#define DECLARE_FUNCTION(x) {#x, net_##x}
-static const luaL_Reg lib[] =
-{
+BEGIN_MODULE(net)
 	/* CLIENT */
-	DECLARE_FUNCTION(connect),
+	DECLARE_FUNCTION(connect)
 
 	/* SERVER */
-	DECLARE_FUNCTION(listen),
-	DECLARE_FUNCTION(accept),
-
-	{NULL, NULL}
-};
-
-void net_register(lua_State* L)
-{
-	int i = 0;
-	while (lib[i].name)
-	{
-		lua_pushcfunction(L, lib[i].func);
-		lua_setfield(L, -2, lib[i].name);
-		i++;
-	}
+	DECLARE_FUNCTION(listen)
+	DECLARE_FUNCTION(accept)
 
 	BEGIN_CLASS(socket)
 		ADD_METHOD(socket, send)
@@ -430,5 +414,5 @@ void net_register(lua_State* L)
 		ADD_GC(free_socket)
 		END_CLASS();
 	REGISTER_CLASS_WITH_INDEX_AND_NEWINDEX(socket, "__Socket");
-}
+END_MODULE()
 

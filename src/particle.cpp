@@ -23,9 +23,6 @@
 #include "engine.hpp"
 #include "lua_functions.hpp"
 
-#define DECLARE_FUNCTION(x) {#x, particle_##x}
-#define DECLARE_GETSET(x) DECLARE_FUNCTION(get_##x), DECLARE_FUNCTION(set_##x)
-
 #define RAND(a, b) (((float) rand()/RAND_MAX) * ((b) - (a)) + (a))
 
 class System;
@@ -284,7 +281,7 @@ void Particle::update(System& sys, float dt)
 
 DECLARE_PUSHPOP(System, system)
 
-int particle_new_system(lua_State* L)
+int mlua_new_system(lua_State* L)
 {
 	System* system = new System;
 
@@ -332,7 +329,7 @@ int particle_new_system(lua_State* L)
 	return 1;
 }
 
-int particle_set_position(lua_State* L)
+int mlua_set_position_system(lua_State* L)
 {
 	System* system = pop_system(L, 1);
 	lua_Number x = luaL_checknumber(L, 2);
@@ -341,14 +338,14 @@ int particle_set_position(lua_State* L)
 	system->y = y;
 	return 0;
 }
-int particle_get_position(lua_State* L)
+int mlua_get_position_system(lua_State* L)
 {
 	System* system = pop_system(L, 1);
 	lua_pushnumber(L, system->x);
 	lua_pushnumber(L, system->y);
 	return 2;
 }
-int particle_set_offset(lua_State* L)
+int mlua_set_offset_system(lua_State* L)
 {
 	System* system = pop_system(L, 1);
 	lua_Number ox = luaL_checknumber(L, 2);
@@ -357,7 +354,7 @@ int particle_set_offset(lua_State* L)
 	system->offy = oy;
 	return 0;
 }
-int particle_get_offset(lua_State* L)
+int mlua_get_offset_system(lua_State* L)
 {
 	System* system = pop_system(L, 1);
 	lua_pushnumber(L, system->offx);
@@ -366,13 +363,13 @@ int particle_get_offset(lua_State* L)
 }
 
 #define GETSET(attr) \
-	int particle_get_##attr(lua_State* L) \
+	int mlua_get_##attr##_system(lua_State* L) \
 	{ \
 	    System* system = pop_system(L, 1);\
 		lua_pushnumber(L, system->attr); \
 		return 1; \
 	} \
-	int particle_set_##attr(lua_State* L) \
+	int mlua_set_##attr##_system(lua_State* L) \
 	{ \
 	    System* system = pop_system(L, 1);\
 		lua_Number attr = luaL_checknumber(L, 2); \
@@ -391,7 +388,7 @@ GETSET(max_initial_velocity)
 GETSET(emission_rate)
 
 
-int particle_update(lua_State* L)
+int mlua_update_system(lua_State* L)
 {
 	System* system = pop_system(L, 1);
 	lua_Number dt = luaL_checknumber(L, 2);
@@ -400,7 +397,7 @@ int particle_update(lua_State* L)
 }
 
 #define ACTION(action) \
-	int particle_##action(lua_State* L) \
+	int mlua_##action##_system(lua_State* L) \
 	{ \
 	    System* system = pop_system(L, 1);\
 		system->action(); \
@@ -412,7 +409,7 @@ ACTION(start)
 ACTION(pause)
 ACTION(stop)
 
-int particle_draw(lua_State* L)
+int mlua_draw_system(lua_State* L)
 {
 	System* system = pop_system(L, 1);
 	lua_Number dx = 0;
@@ -425,14 +422,14 @@ int particle_draw(lua_State* L)
 	return 0;
 }
 
-int particle_is_running(lua_State* L)
+int mlua_is_running_system(lua_State* L)
 {
 	System* system = pop_system(L, 1);
 	bool running = system->running;
 	lua_pushboolean(L, running);
 	return 1;
 }
-int particle_set_running(lua_State* L)
+int mlua_set_running_system(lua_State* L)
 {
 	System* system = pop_system(L, 1);
 	bool running = lua_toboolean(L, 2);
@@ -440,7 +437,7 @@ int particle_set_running(lua_State* L)
 	return 0;
 }
 
-int particle_add_size(lua_State* L)
+int mlua_add_size_system(lua_State* L)
 {
 	System* system = pop_system(L, 1);
 	lua_Number at_lifetime = luaL_checknumber(L, 2);
@@ -453,7 +450,7 @@ int particle_add_size(lua_State* L)
 	return 0;
 }
 
-int particle_add_color(lua_State* L)
+int mlua_add_color_system(lua_State* L)
 {
 	System* system = pop_system(L, 1);
 	lua_Number at_lifetime = luaL_checknumber(L, 2);
@@ -474,60 +471,44 @@ int particle_add_color(lua_State* L)
 	return 0;
 }
 
-int mlua_particle_free(lua_State* L)
+int mlua_free_system(lua_State* L)
 {
 	System* system = pop_system(L, 1);
 	delete system;
 	return 0;
 }
 
-static const luaL_Reg lib[] =
-{
-	DECLARE_FUNCTION(new_system),
-	DECLARE_FUNCTION(update),
-	DECLARE_FUNCTION(emit),
-	DECLARE_FUNCTION(start),
-	DECLARE_FUNCTION(stop),
-	DECLARE_FUNCTION(pause),
-	DECLARE_FUNCTION(draw),
-
-	DECLARE_FUNCTION(is_running),
-	DECLARE_FUNCTION(set_running),
-	DECLARE_FUNCTION(add_size),
-	DECLARE_FUNCTION(add_color),
-
-	// yukk
-	DECLARE_FUNCTION(get_position),
-	DECLARE_FUNCTION(set_position),
-	DECLARE_FUNCTION(get_offset),
-	DECLARE_FUNCTION(set_offset),
-	DECLARE_GETSET(min_lifetime),
-	DECLARE_GETSET(max_lifetime),
-	DECLARE_GETSET(min_direction),
-	DECLARE_GETSET(max_direction),
-	DECLARE_GETSET(min_initial_acceleration),
-	DECLARE_GETSET(max_initial_acceleration),
-	DECLARE_GETSET(min_initial_velocity),
-	DECLARE_GETSET(max_initial_velocity),
-	DECLARE_GETSET(emission_rate),
-
-	{NULL, NULL}
-};
-
-void particle_register(lua_State* L)
-{
-	int i = 0;
-	while (lib[i].name)
-	{
-		lua_pushcfunction(L, lib[i].func);
-		lua_setfield(L, -2, lib[i].name);
-		i++;
-	}
+BEGIN_MODULE(particle)
+	DECLARE_FUNCTION(new_system)
 
 	BEGIN_CLASS(system)
-		ADD_GC(particle_free)
-		END_CLASS();
-	REGISTER_CLASS(system, "__System");
-}
+		ADD_METHOD(system, start)
+		ADD_METHOD(system, pause)
+		ADD_METHOD(system, emit)
+		ADD_METHOD(system, stop)
 
+		ADD_METHOD(system, draw)
+		ADD_METHOD(system, update)
+		ADD_METHOD(system, is_running)
+		ADD_METHOD(system, set_running)
+		ADD_METHOD(system, add_size)
+		ADD_METHOD(system, add_color)
+
+		ADD_GETSET(system, position)
+		ADD_GETSET(system, offset)
+		ADD_GETSET(system, emission_rate)
+
+#define ADD_MINMAX(name) \
+		ADD_GETSET(system, min_##name) \
+		ADD_GETSET(system, max_##name)
+		ADD_MINMAX(lifetime)
+		ADD_MINMAX(direction)
+		ADD_MINMAX(initial_acceleration)
+		ADD_MINMAX(initial_velocity)
+#undef ADD_GETSET
+
+		ADD_GC(free_system)
+		END_CLASS();
+	REGISTER_CLASS(system, "System");
+END_MODULE()
 

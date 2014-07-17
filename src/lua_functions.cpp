@@ -149,22 +149,16 @@ void LuaFunctions::remove_userpackages() const
 	printf("\n");
 }
 
-void particle_register(lua_State*);
-void physic_register(lua_State*);
-void web_register(lua_State*);
-void net_register(lua_State* L);
-void truetype_register(lua_State* L);
-
 bool LuaFunctions::load_code()
 {
 	if (!library_loaded) {
 		// add drystal lib
 		luaL_requiref(L, "drystal", luaopen_drystal, 1 /* as global */);
-		particle_register(L);
-		physic_register(L);
-		web_register(L);
-		net_register(L);
-		truetype_register(L);
+		IMPORT_MODULE(particle);
+		IMPORT_MODULE(physic);
+		IMPORT_MODULE(web);
+		IMPORT_MODULE(net);
+		IMPORT_MODULE(truetype);
 		lua_pop(L, 1);  /* remove lib */
 		// then remove it from package.loaded, so the drystal.lua can be called if user wants
 		lua_getglobal(L, "package");
