@@ -56,7 +56,7 @@
 #define REGISTER_CLASS_WITH_INDEX(name, name_in_module) \
 	luaL_newmetatable(L, #name); \
 	luaL_setfuncs(L, __ ## name ## _class, 0); \
-	lua_pushcfunction(L, __ ## name ## _class_index); \
+	lua_pushcfunction(L, mlua_##name##_class_index); \
 	lua_setfield(L, -2, "__index"); \
 	lua_setfield(L, -2, name_in_module);
 
@@ -65,7 +65,7 @@
 	luaL_setfuncs(L, __ ## name ## _class, 0); \
 	lua_pushcfunction(L, mlua_##name##_class_index); \
 	lua_setfield(L, -2, "__index"); \
-	lua_pushcfunction(L, mlua_## name## _class_newindex); \
+	lua_pushcfunction(L, mlua_## name##_class_newindex); \
 	lua_setfield(L, -2, "__newindex"); \
 	lua_setfield(L, -2, name_in_module);
 
