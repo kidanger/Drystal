@@ -945,7 +945,7 @@ public:
 		lua_rawgeti(L, LUA_REGISTRYINDEX, table_ref);
 		for (unsigned int k = 1; k <= i; k++) {
 			lua_rawgeti(L, -1, k);
-			lua_Number sample = lua_tonumber(L, -1);
+			lua_Number sample = luaL_checknumber(L, -1);
 			buffer[k] = sample * (1 << 15) + (1 << 15);
 			lua_pop(L, 1);
 		}
