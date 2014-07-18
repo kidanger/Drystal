@@ -278,7 +278,7 @@ static int mlua_connect(lua_State* L)
 
 static int mlua_listen(lua_State* L)
 {
-	int port = luaL_checknumber(L, 1);
+	int port = luaL_checkint(L, 1);
 	server.listen(port);
 	return 0;
 }
