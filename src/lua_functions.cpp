@@ -477,7 +477,7 @@ static int mlua_stop_text(lua_State*)
 }
 
 
-static int __surface_class_index(lua_State* L)
+static int mlua_surface_class_index(lua_State* L)
 {
 	assert(L);
 
@@ -548,6 +548,7 @@ static int mlua_draw_on(lua_State* L)
 	}
 	return 0;
 }
+int(*mlua_draw_on_surface)(lua_State* L) = mlua_draw_on;
 
 static int mlua_draw_from(lua_State* L)
 {
@@ -563,8 +564,9 @@ static int mlua_draw_from(lua_State* L)
 	}
 	return 0;
 }
+int(*mlua_draw_from_surface)(lua_State* L) = mlua_draw_from;
 
-static int mlua_set_filter(lua_State* L)
+static int mlua_set_filter_surface(lua_State* L)
 {
 	assert(L);
 
@@ -829,7 +831,6 @@ int luaopen_drystal(lua_State* L)
 	assert(L);
 
 #define EXPOSE_FUNCTION(name) {#name, mlua_##name}
-
 	static const luaL_Reg lib[] = {
 		{"engine_stop", mlua_stop},
 		EXPOSE_FUNCTION(stop),
@@ -881,16 +882,16 @@ int luaopen_drystal(lua_State* L)
 
 		{NULL, NULL}
 	};
+#undef EXPOSE_FUNCTION
 
 	luaL_newlib(L, lib);
 
 	BEGIN_CLASS(surface)
-	EXPOSE_FUNCTION(draw_on),
-	EXPOSE_FUNCTION(draw_from),
-	EXPOSE_FUNCTION(set_filter),
+	ADD_METHOD(surface, draw_on)
+	ADD_METHOD(surface, draw_from)
+	ADD_METHOD(surface, set_filter)
 	ADD_GC(free_surface)
-	END_CLASS();
-	REGISTER_CLASS_WITH_INDEX(surface, "__Surface");
+	REGISTER_CLASS_WITH_INDEX(surface, "__Surface")
 
 	BEGIN_CLASS(buffer)
 	ADD_METHOD(buffer, use)
@@ -898,15 +899,13 @@ int luaopen_drystal(lua_State* L)
 	ADD_METHOD(buffer, reset)
 	ADD_METHOD(buffer, upload_and_free)
 	ADD_GC(free_buffer)
-	END_CLASS();
-	REGISTER_CLASS(buffer, "__Buffer");
+	REGISTER_CLASS(buffer, "__Buffer")
 
 	BEGIN_CLASS(shader)
 	ADD_METHOD(shader, use)
 	ADD_METHOD(shader, feed)
 	ADD_GC(free_shader)
-	END_CLASS();
-	REGISTER_CLASS(shader, "__Shader");
+	REGISTER_CLASS(shader, "__Shader")
 
 	{
 		// screen
@@ -964,5 +963,4 @@ int luaopen_drystal(lua_State* L)
 
 	assert(lua_gettop(L) == 2);
 	return 1;
-#undef EXPOSE_FUNCTION
 }

@@ -14,7 +14,6 @@ BEGIN_MODULE(net)
 		ADD_METHOD(socket, flush)
 		ADD_METHOD(socket, disconnect)
 		ADD_GC(free_socket)
-		END_CLASS();
-	REGISTER_CLASS_WITH_INDEX_AND_NEWINDEX(socket, "__Socket");
+	REGISTER_CLASS_WITH_INDEX_AND_NEWINDEX(socket, "__Socket")
 END_MODULE()
 

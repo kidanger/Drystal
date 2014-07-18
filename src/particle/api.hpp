@@ -30,7 +30,6 @@ BEGIN_MODULE(particle)
 #undef ADD_GETSET
 
 		ADD_GC(free_system)
-		END_CLASS()
 	REGISTER_CLASS(system, "System")
 END_MODULE()
 

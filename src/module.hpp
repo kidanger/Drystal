@@ -23,12 +23,15 @@
 #undef ADD_GC
 #undef ADD_METHOD
 #undef ADD_GETSET
-#undef END_CLASS
 #undef REGISTER_CLASS
 #undef REGISTER_CLASS_WITH_INDEX
 #undef REGISTER_CLASS_WITH_INDEX_AND_NEWINDEX
 
 #ifdef IMPLEMENT_MODULE
+
+#define PUSH_FUNC(name, func) \
+    lua_pushcfunction(L, mlua_##func); \
+    lua_setfield(L, -2, name);
 
 #define BEGIN_MODULE(name) \
 	void register_##name(lua_State* L) {
@@ -38,36 +41,31 @@
 #define END_MODULE() \
 	}
 
-#define BEGIN_CLASS(name) static const luaL_Reg __ ## name ## _class[] = {
-#define ADD_GC(func) { "__gc", mlua_ ## func},
-#define ADD_METHOD(class, name) { #name, mlua_ ## name ## _ ## class },
+#define BEGIN_CLASS(name) \
+	luaL_newmetatable(L, #name);
+#define ADD_GC(func) \
+    PUSH_FUNC("__gc", func)
+#define ADD_METHOD(class, name) \
+    PUSH_FUNC(#name, name##_##class)
 #define ADD_GETSET(class, name) \
 	ADD_METHOD(class, get_##name) \
 	ADD_METHOD(class, set_##name)
-#define END_CLASS() {NULL, NULL} };
 
 #define REGISTER_CLASS(name, name_in_module) \
-	luaL_newmetatable(L, #name); \
-	luaL_setfuncs(L, __ ## name ## _class, 0); \
 	lua_pushvalue(L, -1); \
 	lua_setfield(L, -2, "__index"); \
 	lua_setfield(L, -2, name_in_module);
 
 #define REGISTER_CLASS_WITH_INDEX(name, name_in_module) \
-	luaL_newmetatable(L, #name); \
-	luaL_setfuncs(L, __ ## name ## _class, 0); \
-	lua_pushcfunction(L, mlua_##name##_class_index); \
-	lua_setfield(L, -2, "__index"); \
+	PUSH_FUNC("__index", name##_class_index); \
 	lua_setfield(L, -2, name_in_module);
 
 #define REGISTER_CLASS_WITH_INDEX_AND_NEWINDEX(name, name_in_module) \
-	luaL_newmetatable(L, #name); \
-	luaL_setfuncs(L, __ ## name ## _class, 0); \
-	lua_pushcfunction(L, mlua_##name##_class_index); \
-	lua_setfield(L, -2, "__index"); \
-	lua_pushcfunction(L, mlua_## name##_class_newindex); \
-	lua_setfield(L, -2, "__newindex"); \
+	PUSH_FUNC("__index", name##_class_index); \
+	PUSH_FUNC("__newindex", name##_class_newindex); \
 	lua_setfield(L, -2, name_in_module);
+
+#undef PUSH_FUNC
 
 #else // IMPLEMENT_MODULE is not defined
 
@@ -82,7 +80,6 @@
 #define ADD_GC(func)
 #define ADD_METHOD(class, name)
 #define ADD_GETSET(class, name)
-#define END_CLASS()
 
 #define REGISTER_CLASS(name, name_in_module)
 #define REGISTER_CLASS_WITH_INDEX(name, name_in_module)
@@ -104,7 +101,6 @@
 #define ADD_GETSET(class, name) \
 	ADD_METHOD(class, get_##name) \
 	ADD_METHOD(class, set_##name)
-#define END_CLASS()
 
 #define REGISTER_CLASS(name, name_in_module)
 #define REGISTER_CLASS_WITH_INDEX(name, name_in_module) \

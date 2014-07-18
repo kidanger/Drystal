@@ -9,7 +9,6 @@ BEGIN_MODULE(truetype)
 		ADD_METHOD(font, sizeof)
 		ADD_METHOD(font, sizeof_plain)
 		ADD_GC(free_font)
-		END_CLASS();
-	REGISTER_CLASS(font, "Font");
+	REGISTER_CLASS(font, "Font")
 END_MODULE()
 

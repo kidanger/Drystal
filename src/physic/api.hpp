@@ -32,7 +32,6 @@ BEGIN_MODULE(physic)
 		ADD_METHOD(body, apply_torque)
 		ADD_METHOD(body, dump)
 		ADD_METHOD(body, destroy)
-		END_CLASS()
 	REGISTER_CLASS(body, "Body")
 	/*
 	 * Set field so gamedevs can do:
@@ -53,7 +52,6 @@ BEGIN_MODULE(physic)
 		ADD_GETSET(shape, friction)
 		ADD_METHOD(shape, set_sensor)
 		ADD_GC(gc_shape)
-		END_CLASS()
 	REGISTER_CLASS(shape, "Shape")
 
 	BEGIN_CLASS(joint)
@@ -68,7 +66,6 @@ BEGIN_MODULE(physic)
 		// revolute joint
 		ADD_METHOD(joint, set_angle_limits)
 		ADD_METHOD(joint, set_motor_speed)
-		END_CLASS()
 	REGISTER_CLASS(joint, "Joint")
 END_MODULE()
 
