@@ -20,7 +20,7 @@
 #include <lua.hpp>
 #include "engine.hpp"
 #include "lua_functions.hpp"
-#include "api"
+#include "api.hpp"
 
 extern "C" {
 	extern int json_encode(lua_State* L);

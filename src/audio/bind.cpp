@@ -19,7 +19,7 @@
 #include "engine.hpp"
 #include "audio.hpp"
 #include "log.hpp"
-#include "api"
+#include "api.hpp"
 
 DECLARE_PUSHPOP(Sound, sound)
 DECLARE_PUSHPOP(Music, music)

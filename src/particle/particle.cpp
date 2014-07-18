@@ -21,7 +21,7 @@
 #include <lua.hpp>
 
 #include "engine.hpp"
-#include "api"
+#include "api.hpp"
 
 #define RAND(a, b) (((float) rand()/RAND_MAX) * ((b) - (a)) + (a))
 

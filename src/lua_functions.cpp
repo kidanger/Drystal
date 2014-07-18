@@ -24,7 +24,7 @@
 #include "log.hpp"
 #include "lua_functions.hpp"
 
-#include "all_api"
+#include "all_api.hpp"
 
 // used to access some engine's fields from lua callbacks
 static Engine *engine;
@@ -810,12 +810,12 @@ static int mlua_free_buffer(lua_State* L)
 void LuaFunctions::register_modules()
 {
 #define REGISTER_MODULE
-#include "all_api"
+#include "all_api.hpp"
 #undef REGISTER_MODULE
 }
 
 #define IMPLEMENT_MODULE
-#include "all_api"
+#include "all_api.hpp"
 #undef IMPLEMENT_MODULE
 
 extern "C" {

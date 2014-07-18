@@ -28,7 +28,7 @@ extern "C" {
 #include "websocket.h"
 }
 #include "engine.hpp"
-#include "api"
+#include "api.hpp"
 
 int (*_socket)(int, int, int) = socket;
 int (*_connect)(int, const struct sockaddr*, socklen_t) = connect;
