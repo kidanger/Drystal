@@ -94,12 +94,23 @@ public:
 	float emission_rate;
 	float emit_counter;
 
-	System() :
+	System(int x, int y) :
+		particles(NULL),
 		cur_size(0), cur_color(0),
 		running(false),
 		size(256), used(0),
-		emit_counter(0)
-	{}
+		x(x), y(y), offx(0), offy(0),
+		min_direction(0), max_direction(0),
+		min_lifetime(0), max_lifetime(0),
+		min_initial_acceleration(0), max_initial_acceleration(0),
+		min_initial_velocity(0), max_initial_velocity(0),
+		emission_rate(0), emit_counter(0)
+	{
+		particles = new Particle[size];
+		for (int i = 0; i < size; i++)
+			particles[i].dead = true;
+        }
+
 	~System()
 	{
 		delete[] particles;
@@ -121,14 +132,6 @@ public:
 		}
 		used = 0;
 		running = false;
-	}
-
-	void allocate()
-	{
-		particles = new Particle[size];
-		for (int i = 0; i < size; i++)
-			particles[i].dead = true;
-		used = 0;
 	}
 
 	void draw(float dx, float dy)
@@ -287,10 +290,13 @@ DECLARE_PUSHPOP(System, system)
 
 int mlua_new_system(lua_State* L)
 {
-	System* system = new System;
+        int x;
+        int y;
 
-	system->x = luaL_checknumber(L, 1);
-	system->y = luaL_checknumber(L, 2);
+	x = luaL_checknumber(L, 1);
+	y = luaL_checknumber(L, 2);
+
+	System* system = new System(x, y);
 
 	system->min_direction = 0;
 	system->max_direction = M_PI * 2;
@@ -328,8 +334,7 @@ int mlua_new_system(lua_State* L)
 	system->offx = 0;
 	system->offy = 0;
 
-	system->allocate();
-    push_system(L, system);
+	push_system(L, system);
 	return 1;
 }
 
