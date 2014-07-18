@@ -45,13 +45,13 @@ private:
 	ws_ctx_t* wsctx;
 	std::string address;
 	std::string output;
-	std::stringbuf buf;
 public:
 	Socket(int fd, const char* address, ws_ctx_t* ctx):
 		fd(fd),
 		tableref(LUA_REFNIL),
 		wsctx(ctx),
-		address(address)
+		address(address),
+		output()
 	{
 	}
 
