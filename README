@@ -7,6 +7,16 @@ ABOUT:
 AUTHOR:
     Jérémy Anger
 
+LICENSE:
+    LGPLv3 for all Drystal code
+
+    The external/ folder contains third-party libraries:
+    - stb_vorbis.c and stb_{image,truetype}.h which are in the public domain
+    - lua/* which is under the MIT License
+    - box2d/* which is under the zlib License
+    - lua-cjson/* which is under the MIT License
+    - wavloader.c which is in the public domain
+
 GITWEB:
     http://git.kidanger.net/drystal.git/
 
