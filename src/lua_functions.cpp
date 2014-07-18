@@ -24,11 +24,7 @@
 #include "log.hpp"
 #include "lua_functions.hpp"
 
-#include "physic/api"
-#include "truetype/api"
-#include "particle/api"
-#include "net/api"
-#include "web/api"
+#include "all_api"
 
 // used to access some engine's fields from lua callbacks
 static Engine *engine;
@@ -38,8 +34,6 @@ static int luaopen_drystal(lua_State*); // defined at the end of this file
 DECLARE_PUSHPOP(Shader, shader)
 DECLARE_PUSHPOP(Surface, surface)
 DECLARE_PUSHPOP(Buffer, buffer)
-DECLARE_PUSHPOP(Sound, sound)
-DECLARE_PUSHPOP(Music, music)
 
 LuaFunctions::LuaFunctions(Engine& eng, const char *_filename) :
 	L(luaL_newstate()),
@@ -158,11 +152,7 @@ bool LuaFunctions::load_code()
 	if (!library_loaded) {
 		// add drystal lib
 		luaL_requiref(L, "drystal", luaopen_drystal, 1 /* as global */);
-		register_particle(L);
-		register_physic(L);
-		register_web(L);
-		register_net(L);
-		register_truetype(L);
+		register_modules();
 		lua_pop(L, 1);  /* remove lib */
 		// then remove it from package.loaded, so the drystal.lua can be called if user wants
 		lua_getglobal(L, "package");
@@ -817,218 +807,6 @@ static int mlua_free_buffer(lua_State* L)
 	return 0;
 }
 
-static int mlua_load_sound(lua_State *L)
-{
-	assert(L);
-
-	const char* filename = lua_tostring(L, 1);
-	Sound *chunk = engine->audio.load_sound(filename);
-	if (chunk) {
-		push_sound(L, chunk);
-		return 1;
-	}
-	return luaL_fileresult(L, 0, filename);
-}
-
-static int mlua_create_sound(lua_State *L)
-{
-	assert(L);
-
-	/*
-	 * Multiple configurations allowed:
-	 * [1]: table
-	 * 	len = #table (can call __len)
-	 * 	data = table[i] (can call __index)
-	 * or
-	 * [1]: table
-	 * [2]: number
-	 * 	len = number
-	 * 	data = table[i] (can call __index)
-	 * or
-	 * [1]: function
-	 * [2]: number
-	 * 	len = number
-	 * 	data = function(i)
-	 */
-	unsigned int len;
-	if (lua_gettop(L) == 1) {
-		len = luaL_len(L, 1);
-	} else {
-		len = luaL_checknumber(L, 2);
-	}
-
-	float buffer[len];
-	if (lua_istable(L, 1)) {
-		for (unsigned int i = 0; i < len; i++) {
-			lua_pushnumber(L, i + 1);
-			lua_gettable(L, 1);
-			buffer[i] = luaL_checknumber(L, -1);
-			lua_pop(L, 1);
-		}
-	} else if (lua_isfunction(L, 1)) {
-		for (unsigned int i = 0; i < len; i++) {
-			lua_pushvalue(L, 1);
-			lua_pushnumber(L, i);
-			lua_call(L, 1, 1);
-			buffer[i] = luaL_checknumber(L, -1);
-			lua_pop(L, 1);
-		}
-	}
-
-	Sound *chunk = engine->audio.create_sound(len, buffer);
-	push_sound(L, chunk);
-	return 1;
-}
-
-static int mlua_play_sound(lua_State *L)
-{
-	assert(L);
-
-	Sound* chunk = pop_sound(L, 1);
-
-	float volume = 1;
-	float x = 0;
-	float y = 0;
-	if (!lua_isnone(L, 2))
-		volume = luaL_checknumber(L, 2);
-	if (!lua_isnone(L, 3))
-		x = luaL_checknumber(L, 3);
-	if (!lua_isnone(L, 4))
-		y = luaL_checknumber(L, 4);
-
-	engine->audio.play_sound(chunk, volume, x, y);
-	return 0;
-}
-
-static int mlua_free_sound(lua_State *L)
-{
-	assert(L);
-
-	DEBUG("");
-	Sound* chunk = pop_sound(L, 1);
-	engine->audio.free_sound(chunk);
-	return 0;
-}
-
-static int mlua_free_music(lua_State *L)
-{
-	assert(L);
-
-	DEBUG("");
-	Music* music = pop_music(L, 1);
-	engine->audio.free_music(music);
-	return 0;
-}
-
-class LuaMusicCallback : public MusicCallback
-{
-public:
-	lua_State* L;
-	int ref;
-	int table_ref;
-
-	LuaMusicCallback() :
-		L(NULL),
-		ref(LUA_NOREF),
-		table_ref(LUA_NOREF)
-	{
-	}
-
-	unsigned int feed_buffer(unsigned short* buffer, unsigned int len)
-	{
-		if (table_ref == LUA_NOREF) {
-			lua_createtable(L, len, 0);
-			this->table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
-		}
-		lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
-		lua_rawgeti(L, LUA_REGISTRYINDEX, this->table_ref);
-		lua_pushunsigned(L, len);
-		lua_call(L, 2, 1);
-
-		unsigned int i = lua_tounsigned(L, -1);
-		lua_pop(L, 1);
-
-		lua_rawgeti(L, LUA_REGISTRYINDEX, table_ref);
-		for (unsigned int k = 1; k <= i; k++) {
-			lua_rawgeti(L, -1, k);
-			lua_Number sample = luaL_checknumber(L, -1);
-			buffer[k] = sample * (1 << 15) + (1 << 15);
-			lua_pop(L, 1);
-		}
-		return i;
-	}
-
-	~LuaMusicCallback()
-	{
-		luaL_unref(L, LUA_REGISTRYINDEX, ref);
-		if (table_ref != LUA_NOREF)
-			luaL_unref(L, LUA_REGISTRYINDEX, table_ref);
-	}
-private:
-	LuaMusicCallback(const LuaMusicCallback&);
-	LuaMusicCallback& operator=(const LuaMusicCallback&);
-};
-
-static int mlua_load_music(lua_State *L)
-{
-	assert(L);
-
-	Music* music;
-	if (lua_isstring(L, 1)) {
-		const char* filename = lua_tostring(L, 1);
-		music = engine->audio.load_music_from_file(filename);
-		if (!music) {
-			return luaL_fileresult(L, 0, filename);
-		}
-	} else {
-		LuaMusicCallback* callback = new LuaMusicCallback;
-		callback->L = L;
-		lua_pushvalue(L, 1);
-		callback->ref = luaL_ref(L, LUA_REGISTRYINDEX);
-
-		int samplesrate = luaL_optnumber(L, 2, DEFAULT_SAMPLES_RATE);
-		music = engine->audio.load_music(callback, samplesrate);
-	}
-	push_music(L, music);
-	return 1;
-}
-
-static int mlua_play_music(lua_State *L)
-{
-	assert(L);
-
-	Music* music = pop_music(L, 1);
-	engine->audio.play_music(music);
-	return 0;
-}
-
-static int mlua_set_sound_volume(lua_State *L)
-{
-	assert(L);
-
-	float volume = luaL_checknumber(L, 1);
-	engine->audio.set_sound_volume(volume);
-	return 0;
-}
-
-static int mlua_set_music_volume(lua_State *L)
-{
-	assert(L);
-
-	float volume = luaL_checknumber(L, 1);
-	engine->audio.set_music_volume(volume);
-	return 0;
-}
-
-static int mlua_stop_music(lua_State* L)
-{
-	assert(L);
-
-	Music* music = pop_music(L, 1);
-	engine->audio.stop_music(music);
-	return 0;
-}
-
 extern "C" {
 	extern int json_encode(lua_State* L);
 	extern int json_decode(lua_State* L);
@@ -1068,21 +846,16 @@ static int mlua_fetch(lua_State* L)
 	return 1;
 }
 
+void LuaFunctions::register_modules()
+{
+#define REGISTER_MODULE
+#include "all_api"
+#undef REGISTER_MODULE
+}
 
 #define IMPLEMENT_MODULE
-
-#include "physic/api"
-#include "truetype/api"
-#include "particle/api"
-#include "net/api"
-#include "web/api"
-
+#include "all_api"
 #undef IMPLEMENT_MODULE
-
-
-//
-// Lua load
-//
 
 int luaopen_drystal(lua_State* L)
 {
@@ -1135,14 +908,6 @@ int luaopen_drystal(lua_State* L)
 		EXPOSE_FUNCTION(new_buffer),
 		EXPOSE_FUNCTION(use_buffer),
 
-		/* AUDIO */
-		EXPOSE_FUNCTION(load_music),
-		EXPOSE_FUNCTION(set_music_volume),
-
-		EXPOSE_FUNCTION(load_sound),
-		EXPOSE_FUNCTION(create_sound),
-		EXPOSE_FUNCTION(set_sound_volume),
-
 		/* STORAGE */
 		EXPOSE_FUNCTION(store),
 		EXPOSE_FUNCTION(fetch),
@@ -1163,19 +928,6 @@ int luaopen_drystal(lua_State* L)
 	ADD_GC(free_surface)
 	END_CLASS();
 	REGISTER_CLASS_WITH_INDEX(surface, "__Surface");
-
-	BEGIN_CLASS(sound)
-	ADD_METHOD(sound, play)
-	ADD_GC(free_sound)
-	END_CLASS();
-	REGISTER_CLASS(sound, "__Sound");
-
-	BEGIN_CLASS(music)
-	ADD_METHOD(music, play)
-	ADD_METHOD(music, stop)
-	ADD_GC(free_music)
-	END_CLASS();
-	REGISTER_CLASS(music, "__Music");
 
 	BEGIN_CLASS(buffer)
 	ADD_METHOD(buffer, use)

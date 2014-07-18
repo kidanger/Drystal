@@ -18,7 +18,7 @@
 
 #include "display.hpp"
 #include "event.hpp"
-#include "audio.hpp"
+#include "audio/audio.hpp" // should be removed
 #include "lua_functions.hpp"
 #include "storage.hpp"
 

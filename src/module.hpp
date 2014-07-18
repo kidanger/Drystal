@@ -1,3 +1,20 @@
+/**
+ * This file is part of Drystal.
+ *
+ * Drystal is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Drystal is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #undef BEGIN_CLASS
 #undef BEGIN_MODULE
 #undef DECLARE_FUNCTION
@@ -54,6 +71,25 @@
 
 #else // IMPLEMENT_MODULE is not defined
 
+#ifdef REGISTER_MODULE
+
+#define BEGIN_MODULE(name) \
+    register_##name(L);
+#define DECLARE_FUNCTION(name)
+#define END_MODULE()
+
+#define BEGIN_CLASS(name)
+#define ADD_GC(func)
+#define ADD_METHOD(class, name)
+#define ADD_GETSET(class, name)
+#define END_CLASS()
+
+#define REGISTER_CLASS(name, name_in_module)
+#define REGISTER_CLASS_WITH_INDEX(name, name_in_module)
+#define REGISTER_CLASS_WITH_INDEX_AND_NEWINDEX(name, name_in_module)
+
+#else // IMPLEMENT_MODULE and REGISTER_CLASS aren't defined
+
 #define BEGIN_MODULE(name) \
 	void register_##name(lua_State* L);
 #define DECLARE_FUNCTION(name) \
@@ -76,5 +112,7 @@
 #define REGISTER_CLASS_WITH_INDEX_AND_NEWINDEX(name, name_in_module) \
 	DECLARE_FUNCTION(name##_class_index) \
 	DECLARE_FUNCTION(name##_class_newindex)
+
+#endif // REGISTER_MODULE
 
 #endif // IMPLEMENT_MODULE

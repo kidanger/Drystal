@@ -59,6 +59,7 @@ private:
 	LuaFunctions& operator=(const LuaFunctions&);
 	bool get_function(const char* name) const;
 	void remove_userpackages() const;
+	void register_modules();
 };
 
 #define DECLARE_PUSHPOP(T, name) \

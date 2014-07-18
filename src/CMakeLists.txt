@@ -3,6 +3,7 @@ aux_source_directory(. SOURCES)
 aux_source_directory(physic SOURCES)
 aux_source_directory(truetype SOURCES)
 aux_source_directory(particle SOURCES)
+aux_source_directory(audio SOURCES)
 aux_source_directory(net SOURCES)
 aux_source_directory(web SOURCES)
 
