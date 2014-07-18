@@ -48,14 +48,20 @@ private:
 	CustomListener(const CustomListener&);
 	CustomListener& operator=(const CustomListener&);
 
-public:
+	lua_State* L;
 	int begin_contact;
 	int end_contact;
 	int presolve;
 	int postsolve;
-	lua_State* L;
 
-        CustomListener(){}
+public:
+        CustomListener(lua_State *L, int begin_contact, int end_contact, int presolve, int postsolve)
+            : L(L),
+              begin_contact(begin_contact),
+              end_contact(end_contact),
+              presolve(presolve),
+              postsolve(postsolve)
+        {}
 
 	~CustomListener()
 	{
@@ -140,16 +146,20 @@ int mlua_on_collision(lua_State* L)
 	assert(world);
 
 	if (lua_gettop(L)) {
-		CustomListener* listener = new CustomListener;
-		listener->L = L;
+		int begin_contact;
+                int end_contact;
+                int presolve;
+                int postsolve;
+
 		lua_pushvalue(L, 1);
-		listener->begin_contact = luaL_ref(L, LUA_REGISTRYINDEX);
+		begin_contact = luaL_ref(L, LUA_REGISTRYINDEX);
 		lua_pushvalue(L, 2);
-		listener->end_contact = luaL_ref(L, LUA_REGISTRYINDEX);
+		end_contact = luaL_ref(L, LUA_REGISTRYINDEX);
 		lua_pushvalue(L, 3);
-		listener->presolve = luaL_ref(L, LUA_REGISTRYINDEX);
+		presolve = luaL_ref(L, LUA_REGISTRYINDEX);
 		lua_pushvalue(L, 4);
-		listener->postsolve = luaL_ref(L, LUA_REGISTRYINDEX);
+		postsolve = luaL_ref(L, LUA_REGISTRYINDEX);
+		CustomListener* listener = new CustomListener(L, begin_contact, end_contact, presolve, postsolve);
 		world->SetContactListener(listener);
 	} else {
 		CustomListener* listener = (CustomListener*) world->GetContactManager().m_contactListener;
@@ -166,15 +176,14 @@ private:
 	CustomRayCastCallback(const CustomRayCastCallback&);
 	CustomRayCastCallback& operator=(const CustomRayCastCallback&);
 
-public:
 	lua_State* L;
 	int ref;
 
+public:
 	b2Fixture* fixture;
 	b2Vec2 point;
 
-	CustomRayCastCallback() : fixture(NULL)
-	{}
+	CustomRayCastCallback(lua_State *L, int ref) : L(L), ref(ref), fixture(NULL), point(0,0) {}
 
 	virtual float32 ReportFixture(b2Fixture* fixture, const b2Vec2& point,
 								  const b2Vec2& normal, float32 fraction)
@@ -218,9 +227,7 @@ int mlua_raycast(lua_State* L)
 		callback_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 	}
 
-	CustomRayCastCallback callback;
-	callback.L = L;
-	callback.ref = callback_ref;
+	CustomRayCastCallback callback(L, callback_ref);
 	if (x1 != x2 || y1 != y2) {
 		world->RayCast(&callback, b2Vec2(x1, y1), b2Vec2(x2, y2));
 	}
@@ -243,12 +250,11 @@ class CustomQueryCallback : public b2QueryCallback
     		CustomQueryCallback(const CustomQueryCallback&);
     		CustomQueryCallback& operator=(const CustomQueryCallback&);
 
-	public:
 		lua_State* L;
 		unsigned index;
 
-		CustomQueryCallback() : index(1)
-		{}
+	public:
+		CustomQueryCallback(lua_State *L) : L(L), index(1) {}
 
 		bool ReportFixture(b2Fixture* fixture)
 		{
@@ -273,8 +279,7 @@ int mlua_query(lua_State* L)
 
 	lua_newtable(L);
 
-	CustomQueryCallback query;
-	query.L = L;
+	CustomQueryCallback query(L);
 	b2AABB aabb;
 	aabb.lowerBound = b2Vec2(x1, y1);
 	aabb.upperBound = b2Vec2(x2, y2);
