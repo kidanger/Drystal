@@ -18,7 +18,10 @@
 
 #include "engine.hpp"
 
+#pragma GCC diagnostic push 
+#pragma GCC diagnostic ignored "-Weffc++"
 #include <Box2D/Box2D.h>
+#pragma GCC diagnostic pop
 
 static b2World* world;
 
