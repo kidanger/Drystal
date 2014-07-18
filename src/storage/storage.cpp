@@ -14,18 +14,25 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <cstdio>
 #include <cstring>
-#include <string>
-#include <sstream>
+#include <cassert>
 
-#include "storage.hpp"
+#include <lua.hpp>
+#include "engine.hpp"
+#include "lua_functions.hpp"
+#include "api"
+
+extern "C" {
+	extern int json_encode(lua_State* L);
+	extern int json_decode(lua_State* L);
+	extern void lua_cjson_init();
+}
 
 #ifdef EMSCRIPTEN
 
 #include <emscripten.h>
 
-const char* Storage::fetch(const char* key) const
+const char* fetch(const char* key)
 {
 	std::string js;
 	js = "if (localStorage!==undefined) {localStorage['";
@@ -36,7 +43,7 @@ const char* Storage::fetch(const char* key) const
 	return value;
 }
 
-void Storage::store(const char* key, const char* value)
+void store(const char* key, const char* value)
 {
 	std::string js;
 	js = "localStorage['";
@@ -48,12 +55,11 @@ void Storage::store(const char* key, const char* value)
 	emscripten_run_script(js.c_str());
 }
 
-
 #else
 
-char data[1024] = {0};
+static char data[1024] = {0};
 
-const char* Storage::fetch(const char* key) const
+const char* fetch(const char* key)
 {
 	(void) key;
 	FILE* file = fopen(".storage", "r");
@@ -64,7 +70,7 @@ const char* Storage::fetch(const char* key) const
 	return data;
 }
 
-void Storage::store(const char* key, const char* value)
+void store(const char* key, const char* value)
 {
 	(void) key;
 	FILE* file = fopen(".storage", "w");
@@ -74,3 +80,36 @@ void Storage::store(const char* key, const char* value)
 
 #endif
 
+int mlua_store(lua_State* L)
+{
+	assert(L);
+
+	const char* key = luaL_checkstring(L, 1);
+
+	lua_pushcfunction(L, json_encode);
+	lua_pushvalue(L, 2);
+
+	CALL(1, 1); // table in param, returns json
+
+	const char* value = luaL_checkstring(L, -1);
+	store(key, value);
+	return 0;
+}
+
+int mlua_fetch(lua_State* L)
+{
+	assert(L);
+
+	const char* key = luaL_checkstring(L, 1);
+	const char* value = fetch(key);
+
+	if (!value[0]) {
+		return 0;
+	}
+
+	lua_pushcfunction(L, json_decode);
+	lua_pushstring(L, value);
+	CALL(1, 1);
+	// table is returned by json_decode
+	return 1;
+}

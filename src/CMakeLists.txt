@@ -6,6 +6,7 @@ aux_source_directory(particle SOURCES)
 aux_source_directory(audio SOURCES)
 aux_source_directory(net SOURCES)
 aux_source_directory(web SOURCES)
+aux_source_directory(storage SOURCES)
 
 set(DRYSTAL_OUT drystal)
 if(EMSCRIPTEN)
