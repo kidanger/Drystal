@@ -41,7 +41,7 @@ add_library(lua STATIC ${CORE_C} ${LIB_C})
 
 add_definitions(-DLUA_COMPAT_ALL)
 if(NOT DEFINED EMSCRIPTEN)
-    add_definitions(-DLUA_COMPAT_ALL -DLUA_USE_DLOPEN)
+    add_definitions(-DLUA_USE_DLOPEN)
     find_library(DL_LIBRARY NAMES dl)
     target_link_libraries(lua ${DL_LIBRARY})
 endif()
