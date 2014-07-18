@@ -28,6 +28,8 @@ static b2World* world;
 
 int mlua_create_world(lua_State* L)
 {
+	assert(L);
+
 	lua_Number gravity_x = luaL_checknumber(L, 1);
 	lua_Number gravity_y = luaL_checknumber(L, 2);
 	world = new b2World(b2Vec2(gravity_x, gravity_y));
@@ -36,7 +38,9 @@ int mlua_create_world(lua_State* L)
 
 int mlua_update_physic(lua_State* L)
 {
+	assert(L);
 	assert(world);
+
 	lua_Number dt = luaL_checknumber(L, 1);
 
 	int velocityIterations = 8;
@@ -147,6 +151,7 @@ public:
 };
 int mlua_on_collision(lua_State* L)
 {
+	assert(L);
 	assert(world);
 
 	if (lua_gettop(L)) {
@@ -219,6 +224,7 @@ public:
 
 int mlua_raycast(lua_State* L)
 {
+	assert(L);
 	assert(world);
 
 	lua_Number x1 = luaL_checknumber(L, 1);
@@ -274,6 +280,7 @@ class CustomQueryCallback : public b2QueryCallback
 
 int mlua_query(lua_State* L)
 {
+	assert(L);
 	assert(world);
 
 	lua_Number x1 = luaL_checknumber(L, 1);
@@ -297,6 +304,7 @@ int mlua_query(lua_State* L)
 
 int mlua_new_shape(lua_State* L)
 {
+	assert(L);
 	assert(world);
 
 	const char* type = luaL_checkstring(L, 1);
@@ -351,6 +359,8 @@ int mlua_new_shape(lua_State* L)
 
 static b2FixtureDef* luam_tofixture(lua_State* L, int index)
 {
+	assert(L);
+
 	luaL_checktype(L, index, LUA_TTABLE);
 	lua_getfield(L, index, "__self");
 	b2FixtureDef* shape = (b2FixtureDef*) lua_touserdata(L, -1);
@@ -377,6 +387,8 @@ SHAPE_GETSET_SOME_VALUE(friction)
 
 int mlua_set_sensor_shape(lua_State* L)
 {
+	assert(L);
+
 	b2FixtureDef* fixtureDef = luam_tofixture(L, 1);
 	bool sensor = lua_toboolean(L, 2);
 	fixtureDef->isSensor = sensor;
@@ -385,6 +397,8 @@ int mlua_set_sensor_shape(lua_State* L)
 
 int mlua_gc_shape(lua_State* L)
 {
+	assert(L);
+
 	b2FixtureDef* fixtureDef = luam_tofixture(L, 1);
 	delete fixtureDef->shape;
 	delete fixtureDef;
@@ -398,6 +412,7 @@ int mlua_gc_shape(lua_State* L)
 
 int mlua_new_body(lua_State* L)
 {
+	assert(L);
 	assert(world);
 
 	int index = 1;
@@ -493,6 +508,8 @@ BODY_GETSET_FLOAT(angular_damping, body->GetAngularDamping(), body->SetAngularDa
 
 int mlua_set_active_body(lua_State* L)
 {
+	assert(L);
+
 	b2Body* body = luam_tobody(L, 1);
 	bool active = lua_toboolean(L, 2);
 	body->SetActive(active);
@@ -501,6 +518,8 @@ int mlua_set_active_body(lua_State* L)
 
 int mlua_set_bullet_body(lua_State* L)
 {
+	assert(L);
+
 	b2Body* body = luam_tobody(L, 1);
 	bool bullet = lua_toboolean(L, 2);
 	body->SetBullet(bullet);
@@ -509,6 +528,8 @@ int mlua_set_bullet_body(lua_State* L)
 
 int mlua_get_mass_body(lua_State* L)
 {
+	assert(L);
+
 	b2Body* body = luam_tobody(L, 1);
 	const lua_Number mass = body->GetMass();
 	lua_pushnumber(L, mass);
@@ -517,6 +538,8 @@ int mlua_get_mass_body(lua_State* L)
 
 int mlua_set_mass_center_body(lua_State* L)
 {
+	assert(L);
+
 	b2Body* body = luam_tobody(L, 1);
 	lua_Number cx = luaL_checknumber(L, 2);
 	lua_Number cy = luaL_checknumber(L, 3);
@@ -530,6 +553,7 @@ int mlua_set_mass_center_body(lua_State* L)
 #define BODY_GETSET_BOOL(value, get_expr, set_expr) \
 	int mlua_set_##value##_body(lua_State* L) \
 	{ \
+		assert(L); \
 		b2Body* body = luam_tobody(L, 1); \
 		bool value = lua_toboolean(L, 2); \
 		set_expr; \
@@ -537,6 +561,7 @@ int mlua_set_mass_center_body(lua_State* L)
 	} \
 	int mlua_get_##value##_body(lua_State* L) \
 	{ \
+		assert(L); \
 		b2Body* body = luam_tobody(L, 1); \
 		const bool value = get_expr; \
 		lua_pushboolean(L, value); \
@@ -547,6 +572,8 @@ BODY_GETSET_BOOL(fixed_rotation, body->IsFixedRotation(), body->SetFixedRotation
 
 int mlua_apply_force_body(lua_State* L)
 {
+	assert(L);
+
 	b2Body* body = luam_tobody(L, 1);
 	lua_Number fx = luaL_checknumber(L, 2);
 	lua_Number fy = luaL_checknumber(L, 3);
@@ -563,6 +590,8 @@ int mlua_apply_force_body(lua_State* L)
 }
 int mlua_apply_linear_impulse_body(lua_State* L)
 {
+	assert(L);
+
 	b2Body* body = luam_tobody(L, 1);
 	lua_Number fx = luaL_checknumber(L, 2);
 	lua_Number fy = luaL_checknumber(L, 3);
@@ -579,6 +608,8 @@ int mlua_apply_linear_impulse_body(lua_State* L)
 }
 int mlua_apply_angular_impulse_body(lua_State* L)
 {
+	assert(L);
+
 	b2Body* body = luam_tobody(L, 1);
 	lua_Number angle = luaL_checknumber(L, 2);
 	body->ApplyAngularImpulse(angle, true);
@@ -586,6 +617,8 @@ int mlua_apply_angular_impulse_body(lua_State* L)
 }
 int mlua_apply_torque_body(lua_State* L)
 {
+	assert(L);
+
 	b2Body* body = luam_tobody(L, 1);
 	lua_Number torque = luaL_checknumber(L, 2);
 	body->ApplyTorque(torque, true);
@@ -594,6 +627,8 @@ int mlua_apply_torque_body(lua_State* L)
 
 int mlua_dump_body(lua_State* L)
 {
+	assert(L);
+
 	b2Body* body = luam_tobody(L, 1);
 	body->Dump();
 	return 0;
@@ -601,6 +636,8 @@ int mlua_dump_body(lua_State* L)
 
 int mlua_destroy_body(lua_State* L)
 {
+	assert(L);
+
 	b2Body* body = luam_tobody(L, 1);
 	world->DestroyBody(body);
 	return 0;
@@ -610,6 +647,7 @@ int mlua_destroy_body(lua_State* L)
 
 int mlua_new_joint(lua_State* L)
 {
+	assert(L);
 	assert(world);
 
 	b2JointDef* joint_def;
@@ -670,6 +708,8 @@ int mlua_new_joint(lua_State* L)
 
 static b2Joint* luam_tojoint(lua_State* L, int index)
 {
+	assert(L);
+
 	luaL_checktype(L, index, LUA_TTABLE);
 	lua_getfield(L, index, "__self");
 	b2Joint* joint = (b2Joint*) lua_touserdata(L, -1);
@@ -694,6 +734,8 @@ inline static b2RevoluteJoint* luam_torevolutejoint(lua_State* L, int index)
 
 int mlua_set_target_joint(lua_State* L)
 {
+	assert(L);
+
 	b2MouseJoint* joint = luam_tomousejoint(L, 1);
 	lua_Number x = luaL_checknumber(L, 2);
 	lua_Number y = luaL_checknumber(L, 3);
@@ -703,6 +745,8 @@ int mlua_set_target_joint(lua_State* L)
 
 int mlua_set_length_joint(lua_State* L)
 {
+	assert(L);
+
 	b2DistanceJoint* joint = luam_todistancejoint(L, 1);
 	lua_Number length = luaL_checknumber(L, 2);
 	joint->SetLength(length);
@@ -710,6 +754,8 @@ int mlua_set_length_joint(lua_State* L)
 }
 int mlua_set_frequency_joint(lua_State* L)
 {
+	assert(L);
+
 	b2DistanceJoint* joint = luam_todistancejoint(L, 1);
 	lua_Number freq = luaL_checknumber(L, 2);
 	joint->SetFrequency(freq);
@@ -718,6 +764,8 @@ int mlua_set_frequency_joint(lua_State* L)
 
 int mlua_set_max_length_joint(lua_State* L)
 {
+	assert(L);
+
 	b2RopeJoint* joint = luam_toropejoint(L, 1);
 	lua_Number maxlength = luaL_checknumber(L, 2);
 	joint->SetMaxLength(maxlength);
@@ -726,6 +774,8 @@ int mlua_set_max_length_joint(lua_State* L)
 
 int mlua_set_angle_limits_joint(lua_State* L)
 {
+	assert(L);
+
 	b2RevoluteJoint* joint = luam_torevolutejoint(L, 1);
 	lua_Number min = luaL_checknumber(L, 2);
 	lua_Number max = luaL_checknumber(L, 3);
@@ -740,6 +790,8 @@ int mlua_set_angle_limits_joint(lua_State* L)
 
 int mlua_set_motor_speed_joint(lua_State* L)
 {
+	assert(L);
+
 	b2RevoluteJoint* joint = luam_torevolutejoint(L, 1);
 	lua_Number speed = luaL_checknumber(L, 2);
 	lua_Number maxtorque = 20;
@@ -757,6 +809,8 @@ int mlua_set_motor_speed_joint(lua_State* L)
 
 int mlua_destroy_joint(lua_State* L)
 {
+	assert(L);
+
 	b2Joint* joint = luam_tojoint(L, 1);
 	world->DestroyJoint(joint);
 	return 0;

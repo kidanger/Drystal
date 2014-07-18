@@ -293,6 +293,8 @@ int mlua_new_system(lua_State* L)
         int x;
         int y;
 
+	assert(L);
+
 	x = luaL_checknumber(L, 1);
 	y = luaL_checknumber(L, 2);
 
@@ -340,6 +342,8 @@ int mlua_new_system(lua_State* L)
 
 int mlua_set_position_system(lua_State* L)
 {
+	assert(L);
+
 	System* system = pop_system(L, 1);
 	lua_Number x = luaL_checknumber(L, 2);
 	lua_Number y = luaL_checknumber(L, 3);
@@ -349,6 +353,8 @@ int mlua_set_position_system(lua_State* L)
 }
 int mlua_get_position_system(lua_State* L)
 {
+	assert(L);
+
 	System* system = pop_system(L, 1);
 	lua_pushnumber(L, system->x);
 	lua_pushnumber(L, system->y);
@@ -356,6 +362,8 @@ int mlua_get_position_system(lua_State* L)
 }
 int mlua_set_offset_system(lua_State* L)
 {
+	assert(L);
+
 	System* system = pop_system(L, 1);
 	lua_Number ox = luaL_checknumber(L, 2);
 	lua_Number oy = luaL_checknumber(L, 3);
@@ -365,6 +373,8 @@ int mlua_set_offset_system(lua_State* L)
 }
 int mlua_get_offset_system(lua_State* L)
 {
+	assert(L);
+
 	System* system = pop_system(L, 1);
 	lua_pushnumber(L, system->offx);
 	lua_pushnumber(L, system->offy);
@@ -374,12 +384,14 @@ int mlua_get_offset_system(lua_State* L)
 #define GETSET(attr) \
 	int mlua_get_##attr##_system(lua_State* L) \
 	{ \
+		assert(L); \
 	    System* system = pop_system(L, 1);\
 		lua_pushnumber(L, system->attr); \
 		return 1; \
 	} \
 	int mlua_set_##attr##_system(lua_State* L) \
 	{ \
+		assert(L); \
 	    System* system = pop_system(L, 1);\
 		lua_Number attr = luaL_checknumber(L, 2); \
 		system->attr = attr; \
@@ -399,6 +411,8 @@ GETSET(emission_rate)
 
 int mlua_update_system(lua_State* L)
 {
+	assert(L);
+
 	System* system = pop_system(L, 1);
 	lua_Number dt = luaL_checknumber(L, 2);
 	system->update(dt);
@@ -408,6 +422,7 @@ int mlua_update_system(lua_State* L)
 #define ACTION(action) \
 	int mlua_##action##_system(lua_State* L) \
 	{ \
+		assert(L); \
 	    System* system = pop_system(L, 1);\
 		system->action(); \
 		return 0; \
@@ -420,6 +435,8 @@ ACTION(stop)
 
 int mlua_draw_system(lua_State* L)
 {
+	assert(L);
+
 	System* system = pop_system(L, 1);
 	lua_Number dx = 0;
 	lua_Number dy = 0;
@@ -433,6 +450,8 @@ int mlua_draw_system(lua_State* L)
 
 int mlua_is_running_system(lua_State* L)
 {
+	assert(L);
+
 	System* system = pop_system(L, 1);
 	bool running = system->running;
 	lua_pushboolean(L, running);
@@ -440,6 +459,8 @@ int mlua_is_running_system(lua_State* L)
 }
 int mlua_set_running_system(lua_State* L)
 {
+	assert(L);
+
 	System* system = pop_system(L, 1);
 	bool running = lua_toboolean(L, 2);
 	system->running = running;
@@ -448,6 +469,8 @@ int mlua_set_running_system(lua_State* L)
 
 int mlua_add_size_system(lua_State* L)
 {
+	assert(L);
+
 	System* system = pop_system(L, 1);
 	lua_Number at_lifetime = luaL_checknumber(L, 2);
 	lua_Number min = luaL_checknumber(L, 3);
@@ -461,6 +484,8 @@ int mlua_add_size_system(lua_State* L)
 
 int mlua_add_color_system(lua_State* L)
 {
+	assert(L);
+
 	System* system = pop_system(L, 1);
 	lua_Number at_lifetime = luaL_checknumber(L, 2);
 	if (lua_gettop(L) == 5) {
@@ -482,6 +507,8 @@ int mlua_add_color_system(lua_State* L)
 
 int mlua_free_system(lua_State* L)
 {
+	assert(L);
+
 	System* system = pop_system(L, 1);
 	delete system;
 	return 0;

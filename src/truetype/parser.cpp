@@ -17,6 +17,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
+#include <cassert>
 #include <map>
 
 #include "parser.hpp"
@@ -32,80 +33,123 @@ static int g_index = 0;
 
 static void change_alpha(const char* str, TextState* state)
 {
+	assert(str);
+	assert(state);
+
 	state->alpha = atoi(str) / 100. * 255;
 }
 
 static void change_red(const char* str, TextState* state)
 {
+	assert(str);
+	assert(state);
+
 	state->r = atoi(str);
 }
 static void change_blue(const char* str, TextState* state)
 {
+	assert(str);
+	assert(state);
+
 	state->b = atoi(str);
 }
 static void change_green(const char* str, TextState* state)
 {
+	assert(str);
+	assert(state);
+
 	state->g = atoi(str);
 }
 static void change_tiny(const char* str, TextState* state)
 {
+	assert(state);
+
 	(void) str;
 	state->size = 0.6;
 }
 static void change_small(const char* str, TextState* state)
 {
+	assert(state);
+
 	(void) str;
 	state->size = 0.8;
 }
 static void change_normal(const char* str, TextState* state)
 {
+	assert(state);
+
 	(void) str;
 	state->size = 1.0;
 }
 static void change_big(const char* str, TextState* state)
 {
+	assert(state);
+
 	(void) str;
 	state->size = 1.3;
 }
 static void change_BIG(const char* str, TextState* state)
 {
+	assert(state);
+
 	(void) str;
 	state->size = 1.7;
 }
 static void change_italic(const char* str, TextState* state)
 {
+	assert(state);
+
 	(void) str;
 	state->italic = 3.5;
 }
 static void change_outline(const char* str, TextState* state)
 {
+	assert(state);
+
 	(void) str;
 	state->outlined = true;
 }
 static void change_nooutline(const char* str, TextState* state)
 {
+	assert(state);
+
 	(void) str;
 	state->outlined = false;
 }
 static void change_outr(const char* str, TextState* state)
 {
+	assert(str);
+	assert(state);
+
 	state->outr = atoi(str);
 }
 static void change_outg(const char* str, TextState* state)
 {
+	assert(str);
+	assert(state);
+
 	state->outg = atoi(str);
 }
 static void change_outb(const char* str, TextState* state)
 {
+	assert(str);
+	assert(state);
+
 	state->outb = atoi(str);
 }
 static void change_shadowx(const char* str, TextState* state)
 {
+	assert(str);
+	assert(state);
+
 	state->shadow_x = atoi(str);
 	state->shadow = true;
 }
 static void change_shadowy(const char* str, TextState* state)
 {
+	assert(str);
+	assert(state);
+
 	state->shadow_y = atoi(str);
 	state->shadow = true;
 }
@@ -149,6 +193,9 @@ std::map<const char*, StateModifier, keyword_cmp> keywords(keywords_data,
 
 static void evaluate(TextState* state, const char* text)
 {
+	assert(text);
+	assert(state);
+
 	char command[32] = {0};
 	int i = 0;
 	while(text[i] && text[i] != '|' && (i == 0 || text[i - 1] != ':')) {
@@ -166,6 +213,8 @@ static void evaluate(TextState* state, const char* text)
 
 static const char* next_token(const char* text)
 {
+	assert(text);
+
 	while(*text) {
 		if (*text == START || *text == END || *text == SEP)
 			break;

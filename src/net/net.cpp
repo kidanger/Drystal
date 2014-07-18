@@ -60,6 +60,8 @@ public:
 		struct sockaddr_in serv_addr;
 		struct hostent *server;
 
+		assert(hostname);
+
 		int fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		if (fd == -1) {
 			return NULL;
@@ -85,6 +87,9 @@ public:
 	}
 
 	void send(const char* msg, int len, bool* error) {
+		assert(error);
+		assert(msg);
+
 		(void) len;
 		output += msg;
 
@@ -92,6 +97,8 @@ public:
 	}
 
 	void flush(bool* error) {
+		assert(error);
+
 		int totallen = output.length();
 		if (totallen == 0 || !readyToSend()) {
 			return;
@@ -121,6 +128,8 @@ public:
 	}
 
 	int receive(char* buffer, int capacity, bool* error) {
+		assert(error);
+
 		if (!readyToRead()) {
 			return 0;
 		}
@@ -202,6 +211,8 @@ private:
 public:
 
 	void listen(int port) {
+		assert(port >= 0 && port < 65536);
+
 		fd = _socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		int yes = 1;
 		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) != 0) {
@@ -221,6 +232,8 @@ public:
 	}
 
 	Socket* accept(float timeout, float* time) {
+		assert(time);
+
 		int sockfd;
 		struct sockaddr_in cliaddr;
 		socklen_t clilen;
@@ -243,6 +256,8 @@ public:
 	}
 
 	bool readyToRead(float timeout, float* time) {
+		assert(time);
+
 		fd_set sett;
 		FD_ZERO(&sett);
 		FD_SET(fd, &sett);
@@ -264,6 +279,8 @@ Server server;
 
 int mlua_connect(lua_State* L)
 {
+	assert(L);
+
 	const char* host = luaL_checkstring(L, 1);
 	int port = luaL_checkint(L, 2);
 	Socket* socket = Socket::connect(host, port);
@@ -279,6 +296,8 @@ int mlua_connect(lua_State* L)
 
 int mlua_listen(lua_State* L)
 {
+	assert(L);
+
 	int port = luaL_checkint(L, 1);
 	server.listen(port);
 	return 0;
@@ -286,6 +305,8 @@ int mlua_listen(lua_State* L)
 
 int mlua_accept(lua_State* L)
 {
+	assert(L);
+
 	lua_Number timeout = luaL_optnumber(L, 2, 0);
 	lua_Number timepassed = 0;
 	int max = luaL_optint(L, 3, -1);
@@ -315,6 +336,8 @@ int mlua_accept(lua_State* L)
 
 int mlua_socket_class_index(lua_State* L)
 {
+	assert(L);
+
 	Socket* socket = pop_socket(L, 1);
 	const char* index = luaL_checkstring(L, 2);
 	if (strcmp(index, "address") == 0) {
@@ -333,6 +356,8 @@ int mlua_socket_class_index(lua_State* L)
 
 int mlua_socket_class_newindex(lua_State* L)
 {
+	assert(L);
+
 	Socket* socket = pop_socket(L, 1);
 	lua_rawgeti(L, LUA_REGISTRYINDEX, socket->getTable());
 	lua_replace(L, 1);
@@ -342,6 +367,8 @@ int mlua_socket_class_newindex(lua_State* L)
 
 int mlua_send_socket(lua_State* L)
 {
+	assert(L);
+
 	Socket* socket = pop_socket(L, 1);
 	size_t size;
 	const char* message = luaL_checklstring(L, 2, &size);
@@ -358,6 +385,8 @@ int mlua_send_socket(lua_State* L)
 static char buffer[1024];
 int mlua_recv_socket(lua_State* L)
 {
+	assert(L);
+
 	Socket* socket = pop_socket(L, 1);
 	bool error = false;
 	int len = socket->receive(buffer, sizeof(buffer), &error);
@@ -375,6 +404,8 @@ int mlua_recv_socket(lua_State* L)
 
 int mlua_flush_socket(lua_State* L)
 {
+	assert(L);
+
 	Socket* socket = pop_socket(L, 1);
 	bool error = false;
 	socket->flush(&error);
@@ -389,6 +420,8 @@ int mlua_flush_socket(lua_State* L)
 
 int mlua_disconnect_socket(lua_State* L)
 {
+	assert(L);
+
 	Socket* socket = pop_socket(L, 1);
 	socket->disconnect();
 	return 0;
@@ -396,6 +429,8 @@ int mlua_disconnect_socket(lua_State* L)
 
 int mlua_free_socket(lua_State* L)
 {
+	assert(L);
+
 	Socket* socket = pop_socket(L, 1);
 	luaL_unref(L, LUA_REGISTRYINDEX, socket->getTable());
 	delete socket;

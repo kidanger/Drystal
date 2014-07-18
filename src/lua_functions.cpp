@@ -322,6 +322,8 @@ static int mlua_camera__newindex(lua_State* L)
 
 static int mlua_camera__index(lua_State* L)
 {
+	assert(L);
+
 	const char * name = luaL_checkstring(L, 2);
 	if (!strcmp(name, "x")) {
 		lua_Number dx = engine->display.get_camera().dx;

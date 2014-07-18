@@ -15,6 +15,7 @@
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <lua.hpp>
+#include <cassert>
 
 #include "engine.hpp"
 #include "api.hpp"
@@ -25,6 +26,7 @@
 
 int mlua_is_web(lua_State* L)
 {
+	assert(L);
 #ifdef EMSCRIPTEN
 	lua_pushboolean(L, 1);
 #else
@@ -36,6 +38,8 @@ int mlua_is_web(lua_State* L)
 #ifdef EMSCRIPTEN
 static void onsuccess(const char* filename)
 {
+	assert(filename);
+
 	lua_State* L = get_engine().lua.L;
 	lua_getglobal(L, "on_wget_success");
 	if (not lua_isfunction(L, -1)) {
@@ -50,6 +54,8 @@ static void onsuccess(const char* filename)
 
 static void onerror(const char* filename)
 {
+	assert(filename);
+
 	lua_State* L = get_engine().lua.L;
 	lua_getglobal(L, "on_wget_error");
 	if (not lua_isfunction(L, -1)) {
@@ -64,6 +70,8 @@ static void onerror(const char* filename)
 
 int mlua_wget(lua_State *L)
 {
+	assert(L);
+
 	const char *url = luaL_checkstring(L, 1);
 	const char *filename = luaL_checkstring(L, 2);
 	emscripten_async_wget(url, filename, onsuccess, onerror);
@@ -74,6 +82,8 @@ int mlua_wget(lua_State *L)
 #else
 int mlua_wget(lua_State *L)
 {
+	assert(L);
+
 	lua_pushboolean(L, false);
 	return 1;
 }
@@ -81,6 +91,8 @@ int mlua_wget(lua_State *L)
 
 int mlua_run_js(lua_State* L)
 {
+	assert(L);
+
 #ifdef EMSCRIPTEN
 	const char* script = luaL_checkstring(L, 1);
 	emscripten_run_script(script);

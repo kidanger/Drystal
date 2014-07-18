@@ -76,11 +76,13 @@ void Buffer::partial_free()
 
 void Buffer::use_camera(const Camera* _camera)
 {
+	assert(_camera);
 	this->camera = _camera;
 }
 
 void Buffer::use_shader(Shader* _shader)
 {
+	assert(_shader);
 	this->shader = _shader;
 }
 

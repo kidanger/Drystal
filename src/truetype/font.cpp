@@ -40,6 +40,8 @@ unsigned char pixels_colored[512*512*4];
 
 Font* Font::load(const char* filename, float size, int first_char, int num_chars)
 {
+	assert(filename);
+
 	Engine& engine = get_engine();
 
 	FILE* file = fopen(filename, "rb");
@@ -57,7 +59,7 @@ Font* Font::load(const char* filename, float size, int first_char, int num_chars
 	font->font_size = size;
 
 	size_t read = fread(file_content, 1, 1<<20, file);
-	assert(read);
+	assert(read);//FIXME do not use asserts at runtime
 	fclose(file);
 
 	stbtt_BakeFontBitmap(file_content, 0, size, pixels, w, h,
@@ -114,6 +116,8 @@ static inline void draw_quad_fancy(Engine& engine, const stbtt_aligned_quad& q,
 
 void Font::draw_plain(const char* text, float x, float y)
 {
+	assert(text);
+
 	int start = first_char;
 	int end = start + num_chars;
 	y += font_size * 3 / 4;
@@ -135,6 +139,8 @@ void Font::draw_plain(const char* text, float x, float y)
 
 void Font::draw(const char* text, float x, float y)
 {
+	assert(text);
+
 	int start = first_char;
 	int end = start + num_chars;
 	y += font_size * 3 / 4;
@@ -189,6 +195,10 @@ void Font::draw(const char* text, float x, float y)
 
 void Font::get_textsize_plain(const char* text, float* w, float* h)
 {
+	assert(text);
+	assert(w);
+	assert(h);
+
 	float x = 0, y = 0;
 	int maxy = 0;
 	int maxx = 0;
@@ -212,6 +222,10 @@ void Font::get_textsize_plain(const char* text, float* w, float* h)
 
 void Font::get_textsize(const char* text, float* w, float* h)
 {
+	assert(text);
+	assert(w);
+	assert(h);
+
 	float x = 0, y = 0;
 	int maxy = 0;
 	int maxx = 0;

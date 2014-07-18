@@ -35,6 +35,8 @@ extern "C" {
 
 const char* fetch(const char* key)
 {
+	assert(key);
+
 	std::string js;
 	js = "if (localStorage!==undefined) {localStorage['";
 	js += key;
@@ -46,6 +48,9 @@ const char* fetch(const char* key)
 
 void store(const char* key, const char* value)
 {
+	assert(key);
+	assert(value);
+
 	std::string js;
 	js = "localStorage['";
 	js += key;
@@ -73,6 +78,8 @@ const char* fetch(const char* key)
 
 void store(const char* key, const char* value)
 {
+	assert(value);
+
 	(void) key;
 	FILE* file = fopen(".storage", "w");
 	fwrite(value, strlen(value), 1, file);

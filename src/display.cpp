@@ -235,6 +235,9 @@ void Display::create_window(int w, int h)
 
 void Display::screen2scene(float x, float y, float * tx, float * ty) const
 {
+	assert(tx);
+	assert(ty);
+
 	float zoom = camera.zoom;
 	x -= camera.dx;
 	y -= camera.dy;
@@ -373,6 +376,8 @@ void Display::set_blend_mode(BlendMode mode)
 }
 void Display::set_filter(Surface* surface, FilterMode filter) const
 {
+	assert(surface);
+
 	if (surface->filter != filter) {
 		surface->filter = filter;
 
@@ -520,6 +525,8 @@ Surface * Display::create_surface(int w, int h, int texw, int texh, unsigned cha
 
 void Display::create_fbo(Surface* surface) const
 {
+	assert(surface);
+
 	// gen framebuffer object
 	GLuint fbo;
 	glGenFramebuffers(1, &fbo);
