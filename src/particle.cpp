@@ -64,6 +64,10 @@ struct Color {
 };
 
 class System {
+private:
+	System(const System&);
+	System& operator=(const System&);
+
 	Particle* particles;
 public:
 

@@ -37,6 +37,9 @@ int (*_accept)(int, struct sockaddr*, socklen_t*) = accept;
 
 class Socket {
 private:
+	Socket(const Socket&);
+	Socket& operator=(const Socket&);
+
 	int fd;
 	int tableref;
 	ws_ctx_t* wsctx;

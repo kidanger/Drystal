@@ -44,12 +44,18 @@ int mlua_update_physic(lua_State* L)
 
 class CustomListener : public b2ContactListener
 {
+private:
+	CustomListener(const CustomListener&);
+	CustomListener& operator=(const CustomListener&);
+
 public:
 	int begin_contact;
 	int end_contact;
 	int presolve;
 	int postsolve;
 	lua_State* L;
+
+        CustomListener(){}
 
 	~CustomListener()
 	{
@@ -156,6 +162,10 @@ int mlua_on_collision(lua_State* L)
 
 class CustomRayCastCallback : public b2RayCastCallback
 {
+private:
+	CustomRayCastCallback(const CustomRayCastCallback&);
+	CustomRayCastCallback& operator=(const CustomRayCastCallback&);
+
 public:
 	lua_State* L;
 	int ref;
@@ -229,6 +239,10 @@ int mlua_raycast(lua_State* L)
 
 class CustomQueryCallback : public b2QueryCallback
 {
+	private:
+    		CustomQueryCallback(const CustomQueryCallback&);
+    		CustomQueryCallback& operator=(const CustomQueryCallback&);
+
 	public:
 		lua_State* L;
 		unsigned index;
