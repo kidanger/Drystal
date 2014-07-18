@@ -24,8 +24,6 @@
 #include "log.hpp"
 #include "lua_functions.hpp"
 
-#define DECLARE_FUNCTION(name) {#name, mlua_##name}
-
 // used to access some engine's fields from lua callbacks
 static Engine *engine;
 
@@ -1073,62 +1071,64 @@ int luaopen_drystal(lua_State* L)
 {
 	assert(L);
 
+#define EXPOSE_FUNCTION(name) {#name, mlua_##name}
+
 	static const luaL_Reg lib[] = {
 		{"engine_stop", mlua_stop},
-		DECLARE_FUNCTION(stop),
-		DECLARE_FUNCTION(reload),
+		EXPOSE_FUNCTION(stop),
+		EXPOSE_FUNCTION(reload),
 
-		DECLARE_FUNCTION(show_cursor),
-		DECLARE_FUNCTION(set_relative_mode),
+		EXPOSE_FUNCTION(show_cursor),
+		EXPOSE_FUNCTION(set_relative_mode),
 
-		DECLARE_FUNCTION(resize),
-		DECLARE_FUNCTION(set_title),
-		DECLARE_FUNCTION(screen2scene),
+		EXPOSE_FUNCTION(resize),
+		EXPOSE_FUNCTION(set_title),
+		EXPOSE_FUNCTION(screen2scene),
 
-		DECLARE_FUNCTION(start_text),
-		DECLARE_FUNCTION(stop_text),
+		EXPOSE_FUNCTION(start_text),
+		EXPOSE_FUNCTION(stop_text),
 
 		/* DISPLAY SURFACE */
-		DECLARE_FUNCTION(load_surface),
-		DECLARE_FUNCTION(new_surface),
-		DECLARE_FUNCTION(draw_on),
-		DECLARE_FUNCTION(draw_from),
+		EXPOSE_FUNCTION(load_surface),
+		EXPOSE_FUNCTION(new_surface),
+		EXPOSE_FUNCTION(draw_on),
+		EXPOSE_FUNCTION(draw_from),
 
 		/* DISPLAY DRAWERS */
-		DECLARE_FUNCTION(draw_background),
-		DECLARE_FUNCTION(draw_point),
-		DECLARE_FUNCTION(draw_point_tex),
-		DECLARE_FUNCTION(draw_line),
-		DECLARE_FUNCTION(draw_triangle),
-		DECLARE_FUNCTION(draw_surface),
-		DECLARE_FUNCTION(draw_quad),
+		EXPOSE_FUNCTION(draw_background),
+		EXPOSE_FUNCTION(draw_point),
+		EXPOSE_FUNCTION(draw_point_tex),
+		EXPOSE_FUNCTION(draw_line),
+		EXPOSE_FUNCTION(draw_triangle),
+		EXPOSE_FUNCTION(draw_surface),
+		EXPOSE_FUNCTION(draw_quad),
 
 		/* DISPLAY SETTERS */
-		DECLARE_FUNCTION(set_color),
-		DECLARE_FUNCTION(set_alpha),
-		DECLARE_FUNCTION(set_point_size),
-		DECLARE_FUNCTION(set_line_width),
-		DECLARE_FUNCTION(set_blend_mode),
+		EXPOSE_FUNCTION(set_color),
+		EXPOSE_FUNCTION(set_alpha),
+		EXPOSE_FUNCTION(set_point_size),
+		EXPOSE_FUNCTION(set_line_width),
+		EXPOSE_FUNCTION(set_blend_mode),
 
 		/* DISPLAY SHADER */
-		DECLARE_FUNCTION(new_shader),
-		DECLARE_FUNCTION(use_shader),
+		EXPOSE_FUNCTION(new_shader),
+		EXPOSE_FUNCTION(use_shader),
 
 		/* DISPLAY BUFFER */
-		DECLARE_FUNCTION(new_buffer),
-		DECLARE_FUNCTION(use_buffer),
+		EXPOSE_FUNCTION(new_buffer),
+		EXPOSE_FUNCTION(use_buffer),
 
 		/* AUDIO */
-		DECLARE_FUNCTION(load_music),
-		DECLARE_FUNCTION(set_music_volume),
+		EXPOSE_FUNCTION(load_music),
+		EXPOSE_FUNCTION(set_music_volume),
 
-		DECLARE_FUNCTION(load_sound),
-		DECLARE_FUNCTION(create_sound),
-		DECLARE_FUNCTION(set_sound_volume),
+		EXPOSE_FUNCTION(load_sound),
+		EXPOSE_FUNCTION(create_sound),
+		EXPOSE_FUNCTION(set_sound_volume),
 
 		/* STORAGE */
-		DECLARE_FUNCTION(store),
-		DECLARE_FUNCTION(fetch),
+		EXPOSE_FUNCTION(store),
+		EXPOSE_FUNCTION(fetch),
 
 		/* SERIALIZER */
 		{"serialize", json_encode},
@@ -1140,9 +1140,9 @@ int luaopen_drystal(lua_State* L)
 	luaL_newlib(L, lib);
 
 	BEGIN_CLASS(surface)
-	DECLARE_FUNCTION(draw_on),
-	DECLARE_FUNCTION(draw_from),
-	DECLARE_FUNCTION(set_filter),
+	EXPOSE_FUNCTION(draw_on),
+	EXPOSE_FUNCTION(draw_from),
+	EXPOSE_FUNCTION(set_filter),
 	ADD_GC(free_surface)
 	END_CLASS();
 	REGISTER_CLASS_WITH_INDEX(surface, "__Surface");
@@ -1232,4 +1232,5 @@ int luaopen_drystal(lua_State* L)
 
 	assert(lua_gettop(L) == 2);
 	return 1;
+#undef EXPOSE_FUNCTION
 }
