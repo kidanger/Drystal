@@ -28,6 +28,7 @@ extern "C" {
 #include "websocket.h"
 }
 #include "engine.hpp"
+#include "api"
 
 int (*_socket)(int, int, int) = socket;
 int (*_connect)(int, const struct sockaddr*, socklen_t) = connect;
@@ -261,7 +262,7 @@ public:
 
 Server server;
 
-static int mlua_connect(lua_State* L)
+int mlua_connect(lua_State* L)
 {
 	const char* host = luaL_checkstring(L, 1);
 	int port = luaL_checkint(L, 2);
@@ -276,14 +277,14 @@ static int mlua_connect(lua_State* L)
 	return 0;
 }
 
-static int mlua_listen(lua_State* L)
+int mlua_listen(lua_State* L)
 {
 	int port = luaL_checkint(L, 1);
 	server.listen(port);
 	return 0;
 }
 
-static int mlua_accept(lua_State* L)
+int mlua_accept(lua_State* L)
 {
 	lua_Number timeout = luaL_optnumber(L, 2, 0);
 	lua_Number timepassed = 0;
@@ -312,7 +313,7 @@ static int mlua_accept(lua_State* L)
 	return 1;
 }
 
-static int __socket_class_index(lua_State* L)
+int mlua_socket_class_index(lua_State* L)
 {
 	Socket* socket = pop_socket(L, 1);
 	const char* index = luaL_checkstring(L, 2);
@@ -330,7 +331,7 @@ static int __socket_class_index(lua_State* L)
 	return 1;
 }
 
-static int __socket_class_newindex(lua_State* L)
+int mlua_socket_class_newindex(lua_State* L)
 {
 	Socket* socket = pop_socket(L, 1);
 	lua_rawgeti(L, LUA_REGISTRYINDEX, socket->getTable());
@@ -339,7 +340,7 @@ static int __socket_class_newindex(lua_State* L)
 	return 0;
 }
 
-static int mlua_send_socket(lua_State* L)
+int mlua_send_socket(lua_State* L)
 {
 	Socket* socket = pop_socket(L, 1);
 	size_t size;
@@ -355,7 +356,7 @@ static int mlua_send_socket(lua_State* L)
 }
 
 static char buffer[1024];
-static int mlua_recv_socket(lua_State* L)
+int mlua_recv_socket(lua_State* L)
 {
 	Socket* socket = pop_socket(L, 1);
 	bool error = false;
@@ -372,7 +373,7 @@ static int mlua_recv_socket(lua_State* L)
 	return 0;
 }
 
-static int mlua_flush_socket(lua_State* L)
+int mlua_flush_socket(lua_State* L)
 {
 	Socket* socket = pop_socket(L, 1);
 	bool error = false;
@@ -386,36 +387,18 @@ static int mlua_flush_socket(lua_State* L)
 }
 
 
-static int mlua_disconnect_socket(lua_State* L)
+int mlua_disconnect_socket(lua_State* L)
 {
 	Socket* socket = pop_socket(L, 1);
 	socket->disconnect();
 	return 0;
 }
 
-static int mlua_free_socket(lua_State* L)
+int mlua_free_socket(lua_State* L)
 {
 	Socket* socket = pop_socket(L, 1);
 	luaL_unref(L, LUA_REGISTRYINDEX, socket->getTable());
 	delete socket;
 	return 0;
 }
-
-BEGIN_MODULE(net)
-	/* CLIENT */
-	DECLARE_FUNCTION(connect)
-
-	/* SERVER */
-	DECLARE_FUNCTION(listen)
-	DECLARE_FUNCTION(accept)
-
-	BEGIN_CLASS(socket)
-		ADD_METHOD(socket, send)
-		ADD_METHOD(socket, recv)
-		ADD_METHOD(socket, flush)
-		ADD_METHOD(socket, disconnect)
-		ADD_GC(free_socket)
-		END_CLASS();
-	REGISTER_CLASS_WITH_INDEX_AND_NEWINDEX(socket, "__Socket");
-END_MODULE()
 

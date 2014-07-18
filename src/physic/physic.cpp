@@ -17,8 +17,9 @@
 #include <lua.hpp>
 
 #include "engine.hpp"
+#include "api"
 
-#pragma GCC diagnostic push 
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
 #include <Box2D/Box2D.h>
 #pragma GCC diagnostic pop
@@ -448,7 +449,7 @@ static b2Body* luam_tobody(lua_State* L, int index)
 }
 
 #define BODY_GETSET_VEC2(value, get_expr, set_expr) \
-	static int mlua_set_##value##_body(lua_State* L) \
+	int mlua_set_##value##_body(lua_State* L) \
 	{ \
 		b2Body* body = luam_tobody(L, 1); \
 		lua_Number x = luaL_checknumber(L, 2); \
@@ -457,7 +458,7 @@ static b2Body* luam_tobody(lua_State* L, int index)
 		set_expr; \
 		return 0; \
 	} \
-	static int mlua_get_##value##_body(lua_State* L) \
+	int mlua_get_##value##_body(lua_State* L) \
 	{ \
 		b2Body* body = luam_tobody(L, 1); \
 		const b2Vec2 vector = get_expr; \
@@ -470,14 +471,14 @@ BODY_GETSET_VEC2(position, body->GetPosition(), body->SetTransform(vector, body-
 BODY_GETSET_VEC2(linear_velocity, body->GetLinearVelocity(), body->SetLinearVelocity(vector))
 
 #define BODY_GETSET_FLOAT(value, get_expr, set_expr) \
-	static int mlua_set_##value##_body(lua_State* L) \
+	int mlua_set_##value##_body(lua_State* L) \
 	{ \
 		b2Body* body = luam_tobody(L, 1); \
 		lua_Number value = luaL_checknumber(L, 2); \
 		set_expr; \
 		return 0; \
 	} \
-	static int mlua_get_##value##_body(lua_State* L) \
+	int mlua_get_##value##_body(lua_State* L) \
 	{ \
 		b2Body* body = luam_tobody(L, 1); \
 		const lua_Number value = get_expr; \
@@ -490,7 +491,7 @@ BODY_GETSET_FLOAT(angular_velocity, body->GetAngularVelocity(), body->SetAngular
 BODY_GETSET_FLOAT(linear_damping, body->GetLinearDamping(), body->SetLinearDamping(linear_damping))
 BODY_GETSET_FLOAT(angular_damping, body->GetAngularDamping(), body->SetAngularDamping(angular_damping))
 
-static int mlua_set_active_body(lua_State* L)
+int mlua_set_active_body(lua_State* L)
 {
 	b2Body* body = luam_tobody(L, 1);
 	bool active = lua_toboolean(L, 2);
@@ -498,7 +499,7 @@ static int mlua_set_active_body(lua_State* L)
 	return 0;
 }
 
-static int mlua_set_bullet_body(lua_State* L)
+int mlua_set_bullet_body(lua_State* L)
 {
 	b2Body* body = luam_tobody(L, 1);
 	bool bullet = lua_toboolean(L, 2);
@@ -506,7 +507,7 @@ static int mlua_set_bullet_body(lua_State* L)
 	return 0;
 }
 
-static int mlua_get_mass_body(lua_State* L)
+int mlua_get_mass_body(lua_State* L)
 {
 	b2Body* body = luam_tobody(L, 1);
 	const lua_Number mass = body->GetMass();
@@ -514,7 +515,7 @@ static int mlua_get_mass_body(lua_State* L)
 	return 1;
 }
 
-static int mlua_set_mass_center_body(lua_State* L)
+int mlua_set_mass_center_body(lua_State* L)
 {
 	b2Body* body = luam_tobody(L, 1);
 	lua_Number cx = luaL_checknumber(L, 2);
@@ -527,14 +528,14 @@ static int mlua_set_mass_center_body(lua_State* L)
 }
 
 #define BODY_GETSET_BOOL(value, get_expr, set_expr) \
-	static int mlua_set_##value##_body(lua_State* L) \
+	int mlua_set_##value##_body(lua_State* L) \
 	{ \
 		b2Body* body = luam_tobody(L, 1); \
 		bool value = lua_toboolean(L, 2); \
 		set_expr; \
 		return 0; \
 	} \
-	static int mlua_get_##value##_body(lua_State* L) \
+	int mlua_get_##value##_body(lua_State* L) \
 	{ \
 		b2Body* body = luam_tobody(L, 1); \
 		const bool value = get_expr; \
@@ -544,7 +545,7 @@ static int mlua_set_mass_center_body(lua_State* L)
 
 BODY_GETSET_BOOL(fixed_rotation, body->IsFixedRotation(), body->SetFixedRotation(fixed_rotation))
 
-static int mlua_apply_force_body(lua_State* L)
+int mlua_apply_force_body(lua_State* L)
 {
 	b2Body* body = luam_tobody(L, 1);
 	lua_Number fx = luaL_checknumber(L, 2);
@@ -560,7 +561,7 @@ static int mlua_apply_force_body(lua_State* L)
 	}
 	return 0;
 }
-static int mlua_apply_linear_impulse_body(lua_State* L)
+int mlua_apply_linear_impulse_body(lua_State* L)
 {
 	b2Body* body = luam_tobody(L, 1);
 	lua_Number fx = luaL_checknumber(L, 2);
@@ -576,14 +577,14 @@ static int mlua_apply_linear_impulse_body(lua_State* L)
 	body->ApplyLinearImpulse(b2Vec2(fx, fy), pos, true);
 	return 0;
 }
-static int mlua_apply_angular_impulse_body(lua_State* L)
+int mlua_apply_angular_impulse_body(lua_State* L)
 {
 	b2Body* body = luam_tobody(L, 1);
 	lua_Number angle = luaL_checknumber(L, 2);
 	body->ApplyAngularImpulse(angle, true);
 	return 0;
 }
-static int mlua_apply_torque_body(lua_State* L)
+int mlua_apply_torque_body(lua_State* L)
 {
 	b2Body* body = luam_tobody(L, 1);
 	lua_Number torque = luaL_checknumber(L, 2);
@@ -591,14 +592,14 @@ static int mlua_apply_torque_body(lua_State* L)
 	return 0;
 }
 
-static int mlua_dump_body(lua_State* L)
+int mlua_dump_body(lua_State* L)
 {
 	b2Body* body = luam_tobody(L, 1);
 	body->Dump();
 	return 0;
 }
 
-static int mlua_destroy_body(lua_State* L)
+int mlua_destroy_body(lua_State* L)
 {
 	b2Body* body = luam_tobody(L, 1);
 	world->DestroyBody(body);
@@ -691,7 +692,7 @@ inline static b2RevoluteJoint* luam_torevolutejoint(lua_State* L, int index)
 	return (b2RevoluteJoint*) luam_tojoint(L, index);
 }
 
-static int mlua_set_target_joint(lua_State* L)
+int mlua_set_target_joint(lua_State* L)
 {
 	b2MouseJoint* joint = luam_tomousejoint(L, 1);
 	lua_Number x = luaL_checknumber(L, 2);
@@ -700,14 +701,14 @@ static int mlua_set_target_joint(lua_State* L)
 	return 0;
 }
 
-static int mlua_set_length_joint(lua_State* L)
+int mlua_set_length_joint(lua_State* L)
 {
 	b2DistanceJoint* joint = luam_todistancejoint(L, 1);
 	lua_Number length = luaL_checknumber(L, 2);
 	joint->SetLength(length);
 	return 0;
 }
-static int mlua_set_frequency_joint(lua_State* L)
+int mlua_set_frequency_joint(lua_State* L)
 {
 	b2DistanceJoint* joint = luam_todistancejoint(L, 1);
 	lua_Number freq = luaL_checknumber(L, 2);
@@ -715,7 +716,7 @@ static int mlua_set_frequency_joint(lua_State* L)
 	return 0;
 }
 
-static int mlua_set_max_length_joint(lua_State* L)
+int mlua_set_max_length_joint(lua_State* L)
 {
 	b2RopeJoint* joint = luam_toropejoint(L, 1);
 	lua_Number maxlength = luaL_checknumber(L, 2);
@@ -723,7 +724,7 @@ static int mlua_set_max_length_joint(lua_State* L)
 	return 0;
 }
 
-static int mlua_set_angle_limits_joint(lua_State* L)
+int mlua_set_angle_limits_joint(lua_State* L)
 {
 	b2RevoluteJoint* joint = luam_torevolutejoint(L, 1);
 	lua_Number min = luaL_checknumber(L, 2);
@@ -737,7 +738,7 @@ static int mlua_set_angle_limits_joint(lua_State* L)
 	return 0;
 }
 
-static int mlua_set_motor_speed_joint(lua_State* L)
+int mlua_set_motor_speed_joint(lua_State* L)
 {
 	b2RevoluteJoint* joint = luam_torevolutejoint(L, 1);
 	lua_Number speed = luaL_checknumber(L, 2);
@@ -754,82 +755,10 @@ static int mlua_set_motor_speed_joint(lua_State* L)
 	return 0;
 }
 
-static int mlua_destroy_joint(lua_State* L)
+int mlua_destroy_joint(lua_State* L)
 {
 	b2Joint* joint = luam_tojoint(L, 1);
 	world->DestroyJoint(joint);
 	return 0;
 }
-
-BEGIN_MODULE(physic)
-	DECLARE_FUNCTION(create_world)
-
-	DECLARE_FUNCTION(new_shape)
-	DECLARE_FUNCTION(new_body)
-	DECLARE_FUNCTION(new_joint)
-
-	DECLARE_FUNCTION(update_physic)
-	DECLARE_FUNCTION(on_collision)
-
-	DECLARE_FUNCTION(raycast)
-	DECLARE_FUNCTION(query)
-
-	BEGIN_CLASS(body)
-		ADD_GETSET(body, position)
-		ADD_GETSET(body, angle)
-		ADD_GETSET(body, linear_velocity)
-		ADD_GETSET(body, angular_velocity)
-		ADD_GETSET(body, linear_damping)
-		ADD_GETSET(body, angular_damping)
-		ADD_GETSET(body, fixed_rotation)
-
-		ADD_METHOD(body, set_active)
-		ADD_METHOD(body, set_bullet)
-		ADD_METHOD(body, get_mass)
-		ADD_METHOD(body, set_mass_center)
-		ADD_METHOD(body, apply_force)
-		ADD_METHOD(body, apply_linear_impulse)
-		ADD_METHOD(body, apply_angular_impulse)
-		ADD_METHOD(body, apply_torque)
-		ADD_METHOD(body, dump)
-		ADD_METHOD(body, destroy)
-		END_CLASS();
-	REGISTER_CLASS(body, "Body");
-	/*
-	 * Set field so gamedevs can do:
-	 * local MyBody = setmetatable({
-	 *     somevars...,
-	 * }, physic.Body)
-	 * MyBody.__index = MyBody
-	 *
-	 * ...
-	 *
-	 * local body = setmetatable(physic.new_body(.., shape), MyBody)
-	 * body.somevars = ...
-	 */
-
-	BEGIN_CLASS(shape)
-		ADD_GETSET(shape, density)
-		ADD_GETSET(shape, restitution)
-		ADD_GETSET(shape, friction)
-		ADD_METHOD(shape, set_sensor)
-		ADD_GC(gc_shape)
-		END_CLASS();
-	REGISTER_CLASS(shape, "Shape");
-
-	BEGIN_CLASS(joint)
-		ADD_METHOD(joint, destroy)
-		// mouse joint
-		ADD_METHOD(joint, set_target)
-		// distance joint
-		ADD_METHOD(joint, set_length)
-		ADD_METHOD(joint, set_frequency)
-		// rope joint
-		ADD_METHOD(joint, set_max_length)
-		// revolute joint
-		ADD_METHOD(joint, set_angle_limits)
-		ADD_METHOD(joint, set_motor_speed)
-		END_CLASS();
-	REGISTER_CLASS(joint, "Joint");
-END_MODULE()
 

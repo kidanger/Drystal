@@ -24,6 +24,12 @@
 #include "log.hpp"
 #include "lua_functions.hpp"
 
+#include "physic/api"
+#include "truetype/api"
+#include "particle/api"
+#include "net/api"
+#include "web/api"
+
 // used to access some engine's fields from lua callbacks
 static Engine *engine;
 
@@ -152,11 +158,11 @@ bool LuaFunctions::load_code()
 	if (!library_loaded) {
 		// add drystal lib
 		luaL_requiref(L, "drystal", luaopen_drystal, 1 /* as global */);
-		IMPORT_MODULE(particle);
-		IMPORT_MODULE(physic);
-		IMPORT_MODULE(web);
-		IMPORT_MODULE(net);
-		IMPORT_MODULE(truetype);
+		register_particle(L);
+		register_physic(L);
+		register_web(L);
+		register_net(L);
+		register_truetype(L);
 		lua_pop(L, 1);  /* remove lib */
 		// then remove it from package.loaded, so the drystal.lua can be called if user wants
 		lua_getglobal(L, "package");
@@ -1061,6 +1067,17 @@ static int mlua_fetch(lua_State* L)
 	// table is returned by json_decode
 	return 1;
 }
+
+
+#define IMPLEMENT_MODULE
+
+#include "physic/api"
+#include "truetype/api"
+#include "particle/api"
+#include "net/api"
+#include "web/api"
+
+#undef IMPLEMENT_MODULE
 
 
 //

@@ -81,45 +81,6 @@ private:
 		return *p; \
 	}
 
-#define BEGIN_MODULE(name) \
-	void register_##name(lua_State* L) {
-#define DECLARE_FUNCTION(name) \
-		lua_pushcfunction(L, mlua_##name); \
-		lua_setfield(L, -2, #name);
-#define END_MODULE() \
-	}
-#define IMPORT_MODULE(name) \
-	void register_##name(lua_State*); \
-	register_##name(L);
-
-#define BEGIN_CLASS(name) static const luaL_Reg __ ## name ## _class[] = {
-#define ADD_GC(func) { "__gc", mlua_ ## func},
-#define ADD_METHOD(class, name) { #name, mlua_ ## name ## _ ## class },
-#define ADD_GETSET(class, name) ADD_METHOD(class, get_##name) ADD_METHOD(class, set_##name)
-#define END_CLASS() {NULL, NULL} }
-
-#define REGISTER_CLASS(name, name_in_module) \
-	luaL_newmetatable(L, #name); \
-	luaL_setfuncs(L, __ ## name ## _class, 0); \
-	lua_pushvalue(L, -1); \
-	lua_setfield(L, -2, "__index"); \
-	lua_setfield(L, -2, name_in_module)
-
-#define REGISTER_CLASS_WITH_INDEX(name, name_in_module) \
-	luaL_newmetatable(L, #name); \
-	luaL_setfuncs(L, __ ## name ## _class, 0); \
-	lua_pushcfunction(L, __ ## name ## _class_index); \
-	lua_setfield(L, -2, "__index"); \
-	lua_setfield(L, -2, name_in_module)
-
-#define REGISTER_CLASS_WITH_INDEX_AND_NEWINDEX(name, name_in_module) \
-	luaL_newmetatable(L, #name); \
-	luaL_setfuncs(L, __ ## name ## _class, 0); \
-	lua_pushcfunction(L, __ ## name ## _class_index); \
-	lua_setfield(L, -2, "__index"); \
-	lua_pushcfunction(L, __ ## name ## _class_newindex); \
-	lua_setfield(L, -2, "__newindex"); \
-	lua_setfield(L, -2, name_in_module)
 
 extern int traceback(lua_State *L);
 #ifdef EMSCRIPTEN
