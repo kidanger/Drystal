@@ -23,6 +23,7 @@
 #include "engine.hpp"
 #include "log.hpp"
 #include "lua_functions.hpp"
+#include "luafiles.hpp"
 
 #include "all_api.hpp"
 
@@ -149,24 +150,29 @@ void LuaFunctions::remove_userpackages() const
 
 bool LuaFunctions::load_code()
 {
+	assert(lua_gettop(L) == 0);
+	lua_pushcfunction(L, traceback); // used by lua_pcall
 	if (!library_loaded) {
 		// add drystal lib
-		luaL_requiref(L, "drystal", luaopen_drystal, 1 /* as global */);
+		luaL_requiref(L, "drystal", luaopen_drystal, 0 /* not as global */);
 		register_modules();
 		lua_pop(L, 1);  /* remove lib */
-		// then remove it from package.loaded, so the drystal.lua can be called if user wants
-		lua_getglobal(L, "package");
-		lua_getfield(L, -1, "loaded");
-		lua_pushnil(L);
-		lua_setfield(L, -2, "drystal");
-		library_loaded = true;
+
+		if (!load_luafiles(L)) {
+			fprintf(stderr, "[ERROR] cannot run script: %s\n", lua_tostring(L, -1));
+			lua_pop(L, 2);
+			return false;
+		}
 	}
 
-	lua_pushcfunction(L, traceback);
 	if (luaL_loadfile(L, filename) || lua_pcall(L, 0, 0, -2)) {
 		fprintf(stderr, "[ERROR] cannot run script: %s\n", lua_tostring(L, -1));
+		lua_pop(L, 2);
 		return false;
 	}
+
+	lua_pop(L, 1);
+	assert(lua_gettop(L) == 0);
 	return true;
 }
 

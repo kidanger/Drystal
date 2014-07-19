@@ -5,7 +5,7 @@
 -- - use_color(use)
 --		replace draw with draw_plain and use draw_plain in draw_align
 --		replace sizeof too
-local drystal = drystal
+local drystal = require 'drystal'
 
 local Font = drystal.Font
 
@@ -38,7 +38,4 @@ function Font:draw_plain_align(text, x, y, alignement)
 		x = oldx
 	end
 end
-
-
-return drystal
 

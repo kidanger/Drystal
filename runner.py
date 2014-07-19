@@ -17,8 +17,6 @@ W = '\033[93m'
 E = '\033[91m'
 N = '\033[m'
 
-DRYSTAL_DATA = os.path.abspath('data')
-
 BUILD_NATIVE_RELEASE = os.path.abspath('build-native-release')
 BUILD_NATIVE_DEBUG = os.path.abspath('build-native-debug')
 BUILD_WEB = os.path.abspath('build-web')
@@ -80,12 +78,10 @@ decompressWorker.onmessage = function(event) {
 
 # decompress will be used for data
 DRYSTAL_LOAD = DECOMPRESS_CODE + \
-    '<script async type="text/javascript" src="drystal.data.js"></script>' + \
     '<script type="text/javascript" src="drystal.js"></script>'
 
 DRYSTAL_LOAD_COMPRESSED = '''
 ''' + DECOMPRESS_CODE + '''
-<script async type="text/javascript" src="drystal.data.js"></script>
 <script type='text/javascript'>
 var compiledCodeXHR = new XMLHttpRequest();
 compiledCodeXHR.open('GET', 'drystal.js.compress', true);
@@ -285,8 +281,7 @@ def prepare_native(release=False):
     cmake_update(directory, ['CMAKE_BUILD_TYPE=' + build_type, 'BUILD_ENABLE_COVERAGE='+coverage])
     os.environ['LD_LIBRARY_PATH'] = lib_path
     program = join(bin_path, 'drystal')
-    arguments = ['--add-path=' + DRYSTAL_DATA]
-    return program, arguments
+    return program, []
 
 
 def prepare_drystaljs(destination, use_compress_drystal):
@@ -294,7 +289,6 @@ def prepare_drystaljs(destination, use_compress_drystal):
         create web/decompress.js
         compress build-web/src/drystal.js to web/drystal.js.compressed
         or copy build-web/src/drystal.js to web/drystal.js
-        create a package with drystal's .lua inside
     '''
     srcjs = join(BINARY_DIRECTORY_NATIVE_WEB, 'drystal.js')
     decompressjs = join(destination, 'decompress.js')
@@ -318,20 +312,6 @@ def prepare_drystaljs(destination, use_compress_drystal):
     if has_been_modified(srcjs, jscompressed) and use_compress_drystal:
         print(G, '- compress drystal.js to drystal.js.compress', N)
         execute([COMPRESSOR], stdin=srcjs, stdout=jscompressed)
-
-    drystaldata = join(destination, 'drystal.data')
-    js_drystaldata_loader = join(destination, 'drystal.data.js')
-    recreate = False
-    for f in os.listdir(DRYSTAL_DATA):
-        full = join(DRYSTAL_DATA, f)
-        if has_been_modified(full, js_drystaldata_loader):
-            recreate = True
-            break
-    if recreate:
-        print(G, '- create drystal.data.js', N)
-        execute(['python2', PACKAGER, drystaldata, '--no-heap-copy',
-                '--embed', DRYSTAL_DATA + '@/'],
-                stdout=js_drystaldata_loader)
 
 
 def package_data(path, compress, data_js, destination, config, verbose=False):
@@ -379,7 +359,7 @@ def copy_and_modify_html(gamedir, data_js, destination, mainfile=None):
     htmlfile = locate_recursively(os.path.abspath(gamedir), os.getcwd(),
                                   'index.html')
     if not htmlfile:
-        print(E, 'canno\'t find index.html', N)
+        print(E, 'cannot find index.html', N)
         sys.exit(1)
     print(G, '- copy', htmlfile, N)
     html = open(htmlfile, 'r').read()

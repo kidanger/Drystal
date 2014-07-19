@@ -1,3 +1,4 @@
+local drystal = require 'drystal'
 local web = drystal
 
 web.raw_wget = web.wget
@@ -35,4 +36,3 @@ function web.wget(url, file, onload, onerror)
 	}
 end
 
-return web

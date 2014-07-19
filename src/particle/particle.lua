@@ -1,3 +1,4 @@
+local drystal = require 'drystal'
 local System = drystal.System
 
 local function is_getset(funcname)
@@ -25,6 +26,4 @@ for k, v in pairs(System) do
 		System['get_' .. attr] = get_both
 	end
 end
-
-return drystal
 

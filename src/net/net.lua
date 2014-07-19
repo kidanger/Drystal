@@ -1,3 +1,4 @@
+local drystal = require 'drystal'
 local net = drystal
 
 local Socket = net.__Socket
@@ -252,6 +253,4 @@ function net.drop_clients(on_drop, sockets)
 		end
 	end
 end
-
-return net
 

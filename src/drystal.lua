@@ -1,8 +1,4 @@
-local drystal = drystal
-require 'truetype'
-require 'particle'
-require 'web'
-require 'net'
+local drystal = require 'drystal'
 
 local _draw_quad = drystal.draw_quad
 drystal.draw_freeshape = _draw_quad
@@ -530,6 +526,4 @@ function drystal.postfx(name, ...)
 	end
 	drystal.postfxs[name](...)
 end
-
-return drystal
 
