@@ -55,7 +55,7 @@ if (NOT CMAKE_MODULE_PATH)
 endif()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${EMSCRIPTEN_ROOT_PATH}/cmake/Modules")
 
-set(CMAKE_FIND_ROOT_PATH "${EMSCRIPTEN_ROOT_PATH}/cmake")
+set(CMAKE_FIND_ROOT_PATH "${EMSCRIPTEN_ROOT_PATH}/system")
 
 if (CMAKE_HOST_WIN32)
 	set(EMCC_SUFFIX ".bat")
@@ -72,11 +72,11 @@ if ("${CMAKE_CXX_COMPILER}" STREQUAL "")
 endif()
 
 if ("${CMAKE_AR}" STREQUAL "")
-	set(CMAKE_AR "${EMSCRIPTEN_ROOT_PATH}/emar${EMCC_SUFFIX}")
+	set(CMAKE_AR "${EMSCRIPTEN_ROOT_PATH}/emar${EMCC_SUFFIX}" CACHE FILEPATH "Emscripten ar")
 endif()
 
 if ("${CMAKE_RANLIB}" STREQUAL "")
-	set(CMAKE_RANLIB "${EMSCRIPTEN_ROOT_PATH}/emranlib${EMCC_SUFFIX}")
+	set(CMAKE_RANLIB "${EMSCRIPTEN_ROOT_PATH}/emranlib${EMCC_SUFFIX}" CACHE FILEPATH "Emscripten ranlib")
 endif()
 
 # Don't do compiler autodetection, since we are cross-compiling.
@@ -98,12 +98,14 @@ set(CMAKE_SYSTEM_INCLUDE_PATH "${EMSCRIPTEN_ROOT_PATH}/system/include")
 #SET(CMAKE_STATIC_LIBRARY_SUFFIX ".bc")
 #SET(CMAKE_SHARED_LIBRARY_PREFIX "")
 #SET(CMAKE_SHARED_LIBRARY_SUFFIX ".bc")
-IF (NOT CMAKE_EXECUTABLE_SUFFIX)
-	SET(CMAKE_EXECUTABLE_SUFFIX ".js")
-endif()
+#IF (NOT CMAKE_EXECUTABLE_SUFFIX)
+#	SET(CMAKE_EXECUTABLE_SUFFIX ".js")
+#endif()
 #SET(CMAKE_FIND_LIBRARY_PREFIXES "")
 #SET(CMAKE_FIND_LIBRARY_SUFFIXES ".bc")
 
+SET(CMAKE_C_USE_RESPONSE_FILE_FOR_LIBRARIES 1)
+SET(CMAKE_CXX_USE_RESPONSE_FILE_FOR_LIBRARIES 1)
 SET(CMAKE_C_USE_RESPONSE_FILE_FOR_OBJECTS 1)
 SET(CMAKE_CXX_USE_RESPONSE_FILE_FOR_OBJECTS 1)
 SET(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES 1)
@@ -113,37 +115,36 @@ set(CMAKE_C_RESPONSE_FILE_LINK_FLAG "@")
 set(CMAKE_CXX_RESPONSE_FILE_LINK_FLAG "@")
 
 # Specify the program to use when building static libraries. Force Emscripten-related command line options to clang.
-set(CMAKE_CXX_ARCHIVE_CREATE "${CMAKE_AR} rc <TARGET> ${CMAKE_START_TEMP_FILE} <LINK_FLAGS> <OBJECTS>${CMAKE_END_TEMP_FILE}")
-set(CMAKE_C_ARCHIVE_CREATE "${CMAKE_AR} rc <TARGET> ${CMAKE_START_TEMP_FILE} <LINK_FLAGS> <OBJECTS>${CMAKE_END_TEMP_FILE}")
+set(CMAKE_C_CREATE_STATIC_LIBRARY "<CMAKE_AR> rc <TARGET> <LINK_FLAGS> <OBJECTS>")
+set(CMAKE_CXX_CREATE_STATIC_LIBRARY "<CMAKE_AR> rc <TARGET> <LINK_FLAGS> <OBJECTS>")
 
 # Set a global EMSCRIPTEN variable that can be used in client CMakeLists.txt to detect when building using Emscripten.
-# There seems to be some kind of bug with CMake, so you might need to define this manually on the command line with "-DEMSCRIPTEN=1".
-set(EMSCRIPTEN 1)
+set(EMSCRIPTEN 1 CACHE BOOL "If true, we are targeting Emscripten output.")
 
 # We are cross-compiling, so unset the common CMake variables that represent the target platform. Leave UNIX define enabled, since Emscripten
 # mimics a Linux environment.
-# SET(WIN32)
-# SET(APPLE)
+SET(WIN32)
+SET(APPLE)
 
 set(CMAKE_C_SIZEOF_DATA_PTR 4)
 set(CMAKE_CXX_SIZEOF_DATA_PTR 4)
 
 set(CMAKE_C_FLAGS_RELEASE "-DNDEBUG -O2" CACHE STRING "Emscripten-overridden CMAKE_C_FLAGS_RELEASE")
-set(CMAKE_C_FLAGS_MINSIZEREL "-DNDEBUG" CACHE STRING "Emscripten-overridden CMAKE_C_FLAGS_MINSIZEREL")
-set(CMAKE_C_FLAGS_RELWITHDEBINFO "" CACHE STRING "Emscripten-overridden CMAKE_C_FLAGS_RELWITHDEBINFO")
+set(CMAKE_C_FLAGS_MINSIZEREL "-DNDEBUG -Os" CACHE STRING "Emscripten-overridden CMAKE_C_FLAGS_MINSIZEREL")
+set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2" CACHE STRING "Emscripten-overridden CMAKE_C_FLAGS_RELWITHDEBINFO")
 set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O2" CACHE STRING "Emscripten-overridden CMAKE_CXX_FLAGS_RELEASE")
-set(CMAKE_CXX_FLAGS_MINSIZEREL "-DNDEBUG" CACHE STRING "Emscripten-overridden CMAKE_CXX_FLAGS_MINSIZEREL")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "" CACHE STRING "Emscripten-overridden CMAKE_CXX_FLAGS_RELWITHDEBINFO")
+set(CMAKE_CXX_FLAGS_MINSIZEREL "-DNDEBUG -Os" CACHE STRING "Emscripten-overridden CMAKE_CXX_FLAGS_MINSIZEREL")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2" CACHE STRING "Emscripten-overridden CMAKE_CXX_FLAGS_RELWITHDEBINFO")
 
 set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-O2" CACHE STRING "Emscripten-overridden CMAKE_EXE_LINKER_FLAGS_RELEASE")
-set(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "-O2" CACHE STRING "Emscripten-overridden CMAKE_EXE_LINKER_FLAGS_MINSIZEREL")
-set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "-O2" CACHE STRING "Emscripten-overridden CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO")
+set(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "-Os" CACHE STRING "Emscripten-overridden CMAKE_EXE_LINKER_FLAGS_MINSIZEREL")
+set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "-O2 -g" CACHE STRING "Emscripten-overridden CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO")
 set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "-O2" CACHE STRING "Emscripten-overridden CMAKE_SHARED_LINKER_FLAGS_RELEASE")
-set(CMAKE_SHARED_LINKER_FLAGS_MINSIZEREL "-O2" CACHE STRING "Emscripten-overridden CMAKE_SHARED_LINKER_FLAGS_MINSIZEREL")
-set(CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO "-O2" CACHE STRING "Emscripten-overridden CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO")
+set(CMAKE_SHARED_LINKER_FLAGS_MINSIZEREL "-Os" CACHE STRING "Emscripten-overridden CMAKE_SHARED_LINKER_FLAGS_MINSIZEREL")
+set(CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO "-O2 -g" CACHE STRING "Emscripten-overridden CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO")
 set(CMAKE_MODULE_LINKER_FLAGS_RELEASE "-O2" CACHE STRING "Emscripten-overridden CMAKE_MODULE_LINKER_FLAGS_RELEASE")
-set(CMAKE_MODULE_LINKER_FLAGS_MINSIZEREL "-O2" CACHE STRING "Emscripten-overridden CMAKE_MODULE_LINKER_FLAGS_MINSIZEREL")
-set(CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO "-O2" CACHE STRING "Emscripten-overridden CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO")
+set(CMAKE_MODULE_LINKER_FLAGS_MINSIZEREL "-Os" CACHE STRING "Emscripten-overridden CMAKE_MODULE_LINKER_FLAGS_MINSIZEREL")
+set(CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO "-O2 -g" CACHE STRING "Emscripten-overridden CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO")
 
 function(em_validate_asmjs_after_build target)
 	add_custom_command(TARGET ${target} POST_BUILD COMMAND ${CMAKE_COMMAND} -E echo Validating build output for asm.js... COMMAND "python" ARGS "${EMSCRIPTEN_ROOT_PATH}/tools/validate_asmjs.py" "$<TARGET_FILE:${target}>")
@@ -156,7 +157,7 @@ set(link_js_counter 1)
 function(em_add_tracked_link_flag target flagname)
 	get_target_property(props ${target} LINK_FLAGS)
 	if(NOT props)
-		set(props "")
+	    set(props "")
 	endif()
 
 	# User can input list of JS files either as a single list, or as variable arguments to this function, so iterate over varargs, and treat each
@@ -165,11 +166,11 @@ function(em_add_tracked_link_flag target flagname)
 		foreach(jsfile ${jsFileList})
 			# Add link command to the given JS file.
 			set(props "${props} ${flagname} \"${jsfile}\"")
-
+			
 			# If the user edits the JS file, we want to relink the emscripten application, but unfortunately it is not possible to make a link step
 			# depend directly on a source file. Instead, we must make a dummy no-op build target on that source file, and make the project depend on
 			# that target.
-
+			
 			# Sanitate the source .js filename to a good symbol name to use as a dummy filename.
 			get_filename_component(jsname "${jsfile}" NAME)
 			string(REGEX REPLACE "[/:\\\\.\ ]" "_" dummy_js_target ${jsname})
@@ -209,3 +210,24 @@ endfunction()
 function(em_link_post_js target)
 	em_add_tracked_link_flag(${target} "--post-js" ${ARGN})
 endfunction()
+
+# Experimental support for targeting generation of Visual Studio project files (vs-tool) of Emscripten projects for Windows.
+# To use this, pass the combination -G "Visual Studio 10" -DCMAKE_TOOLCHAIN_FILE=Emscripten.cmake
+if ("${CMAKE_GENERATOR}" MATCHES "^Visual Studio.*")
+	# By default, CMake generates VS project files with a <GenerateManifest>true</GenerateManifest> directive.
+	# This causes VS to attempt to invoke rc.exe during the build, which will fail since app manifests are meaningless for Emscripten.
+	# To disable this, add the following linker flag. This flag will not go to emcc, since the Visual Studio CMake generator will swallow it.
+	set(EMSCRIPTEN_VS_LINKER_FLAGS "/MANIFEST:NO")
+	# CMake is hardcoded to write a ClCompile directive <ObjectFileName>$(IntDir)</ObjectFileName> in all VS project files it generates.
+	# This makes VS pass emcc a -o param that points to a directory instead of a file, which causes emcc autogenerate the output filename.
+	# CMake is hardcoded to assume all object files have the suffix .obj, so adjust the emcc-autogenerated default suffix name to match.
+	set(EMSCRIPTEN_VS_LINKER_FLAGS "${EMSCRIPTEN_VS_LINKER_FLAGS} --default-obj-ext .obj")
+	# Also hint CMake that it should not hardcode <ObjectFileName> generation. Requires a custom CMake build for this to work (ignored on others)
+	# See http://www.cmake.org/Bug/view.php?id=14673 and https://github.com/juj/CMake
+	set(CMAKE_VS_NO_DEFAULT_OBJECTFILENAME 1)
+
+	# Apply and cache Emscripten Visual Studio IDE-specific linker flags.
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${EMSCRIPTEN_VS_LINKER_FLAGS}" CACHE STRING "")
+	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${EMSCRIPTEN_VS_LINKER_FLAGS}" CACHE STRING "")
+	set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} ${EMSCRIPTEN_VS_LINKER_FLAGS}" CACHE STRING "")
+endif()
