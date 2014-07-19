@@ -65,8 +65,6 @@
 	PUSH_FUNC("__newindex", name##_class_newindex); \
 	lua_setfield(L, -2, name_in_module);
 
-#undef PUSH_FUNC
-
 #else // IMPLEMENT_MODULE is not defined
 
 #ifdef REGISTER_MODULE
