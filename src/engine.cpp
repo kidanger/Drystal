@@ -26,6 +26,7 @@
 #include "engine.hpp"
 #include "log.hpp"
 #include "stats.hpp"
+#include "audio/audiomanager.hpp"
 
 #ifdef EMSCRIPTEN
 #include "emscripten.h"
@@ -49,7 +50,6 @@ Engine::Engine(const char* filename, unsigned int target_fps, bool server_mode) 
 	stats_activated(false),
 	display(server_mode),
 	event(*this),
-	audio(),
 	lua(*this, filename)
 {
 	engine = this;
@@ -127,7 +127,7 @@ void Engine::update()
 	float dt = (get_now() - last_update) / 1000000.;
 	last_update = get_now();
 
-	audio.update(dt);
+	audiomanager_update(dt);
 	AT(audio)
 
 	if (update_activated)

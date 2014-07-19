@@ -58,11 +58,11 @@ struct Music {
 
 #define DEFAULT_SAMPLES_RATE 44100
 
-class Audio
+class AudioManager
 {
 public:
-	Audio();
-	~Audio();
+	AudioManager();
+	~AudioManager();
 
 	void update(float dt);
 
@@ -89,6 +89,9 @@ private:
 
 	bool init();
 	void stream_music(Music* music);
-	Audio(const Audio&);
-	Audio& operator=(const Audio&);
+	AudioManager(const AudioManager&);
+	AudioManager& operator=(const AudioManager&);
 };
+
+void audiomanager_update(float dt);
+AudioManager& get_audiomanager();

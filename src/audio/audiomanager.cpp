@@ -21,7 +21,7 @@
 #include "stb_vorbis.c"
 #include "wavloader.c"
 
-#include "audio.hpp"
+#include "audiomanager.hpp"
 
 #define NUM_SOURCES 16
 
@@ -57,7 +57,19 @@ const char* getAlError(ALint error)
 
 Source sources[NUM_SOURCES];
 
-Audio::Audio() :
+static AudioManager audiomanager;
+
+void audiomanager_update(float dt)
+{
+	audiomanager.update(dt);
+}
+
+AudioManager& get_audiomanager()
+{
+	return audiomanager;
+}
+
+AudioManager::AudioManager() :
 	initialized(false),
 	context(NULL),
 	device(NULL),
@@ -66,7 +78,7 @@ Audio::Audio() :
 {
 }
 
-Audio::~Audio()
+AudioManager::~AudioManager()
 {
 	if (initialized) {
 		for (int i = 0; i < NUM_SOURCES; i++)
@@ -78,7 +90,7 @@ Audio::~Audio()
 	}
 }
 
-bool Audio::init()
+bool AudioManager::init()
 {
 	device = alcOpenDevice(NULL);
 	if (!device) {
@@ -104,7 +116,7 @@ bool Audio::init()
 	return true;
 }
 
-void Audio::update(float dt)
+void AudioManager::update(float dt)
 {
 	(void)dt;
 	if (!initialized)
@@ -133,7 +145,7 @@ void Audio::update(float dt)
 	}
 }
 
-Sound* Audio::load_sound(const char *filepath)
+Sound* AudioManager::load_sound(const char *filepath)
 {
 	assert(filepath);
 	INIT_IF_NEEDED(NULL);
@@ -159,7 +171,7 @@ Sound* Audio::load_sound(const char *filepath)
 	return sound;
 }
 
-Sound* Audio::create_sound(unsigned int len, const float* buffer, int samplesrate)
+Sound* AudioManager::create_sound(unsigned int len, const float* buffer, int samplesrate)
 {
 	assert(buffer);
 	INIT_IF_NEEDED(NULL);
@@ -178,7 +190,7 @@ Sound* Audio::create_sound(unsigned int len, const float* buffer, int samplesrat
 	return sound;
 }
 
-void Audio::free_sound(Sound* sound)
+void AudioManager::free_sound(Sound* sound)
 {
 	assert(sound);
 	bool can_free = true;
@@ -217,7 +229,7 @@ static Source* get_free_source()
 	return NULL;
 }
 
-void Audio::play_sound(Sound* sound, float volume, float x, float y)
+void AudioManager::play_sound(Sound* sound, float volume, float x, float y)
 {
 	if (!sound)
 		// sound is not loaded properly
@@ -243,7 +255,7 @@ void Audio::play_sound(Sound* sound, float volume, float x, float y)
 	source->desiredVolume = volume;
 }
 
-Music* Audio::load_music(MusicCallback* callback, int samplesrate, int num_channels)
+Music* AudioManager::load_music(MusicCallback* callback, int samplesrate, int num_channels)
 {
 	assert(callback);
 	INIT_IF_NEEDED(NULL);
@@ -286,7 +298,7 @@ private:
 	VorbisMusicCallback(const VorbisMusicCallback&);
 	VorbisMusicCallback& operator=(const VorbisMusicCallback&);
 };
-Music* Audio::load_music_from_file(const char* filename)
+Music* AudioManager::load_music_from_file(const char* filename)
 {
 	assert(filename);
 	INIT_IF_NEEDED(NULL);
@@ -301,7 +313,7 @@ Music* Audio::load_music_from_file(const char* filename)
 	return load_music(callback, callback->info.sample_rate, callback->info.channels);
 }
 
-void Audio::play_music(Music* music)
+void AudioManager::play_music(Music* music)
 {
 	if (!music)
 		// music is not loaded properly
@@ -332,7 +344,7 @@ void Audio::play_music(Music* music)
 	source->desiredVolume = 1;
 }
 
-void Audio::stream_music(Music* music)
+void AudioManager::stream_music(Music* music)
 {
 	assert(music);
 	Source* source = music->source;
@@ -359,7 +371,7 @@ void Audio::stream_music(Music* music)
 	}
 }
 
-void Audio::stop_music(Music* music)
+void AudioManager::stop_music(Music* music)
 {
 	assert(music);
 	Source* source = music->source;
@@ -368,7 +380,7 @@ void Audio::stop_music(Music* music)
 	source->used = false;
 }
 
-void Audio::free_music(Music* music)
+void AudioManager::free_music(Music* music)
 {
 	assert(music);
 	if (music->source) {
@@ -379,7 +391,7 @@ void Audio::free_music(Music* music)
 	delete music;
 }
 
-void Audio::set_music_volume(float volume)
+void AudioManager::set_music_volume(float volume)
 {
 	globalMusicVolume = volume;
 	if (!initialized)
@@ -395,7 +407,7 @@ void Audio::set_music_volume(float volume)
 	}
 }
 
-void Audio::set_sound_volume(float volume)
+void AudioManager::set_sound_volume(float volume)
 {
 	globalSoundVolume = volume;
 	if (!initialized)

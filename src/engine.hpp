@@ -18,7 +18,6 @@
 
 #include "display.hpp"
 #include "event.hpp"
-#include "audio/audio.hpp" // should be removed
 #include "lua_functions.hpp"
 
 struct lua_State;
@@ -38,7 +37,6 @@ private:
 public:
 	Display display;
 	EventManager event;
-	Audio audio;
 	LuaFunctions lua;
 
 	Engine(const char* filename, unsigned int target_fps, bool server_mode);
