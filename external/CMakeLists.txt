@@ -84,5 +84,5 @@ endif()
 ###
 add_library(stb_vorbis STATIC stb_vorbis.c)
 
-add_library(stb_image STATIC stb_image.c)
-set_target_properties(stb_image PROPERTIES COMPILE_DEFINITIONS "STB_IMAGE_IMPLEMENTATION")
+#add_library(stb_image STATIC stb_image.c)
+#set_target_properties(stb_image PROPERTIES COMPILE_DEFINITIONS "STB_IMAGE_IMPLEMENTATION")

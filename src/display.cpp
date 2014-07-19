@@ -24,9 +24,10 @@
 
 #include <cstdio>
 #include <cassert>
+#include <cstring>
 #include <cmath>
 
-#define STB_NO_HDR
+#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 #include "display.hpp"

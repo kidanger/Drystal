@@ -15,6 +15,7 @@
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <cstring>
+#include <string>
 #include <cassert>
 
 #include <lua.hpp>
