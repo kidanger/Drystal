@@ -27,6 +27,7 @@
 #include "log.hpp"
 #include "stats.hpp"
 #include "audio/audiomanager.hpp"
+#include "event/event.hpp"
 
 #ifdef EMSCRIPTEN
 #include "emscripten.h"
@@ -49,7 +50,6 @@ Engine::Engine(const char* filename, unsigned int target_fps, bool server_mode) 
 	draw_activated(true),
 	stats_activated(false),
 	display(server_mode),
-	event(*this),
 	lua(*this, filename)
 {
 	engine = this;
@@ -117,7 +117,7 @@ long unsigned Engine::get_now()
 void Engine::update()
 {
 	AT(start)
-	event.poll();
+	event_update();
 	AT(event)
 
 	// check if an event provocked a stop
@@ -152,45 +152,6 @@ void Engine::update()
 		stats.compute(get_now(), dt);
 	}
 #endif
-}
-
-//
-// Events
-//
-
-void Engine::resize_event(int w, int h) const
-{
-	lua.call_resize_event(w, h);
-}
-
-void Engine::mouse_motion(int x, int y, int dx, int dy) const
-{
-	lua.call_mouse_motion(x, y, dx, dy);
-}
-
-void Engine::mouse_press(int mx, int my, int button) const
-{
-	lua.call_mouse_press(mx, my, button);
-}
-
-void Engine::mouse_release(int mx, int my, int button) const
-{
-	lua.call_mouse_release(mx, my, button);
-}
-
-void Engine::key_press(const char* key_string) const
-{
-	lua.call_key_press(key_string);
-}
-
-void Engine::key_release(const char* key_string) const
-{
-	lua.call_key_release(key_string);
-}
-
-void Engine::key_text(const char* string) const
-{
-	lua.call_key_text(string);
 }
 
 void Engine::stop()

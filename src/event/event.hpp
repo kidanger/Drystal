@@ -16,22 +16,12 @@
  */
 #pragma once
 
-union SDL_Event;
+void event_update();
 
-class Engine;
-
-class EventManager
-{
-private:
-	Engine& engine;
-
-	void handle_event(const SDL_Event& event);
-
-public:
-	EventManager(Engine&);
-
-	void poll();
-	void set_relative_mode(bool relative) const;
-	void start_text() const;
-	void stop_text() const;
-};
+void call_mouse_motion(int mx, int my, int dx, int dy);
+void call_mouse_press(int mx, int my, int button);
+void call_mouse_release(int mx, int my, int button);
+void call_key_press(const char* key_string);
+void call_key_release(const char* key_string);
+void call_key_text(const char* string);
+void call_resize_event(int w, int h);

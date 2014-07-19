@@ -195,75 +195,6 @@ bool LuaFunctions::call_init() const
 	return true;
 }
 
-void LuaFunctions::call_mouse_motion(int mx, int my, int dx, int dy) const
-{
-	if (get_function("mouse_motion")) {
-		lua_pushnumber(L, mx);
-		lua_pushnumber(L, my);
-		lua_pushnumber(L, dx);
-		lua_pushnumber(L, dy);
-		CALL(4, 0);
-	}
-}
-
-void LuaFunctions::call_mouse_press(int mx, int my, int button) const
-{
-	if (get_function("mouse_press")) {
-		lua_pushnumber(L, mx);
-		lua_pushnumber(L, my);
-		lua_pushnumber(L, button);
-		CALL(3, 0);
-	}
-}
-
-void LuaFunctions::call_mouse_release(int mx, int my, int button) const
-{
-	if (get_function("mouse_release")) {
-		lua_pushnumber(L, mx);
-		lua_pushnumber(L, my);
-		lua_pushnumber(L, button);
-		CALL(3, 0);
-	}
-}
-
-void LuaFunctions::call_key_press(const char* key_string) const
-{
-	assert(key_string);
-
-	if (get_function("key_press")) {
-		lua_pushstring(L, key_string);
-		CALL(1, 0);
-	}
-}
-
-void LuaFunctions::call_key_release(const char* key_string) const
-{
-	assert(key_string);
-
-	if (get_function("key_release")) {
-		lua_pushstring(L, key_string);
-		CALL(1, 0);
-	}
-}
-
-void LuaFunctions::call_key_text(const char* string) const
-{
-	assert(string);
-
-	if (get_function("key_text")) {
-		lua_pushstring(L, string);
-		CALL(1, 0);
-	}
-}
-
-void LuaFunctions::call_resize_event(int w, int h) const
-{
-	if (get_function("resize_event")) {
-		lua_pushnumber(L, w);
-		lua_pushnumber(L, h);
-		CALL(2, 0);
-	}
-}
 
 void LuaFunctions::call_update(float dt) const
 {
@@ -421,15 +352,6 @@ static int mlua_show_cursor(lua_State* L)
 	return 0;
 }
 
-static int mlua_set_relative_mode(lua_State* L)
-{
-	assert(L);
-
-	bool relative = lua_toboolean(L, 1);
-	engine->event.set_relative_mode(relative);
-	return 0;
-}
-
 static int mlua_resize(lua_State* L)
 {
 	assert(L);
@@ -463,19 +385,6 @@ static int mlua_screen2scene(lua_State* L)
 	lua_pushnumber(L, ty);
 	return 2;
 }
-
-static int mlua_start_text(lua_State*)
-{
-	engine->event.start_text();
-	return 0;
-}
-
-static int mlua_stop_text(lua_State*)
-{
-	engine->event.stop_text();
-	return 0;
-}
-
 
 static int mlua_surface_class_index(lua_State* L)
 {
@@ -837,14 +746,10 @@ int luaopen_drystal(lua_State* L)
 		EXPOSE_FUNCTION(reload),
 
 		EXPOSE_FUNCTION(show_cursor),
-		EXPOSE_FUNCTION(set_relative_mode),
 
 		EXPOSE_FUNCTION(resize),
 		EXPOSE_FUNCTION(set_title),
 		EXPOSE_FUNCTION(screen2scene),
-
-		EXPOSE_FUNCTION(start_text),
-		EXPOSE_FUNCTION(stop_text),
 
 		/* DISPLAY SURFACE */
 		EXPOSE_FUNCTION(load_surface),

@@ -21,16 +21,19 @@
 #endif
 
 #include <map>
+#include <lua.hpp>
 
-#include "event.hpp"
 #include "engine.hpp"
+#include "lua_functions.hpp"
+#include "event.hpp"
+#include "api.hpp"
 
 typedef Sint32 SDL_Keycode;
 
 std::map<SDL_Keycode, const char*> keynames;
 
 /** from https://code.google.com/r/kyberneticist-webport/source/browse/project_files/web_exp/pas2c_build/emcc/patches/sdl_patch.c */
-static void initKeys()
+static int initKeys()
 {
 	keynames[SDLK_BACKSPACE] = "backspace";
 	keynames[SDLK_TAB] = "tab";
@@ -159,7 +162,10 @@ static void initKeys()
 	keynames[SDLK_RGUI] = "right meta";
 	keynames[SDLK_LGUI] = "left meta";
 	keynames[SDLK_MODE] = "alt gr";
+	return 0;
 }
+int unused = initKeys();
+
 
 const char * mySDL_GetKeyName(SDL_Keycode key)
 {
@@ -172,30 +178,15 @@ const char * mySDL_GetKeyName(SDL_Keycode key)
 	return keyname;
 }
 
-EventManager::EventManager(Engine& eng) :
-	engine(eng)
+static void handle_event(const SDL_Event& event)
 {
-	initKeys();
-	// key repeat is not handled by emscripten
-	// so don't handle it in native mode either
-}
-
-void EventManager::poll()
-{
-	SDL_Event event;
-	while (SDL_PollEvent(&event)) {
-		handle_event(event);
-	}
-}
-
-void EventManager::handle_event(const SDL_Event& event)
-{
+	Engine& engine = get_engine();
 	switch (event.type) {
 		case SDL_QUIT:
 			engine.stop();
 			break;
 		case SDL_KEYUP:
-			engine.key_release(mySDL_GetKeyName(event.key.keysym.sym));
+			call_key_release(mySDL_GetKeyName(event.key.keysym.sym));
 			break;
 		case SDL_KEYDOWN:
 			if (event.key.keysym.sym == SDLK_F1) {
@@ -209,37 +200,37 @@ void EventManager::handle_event(const SDL_Event& event)
 			} else if (event.key.keysym.sym == SDLK_F10) {
 				engine.toggle_stats();
 			} else {
-				engine.key_press(mySDL_GetKeyName(event.key.keysym.sym));
+				call_key_press(mySDL_GetKeyName(event.key.keysym.sym));
 			}
 			break;
 		case SDL_TEXTINPUT:
-			engine.key_text(event.edit.text);
+			call_key_text(event.edit.text);
 			break;
 		case SDL_MOUSEMOTION:
-			engine.mouse_motion(event.motion.x, event.motion.y,
+			call_mouse_motion(event.motion.x, event.motion.y,
 			                    event.motion.xrel, event.motion.yrel);
 			break;
 		case SDL_MOUSEBUTTONDOWN:
-			engine.mouse_press(event.button.x, event.button.y, event.button.button);
+			call_mouse_press(event.button.x, event.button.y, event.button.button);
 			break;
 		case SDL_MOUSEBUTTONUP:
-			engine.mouse_release(event.button.x, event.button.y, event.button.button);
+			call_mouse_release(event.button.x, event.button.y, event.button.button);
 			break;
 		case SDL_MOUSEWHEEL: {
 			int x, y;
 			SDL_GetMouseState(&x, &y);
 			int button = event.wheel.y > 0 ? 4 : 5;
-			engine.mouse_press(x, y, button);
-			engine.mouse_release(x, y, button);
+			call_mouse_press(x, y, button);
+			call_mouse_release(x, y, button);
 		}
 		break;
 #ifndef EMSCRIPTEN
 		case SDL_WINDOWEVENT_RESIZED:
-			engine.resize_event(event.window.data1, event.window.data2);
+			call_resize_event(event.window.data1, event.window.data2);
 			break;
 #else
 		case SDL_VIDEORESIZE:
-			engine.resize_event(event.resize.w, event.resize.h);
+			call_resize_event(event.resize.w, event.resize.h);
 			break;
 #endif
 		default:
@@ -247,23 +238,122 @@ void EventManager::handle_event(const SDL_Event& event)
 	}
 }
 
-void EventManager::set_relative_mode(bool relative) const
+void event_update()
 {
+	SDL_Event event;
+	while (SDL_PollEvent(&event)) {
+		handle_event(event);
+	}
+}
+
+void call_mouse_motion(int mx, int my, int dx, int dy)
+{
+	Engine& engine = get_engine();
+	if (engine.lua.get_function("mouse_motion")) {
+		lua_State* L = engine.lua.L;
+		lua_pushnumber(L, mx);
+		lua_pushnumber(L, my);
+		lua_pushnumber(L, dx);
+		lua_pushnumber(L, dy);
+		CALL(4, 0);
+	}
+}
+
+void call_mouse_press(int mx, int my, int button)
+{
+	Engine& engine = get_engine();
+	if (engine.lua.get_function("mouse_press")) {
+		lua_State* L = engine.lua.L;
+		lua_pushnumber(L, mx);
+		lua_pushnumber(L, my);
+		lua_pushnumber(L, button);
+		CALL(3, 0);
+	}
+}
+
+void call_mouse_release(int mx, int my, int button)
+{
+	Engine& engine = get_engine();
+	if (engine.lua.get_function("mouse_release")) {
+		lua_State* L = engine.lua.L;
+		lua_pushnumber(L, mx);
+		lua_pushnumber(L, my);
+		lua_pushnumber(L, button);
+		CALL(3, 0);
+	}
+}
+
+void call_key_press(const char* key_string)
+{
+	assert(key_string);
+
+	Engine& engine = get_engine();
+	if (engine.lua.get_function("key_press")) {
+		lua_State* L = engine.lua.L;
+		lua_pushstring(L, key_string);
+		CALL(1, 0);
+	}
+}
+
+void call_key_release(const char* key_string)
+{
+	assert(key_string);
+
+	Engine& engine = get_engine();
+	if (engine.lua.get_function("key_release")) {
+		lua_State* L = engine.lua.L;
+		lua_pushstring(L, key_string);
+		CALL(1, 0);
+	}
+}
+
+void call_key_text(const char* string)
+{
+	assert(string);
+
+	Engine& engine = get_engine();
+	if (engine.lua.get_function("key_text")) {
+		lua_State* L = engine.lua.L;
+		lua_pushstring(L, string);
+		CALL(1, 0);
+	}
+}
+
+void call_resize_event(int w, int h)
+{
+	Engine& engine = get_engine();
+	if (engine.lua.get_function("resize_event")) {
+		lua_State* L = engine.lua.L;
+		lua_pushnumber(L, w);
+		lua_pushnumber(L, h);
+		CALL(2, 0);
+	}
+}
+
+int mlua_set_relative_mode(lua_State* L)
+{
+	assert(L);
+
+	bool relative = lua_toboolean(L, 1);
 #ifdef EMSCRIPTEN
+	Engine& engine = get_engine();
 	engine.display.show_cursor(not relative);
 	// NOT IMPLEMENTED
 #else
 	SDL_SetRelativeMouseMode(relative ? SDL_TRUE : SDL_FALSE);
 #endif
+	return 0;
 }
 
-void EventManager::start_text() const
+int mlua_start_text(lua_State*)
 {
 	SDL_StartTextInput();
+	return 0;
 }
 
-void EventManager::stop_text() const
+int mlua_stop_text(lua_State*)
 {
 	SDL_StopTextInput();
+	return 0;
 }
 

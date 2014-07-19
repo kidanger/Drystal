@@ -17,7 +17,6 @@
 #pragma once
 
 #include "display.hpp"
-#include "event.hpp"
 #include "lua_functions.hpp"
 
 struct lua_State;
@@ -36,7 +35,6 @@ private:
 
 public:
 	Display display;
-	EventManager event;
 	LuaFunctions lua;
 
 	Engine(const char* filename, unsigned int target_fps, bool server_mode);
@@ -44,14 +42,6 @@ public:
 
 	void loop();
 	void update();
-
-	void resize_event(int w, int h) const;
-	void mouse_motion(int x, int y, int dx, int dy) const;
-	void mouse_press(int, int, int) const;
-	void mouse_release(int, int, int) const;
-	void key_press(const char* key_string) const;
-	void key_release(const char* key_string) const;
-	void key_text(const char* string) const;
 
 	void toggle_update();
 	void toggle_draw();
