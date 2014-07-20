@@ -27,6 +27,7 @@ private:
 	bool server_mode;
 	unsigned long target_ms_per_frame;
 	bool run;
+	bool loaded;
 	long unsigned last_update;
 
 	bool update_activated;
@@ -40,8 +41,10 @@ public:
 	Engine(const char* filename, unsigned int target_fps, bool server_mode);
 	~Engine();
 
+	void load();
 	void loop();
 	void update();
+	bool is_loaded() const { return loaded; }
 
 	void toggle_update();
 	void toggle_draw();

@@ -33,8 +33,7 @@
 #include "emscripten.h"
 #endif
 
-// needed to call engine->update from emscripten library
-// and for extensions (get_engine)
+// needed for get_engine
 static Engine *engine;
 
 #ifdef STATS
@@ -45,6 +44,7 @@ Engine::Engine(const char* filename, unsigned int target_fps, bool server_mode) 
 	server_mode(server_mode),
 	target_ms_per_frame(1000 / target_fps),
 	run(true),
+	loaded(false),
 	last_update(get_now()),
 	update_activated(true),
 	draw_activated(true),
@@ -63,16 +63,10 @@ Engine::~Engine()
 }
 
 //
-// Main loop
+// Load & loop
 //
 
-#ifdef EMSCRIPTEN
-void _engine_update()
-{
-	engine->update();
-}
-#endif
-void Engine::loop()
+void Engine::load()
 {
 	if (!display.is_available()) {
 		fprintf(stderr, "[ERROR] cannot run the engine, display isn't available\n");
@@ -83,11 +77,13 @@ void Engine::loop()
 	if (run)
 		// run can be disabled before init being called
 		successful_load = successful_load && lua.call_init();
-#ifdef EMSCRIPTEN
-	if (successful_load)
-		emscripten_set_main_loop(_engine_update, 0, true);
-#else
 	run = run && successful_load;
+	loaded = true;
+}
+
+void Engine::loop()
+{
+#ifndef EMSCRIPTEN
 	while (run) {
 		unsigned long at_start = get_now();
 

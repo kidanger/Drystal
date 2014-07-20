@@ -17,15 +17,56 @@
 #include <string.h>
 #ifndef EMSCRIPTEN
 #include <signal.h>
+#else
+#include <emscripten.h>
+#include <sys/stat.h>
+#include <miniz.h>
 #endif
 
 #include "engine.hpp"
 
-#ifndef EMSCRIPTEN
 Engine* engine;
+
+#ifndef EMSCRIPTEN
 void reload(int)
 {
 	engine->lua.reload_code();
+}
+#else
+void on_zip_downloaded(void* userdata, void* buffer, int size)
+{
+	mz_zip_archive za;
+	if (!mz_zip_reader_init_mem(&za, buffer, size, 0)) {
+		printf("mz_zip_reader_init_file() failed!\n");
+		return;
+	}
+
+	for (int i = 0; i < mz_zip_reader_get_num_files(&za); i++) {
+		mz_zip_archive_file_stat file_stat;
+		mz_zip_reader_file_stat(&za, i, &file_stat);
+		const char* filename = file_stat.m_filename;
+
+		if (mz_zip_reader_is_file_a_directory(&za, i)) {
+			mkdir(filename, 0777);
+		} else {
+			mz_zip_reader_extract_to_file(&za, i, filename, 0);
+		}
+	}
+	mz_zip_reader_end(&za);
+	engine->load();
+}
+
+void on_zip_fail(void* userdata)
+{
+	printf("Unable to download %s.\n", userdata);
+	engine->load(); // load anyway (as long as old method still work)
+}
+
+void loop()
+{
+	if (engine->is_loaded()) {
+		engine->update();
+	}
 }
 #endif
 
@@ -54,17 +95,23 @@ int main(int argc, const char* argv[])
 	}
 
 	Engine e(filename, 60, server_mode);
-
-#ifndef EMSCRIPTEN
 	engine = &e;
-	signal(SIGUSR1, reload);
-#endif
 
 	for (int i = 0; i < num_paths; i++) {
 		e.lua.add_search_path(paths[i]);
 	}
+
+#ifdef EMSCRIPTEN
+	const char* zipname = "game.zip";
+	emscripten_async_wget_data(zipname, (void*) zipname, on_zip_downloaded, on_zip_fail);
+	emscripten_set_main_loop(loop, 0, true);
+#else
+	signal(SIGUSR1, reload);
 	e.lua.add_search_path("/usr/share/drystal");
+
+	e.load();
 	e.loop();
+#endif
 
 	return 0;
 }
