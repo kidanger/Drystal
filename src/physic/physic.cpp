@@ -20,6 +20,7 @@
 
 #include "api.hpp"
 #include "lua_functions.hpp"
+#include "macro.hpp"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
@@ -197,9 +198,8 @@ public:
 	CustomRayCastCallback(lua_State *L, int ref) : L(L), ref(ref), fixture(NULL), point(0,0) {}
 
 	virtual float32 ReportFixture(b2Fixture* fixture, const b2Vec2& point,
-								  const b2Vec2& normal, float32 fraction)
+				      _unused_ const b2Vec2& normal, float32 fraction)
 	{
-		(void) normal;
 		bool save_data = true;
 		float32 new_fraction = fraction;
 

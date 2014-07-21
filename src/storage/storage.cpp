@@ -63,11 +63,12 @@ void store(const char* key, const char* value)
 #include <cstdio>
 #include <cstring>
 
+#include "macro.hpp"
+
 static char data[1024] = {0};
 
-const char* fetch(const char* key)
+const char* fetch(_unused_ const char* key)
 {
-	(void) key;
 	FILE* file = fopen(".storage", "r");
 	if (file == NULL)
 		return "";
@@ -76,11 +77,10 @@ const char* fetch(const char* key)
 	return data;
 }
 
-void store(const char* key, const char* value)
+void store(_unused_ const char* key, const char* value)
 {
 	assert(value);
 
-	(void) key;
 	FILE* file = fopen(".storage", "w");
 	fwrite(value, strlen(value), 1, file);
 	fclose(file);

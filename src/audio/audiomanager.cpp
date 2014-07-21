@@ -22,6 +22,7 @@
 #include "wavloader.c"
 
 #include "audiomanager.hpp"
+#include "macro.hpp"
 
 #define NUM_SOURCES 16
 
@@ -116,9 +117,8 @@ bool AudioManager::init()
 	return true;
 }
 
-void AudioManager::update(float dt)
+void AudioManager::update(_unused_ float dt)
 {
-	(void)dt;
 	if (!initialized)
 		return;
 

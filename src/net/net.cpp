@@ -33,6 +33,7 @@ extern "C" {
 }
 #include "api.hpp"
 #include "lua_functions.hpp"
+#include "macro.hpp"
 
 int (*_socket)(int, int, int) = socket;
 int (*_connect)(int, const struct sockaddr*, socklen_t) = connect;
@@ -90,11 +91,10 @@ public:
 		return new Socket(fd, hostname, NULL);
 	}
 
-	void send(const char* msg, int len, bool* error) {
+	void send(const char* msg, _unused_ int len, bool* error) {
 		assert(error);
 		assert(msg);
 
-		(void) len;
 		output += msg;
 
 		flush(error);

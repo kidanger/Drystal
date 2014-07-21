@@ -22,6 +22,7 @@
 #include <utility> // std::pair
 
 #include "parser.hpp"
+#include "macro.hpp"
 
 #define MAX_STATES 16
 TextState g_states[MAX_STATES];
@@ -61,60 +62,52 @@ static void change_green(const char* str, TextState* state)
 
 	state->g = atoi(str);
 }
-static void change_tiny(const char* str, TextState* state)
+static void change_tiny(_unused_ const char* str, TextState* state)
 {
 	assert(state);
 
-	(void) str;
 	state->size = 0.6;
 }
-static void change_small(const char* str, TextState* state)
+static void change_small(_unused_ const char* str, TextState* state)
 {
 	assert(state);
 
-	(void) str;
 	state->size = 0.8;
 }
-static void change_normal(const char* str, TextState* state)
+static void change_normal(_unused_ const char* str, TextState* state)
 {
 	assert(state);
 
-	(void) str;
 	state->size = 1.0;
 }
-static void change_big(const char* str, TextState* state)
+static void change_big(_unused_ const char* str, TextState* state)
 {
 	assert(state);
 
-	(void) str;
 	state->size = 1.3;
 }
-static void change_BIG(const char* str, TextState* state)
+static void change_BIG(_unused_ const char* str, TextState* state)
 {
 	assert(state);
 
-	(void) str;
 	state->size = 1.7;
 }
-static void change_italic(const char* str, TextState* state)
+static void change_italic(_unused_ const char* str, TextState* state)
 {
 	assert(state);
 
-	(void) str;
 	state->italic = 3.5;
 }
-static void change_outline(const char* str, TextState* state)
+static void change_outline(_unused_ const char* str, TextState* state)
 {
 	assert(state);
 
-	(void) str;
 	state->outlined = true;
 }
-static void change_nooutline(const char* str, TextState* state)
+static void change_nooutline(_unused_ const char* str, TextState* state)
 {
 	assert(state);
 
-	(void) str;
 	state->outlined = false;
 }
 static void change_outr(const char* str, TextState* state)
