@@ -50,7 +50,7 @@ Engine::Engine(const char* filename, unsigned int target_fps, bool server_mode) 
 	draw_activated(true),
 	stats_activated(false),
 	display(server_mode),
-	lua(*this, filename)
+	lua(filename)
 {
 	engine = this;
 #ifdef STATS

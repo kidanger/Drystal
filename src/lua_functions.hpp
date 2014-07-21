@@ -20,10 +20,6 @@
 #include <ctime>
 #endif
 
-class Engine;
-
-#include "engine.hpp"
-
 struct lua_State;
 
 class LuaFunctions
@@ -32,7 +28,7 @@ public:
 	lua_State* L;
 	int drystal_table_ref;
 
-	LuaFunctions(Engine&, const char *_filename);
+	LuaFunctions(const char *_filename);
 	~LuaFunctions();
 
 	void add_search_path(const char* path) const;

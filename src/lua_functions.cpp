@@ -27,23 +27,18 @@
 
 #include "all_api.hpp"
 
-// used to access some engine's fields from lua callbacks
-static Engine *engine;
-
 static int luaopen_drystal(lua_State*); // defined at the end of this file
 
 DECLARE_PUSHPOP(Shader, shader)
 DECLARE_PUSHPOP(Surface, surface)
 DECLARE_PUSHPOP(Buffer, buffer)
 
-LuaFunctions::LuaFunctions(Engine& eng, const char *_filename) :
+LuaFunctions::LuaFunctions(const char *_filename) :
 	L(luaL_newstate()),
 	drystal_table_ref(LUA_NOREF),
 	filename(_filename),
 	library_loaded(false)
 {
-	engine = &eng;
-
 	luaL_openlibs(L);
 }
 
@@ -226,13 +221,15 @@ void LuaFunctions::call_atexit() const
 
 static int mlua_stop(lua_State*)
 {
-	engine->stop();
+	Engine &engine = get_engine();
+	engine.stop();
 	return 0;
 }
 
 static int mlua_reload(lua_State*)
 {
-	engine->lua.reload_code();
+	Engine &engine = get_engine();
+	engine.lua.reload_code();
 	return 0;
 }
 
@@ -248,7 +245,8 @@ static int mlua_set_color(lua_State* L)
 	int r = luaL_checkint(L, -3);
 	int g = luaL_checkint(L, -2);
 	int b = luaL_checkint(L, -1);
-	engine->display.set_color(r, g, b);
+	Engine &engine = get_engine();
+	engine.display.set_color(r, g, b);
 	return 0;
 }
 
@@ -257,7 +255,8 @@ static int mlua_set_alpha(lua_State* L)
 	assert(L);
 
 	int alpha = luaL_checkint(L, 1);
-	engine->display.set_alpha(alpha);
+	Engine &engine = get_engine();
+	engine.display.set_alpha(alpha);
 	return 0;
 }
 
@@ -266,7 +265,8 @@ static int mlua_set_point_size(lua_State* L)
 	assert(L);
 
 	lua_Number point_size = luaL_checknumber(L, 1);
-	engine->display.set_point_size(point_size);
+	Engine &engine = get_engine();
+	engine.display.set_point_size(point_size);
 	return 0;
 }
 
@@ -275,7 +275,8 @@ static int mlua_set_line_width(lua_State* L)
 	assert(L);
 
 	lua_Number width = luaL_checknumber(L, 1);
-	engine->display.set_line_width(width);
+	Engine &engine = get_engine();
+	engine.display.set_line_width(width);
 	return 0;
 }
 
@@ -284,7 +285,8 @@ static int mlua_set_title(lua_State* L)
 	assert(L);
 
 	const char *title = luaL_checkstring(L, 1);
-	engine->display.set_title(title);
+	Engine &engine = get_engine();
+	engine.display.set_title(title);
 	return 0;
 }
 
@@ -293,7 +295,8 @@ static int mlua_set_blend_mode(lua_State* L)
 	assert(L);
 
 	BlendMode mode = static_cast<BlendMode>(luaL_checknumber(L, 1));
-	engine->display.set_blend_mode(mode);
+	Engine &engine = get_engine();
+	engine.display.set_blend_mode(mode);
 	return 0;
 }
 
@@ -301,19 +304,20 @@ static int mlua_camera__newindex(lua_State* L)
 {
 	assert(L);
 
+	Engine &engine = get_engine();
 	const char * name = luaL_checkstring(L, 2);
 	if (!strcmp(name, "x")) {
 		lua_Number dx = luaL_checknumber(L, 3);
-		engine->display.set_camera_position(dx, engine->display.get_camera().dy);
+		engine.display.set_camera_position(dx, engine.display.get_camera().dy);
 	} else if (!strcmp(name, "y")) {
 		lua_Number dy = luaL_checknumber(L, 3);
-		engine->display.set_camera_position(engine->display.get_camera().dx, dy);
+		engine.display.set_camera_position(engine.display.get_camera().dx, dy);
 	} else if (!strcmp(name, "angle")) {
 		lua_Number angle = luaL_checknumber(L, 3);
-		engine->display.set_camera_angle(angle);
+		engine.display.set_camera_angle(angle);
 	} else if (!strcmp(name, "zoom")) {
 		lua_Number zoom = luaL_checknumber(L, 3);
-		engine->display.set_camera_zoom(zoom);
+		engine.display.set_camera_zoom(zoom);
 	} else {
 		lua_rawset(L, 1);
 	}
@@ -324,21 +328,22 @@ static int mlua_camera__index(lua_State* L)
 {
 	assert(L);
 
+	Engine &engine = get_engine();
 	const char * name = luaL_checkstring(L, 2);
 	if (!strcmp(name, "x")) {
-		lua_Number dx = engine->display.get_camera().dx;
+		lua_Number dx = engine.display.get_camera().dx;
 		lua_pushnumber(L, dx);
 		return 1;
 	} else if (!strcmp(name, "y")) {
-		lua_Number dy = engine->display.get_camera().dy;
+		lua_Number dy = engine.display.get_camera().dy;
 		lua_pushnumber(L, dy);
 		return 1;
 	} else if (!strcmp(name, "angle")) {
-		lua_Number angle = engine->display.get_camera().angle;
+		lua_Number angle = engine.display.get_camera().angle;
 		lua_pushnumber(L, angle);
 		return 1;
 	} else if (!strcmp(name, "zoom")) {
-		lua_Number zoom = engine->display.get_camera().zoom;
+		lua_Number zoom = engine.display.get_camera().zoom;
 		lua_pushnumber(L, zoom);
 		return 1;
 	}
@@ -347,7 +352,8 @@ static int mlua_camera__index(lua_State* L)
 
 static int mlua_camera_reset(lua_State*)
 {
-	engine->display.reset_camera();
+	Engine &engine = get_engine();
+	engine.display.reset_camera();
 	return 0;
 }
 
@@ -356,7 +362,8 @@ static int mlua_show_cursor(lua_State* L)
 	assert(L);
 
 	bool show = lua_toboolean(L, 1);
-	engine->display.show_cursor(show);
+	Engine &engine = get_engine();
+	engine.display.show_cursor(show);
 	return 0;
 }
 
@@ -366,11 +373,12 @@ static int mlua_resize(lua_State* L)
 
 	int w = luaL_checkint(L, 1);
 	int h = luaL_checkint(L, 2);
-	engine->display.resize(w, h);
+	Engine &engine = get_engine();
+	engine.display.resize(w, h);
 
 	// update screen
-	lua_rawgeti(L, LUA_REGISTRYINDEX, engine->lua.drystal_table_ref);
-	Surface* screen = engine->display.get_screen();
+	lua_rawgeti(L, LUA_REGISTRYINDEX, engine.lua.drystal_table_ref);
+	Surface* screen = engine.display.get_screen();
 	if (screen)
 		push_surface(L, screen);
 	else
@@ -385,10 +393,11 @@ static int mlua_screen2scene(lua_State* L)
 {
 	assert(L);
 
+	Engine &engine = get_engine();
 	lua_Number x = luaL_checknumber(L, 1);
 	lua_Number y = luaL_checknumber(L, 2);
 	float tx, ty;
-	engine->display.screen2scene(x, y, &tx, &ty);
+	engine.display.screen2scene(x, y, &tx, &ty);
 	lua_pushnumber(L, tx);
 	lua_pushnumber(L, ty);
 	return 2;
@@ -415,8 +424,9 @@ static int mlua_load_surface(lua_State* L)
 {
 	assert(L);
 
+	Engine &engine = get_engine();
 	const char * filename = luaL_checkstring(L, 1);
-	Surface* surface = engine->display.load_surface(filename);
+	Surface* surface = engine.display.load_surface(filename);
 	if (surface) {
 		push_surface(L, surface);
 		lua_pushvalue(L, -1);
@@ -430,10 +440,11 @@ static int mlua_new_surface(lua_State* L)
 {
 	assert(L);
 
+	Engine &engine = get_engine();
 	int w = luaL_checkint(L, 1);
 	int h = luaL_checkint(L, 2);
 	bool force_npot = lua_toboolean(L, 3);
-	Surface* surface = engine->display.new_surface(w, h, force_npot);
+	Surface* surface = engine.display.new_surface(w, h, force_npot);
 	push_surface(L, surface);
 
 	lua_pushvalue(L, -1);
@@ -446,8 +457,9 @@ static int mlua_free_surface(lua_State* L)
 	assert(L);
 
 	DEBUG("");
+	Engine &engine = get_engine();
 	Surface* surface = pop_surface(L, 1);
-	engine->display.free_surface(surface);
+	engine.display.free_surface(surface);
 	return 0;
 }
 
@@ -455,9 +467,10 @@ static int mlua_draw_on(lua_State* L)
 {
 	assert(L);
 
-	Surface* old = engine->display.get_draw_on();
+	Engine &engine = get_engine();
+	Surface* old = engine.display.get_draw_on();
 	Surface* surface = pop_surface(L, 1);
-	engine->display.draw_on(surface);
+	engine.display.draw_on(surface);
 
 	if (old) {
 		lua_rawgeti(L, LUA_REGISTRYINDEX, old->ref);
@@ -471,9 +484,10 @@ static int mlua_draw_from(lua_State* L)
 {
 	assert(L);
 
-	Surface* old = engine->display.get_draw_from();
+	Engine &engine = get_engine();
+	Surface* old = engine.display.get_draw_from();
 	Surface* surface = pop_surface(L, 1);
-	engine->display.draw_from(surface);
+	engine.display.draw_from(surface);
 
 	if (old) {
 		lua_rawgeti(L, LUA_REGISTRYINDEX, old->ref);
@@ -487,15 +501,17 @@ static int mlua_set_filter_surface(lua_State* L)
 {
 	assert(L);
 
+	Engine &engine = get_engine();
 	Surface* surface = pop_surface(L, 1);
 	FilterMode mode = static_cast<FilterMode>(luaL_checknumber(L, 2));
-	engine->display.set_filter(surface, mode);
+	engine.display.set_filter(surface, mode);
 	return 0;
 }
 
 static int mlua_draw_background(lua_State*)
 {
-	engine->display.draw_background();
+	Engine &engine = get_engine();
+	engine.display.draw_background();
 	return 0;
 }
 
@@ -503,9 +519,10 @@ static int mlua_draw_point(lua_State* L)
 {
 	assert(L);
 
+	Engine &engine = get_engine();
 	lua_Number x = luaL_checknumber(L, 1);
 	lua_Number y = luaL_checknumber(L, 2);
-	engine->display.draw_point(x, y);
+	engine.display.draw_point(x, y);
 	return 0;
 }
 
@@ -513,11 +530,12 @@ static int mlua_draw_point_tex(lua_State* L)
 {
 	assert(L);
 
+	Engine &engine = get_engine();
 	lua_Number xi = luaL_checknumber(L, 1);
 	lua_Number yi = luaL_checknumber(L, 2);
 	lua_Number xd = luaL_checknumber(L, 3);
 	lua_Number yd = luaL_checknumber(L, 4);
-	engine->display.draw_point_tex(xi, yi, xd, yd);
+	engine.display.draw_point_tex(xi, yi, xd, yd);
 	return 0;
 }
 
@@ -525,11 +543,12 @@ static int mlua_draw_line(lua_State* L)
 {
 	assert(L);
 
+	Engine &engine = get_engine();
 	lua_Number x1 = luaL_checknumber(L, 1);
 	lua_Number y1 = luaL_checknumber(L, 2);
 	lua_Number x2 = luaL_checknumber(L, 3);
 	lua_Number y2 = luaL_checknumber(L, 4);
-	engine->display.draw_line(x1, y1, x2, y2);
+	engine.display.draw_line(x1, y1, x2, y2);
 	return 0;
 }
 
@@ -537,13 +556,14 @@ static int mlua_draw_triangle(lua_State* L)
 {
 	assert(L);
 
+	Engine &engine = get_engine();
 	lua_Number x1 = luaL_checknumber(L, 1);
 	lua_Number y1 = luaL_checknumber(L, 2);
 	lua_Number x2 = luaL_checknumber(L, 3);
 	lua_Number y2 = luaL_checknumber(L, 4);
 	lua_Number x3 = luaL_checknumber(L, 5);
 	lua_Number y3 = luaL_checknumber(L, 6);
-	engine->display.draw_triangle(x1, y1, x2, y2, x3, y3);
+	engine.display.draw_triangle(x1, y1, x2, y2, x3, y3);
 	return 0;
 }
 
@@ -551,6 +571,7 @@ static int mlua_draw_surface(lua_State* L)
 {
 	assert(L);
 
+	Engine &engine = get_engine();
 	lua_Number i1 = luaL_checknumber(L, 1);
 	lua_Number i2 = luaL_checknumber(L, 2);
 	lua_Number i3 = luaL_checknumber(L, 3);
@@ -563,7 +584,7 @@ static int mlua_draw_surface(lua_State* L)
 	lua_Number o4 = luaL_checknumber(L, 10);
 	lua_Number o5 = luaL_checknumber(L, 11);
 	lua_Number o6 = luaL_checknumber(L, 12);
-	engine->display.draw_surface(i1, i2, i3, i4, i5, i6,
+	engine.display.draw_surface(i1, i2, i3, i4, i5, i6,
 	                             o1, o2, o3, o4, o5, o6);
 	return 0;
 }
@@ -572,6 +593,7 @@ static int mlua_draw_quad(lua_State* L)
 {
 	assert(L);
 
+	Engine &engine = get_engine();
 	lua_Number i1 = luaL_checknumber(L, 1);
 	lua_Number i2 = luaL_checknumber(L, 2);
 	lua_Number i3 = luaL_checknumber(L, 3);
@@ -588,7 +610,7 @@ static int mlua_draw_quad(lua_State* L)
 	lua_Number o6 = luaL_checknumber(L, 14);
 	lua_Number o7 = luaL_checknumber(L, 15);
 	lua_Number o8 = luaL_checknumber(L, 16);
-	engine->display.draw_quad(i1, i2, i3, i4, i5, i6, i7, i8,
+	engine.display.draw_quad(i1, i2, i3, i4, i5, i6, i7, i8,
 	                          o1, o2, o3, o4, o5, o6, o7, o8);
 	return 0;
 }
@@ -597,6 +619,7 @@ static int mlua_new_shader(lua_State* L)
 {
 	assert(L);
 
+	Engine &engine = get_engine();
 	const char *vert = NULL, *frag_color = NULL, *frag_tex = NULL;
 	// strings can be nil
 	if (lua_gettop(L) >= 1) { // one argument, it's the vertex shader
@@ -609,7 +632,7 @@ static int mlua_new_shader(lua_State* L)
 		frag_tex = lua_tostring(L, 3);
 	}
 	char* error;
-	Shader* shader = engine->display.new_shader(vert, frag_color, frag_tex, &error);
+	Shader* shader = engine.display.new_shader(vert, frag_color, frag_tex, &error);
 	if (shader) {
 		push_shader(L, shader);
 		return 1;
@@ -625,11 +648,12 @@ static int mlua_use_shader(lua_State* L)
 {
 	assert(L);
 
+	Engine &engine = get_engine();
 	if (lua_gettop(L) == 0) { // use defaut shader
-		engine->display.use_shader(NULL);
+		engine.display.use_shader(NULL);
 	} else {
 		Shader* shader = pop_shader(L, -1);
-		engine->display.use_shader(shader);
+		engine.display.use_shader(shader);
 	}
 	return 0;
 }
@@ -638,10 +662,11 @@ static int mlua_feed_shader(lua_State* L)
 {
 	assert(L);
 
+	Engine &engine = get_engine();
 	Shader* shader = pop_shader(L, 1);
 	const char* name = lua_tostring(L, 2);
 	lua_Number value = luaL_checknumber(L, 3);
-	engine->display.feed_shader(shader, name, value);
+	engine.display.feed_shader(shader, name, value);
 	return 0;
 }
 
@@ -650,19 +675,21 @@ static int mlua_free_shader(lua_State* L)
 	assert(L);
 
 	DEBUG("");
+	Engine &engine = get_engine();
 	Shader* shader = pop_shader(L, 1);
-	engine->display.free_shader(shader);
+	engine.display.free_shader(shader);
 	return 0;
 }
 
 static int mlua_new_buffer(lua_State* L)
 {
+	Engine &engine = get_engine();
 	Buffer* buffer;
 	if (lua_gettop(L) == 1) {
 		lua_Number size = luaL_checknumber(L, 1);
-		buffer = engine->display.new_buffer(size);
+		buffer = engine.display.new_buffer(size);
 	} else {
-		buffer = engine->display.new_buffer(); // let Display choose a size
+		buffer = engine.display.new_buffer(); // let Display choose a size
 	}
 	if (buffer) {
 		push_buffer(L, buffer);
@@ -675,11 +702,12 @@ static int mlua_use_buffer(lua_State* L)
 {
 	assert(L);
 
+	Engine &engine = get_engine();
 	if (lua_gettop(L) == 0) { // use defaut buffer
-		engine->display.use_buffer(NULL);
+		engine.display.use_buffer(NULL);
 	} else {
 		Buffer* buffer = pop_buffer(L, 1);
-		engine->display.use_buffer(buffer);
+		engine.display.use_buffer(buffer);
 	}
 	return 0;
 }
@@ -688,13 +716,14 @@ static int mlua_draw_buffer(lua_State* L)
 {
 	assert(L);
 
+	Engine &engine = get_engine();
 	Buffer* buffer = pop_buffer(L, 1);
 	lua_Number dx = 0, dy = 0;
 	if (lua_gettop(L) >= 2)
 		dx = luaL_checknumber(L, 2);
 	if (lua_gettop(L) >= 3)
 		dy = luaL_checknumber(L, 3);
-	engine->display.draw_buffer(buffer, dx, dy);
+	engine.display.draw_buffer(buffer, dx, dy);
 	return 0;
 }
 
@@ -702,8 +731,9 @@ static int mlua_reset_buffer(lua_State* L)
 {
 	assert(L);
 
+	Engine &engine = get_engine();
 	Buffer* buffer = pop_buffer(L, 1);
-	engine->display.reset_buffer(buffer);
+	engine.display.reset_buffer(buffer);
 	return 0;
 }
 
@@ -711,8 +741,9 @@ static int mlua_upload_and_free_buffer(lua_State* L)
 {
 	assert(L);
 
+	Engine &engine = get_engine();
 	Buffer* buffer = pop_buffer(L, 1);
-	engine->display.upload_and_free_buffer(buffer);
+	engine.display.upload_and_free_buffer(buffer);
 	return 0;
 }
 
@@ -721,8 +752,9 @@ static int mlua_free_buffer(lua_State* L)
 	assert(L);
 
 	DEBUG("");
+	Engine &engine = get_engine();
 	Buffer* buffer = pop_buffer(L, 1);
-	engine->display.free_buffer(buffer);
+	engine.display.free_buffer(buffer);
 	return 0;
 }
 
@@ -746,6 +778,8 @@ extern "C" {
 int luaopen_drystal(lua_State* L)
 {
 	assert(L);
+
+	Engine &engine = get_engine();
 
 #define EXPOSE_FUNCTION(name) {#name, mlua_##name}
 	static const luaL_Reg lib[] = {
@@ -822,7 +856,7 @@ int luaopen_drystal(lua_State* L)
 
 	{
 		// screen
-		Surface* screen = engine->display.get_screen();
+		Surface* screen = engine.display.get_screen();
 		if (screen)
 			push_surface(L, screen);
 		else
@@ -870,7 +904,7 @@ int luaopen_drystal(lua_State* L)
 	}
 
 	lua_pushvalue(L, -1);
-	engine->lua.drystal_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+	engine.lua.drystal_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 
 	lua_cjson_init();
 
