@@ -28,8 +28,6 @@ public:
 	LuaFunctions(const char *_filename);
 	~LuaFunctions();
 
-	void add_search_path(const char* path) const;
-
 	bool load_code();
 	bool reload_code();
 

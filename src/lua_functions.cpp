@@ -48,35 +48,6 @@ LuaFunctions::~LuaFunctions()
 	lua_close(L);
 }
 
-void LuaFunctions::add_search_path(const char* path) const
-{
-	assert(path);
-
-	bool add_slash = path[strlen(path) - 1] != '/';
-	// update path
-	lua_getglobal(L, "package");
-	lua_getfield(L, -1, "path");
-	lua_pushstring(L, ";");
-	lua_pushstring(L, path);
-	if (add_slash)
-		lua_pushstring(L, "/");
-	lua_pushstring(L, "?.lua");
-	lua_concat(L, 4 + add_slash);
-	lua_setfield(L, -2, "path");
-
-	// update cpath
-	lua_getfield(L, -1, "cpath");
-	lua_pushstring(L, ";");
-	lua_pushstring(L, path);
-	if (add_slash)
-		lua_pushstring(L, "/");
-	lua_pushstring(L, "?.so");
-	lua_concat(L, 4 + add_slash);
-	lua_setfield(L, -2, "cpath");
-
-	lua_pop(L, 1);
-}
-
 int traceback(lua_State *L)
 {
 	// from lua/src/lua.c

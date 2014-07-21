@@ -74,20 +74,13 @@ void loop()
 int main(int argc, const char* argv[])
 {
 	const char* filename = "main.lua";
-	const char* paths[8] = {NULL}; // 8 paths is enough, I guess
-	int num_paths = 0;
 	bool server_mode = false;
 
 	// handle arguments
 	{
 		int i;
-		const char* add_path_option = "--add-path=";
-		size_t size_add_path_option = strlen(add_path_option);
 		for (i = 1; i < argc; i++) {
-			if (!strncmp(argv[i], add_path_option, size_add_path_option)) {
-				paths[num_paths] = argv[i] + size_add_path_option;
-				num_paths += 1;
-			} else if (!strcmp(argv[i], "--server") || !strcmp(argv[i], "-s")) {
+			if (!strcmp(argv[i], "--server") || !strcmp(argv[i], "-s")) {
 				server_mode = true;
 			} else {
 				filename = argv[i];
@@ -98,17 +91,12 @@ int main(int argc, const char* argv[])
 	Engine e(filename, 60, server_mode);
 	engine = &e;
 
-	for (int i = 0; i < num_paths; i++) {
-		e.lua.add_search_path(paths[i]);
-	}
-
 #ifdef EMSCRIPTEN
 	const char* zipname = "game.zip";
 	emscripten_async_wget_data(zipname, (void*) zipname, on_zip_downloaded, on_zip_fail);
 	emscripten_set_main_loop(loop, 0, true);
 #else
 	signal(SIGUSR1, reload);
-	e.lua.add_search_path("/usr/share/drystal");
 
 	e.load();
 	e.loop();
