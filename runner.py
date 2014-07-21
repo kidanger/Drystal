@@ -7,6 +7,7 @@ import time
 import shutil
 import signal
 import fnmatch
+import zipfile
 import argparse
 import subprocess
 import configparser
@@ -32,7 +33,6 @@ EMSCRIPTEN_CMAKE_DEFINES = ['CMAKE_TOOLCHAIN_FILE=../cmake/Emscripten.cmake',
                             'EMSCRIPTEN_ROOT_PATH=' + EMSCRIPTEN_ROOT_PATH,
                             'EMSCRIPTEN=1',
                             'CMAKE_BUILD_TYPE=Release']
-PACKAGER = '/usr/lib/emscripten/tools/file_packager.py'
 COMPRESSOR = '/usr/lib/emscripten/third_party/lzma.js/lzma-native'
 DECOMPRESS_JS = '/usr/lib/emscripten/third_party/lzma.js/lzma-decoder.js'
 DECOMPRESS_NAME = 'LZMA.decompress'
@@ -46,8 +46,6 @@ BROWSERS = 'chromium', 'firefox'
 
 HAS_NINJA = subprocess.call(['which', 'ninja'], stdout=subprocess.DEVNULL) == 0
 COMPRESS_DATA = True
-
-DRYSTAL_LOAD_DATA = '<script async type="text/javascript" src="FILE"></script>'
 
 DECOMPRESS_CODE = '''
 <script type='text/javascript'>
@@ -76,9 +74,7 @@ decompressWorker.onmessage = function(event) {
 </script>
 '''
 
-# decompress will be used for data
-DRYSTAL_LOAD = DECOMPRESS_CODE + \
-    '<script type="text/javascript" src="drystal.js"></script>'
+DRYSTAL_LOAD = '<script type="text/javascript" src="drystal.js"></script>'
 
 DRYSTAL_LOAD_COMPRESSED = '''
 ''' + DECOMPRESS_CODE + '''
@@ -314,7 +310,7 @@ def prepare_drystaljs(destination, use_compress_drystal):
         execute([COMPRESSOR], stdin=srcjs, stdout=jscompressed)
 
 
-def package_data(path, compress, data_js, destination, config, verbose=False):
+def package_data(path, zipname, destination, config, verbose=False):
     files = []
 
     def collect(path, directory):
@@ -330,7 +326,7 @@ def package_data(path, compress, data_js, destination, config, verbose=False):
                 if config_include_file(config, directory, f):
                     if verbose:
                         print(G, '\t+ ', dest, N)
-                    files.append(full + '@/' + dest)
+                    files.append((full, dest))
                 else:
                     if verbose:
                         print(W, '\t~ ', dest, N)
@@ -343,17 +339,13 @@ def package_data(path, compress, data_js, destination, config, verbose=False):
         print(G, '- collecting files', N)
     collect(path, '')
 
-    fulldestjs = join(destination, data_js)
-    fulldest = fulldestjs.replace('.js', '')
-    compress_opt = compress and ['--compress', COMPRESSOR] or []
-    execute(['python2', PACKAGER, fulldest, '--no-heap-copy',
-             '--preload'] + files + compress_opt,
-            stdout=fulldestjs)
-    if compress:  # not sure why emscripten generate this
-        os.remove(fulldest)
+    zipfullpath = join(destination, zipname)
+    with zipfile.ZipFile(zipfullpath, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        for fullpath, destpath in files:
+            zipf.write(fullpath, destpath)
 
 
-def copy_and_modify_html(gamedir, data_js, destination, mainfile=None):
+def copy_and_modify_html(gamedir, zipname, destination, mainfile=None):
     use_compress_drystal = False
     mainfile = mainfile or 'main.lua'
     htmlfile = locate_recursively(os.path.abspath(gamedir), os.getcwd(),
@@ -363,8 +355,6 @@ def copy_and_modify_html(gamedir, data_js, destination, mainfile=None):
         sys.exit(1)
     print(G, '- copy', htmlfile, N)
     html = open(htmlfile, 'r').read()
-    html = html.replace('{{{DRYSTAL_LOAD_DATA}}}',
-                        DRYSTAL_LOAD_DATA.replace('FILE', data_js))
 
     if '{{{DRYSTAL_LOAD}}}' in html:
         html = html.replace('{{{DRYSTAL_LOAD}}}', DRYSTAL_LOAD)
@@ -373,13 +363,13 @@ def copy_and_modify_html(gamedir, data_js, destination, mainfile=None):
                             DRYSTAL_LOAD_COMPRESSED)
         use_compress_drystal = True
     html = html.replace('{{{DRYSTAL_ADD_ARGUMENTS}}}',
-                        DRYSTAL_ADD_ARGUMENTS.replace('ARGS', str([mainfile])))
+                        DRYSTAL_ADD_ARGUMENTS.replace('ARGS', str(['--zip=' + zipname, mainfile])))
     open(join(destination, 'index.html'), 'w').write(html)
     return use_compress_drystal
 
 
 def run_repack(args):
-    data_js = 'game.data.js'
+    zipname = 'game.zip'
     if not os.path.exists(args.destination):
         os.mkdir(args.destination)
 
@@ -392,7 +382,7 @@ def run_repack(args):
     cmake_update('build-web', EMSCRIPTEN_CMAKE_DEFINES)
 
     # copy html (and check which version of drystaljs is used
-    use_compress_drystal = copy_and_modify_html(directory, data_js,
+    use_compress_drystal = copy_and_modify_html(directory, zipname,
                                                 args.destination,
                                                 mainfile=file)
     # copy drystaljs and its data
@@ -400,7 +390,7 @@ def run_repack(args):
 
     # pack game data and copy wgot files
     config = load_config(directory)
-    package_data(directory, not args.no_compress, data_js, args.destination,
+    package_data(directory, zipname, args.destination,
                  config, args.show_include)
     copy_wget_files(directory, config, args.destination, args.show_include)
 
@@ -525,8 +515,6 @@ parser_web = subparsers.add_parser('web', help='run in a browser',
 parser_web.add_argument('PATH', help='<directory>[/filename.lua]',
                         type=valid_path)
 parser_web.set_defaults(func=run_web)
-parser_web.add_argument('-n', '--no-compress', help='don\'t compress datas',
-                        action='store_true', default=False)
 parser_web.add_argument('-i', '--show-include', help='show files that are (not) included',
                         action='store_true', default=False)
 parser_web.add_argument('-d', '--destination', help='folder where web files will be put',
@@ -537,8 +525,6 @@ parser_repack = subparsers.add_parser('repack', help='repack',
 parser_repack.add_argument('PATH', help='<directory>[/filename.lua]',
                            type=valid_path)
 parser_repack.set_defaults(func=run_repack)
-parser_repack.add_argument('-n', '--no-compress', help='don\'t compress data',
-                           action='store_true', default=False)
 parser_repack.add_argument('-i', '--show-include', help='show files that are (not) included',
                         action='store_true', default=False)
 parser_repack.add_argument('-d', '--destination', help='folder where web files will be put',

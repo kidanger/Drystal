@@ -18,6 +18,7 @@
 #ifndef EMSCRIPTEN
 #include <signal.h>
 #else
+#include <string>
 #include <cstdio>
 #include <emscripten.h>
 #include <sys/stat.h>
@@ -28,12 +29,17 @@
 
 Engine* engine;
 
-#ifndef EMSCRIPTEN
-void reload(int)
+#ifdef EMSCRIPTEN
+void mkpath(const char* path)
 {
-	engine->lua.reload_code();
+	char filepath[strlen(path) + 1];
+	strcpy(filepath, path);
+	for (char* p = strchr(filepath + 1, '/'); p; p = strchr(p + 1, '/')) {
+		*p = '\0';
+		mkdir(filepath, 0777);
+		*p = '/';
+	}
 }
-#else
 void on_zip_downloaded(void* userdata, void* buffer, int size)
 {
 	mz_zip_archive za;
@@ -47,9 +53,8 @@ void on_zip_downloaded(void* userdata, void* buffer, int size)
 		mz_zip_reader_file_stat(&za, i, &file_stat);
 		const char* filename = file_stat.m_filename;
 
-		if (mz_zip_reader_is_file_a_directory(&za, i)) {
-			mkdir(filename, 0777);
-		} else {
+		if (!mz_zip_reader_is_file_a_directory(&za, i)) {
+			mkpath(filename);
 			mz_zip_reader_extract_to_file(&za, i, filename, 0);
 		}
 	}
@@ -69,39 +74,56 @@ void loop()
 		engine->update();
 	}
 }
-#endif
+
+int main(int argc, const char* argv[])
+{
+	const char* filename = "main.lua";
+	const char* zipname = "game.zip";
+
+	int ziplen = strlen("--zip=");
+	for (int i = 1; i < argc; i++) {
+		if (!strncmp(argv[i], "--zip=", ziplen)) {
+			zipname = argv[i] + ziplen;
+		} else {
+			filename = argv[i];
+		}
+	}
+
+	Engine e(filename, 60, false);
+	engine = &e;
+
+	emscripten_async_wget_data(zipname, (void*) zipname, on_zip_downloaded, on_zip_fail);
+	emscripten_set_main_loop(loop, 0, true);
+
+	return 0;
+}
+#else
+void reload(int)
+{
+	engine->lua.reload_code();
+}
 
 int main(int argc, const char* argv[])
 {
 	const char* filename = "main.lua";
 	bool server_mode = false;
 
-	// handle arguments
-	{
-		int i;
-		for (i = 1; i < argc; i++) {
-			if (!strcmp(argv[i], "--server") || !strcmp(argv[i], "-s")) {
-				server_mode = true;
-			} else {
-				filename = argv[i];
-			}
+	for (int i = 1; i < argc; i++) {
+		if (!strcmp(argv[i], "--server") || !strcmp(argv[i], "-s")) {
+			server_mode = true;
+		} else {
+			filename = argv[i];
 		}
 	}
 
 	Engine e(filename, 60, server_mode);
 	engine = &e;
-
-#ifdef EMSCRIPTEN
-	const char* zipname = "game.zip";
-	emscripten_async_wget_data(zipname, (void*) zipname, on_zip_downloaded, on_zip_fail);
-	emscripten_set_main_loop(loop, 0, true);
-#else
 	signal(SIGUSR1, reload);
 
 	e.load();
 	e.loop();
-#endif
 
 	return 0;
 }
+#endif
 
