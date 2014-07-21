@@ -16,6 +16,7 @@
  */
 #include "stats.hpp"
 #include "engine.hpp"
+#include "display.hpp"
 
 Stats::Stats()
 	: started_at(0),

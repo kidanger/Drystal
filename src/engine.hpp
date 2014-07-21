@@ -16,10 +16,10 @@
  */
 #pragma once
 
+#include <lua.hpp>
+
 #include "display.hpp"
 #include "lua_functions.hpp"
-
-struct lua_State;
 
 class Engine
 {

@@ -19,6 +19,7 @@
 #include <cstdio>
 #include <cassert>
 #include <map>
+#include <utility> // std::pair
 
 #include "parser.hpp"
 

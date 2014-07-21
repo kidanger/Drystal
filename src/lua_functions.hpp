@@ -16,11 +16,8 @@
  */
 #pragma once
 
-#ifndef EMSCRIPTEN
-#include <ctime>
-#endif
-
-struct lua_State;
+#include <cassert>
+#include <lua.hpp>
 
 class LuaFunctions
 {

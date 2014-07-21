@@ -19,8 +19,6 @@
 #define STATS
 
 #ifdef STATS
-#include <cstdio>
-
 #include "engine.hpp"
 
 class Stats

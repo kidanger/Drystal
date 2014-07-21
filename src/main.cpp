@@ -14,10 +14,11 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <string.h>
+#include <cstring>
 #ifndef EMSCRIPTEN
 #include <signal.h>
 #else
+#include <cstdio>
 #include <emscripten.h>
 #include <sys/stat.h>
 #include <miniz.h>

@@ -15,9 +15,8 @@
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <cstring>
-#include <lua.hpp>
 #include <sys/time.h>
-#include <iostream>
+#include <cstdio>
 
 #ifndef EMSCRIPTEN
 #include <SDL2/SDL.h> // SDL_Delay

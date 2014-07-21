@@ -14,14 +14,11 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <cstring>
-#include <string>
 #include <cassert>
-
 #include <lua.hpp>
-#include "engine.hpp"
-#include "lua_functions.hpp"
+
 #include "api.hpp"
+#include "lua_functions.hpp"
 
 extern "C" {
 	extern int json_encode(lua_State* L);
@@ -32,6 +29,7 @@ extern "C" {
 #ifdef EMSCRIPTEN
 
 #include <emscripten.h>
+#include <string>
 
 const char* fetch(const char* key)
 {
@@ -62,6 +60,8 @@ void store(const char* key, const char* value)
 }
 
 #else
+#include <cstdio>
+#include <cstring>
 
 static char data[1024] = {0};
 

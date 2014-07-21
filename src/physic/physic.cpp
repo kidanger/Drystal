@@ -15,9 +15,11 @@
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <lua.hpp>
+#include <cassert>
+#include <cstring>
 
-#include "engine.hpp"
 #include "api.hpp"
+#include "lua_functions.hpp"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
