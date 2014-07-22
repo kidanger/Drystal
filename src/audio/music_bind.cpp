@@ -21,6 +21,8 @@
 #include "music_bind.hpp"
 #include "music.hpp"
 
+log_category("music");
+
 DECLARE_PUSHPOP(Music, music)
 
 class LuaMusicCallback : public MusicCallback
@@ -118,7 +120,7 @@ int mlua_free_music(lua_State *L)
 {
 	assert(L);
 
-	DEBUG("");
+	log_debug("");
 	Music* music = pop_music(L, 1);
 	music->free();
 	return 0;

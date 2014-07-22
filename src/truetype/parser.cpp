@@ -23,6 +23,9 @@
 
 #include "parser.hpp"
 #include "macro.hpp"
+#include "log.hpp"
+
+log_category("font");
 
 #define MAX_STATES 16
 TextState g_states[MAX_STATES];
@@ -201,7 +204,7 @@ static void evaluate(TextState* state, const char* text)
 	if (func) {
 		func(text + strlen(command), state);
 	} else {
-		printf("(unknown command \"%s\")\n", command);
+		log_error("unknown command \"%s\"", command);
 	}
 }
 

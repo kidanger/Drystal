@@ -18,8 +18,11 @@
 
 #include <wavloader.c>
 
+#include "log.hpp"
 #include "audio.hpp"
 #include "sound.hpp"
+
+log_category("sound");
 
 Sound* Sound::load_from_file(const char *filepath)
 {

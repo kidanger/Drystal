@@ -29,6 +29,9 @@
 #include "server.hpp"
 #include "socket.hpp"
 #include "macro.hpp"
+#include "log.hpp"
+
+log_category("net");
 
 void Server::listen(int port) {
 	assert(port >= 0 && port < 65536);
@@ -45,7 +48,7 @@ void Server::listen(int port) {
 	servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	servaddr.sin_port = htons(port);
 	if (bind(fd, (struct sockaddr *)&servaddr, sizeof(servaddr)) != 0) {
-		perror("bind");
+		log_error("bind: %s", strerror(errno));
 	}
 
 	::listen(fd, 1024);

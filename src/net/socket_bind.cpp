@@ -22,6 +22,9 @@
 #include "lua_functions.hpp"
 #include "socket.hpp"
 #include "socket_bind.hpp"
+#include "log.hpp"
+
+log_category("net");
 
 DECLARE_PUSHPOP(Socket, socket)
 

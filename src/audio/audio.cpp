@@ -15,7 +15,6 @@
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <cstddef>
-#include <cstdio>
 #include <AL/al.h>
 #include <AL/alc.h>
 
@@ -23,6 +22,8 @@
 #include "music.hpp"
 #include "sound.hpp"
 #include "audio.hpp"
+
+log_category("audio");
 
 #define NUM_SOURCES 16
 
@@ -38,18 +39,18 @@ static bool init_audio()
 {
 	device = alcOpenDevice(NULL);
 	if (!device) {
-		fprintf(stderr, "cannot open device\n");
+		log_error("Cannot open device");
 		return false;
 	}
 
 	context = alcCreateContext(device, NULL);
 	if (!context) {
-		fprintf(stderr, "cannot create context\n");
+		log_error("Cannot create context");
 		return false;
 	}
 
 	if (!alcMakeContextCurrent(context)) {
-		fprintf(stderr, "cannot make context\n");
+		log_error("Cannot make context");
 		return false;
 	}
 
@@ -116,10 +117,11 @@ Source* get_free_source()
 			return &sources[i];
 		}
 	}
-	fprintf(stderr, "no more source available\n");
+	log_error("No more source available");
 	return NULL;
 }
 
+#ifdef DODEBUG
 const char* getAlError(ALint error)
 {
 #define casereturn(x) case x: return #x
@@ -135,6 +137,7 @@ const char* getAlError(ALint error)
 #undef casereturn
 	return "";
 }
+#endif
 
 void set_music_volume(float volume)
 {

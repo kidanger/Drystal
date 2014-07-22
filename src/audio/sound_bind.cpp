@@ -21,6 +21,8 @@
 #include "sound_bind.hpp"
 #include "sound.hpp"
 
+log_category("sound");
+
 DECLARE_PUSHPOP(Sound, sound)
 
 int mlua_load_sound(lua_State *L)
@@ -110,7 +112,7 @@ int mlua_free_sound(lua_State *L)
 {
 	assert(L);
 
-	DEBUG("");
+	log_debug("");
 	Sound* sound = pop_sound(L, 1);
 	sound->free();
 	return 0;

@@ -34,6 +34,8 @@
 #include "web/api.hpp"
 #include "storage/api.hpp"
 
+log_category("lua");
+
 static int luaopen_drystal(lua_State*); // defined at the end of this file
 
 DECLARE_PUSHPOP(Shader, shader)
@@ -89,7 +91,7 @@ bool LuaFunctions::get_function(const char* name) const
 
 void LuaFunctions::remove_userpackages() const
 {
-	printf("Removing old packages: ");
+	log_info("Removing old packages: ");
 	const char* kept[] = {
 		"_G",
 		LUA_COLIBNAME,
@@ -114,12 +116,11 @@ void LuaFunctions::remove_userpackages() const
 		}
 		if (remove) {
 			lua_pushnil(L);
-			printf("%s ", name);
+			log_info("    Removed %s", name);
 			lua_setfield(L, -4, name);
 		}
 		lua_pop(L, 1);
 	}
-	printf("\n");
 }
 
 bool LuaFunctions::load_code()
@@ -133,14 +134,14 @@ bool LuaFunctions::load_code()
 		lua_pop(L, 1);  /* remove lib */
 
 		if (!load_luafiles(L)) {
-			fprintf(stderr, "[ERROR] cannot run script: %s\n", lua_tostring(L, -1));
+			log_error("Cannot run script: %s", lua_tostring(L, -1));
 			lua_pop(L, 2);
 			return false;
 		}
 	}
 
 	if (luaL_loadfile(L, filename) || lua_pcall(L, 0, 0, -2)) {
-		fprintf(stderr, "[ERROR] cannot run script: %s\n", lua_tostring(L, -1));
+		log_error("Cannot run script: %s", lua_tostring(L, -1));
 		lua_pop(L, 2);
 		return false;
 	}
@@ -157,7 +158,7 @@ bool LuaFunctions::reload_code()
 	}
 	remove_userpackages();
 
-	printf("Reloading code...\n");
+	log_info("Reloading code...");
 	bool ok = load_code() && call_init();
 	if (ok) {
 		if (get_function("postreload")) {
@@ -422,7 +423,7 @@ static int mlua_free_surface(lua_State* L)
 {
 	assert(L);
 
-	DEBUG("");
+	log_debug("");
 	Engine &engine = get_engine();
 	Surface* surface = pop_surface(L, 1);
 	engine.display.free_surface(surface);
@@ -640,7 +641,7 @@ static int mlua_free_shader(lua_State* L)
 {
 	assert(L);
 
-	DEBUG("");
+	log_debug("");
 	Engine &engine = get_engine();
 	Shader* shader = pop_shader(L, 1);
 	engine.display.free_shader(shader);
@@ -717,7 +718,7 @@ static int mlua_free_buffer(lua_State* L)
 {
 	assert(L);
 
-	DEBUG("");
+	log_debug("");
 	Engine &engine = get_engine();
 	Buffer* buffer = pop_buffer(L, 1);
 	engine.display.free_buffer(buffer);

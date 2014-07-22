@@ -30,6 +30,9 @@
 
 #include "macro.hpp"
 #include "socket.hpp"
+#include "log.hpp"
+
+log_category("net");
 
 Socket::Socket(int fd, const char* address, ws_ctx_t* ctx):
 	fd(fd),
@@ -63,7 +66,7 @@ Socket* Socket::connect(const char* hostname, int port) {
 	serv_addr.sin_port = htons(port);
 	if (::connect(fd, (const struct sockaddr*) &serv_addr, sizeof(serv_addr)) != -1
 			&& errno != EINPROGRESS) {
-		perror("connect");
+		log_error("connect: %s", strerror(errno));
 		return NULL;
 	}
 
@@ -111,6 +114,7 @@ void Socket::flush(bool* error) {
 }
 
 int Socket::receive(char* buffer, int capacity, bool* error) {
+	assert(buffer);
 	assert(error);
 
 	if (!readyToRead()) {
@@ -123,8 +127,9 @@ int Socket::receive(char* buffer, int capacity, bool* error) {
 	} else {
 		n = recv(fd, buffer, capacity, 0);
 	}
-	if (n)
-		printf("received %s %d\n\n", buffer, n);
+	if (n) {
+		log_debug("received %s %d", buffer, n);
+	}
 
 	if (n == -1) {
 #ifdef EMSCRIPTEN

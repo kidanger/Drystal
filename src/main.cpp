@@ -15,6 +15,7 @@
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <cstring>
+#include <errno.h>
 #include <cstdio>
 #ifndef EMSCRIPTEN
 #include <signal.h>
@@ -26,6 +27,9 @@
 #endif
 
 #include "engine.hpp"
+#include "log.hpp"
+
+log_category("main");
 
 Engine* engine;
 
@@ -44,13 +48,16 @@ static void on_zip_downloaded(void* userdata, void* buffer, int size)
 {
 	mz_zip_archive za;
 	if (!mz_zip_reader_init_mem(&za, buffer, size, 0)) {
-		printf("mz_zip_reader_init_file() failed!\n");
+		log_error("Cannot unzip game files: invalid archive");
 		return;
 	}
 
 	for (int i = 0; i < mz_zip_reader_get_num_files(&za); i++) {
 		mz_zip_archive_file_stat file_stat;
-		mz_zip_reader_file_stat(&za, i, &file_stat);
+		if (!mz_zip_reader_file_stat(&za, i, &file_stat)) {
+			log_error("Cannot unzip game files");
+			break;
+		}
 		const char* filename = file_stat.m_filename;
 
 		if (!mz_zip_reader_is_file_a_directory(&za, i)) {
@@ -64,7 +71,7 @@ static void on_zip_downloaded(void* userdata, void* buffer, int size)
 
 static void on_zip_fail(void* userdata)
 {
-	printf("Unable to download %s.\n", userdata);
+	log_error("Unable to download %s", (char *) userdata);
 	engine->load(); // load anyway (as long as old method still work)
 }
 
@@ -124,7 +131,7 @@ int main(int argc, const char* argv[])
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = 0;
 	if (sigaction(SIGUSR1, &sa, NULL) == -1) {
-		perror("sigaction");
+		log_error("Cannot enable livecoding, sigaction: %s", strerror(errno));
 	}
 
 	e.load();

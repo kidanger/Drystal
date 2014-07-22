@@ -16,7 +16,6 @@
  */
 #include <cstring>
 #include <sys/time.h>
-#include <cstdio>
 
 #ifndef EMSCRIPTEN
 #include <SDL2/SDL.h> // SDL_Delay
@@ -32,6 +31,8 @@
 #ifdef EMSCRIPTEN
 #include "emscripten.h"
 #endif
+
+log_category("engine");
 
 // needed for get_engine
 static Engine *engine;
@@ -71,7 +72,7 @@ Engine::~Engine()
 void Engine::load()
 {
 	if (!display.is_available()) {
-		fprintf(stderr, "[ERROR] cannot run the engine, display isn't available\n");
+		log_error("Cannot run the engine, display is not available");
 		return;
 	}
 

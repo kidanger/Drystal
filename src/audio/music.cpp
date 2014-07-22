@@ -19,8 +19,11 @@
 #define STB_VORBIS_HEADER_ONLY
 #include <stb_vorbis.c>
 
+#include "log.hpp"
 #include "audio.hpp"
 #include "music.hpp"
+
+log_category("music");
 
 Music::Music(MusicCallback* clb, ALenum format, int rate) :
 	source(NULL),

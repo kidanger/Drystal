@@ -18,6 +18,8 @@
 
 #include <AL/al.h>
 
+#include "log.hpp"
+
 #define DEFAULT_SAMPLES_RATE 44100
 
 class Sound;
@@ -34,13 +36,17 @@ struct Source {
 	float desiredVolume;
 };
 
+#ifdef DODEBUG
 const char* getAlError(ALint error);
 #define audio_check_error() do { \
 		ALint error; \
 		while ((error = alGetError()) != AL_NO_ERROR) { \
-			fprintf(stderr, "[ALerr] %s:%d %s\n", __func__, __LINE__, getAlError(error)); \
+			log_debug("[ALerr] %s", getAlError(error)); \
 		} \
 	} while (false)
+#else
+#define audio_check_error()
+#endif
 
 bool initialise_if_needed();
 void update_audio(float dt);

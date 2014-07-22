@@ -22,7 +22,6 @@
 
 #define GL_VERTEX_PROGRAM_POINT_SIZE 0x8642
 
-#include <cstdio>
 #include <cassert>
 #include <cstring>
 #include <cmath>
@@ -39,6 +38,7 @@
 
 #include "log.hpp"
 
+log_category("display");
 
 #define STRINGIZE(x) #x
 #define STRINGIZE2(x) STRINGIZE(x)
@@ -131,7 +131,7 @@ Display::Display(bool server_mode) :
 	}
 	int err = SDL_Init(SDL_INIT_VIDEO);
 	if (err) {
-		fprintf(stderr, "[ERROR] cannot initialize SDL\n");
+		log_error("Cannot initialize SDL");
 		return;
 	}
 	// create the window in the constructor
@@ -791,7 +791,7 @@ Shader * Display::create_default_shader()
 	char* error;
 	Shader* shader = new_shader(strvert, strfragcolor, strfragtex, &error);
 	if (!shader) {
-		printf("Error compiling default shader:\n%s\n", error);
+		log_error("Failed to compile default shader: %s", error);
 		delete[] error;
 	}
 	return shader;
@@ -941,7 +941,7 @@ void Display::feed_shader(Shader* shader, const char* name, float value)
 	}
 
 	if (locTex < 0 && locColor < 0) {
-		printf("No location for %s.\n", name);
+		log_warning("Cannot feed shader: no location for %s", name);
 	}
 
 	glUseProgram(prog);
