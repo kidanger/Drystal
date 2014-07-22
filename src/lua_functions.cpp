@@ -346,16 +346,9 @@ static int mlua_resize(lua_State* L)
 	Engine &engine = get_engine();
 	engine.display.resize(w, h);
 
-	// update screen
-	lua_rawgeti(L, LUA_REGISTRYINDEX, engine.lua.drystal_table_ref);
-	Surface* screen = engine.display.get_screen();
-	if (screen)
-		push_surface(L, screen);
-	else
-		lua_pushnil(L);
-	lua_setfield(L, -2, "screen");
-	lua_pop(L, 1);
-
+	// make sure we don't free the screen until the next resize
+	push_surface(L, engine.display.get_screen());
+	lua_setfield(L, LUA_REGISTRYINDEX, "screen");
 	return 0;
 }
 
@@ -723,6 +716,35 @@ static int mlua_free_buffer(lua_State* L)
 	return 0;
 }
 
+static int mlua_drystal_index(lua_State* L)
+{
+	assert(L);
+
+	DEBUG("");
+	Engine &engine = get_engine();
+	const char * name = luaL_checkstring(L, 2);
+	if (!strcmp(name, "screen")) {
+		Surface* surf = engine.display.get_screen();
+		if (surf) {
+			push_surface(L, surf);
+			return 1;
+		}
+	} else if (!strcmp(name, "current_draw_on")) {
+		Surface* surf = engine.display.get_draw_on();
+		if (surf) {
+			push_surface(L, surf);
+			return 1;
+		}
+	} else if (!strcmp(name, "current_draw_from")) {
+		Surface* surf = engine.display.get_draw_from();
+		if (surf) {
+			push_surface(L, surf);
+			return 1;
+		}
+	}
+	return 0;
+}
+
 void LuaFunctions::register_modules()
 {
 	REGISTER_MODULE(audio, L);
@@ -806,6 +828,11 @@ int luaopen_drystal(lua_State* L)
 
 	luaL_newlib(L, lib);
 
+	luaL_newmetatable(L, "_drystal");
+	lua_pushcfunction(L, mlua_drystal_index);
+	lua_setfield(L, -2, "__index");
+	lua_setmetatable(L, -2);
+
 	BEGIN_CLASS(surface)
 	ADD_METHOD(surface, draw_on)
 	ADD_METHOD(surface, draw_from)
@@ -828,15 +855,10 @@ int luaopen_drystal(lua_State* L)
 	REGISTER_CLASS(shader, "__Shader")
 
 	{
-		// screen
-		Surface* screen = engine.display.get_screen();
-		if (screen)
-			push_surface(L, screen);
-		else
-			lua_pushnil(L);
-		lua_setfield(L, -2, "screen");
+		// make sure we don't free the screen until the next resize
+		push_surface(L, engine.display.get_screen());
+		lua_setfield(L, LUA_REGISTRYINDEX, "screen");
 	}
-
 	{
 		// blend modes
 		lua_pushnumber(L, DEFAULT);
