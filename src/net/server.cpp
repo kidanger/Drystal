@@ -30,9 +30,6 @@
 #include "server.hpp"
 #include "socket.hpp"
 
-int (*_accept)(int, struct sockaddr*, socklen_t*) = accept;
-int (*_listen)(int, int) = listen;
-
 void Server::listen(int port) {
 	assert(port >= 0 && port < 65536);
 
@@ -51,7 +48,7 @@ void Server::listen(int port) {
 		perror("bind");
 	}
 
-	_listen(fd, 1024);
+	::listen(fd, 1024);
 }
 
 Socket* Server::accept(float timeout, float* time) {
@@ -66,7 +63,7 @@ Socket* Server::accept(float timeout, float* time) {
 	}
 
 	clilen = sizeof(cliaddr);
-	sockfd = _accept(fd, (struct sockaddr *)&cliaddr, &clilen);
+	sockfd = ::accept(fd, (struct sockaddr *)&cliaddr, &clilen);
 
 	if (sockfd) {
 		char address[512];

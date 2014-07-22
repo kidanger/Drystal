@@ -31,9 +31,6 @@
 #include "macro.hpp"
 #include "socket.hpp"
 
-int (*_connect)(int, const struct sockaddr*, socklen_t) = connect;
-ssize_t (*_send)(int, const void*, size_t, int) = send;
-
 Socket::Socket(int fd, const char* address, ws_ctx_t* ctx):
 	fd(fd),
 	tableref(LUA_REFNIL),
@@ -64,7 +61,7 @@ Socket* Socket::connect(const char* hostname, int port) {
 	serv_addr.sin_family = AF_INET;
 	memcpy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
 	serv_addr.sin_port = htons(port);
-	if (_connect(fd, (const struct sockaddr*) &serv_addr, sizeof(serv_addr)) != -1
+	if (::connect(fd, (const struct sockaddr*) &serv_addr, sizeof(serv_addr)) != -1
 			&& errno != EINPROGRESS) {
 		perror("connect");
 		return NULL;
@@ -94,7 +91,7 @@ void Socket::flush(bool* error) {
 	if (wsctx) {
 		n = ws_send(wsctx, output.c_str(), totallen);
 	} else {
-		n = _send(fd, output.c_str(), totallen, 0);
+		n = ::send(fd, output.c_str(), totallen, 0);
 	}
 
 	if (n < 0) {
