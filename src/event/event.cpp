@@ -23,6 +23,7 @@
 #include <map>
 #include <lua.hpp>
 
+#include "macro.hpp"
 #include "engine.hpp"
 #include "lua_functions.hpp"
 #include "event.hpp"
@@ -164,10 +165,9 @@ static int initKeys()
 	keynames[SDLK_MODE] = "alt gr";
 	return 0;
 }
-int unused = initKeys();
+static _unused_ int unused = initKeys();
 
-
-const char * mySDL_GetKeyName(SDL_Keycode key)
+static const char * mySDL_GetKeyName(SDL_Keycode key)
 {
 	const char *keyname;
 

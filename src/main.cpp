@@ -30,7 +30,7 @@
 Engine* engine;
 
 #ifdef EMSCRIPTEN
-void mkpath(const char* path)
+static void mkpath(const char* path)
 {
 	char filepath[strlen(path) + 1];
 	strcpy(filepath, path);
@@ -40,7 +40,7 @@ void mkpath(const char* path)
 		*p = '/';
 	}
 }
-void on_zip_downloaded(void* userdata, void* buffer, int size)
+static void on_zip_downloaded(void* userdata, void* buffer, int size)
 {
 	mz_zip_archive za;
 	if (!mz_zip_reader_init_mem(&za, buffer, size, 0)) {
@@ -62,13 +62,13 @@ void on_zip_downloaded(void* userdata, void* buffer, int size)
 	engine->load();
 }
 
-void on_zip_fail(void* userdata)
+static void on_zip_fail(void* userdata)
 {
 	printf("Unable to download %s.\n", userdata);
 	engine->load(); // load anyway (as long as old method still work)
 }
 
-void loop()
+static void loop()
 {
 	if (engine->is_loaded()) {
 		engine->update();
@@ -98,7 +98,7 @@ int main(int argc, const char* argv[])
 	return 0;
 }
 #else
-void reload(int)
+static void reload(int)
 {
 	engine->lua.reload_code();
 }

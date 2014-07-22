@@ -31,7 +31,7 @@ extern "C" {
 #include <emscripten.h>
 #include <string>
 
-const char* fetch(const char* key)
+static const char* fetch(const char* key)
 {
 	assert(key);
 
@@ -44,7 +44,7 @@ const char* fetch(const char* key)
 	return value;
 }
 
-void store(const char* key, const char* value)
+static void store(const char* key, const char* value)
 {
 	assert(key);
 	assert(value);
@@ -67,7 +67,7 @@ void store(const char* key, const char* value)
 
 static char data[1024] = {0};
 
-const char* fetch(_unused_ const char* key)
+static const char* fetch(_unused_ const char* key)
 {
 	FILE* file = fopen(".storage", "r");
 	if (file == NULL)
@@ -77,7 +77,7 @@ const char* fetch(_unused_ const char* key)
 	return data;
 }
 
-void store(_unused_ const char* key, const char* value)
+static void store(_unused_ const char* key, const char* value)
 {
 	assert(value);
 
