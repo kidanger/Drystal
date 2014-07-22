@@ -30,7 +30,7 @@
 static int luaopen_drystal(lua_State*); // defined at the end of this file
 
 DECLARE_PUSHPOP(Shader, shader)
-DECLARE_PUSHPOP(Surface, surface)
+DECLARE_PUSHPOP2(Surface, surface)
 DECLARE_PUSHPOP(Buffer, buffer)
 
 LuaFunctions::LuaFunctions(const char *_filename) :
@@ -166,7 +166,6 @@ bool LuaFunctions::call_init() const
 	}
 	return true;
 }
-
 
 void LuaFunctions::call_update(float dt) const
 {
@@ -400,8 +399,6 @@ static int mlua_load_surface(lua_State* L)
 	Surface* surface = engine.display.load_surface(filename);
 	if (surface) {
 		push_surface(L, surface);
-		lua_pushvalue(L, -1);
-		surface->ref = luaL_ref(L, LUA_REGISTRYINDEX);
 		return 1;
 	}
 	return luaL_fileresult(L, 0, filename);
@@ -417,9 +414,6 @@ static int mlua_new_surface(lua_State* L)
 	bool force_npot = lua_toboolean(L, 3);
 	Surface* surface = engine.display.new_surface(w, h, force_npot);
 	push_surface(L, surface);
-
-	lua_pushvalue(L, -1);
-	surface->ref = luaL_ref(L, LUA_REGISTRYINDEX);
 	return 1;
 }
 
@@ -444,7 +438,7 @@ static int mlua_draw_on(lua_State* L)
 	engine.display.draw_on(surface);
 
 	if (old) {
-		lua_rawgeti(L, LUA_REGISTRYINDEX, old->ref);
+		push_surface(L, surface);
 		return 1;
 	}
 	return 0;
@@ -461,7 +455,7 @@ static int mlua_draw_from(lua_State* L)
 	engine.display.draw_from(surface);
 
 	if (old) {
-		lua_rawgeti(L, LUA_REGISTRYINDEX, old->ref);
+		push_surface(L, surface);
 		return 1;
 	}
 	return 0;
@@ -752,6 +746,13 @@ int luaopen_drystal(lua_State* L)
 	assert(L);
 
 	Engine &engine = get_engine();
+
+	lua_newtable(L);
+	luaL_newmetatable(L, "__objects");
+	lua_pushstring(L, "v");
+	lua_setfield(L, -2, "__mode");
+	lua_setmetatable(L, -2);
+	lua_setfield(L, LUA_REGISTRYINDEX, "objects");
 
 #define EXPOSE_FUNCTION(name) {#name, mlua_##name}
 	static const luaL_Reg lib[] = {

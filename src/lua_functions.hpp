@@ -63,15 +63,35 @@ private:
 	static T *pop_ ## name(lua_State *L, int index) \
 	{ \
 		assert(L); \
-		luaL_checktype(L, index, LUA_TUSERDATA); \
 		T **p = static_cast<T **>(luaL_checkudata(L, index, #name)); \
 		if (p == NULL) luaL_argerror(L, index, #name" expected"); \
-		assert(p); \
 		return *p; \
+	}
+
+#define DECLARE_PUSH2(T, name) \
+	static void push_ ## name(lua_State *L, T *name) \
+	{ \
+		assert(L); \
+		assert(name); \
+		lua_getfield(L, LUA_REGISTRYINDEX, "objects"); \
+		if (name->ref) { \
+			lua_rawgeti(L, -1, name->ref); \
+		} else { \
+			T **p = static_cast<T **>(lua_newuserdata(L, sizeof(T **))); \
+			*p = name; \
+			luaL_getmetatable(L, #name); \
+			lua_setmetatable(L, -2); \
+			lua_pushvalue(L, -1); \
+			name->ref = luaL_ref(L, -3); \
+		} \
+		lua_remove(L, lua_gettop(L) - 1); \
 	}
 
 #define DECLARE_PUSHPOP(T, name) \
 	DECLARE_PUSH(T, name) \
+	DECLARE_POP(T, name)
+#define DECLARE_PUSHPOP2(T, name) \
+	DECLARE_PUSH2(T, name) \
 	DECLARE_POP(T, name)
 
 extern int traceback(lua_State *L);
