@@ -14,25 +14,29 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
 
-#include <cmath>
+#include "system.hpp"
 
-#include "particle.hpp"
+class Particle {
+public:
+	bool dead;
 
-void Particle::update(System& sys, float dt)
-{
-	life -= dt;
+	float x, y;
+	float vel;
+	float accel;
+	float dir_angle;
 
-	vel += accel * dt;
-	x += vel * cos(dir_angle) * dt;
-	y += vel * sin(dir_angle) * dt;
+	float life, lifetime;
 
-	float liferatio = 1 - life / lifetime;
-	if (liferatio > sys.sizes[size_state + 1].at and size_state < sys.cur_size) {
-		size_state += 1;
-	}
-	if (liferatio > sys.colors[color_state + 1].at and color_state < sys.cur_color) {
-		color_state += 1;
-	}
-}
+	int size_state;
+	float sizeseed;
+
+	int color_state;
+	float rseed;
+	float gseed;
+	float bseed;
+
+	void update(System& sys, float dt);
+};
 

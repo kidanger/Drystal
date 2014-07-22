@@ -1,4 +1,5 @@
 #include "module.hpp"
+#include "system_bind.hpp"
 
 BEGIN_MODULE(particle)
 	DECLARE_FUNCTION(new_system)
