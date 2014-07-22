@@ -83,6 +83,7 @@ endif()
 ### STB
 ###
 add_library(stb_vorbis STATIC stb_vorbis.c)
+set_target_properties(stb_vorbis PROPERTIES COMPILE_DEFINITIONS "STB_VORBIS_NO_PUSHDATA_API")
 
 #add_library(stb_image STATIC stb_image.c)
 #set_target_properties(stb_image PROPERTIES COMPILE_DEFINITIONS "STB_IMAGE_IMPLEMENTATION")
