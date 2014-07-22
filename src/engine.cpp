@@ -122,7 +122,7 @@ void Engine::update()
 	if (!run)
 		return;
 
-	float dt = (get_now() - last_update) /(float) USEC_PER_SEC;
+	float dt = (get_now() - last_update) / (float) USEC_PER_SEC;
 	last_update = get_now();
 
 	update_audio(dt);

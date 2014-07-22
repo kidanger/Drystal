@@ -544,7 +544,7 @@ static int mlua_draw_surface(lua_State* L)
 	lua_Number o5 = luaL_checknumber(L, 11);
 	lua_Number o6 = luaL_checknumber(L, 12);
 	engine.display.draw_surface(i1, i2, i3, i4, i5, i6,
-	                             o1, o2, o3, o4, o5, o6);
+	                            o1, o2, o3, o4, o5, o6);
 	return 0;
 }
 
@@ -570,7 +570,7 @@ static int mlua_draw_quad(lua_State* L)
 	lua_Number o7 = luaL_checknumber(L, 15);
 	lua_Number o8 = luaL_checknumber(L, 16);
 	engine.display.draw_quad(i1, i2, i3, i4, i5, i6, i7, i8,
-	                          o1, o2, o3, o4, o5, o6, o7, o8);
+	                         o1, o2, o3, o4, o5, o6, o7, o8);
 	return 0;
 }
 

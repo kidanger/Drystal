@@ -44,7 +44,10 @@ public:
 	void load();
 	void loop();
 	void update();
-	bool is_loaded() const { return loaded; }
+	bool is_loaded() const
+	{
+		return loaded;
+	}
 
 	void toggle_update();
 	void toggle_draw();

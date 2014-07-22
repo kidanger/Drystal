@@ -119,7 +119,7 @@ Display::Display(bool server_mode) :
 	r(1),
 	g(1),
 	b(1),
-	alpha( 1),
+	alpha(1),
 	camera(),
 	point_size(1),
 	available(false),
@@ -186,8 +186,8 @@ void Display::resize(int w, int h)
 	SDL_GetWindowPosition(sdl_window, &posx, &posy);
 	SDL_SetWindowSize(sdl_window, w, h); // resize
 	SDL_SetWindowPosition(sdl_window,
-			posx + oldw / 2 - w / 2,
-			posy + oldh / 2 - h / 2); // and move it back
+	                      posx + oldw / 2 - w / 2,
+	                      posy + oldh / 2 - h / 2); // and move it back
 #endif
 	SDL_GetWindowSize(sdl_window, &w, &h);
 	// freed by lua's gc
@@ -293,7 +293,7 @@ void Display::flip()
 	debug_mode = false;
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	draw_quad(0, 0, w, 0, w, h, 0, h,
-				0, h, w, h, w, 0, 0, 0); // y reversed
+	          0, h, w, h, w, 0, 0, 0); // y reversed
 	current_buffer->check_empty();
 	SDL_GL_SwapWindow(sdl_window);
 

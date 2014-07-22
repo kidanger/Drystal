@@ -17,23 +17,23 @@
 #pragma once
 
 #define PUSH_FUNC(name, func) \
-    lua_pushcfunction(L, mlua_##func); \
-    lua_setfield(L, -2, name);
+	lua_pushcfunction(L, mlua_##func); \
+	lua_setfield(L, -2, name);
 
 #define BEGIN_MODULE(name) \
 	static inline void register_##name(lua_State* L) {
 #define DECLARE_FUNCTION(name) \
-		lua_pushcfunction(L, mlua_##name); \
-		lua_setfield(L, -2, #name);
+	lua_pushcfunction(L, mlua_##name); \
+	lua_setfield(L, -2, #name);
 #define END_MODULE() \
 	}
 
 #define BEGIN_CLASS(name) \
 	luaL_newmetatable(L, #name);
 #define ADD_GC(func) \
-    PUSH_FUNC("__gc", func)
+	PUSH_FUNC("__gc", func)
 #define ADD_METHOD(class, name) \
-    PUSH_FUNC(#name, name##_##class)
+	PUSH_FUNC(#name, name##_##class)
 #define ADD_GETSET(class, name) \
 	ADD_METHOD(class, get_##name) \
 	ADD_METHOD(class, set_##name)
@@ -53,4 +53,4 @@
 	lua_setfield(L, -2, name_in_module);
 
 #define REGISTER_MODULE(name, L) \
-    register_##name(L)
+	register_##name(L)
