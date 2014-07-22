@@ -39,11 +39,9 @@ local height = 0
 local shader
 
 function drystal.init()
-	print("initialized from lua")
 	drystal.resize(600, 400)
 	image = assert(drystal.load_surface(spritesheet.meta.image))
-	--image:draw_from()
-	drystal.draw_from(image)
+	image:draw_from()
 	drystal.set_alpha(0)
 	surf = drystal.new_surface(64, 32)
 	surf:draw_on()
