@@ -24,7 +24,7 @@
 #include "log.hpp"
 #include "lua_functions.hpp"
 #include "luafiles.hpp"
-
+#include "module.hpp"
 #include "all_api.hpp"
 
 static int luaopen_drystal(lua_State*); // defined at the end of this file
@@ -731,14 +731,15 @@ static int mlua_free_buffer(lua_State* L)
 
 void LuaFunctions::register_modules()
 {
-#define REGISTER_MODULE
-#include "all_api.hpp"
-#undef REGISTER_MODULE
+	REGISTER_MODULE(audio, L);
+	REGISTER_MODULE(event, L);
+	REGISTER_MODULE(net, L);
+	REGISTER_MODULE(particle, L);
+	REGISTER_MODULE(physic, L);
+	REGISTER_MODULE(storage, L);
+	REGISTER_MODULE(truetype, L);
+	REGISTER_MODULE(web, L);
 }
-
-#define IMPLEMENT_MODULE
-#include "all_api.hpp"
-#undef IMPLEMENT_MODULE
 
 extern "C" {
 	extern int json_encode(lua_State* L);
