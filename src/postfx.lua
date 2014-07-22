@@ -4,6 +4,9 @@ drystal.postfxs = {}
 local backsurface
 
 function drystal.create_postfx(name, code, uniforms)
+	if not drystal.screen then
+		return -- server mode probably
+	end
 	uniforms = uniforms or {}
 	local uniforms_code = ''
 	for i, name in ipairs(uniforms) do
