@@ -1,4 +1,4 @@
-local drystal = drystal
+local drystal = require 'drystal'
 function drystal.init()
 	drystal.resize(100, 100)
 end

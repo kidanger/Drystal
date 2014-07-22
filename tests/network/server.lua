@@ -1,4 +1,4 @@
-local drystal = drystal
+local drystal = require 'drystal'
 require 'common'
 
 drystal.listen(port)

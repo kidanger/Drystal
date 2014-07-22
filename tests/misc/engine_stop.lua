@@ -1,4 +1,4 @@
-local drystal = drystal
+local drystal = require 'drystal'
 
 print 'should print: Exiting'
 function drystal.init()

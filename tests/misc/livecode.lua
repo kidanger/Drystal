@@ -1,3 +1,4 @@
+local drystal = require 'drystal'
 local l = require 'livecode2'
 
 print('value:', l.value)

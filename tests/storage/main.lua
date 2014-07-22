@@ -1,4 +1,4 @@
-local drystal = drystal
+local drystal = require 'drystal'
 
 local data = drystal.fetch('test_storage')
 print(data)
