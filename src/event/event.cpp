@@ -27,7 +27,6 @@
 #include "engine.hpp"
 #include "lua_functions.hpp"
 #include "event.hpp"
-#include "api.hpp"
 
 typedef Sint32 SDL_Keycode;
 
@@ -328,32 +327,5 @@ void call_resize_event(int w, int h)
 		lua_pushnumber(L, h);
 		CALL(2, 0);
 	}
-}
-
-int mlua_set_relative_mode(lua_State* L)
-{
-	assert(L);
-
-	bool relative = lua_toboolean(L, 1);
-#ifdef EMSCRIPTEN
-	Engine& engine = get_engine();
-	engine.display.show_cursor(not relative);
-	// NOT IMPLEMENTED
-#else
-	SDL_SetRelativeMouseMode(relative ? SDL_TRUE : SDL_FALSE);
-#endif
-	return 0;
-}
-
-int mlua_start_text(lua_State*)
-{
-	SDL_StartTextInput();
-	return 0;
-}
-
-int mlua_stop_text(lua_State*)
-{
-	SDL_StopTextInput();
-	return 0;
 }
 

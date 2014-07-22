@@ -1,4 +1,5 @@
 #include "module.hpp"
+#include "event_bind.hpp"
 
 BEGIN_MODULE(event)
 	DECLARE_FUNCTION(set_relative_mode)
