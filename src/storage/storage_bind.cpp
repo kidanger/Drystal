@@ -17,8 +17,8 @@
 #include <cassert>
 #include <lua.hpp>
 
-#include "api.hpp"
 #include "lua_functions.hpp"
+#include "storage_bind.hpp"
 
 extern "C" {
 	extern int json_encode(lua_State* L);
