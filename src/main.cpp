@@ -15,11 +15,11 @@
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <cstring>
+#include <cstdio>
 #ifndef EMSCRIPTEN
 #include <signal.h>
 #else
 #include <string>
-#include <cstdio>
 #include <emscripten.h>
 #include <sys/stat.h>
 #include <miniz.h>
@@ -118,7 +118,14 @@ int main(int argc, const char* argv[])
 
 	Engine e(filename, 60, server_mode);
 	engine = &e;
-	signal(SIGUSR1, reload);
+
+	struct sigaction sa;
+	sa.sa_handler = reload;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = 0;
+	if (sigaction(SIGUSR1, &sa, NULL) == -1) {
+		perror("sigaction");
+	}
 
 	e.load();
 	e.loop();
