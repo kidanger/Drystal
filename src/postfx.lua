@@ -27,8 +27,6 @@ function drystal.create_postfx(name, code, uniforms)
 	--print(code)
 	local shader = assert(drystal.new_shader(nil, nil, code))
 	local fx = function(...)
-		local screen = drystal.screen
-
 		drystal.set_color(255, 255, 255)
 		drystal.set_alpha(255)
 
@@ -37,13 +35,13 @@ function drystal.create_postfx(name, code, uniforms)
 			local v = select(i, ...) or 0
 			shader:feed(u, v)
 		end
-		local old = screen:draw_from()
-		backsurface:draw_on()
+		local surface = backsurface:draw_on()
+		local old = surface:draw_from()
 		drystal.draw_image(0, 0, backsurface.w, backsurface.h, 0, 0)
 
 		drystal.use_shader()
 		backsurface:draw_from()
-		screen:draw_on()
+		surface:draw_on()
 		drystal.draw_image(0, 0, backsurface.w, backsurface.h, 0, 0)
 
 		if old then
@@ -107,8 +105,8 @@ drystal.create_postfx('blurDir', [[
 ]], {'dx', 'dy',})
 
 drystal.postfxs.blur = function(...)
-	drystal.postfxs.blurDir(1 / drystal.screen.w, 0)
-	drystal.postfxs.blurDir(0, 1 / drystal.screen.h)
+	drystal.postfxs.blurDir(1 / drystal.current_draw_on.w, 0)
+	drystal.postfxs.blurDir(0, 1 / drystal.current_draw_on.h)
 end
 
 drystal.create_postfx('vignette', [[
@@ -186,9 +184,10 @@ function drystal.postfx(name, ...)
 	if not drystal.postfxs[name] then
 		error('Post FX ' .. name .. ' not found.')
 	end
-	local screen = drystal.screen
-	if not backsurface or backsurface.w ~= screen.w or backsurface.h ~= screen.h then
-		backsurface = drystal.new_surface(screen.w, screen.h, true)
+	local surface = drystal.current_draw_on
+	print(surface)
+	if not backsurface or backsurface.w ~= surface.w or backsurface.h ~= surface.h then
+		backsurface = drystal.new_surface(surface.w, surface.h, true)
 	end
 	drystal.postfxs[name](...)
 end
