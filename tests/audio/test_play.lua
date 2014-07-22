@@ -1,4 +1,4 @@
-local drystal = drystal
+local drystal = require 'drystal'
 
 local piou = drystal.load_sound("test.wav")
 
