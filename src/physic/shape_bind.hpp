@@ -27,7 +27,7 @@ int mlua_gc_shape(lua_State* L);
     int mlua_get_##value##_shape(lua_State* L);
 
 __SHAPE_GET_SET(density)
-__SHAPE_GET_SET(restriction)
+__SHAPE_GET_SET(restitution)
 __SHAPE_GET_SET(friction)
 
 #undef __SHAPE_GET_SET
