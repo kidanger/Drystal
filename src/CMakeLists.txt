@@ -65,7 +65,25 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
     if(CMAKE_BUILD_TYPE MATCHES DEBUG)
         set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} -ftrapv")
     endif()
-    set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} -Wall -Wextra -Wundef -Wunreachable-code -Wwrite-strings -Weffc++")
+    set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} \
+-Wall \
+-Wextra \
+-Wundef \
+-Wunreachable-code \
+-Wwrite-strings \
+-Wcast-align \
+-Wundef \
+-Wlogical-op \
+-Wformat=2 \
+-Wformat-security \
+-Wformat-nonliteral \
+-Wunsafe-loop-optimizations \
+-Wpointer-arith \
+-Wmissing-include-dirs \
+-Wmissing-declarations \
+-Wredundant-decls \
+-Weffc++")
+# -Wcast-qual \
 endif()
 
 add_executable(${DRYSTAL_OUT} ${SOURCES})
