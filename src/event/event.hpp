@@ -17,11 +17,3 @@
 #pragma once
 
 void event_update();
-
-void call_mouse_motion(int mx, int my, int dx, int dy);
-void call_mouse_press(int mx, int my, int button);
-void call_mouse_release(int mx, int my, int button);
-void call_key_press(const char* key_string);
-void call_key_release(const char* key_string);
-void call_key_text(const char* string);
-void call_resize_event(int w, int h);

@@ -177,6 +177,90 @@ static const char * mySDL_GetKeyName(SDL_Keycode key)
 	return keyname;
 }
 
+static void call_mouse_motion(int mx, int my, int dx, int dy)
+{
+	Engine& engine = get_engine();
+	if (engine.lua.get_function("mouse_motion")) {
+		lua_State* L = engine.lua.L;
+		lua_pushnumber(L, mx);
+		lua_pushnumber(L, my);
+		lua_pushnumber(L, dx);
+		lua_pushnumber(L, dy);
+		CALL(4, 0);
+	}
+}
+
+static void call_mouse_press(int mx, int my, int button)
+{
+	Engine& engine = get_engine();
+	if (engine.lua.get_function("mouse_press")) {
+		lua_State* L = engine.lua.L;
+		lua_pushnumber(L, mx);
+		lua_pushnumber(L, my);
+		lua_pushnumber(L, button);
+		CALL(3, 0);
+	}
+}
+
+static void call_mouse_release(int mx, int my, int button)
+{
+	Engine& engine = get_engine();
+	if (engine.lua.get_function("mouse_release")) {
+		lua_State* L = engine.lua.L;
+		lua_pushnumber(L, mx);
+		lua_pushnumber(L, my);
+		lua_pushnumber(L, button);
+		CALL(3, 0);
+	}
+}
+
+static void call_key_press(const char* key_string)
+{
+	assert(key_string);
+
+	Engine& engine = get_engine();
+	if (engine.lua.get_function("key_press")) {
+		lua_State* L = engine.lua.L;
+		lua_pushstring(L, key_string);
+		CALL(1, 0);
+	}
+}
+
+static void call_key_release(const char* key_string)
+{
+	assert(key_string);
+
+	Engine& engine = get_engine();
+	if (engine.lua.get_function("key_release")) {
+		lua_State* L = engine.lua.L;
+		lua_pushstring(L, key_string);
+		CALL(1, 0);
+	}
+}
+
+static void call_key_text(const char* string)
+{
+	assert(string);
+
+	Engine& engine = get_engine();
+	if (engine.lua.get_function("key_text")) {
+		lua_State* L = engine.lua.L;
+		lua_pushstring(L, string);
+		CALL(1, 0);
+	}
+}
+
+static void call_resize_event(int w, int h)
+{
+	Engine& engine = get_engine();
+	if (engine.lua.get_function("resize_event")) {
+		lua_State* L = engine.lua.L;
+		lua_pushnumber(L, w);
+		lua_pushnumber(L, h);
+		CALL(2, 0);
+	}
+}
+
 static void handle_event(const SDL_Event& event)
 {
 	Engine& engine = get_engine();
@@ -242,90 +326,6 @@ void event_update()
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
 		handle_event(event);
-	}
-}
-
-void call_mouse_motion(int mx, int my, int dx, int dy)
-{
-	Engine& engine = get_engine();
-	if (engine.lua.get_function("mouse_motion")) {
-		lua_State* L = engine.lua.L;
-		lua_pushnumber(L, mx);
-		lua_pushnumber(L, my);
-		lua_pushnumber(L, dx);
-		lua_pushnumber(L, dy);
-		CALL(4, 0);
-	}
-}
-
-void call_mouse_press(int mx, int my, int button)
-{
-	Engine& engine = get_engine();
-	if (engine.lua.get_function("mouse_press")) {
-		lua_State* L = engine.lua.L;
-		lua_pushnumber(L, mx);
-		lua_pushnumber(L, my);
-		lua_pushnumber(L, button);
-		CALL(3, 0);
-	}
-}
-
-void call_mouse_release(int mx, int my, int button)
-{
-	Engine& engine = get_engine();
-	if (engine.lua.get_function("mouse_release")) {
-		lua_State* L = engine.lua.L;
-		lua_pushnumber(L, mx);
-		lua_pushnumber(L, my);
-		lua_pushnumber(L, button);
-		CALL(3, 0);
-	}
-}
-
-void call_key_press(const char* key_string)
-{
-	assert(key_string);
-
-	Engine& engine = get_engine();
-	if (engine.lua.get_function("key_press")) {
-		lua_State* L = engine.lua.L;
-		lua_pushstring(L, key_string);
-		CALL(1, 0);
-	}
-}
-
-void call_key_release(const char* key_string)
-{
-	assert(key_string);
-
-	Engine& engine = get_engine();
-	if (engine.lua.get_function("key_release")) {
-		lua_State* L = engine.lua.L;
-		lua_pushstring(L, key_string);
-		CALL(1, 0);
-	}
-}
-
-void call_key_text(const char* string)
-{
-	assert(string);
-
-	Engine& engine = get_engine();
-	if (engine.lua.get_function("key_text")) {
-		lua_State* L = engine.lua.L;
-		lua_pushstring(L, string);
-		CALL(1, 0);
-	}
-}
-
-void call_resize_event(int w, int h)
-{
-	Engine& engine = get_engine();
-	if (engine.lua.get_function("resize_event")) {
-		lua_State* L = engine.lua.L;
-		lua_pushnumber(L, w);
-		lua_pushnumber(L, h);
-		CALL(2, 0);
 	}
 }
 
