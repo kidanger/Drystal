@@ -17,117 +17,11 @@
 #include <lua.hpp>
 
 #include "engine.hpp"
-#include "audiomanager.hpp"
 #include "log.hpp"
-#include "api.hpp"
+#include "music_bind.hpp"
+#include "music.hpp"
 
-static AudioManager& audio = get_audiomanager();
-
-DECLARE_PUSHPOP(Sound, sound)
 DECLARE_PUSHPOP(Music, music)
-
-int mlua_load_sound(lua_State *L)
-{
-	assert(L);
-
-	const char* filename = lua_tostring(L, 1);
-	Sound *chunk = audio.load_sound(filename);
-	if (chunk) {
-		push_sound(L, chunk);
-		return 1;
-	}
-	return luaL_fileresult(L, 0, filename);
-}
-
-int mlua_create_sound(lua_State *L)
-{
-	assert(L);
-
-	/*
-	 * Multiple configurations allowed:
-	 * [1]: table
-	 * 	len = #table (can call __len)
-	 * 	data = table[i] (can call __index)
-	 * or
-	 * [1]: table
-	 * [2]: number
-	 * 	len = number
-	 * 	data = table[i] (can call __index)
-	 * or
-	 * [1]: function
-	 * [2]: number
-	 * 	len = number
-	 * 	data = function(i)
-	 */
-	unsigned int len;
-	if (lua_gettop(L) == 1) {
-		len = luaL_len(L, 1);
-	} else {
-		len = luaL_checknumber(L, 2);
-	}
-
-	float buffer[len];
-	if (lua_istable(L, 1)) {
-		for (unsigned int i = 0; i < len; i++) {
-			lua_pushnumber(L, i + 1);
-			lua_gettable(L, 1);
-			buffer[i] = luaL_checknumber(L, -1);
-			lua_pop(L, 1);
-		}
-	} else if (lua_isfunction(L, 1)) {
-		for (unsigned int i = 0; i < len; i++) {
-			lua_pushvalue(L, 1);
-			lua_pushnumber(L, i);
-			lua_call(L, 1, 1);
-			buffer[i] = luaL_checknumber(L, -1);
-			lua_pop(L, 1);
-		}
-	}
-
-	Sound *chunk = audio.create_sound(len, buffer);
-	push_sound(L, chunk);
-	return 1;
-}
-
-int mlua_play_sound(lua_State *L)
-{
-	assert(L);
-
-	Sound* chunk = pop_sound(L, 1);
-
-	float volume = 1;
-	float x = 0;
-	float y = 0;
-	if (!lua_isnone(L, 2))
-		volume = luaL_checknumber(L, 2);
-	if (!lua_isnone(L, 3))
-		x = luaL_checknumber(L, 3);
-	if (!lua_isnone(L, 4))
-		y = luaL_checknumber(L, 4);
-
-	audio.play_sound(chunk, volume, x, y);
-	return 0;
-}
-
-int mlua_free_sound(lua_State *L)
-{
-	assert(L);
-
-	DEBUG("");
-	Sound* chunk = pop_sound(L, 1);
-	audio.free_sound(chunk);
-	return 0;
-}
-
-int mlua_free_music(lua_State *L)
-{
-	assert(L);
-
-	DEBUG("");
-	Music* music = pop_music(L, 1);
-	audio.free_music(music);
-	return 0;
-}
 
 class LuaMusicCallback : public MusicCallback
 {
@@ -185,7 +79,7 @@ int mlua_load_music(lua_State *L)
 	Music* music;
 	if (lua_isstring(L, 1)) {
 		const char* filename = lua_tostring(L, 1);
-		music = audio.load_music_from_file(filename);
+		music = Music::load_from_file(filename);
 		if (!music) {
 			return luaL_fileresult(L, 0, filename);
 		}
@@ -196,7 +90,7 @@ int mlua_load_music(lua_State *L)
 		callback->ref = luaL_ref(L, LUA_REGISTRYINDEX);
 
 		int samplesrate = luaL_optnumber(L, 2, DEFAULT_SAMPLES_RATE);
-		music = audio.load_music(callback, samplesrate);
+		music = Music::load(callback, samplesrate);
 	}
 	push_music(L, music);
 	return 1;
@@ -207,25 +101,7 @@ int mlua_play_music(lua_State *L)
 	assert(L);
 
 	Music* music = pop_music(L, 1);
-	audio.play_music(music);
-	return 0;
-}
-
-int mlua_set_sound_volume(lua_State *L)
-{
-	assert(L);
-
-	float volume = luaL_checknumber(L, 1);
-	audio.set_sound_volume(volume);
-	return 0;
-}
-
-int mlua_set_music_volume(lua_State *L)
-{
-	assert(L);
-
-	float volume = luaL_checknumber(L, 1);
-	audio.set_music_volume(volume);
+	music->play();
 	return 0;
 }
 
@@ -234,7 +110,17 @@ int mlua_stop_music(lua_State* L)
 	assert(L);
 
 	Music* music = pop_music(L, 1);
-	audio.stop_music(music);
+	music->stop();
+	return 0;
+}
+
+int mlua_free_music(lua_State *L)
+{
+	assert(L);
+
+	DEBUG("");
+	Music* music = pop_music(L, 1);
+	music->free();
 	return 0;
 }
 

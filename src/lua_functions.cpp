@@ -42,7 +42,7 @@ LuaFunctions::LuaFunctions(const char *_filename) :
 	luaL_openlibs(L);
 }
 
-LuaFunctions::~LuaFunctions()
+void LuaFunctions::free()
 {
 	luaL_unref(L, LUA_REGISTRYINDEX, drystal_table_ref);
 	lua_close(L);

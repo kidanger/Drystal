@@ -25,7 +25,7 @@
 #include "engine.hpp"
 #include "log.hpp"
 #include "stats.hpp"
-#include "audio/audiomanager.hpp"
+#include "audio/audio.hpp"
 #include "event/event.hpp"
 
 #ifdef EMSCRIPTEN
@@ -59,6 +59,8 @@ Engine::Engine(const char* filename, unsigned int target_fps, bool server_mode) 
 
 Engine::~Engine()
 {
+	lua.free();
+	destroy_audio();
 }
 
 //
@@ -122,7 +124,7 @@ void Engine::update()
 	float dt = (get_now() - last_update) / 1000000.;
 	last_update = get_now();
 
-	audiomanager_update(dt);
+	update_audio(dt);
 	AT(audio)
 
 	if (update_activated)

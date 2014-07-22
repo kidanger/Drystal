@@ -26,7 +26,6 @@ public:
 	int drystal_table_ref;
 
 	LuaFunctions(const char *_filename);
-	~LuaFunctions();
 
 	bool load_code();
 	bool reload_code();
@@ -37,6 +36,7 @@ public:
 	void call_atexit() const;
 
 	bool get_function(const char* name) const;
+	void free();
 
 private:
 	const char* filename;
