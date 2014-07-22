@@ -18,7 +18,7 @@
 #include <cassert>
 
 #include "engine.hpp"
-#include "api.hpp"
+#include "web_bind.hpp"
 
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
