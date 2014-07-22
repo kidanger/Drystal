@@ -1,9 +1,11 @@
 #include <cassert>
 #include <lua.hpp>
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Weffc++"
+
+#include "macro.hpp"
+
+DISABLE_WARNING_EFFCPP;
 #include <Box2D/Box2D.h>
-#pragma GCC diagnostic pop
+REENABLE_WARNING;
 
 #include "body_bind.hpp"
 #include "physic_p.hpp"

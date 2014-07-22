@@ -16,10 +16,9 @@
  */
 #pragma once
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Weffc++"
-#include <Box2D/Box2D.h>
-#pragma GCC diagnostic pop
+struct b2Body;
+struct b2FixtureDef;
+struct b2Joint;
 
 b2Body* luam_tobody(lua_State* L, int index);
 b2FixtureDef* luam_tofixture(lua_State* L, int index);

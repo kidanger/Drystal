@@ -15,4 +15,16 @@
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
+#define DISABLE_WARNING_EFFCPP \
+	_Pragma("GCC diagnostic push"); \
+	_Pragma("GCC diagnostic ignored \"-Weffc++\"")
+
+#define REENABLE_WARNING \
+	_Pragma("GCC diagnostic pop")
+#else
+#define DISABLE_WARNING_EFFCPP
+#define REENABLE_WARNING
+#endif
+
 #define _unused_ __attribute__ ((unused))
