@@ -39,7 +39,7 @@ __BODY_GET_SET(angular_velocity)
 __BODY_GET_SET(linear_damping)
 __BODY_GET_SET(angular_damping)
 __BODY_GET_SET(linearvelocity)
-__BODY_GET_SET(fixed_position)
+__BODY_GET_SET(fixed_rotation)
 
 #undef __BODY_GET_SET
 
