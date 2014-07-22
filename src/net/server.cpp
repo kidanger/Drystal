@@ -18,7 +18,6 @@
 #include <sys/time.h>
 #include <cstdio>
 #include <cstring>
-#include <string>
 #include <unistd.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -40,7 +39,7 @@ void Server::listen(int port) {
 	}
 
 	struct sockaddr_in servaddr;
-	bzero(&servaddr, sizeof(servaddr));
+	memset(&servaddr, 0, sizeof(servaddr));
 	servaddr.sin_family = AF_INET;
 	servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	servaddr.sin_port = htons(port);
