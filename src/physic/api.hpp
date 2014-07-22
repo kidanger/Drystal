@@ -1,4 +1,8 @@
 #include "module.hpp"
+#include "world_bind.hpp"
+#include "joint_bind.hpp"
+#include "shape_bind.hpp"
+#include "body_bind.hpp"
 
 BEGIN_MODULE(physic)
 	DECLARE_FUNCTION(create_world)

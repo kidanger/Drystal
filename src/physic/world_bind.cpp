@@ -14,18 +14,17 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <lua.hpp>
 #include <cassert>
-#include <cstring>
-
-#include "api.hpp"
-#include "lua_functions.hpp"
-#include "macro.hpp"
-
+#include <lua.hpp>
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weffc++"
 #include <Box2D/Box2D.h>
 #pragma GCC diagnostic pop
+
+#include "lua_functions.hpp"
+#include "macro.hpp"
+#include "world_bind.hpp"
+#include "physic_p.hpp"
 
 static b2World* world;
 
@@ -152,6 +151,7 @@ public:
 		CALL(2, 0);
 	}
 };
+
 int mlua_on_collision(lua_State* L)
 {
 	assert(L);
@@ -302,116 +302,6 @@ int mlua_query(lua_State* L)
 	return 1;
 }
 
-// Shape methods
-
-int mlua_new_shape(lua_State* L)
-{
-	assert(L);
-	assert(world);
-
-	const char* type = luaL_checkstring(L, 1);
-
-	b2FixtureDef* fixtureDef = new b2FixtureDef;
-	fixtureDef->density = 1.0f;
-
-	if (!strcmp(type, "box")) {
-		b2PolygonShape* polygon = new b2PolygonShape;
-		lua_Number w = luaL_checknumber(L, 2) / 2;
-		lua_Number h = luaL_checknumber(L, 3) / 2;
-		lua_Number centerx = 0;
-		lua_Number centery = 0;
-		if (lua_gettop(L) > 3) {
-			centerx = luaL_checknumber(L, 4);
-			centery = luaL_checknumber(L, 5);
-		}
-		polygon->SetAsBox(w, h, b2Vec2(centerx, centery), 0);
-		fixtureDef->shape = polygon;
-	} else if (!strcmp(type, "circle")) {
-		b2CircleShape* circle = new b2CircleShape;
-		circle->m_radius = luaL_checknumber(L, 2);
-		if (lua_gettop(L) > 2) {
-			lua_Number dx = luaL_checknumber(L, 3);
-			lua_Number dy = luaL_checknumber(L, 4);
-			circle->m_p.Set(dx, dy);
-		}
-		fixtureDef->shape = circle;
-	} else if (!strcmp(type, "chain")) {
-		b2ChainShape* chain = new b2ChainShape;
-		int number = (lua_gettop(L) - 1) / 2;
-		b2Vec2* vecs = new b2Vec2[number];
-		for (int i = 0; i < number; i++) {
-			vecs[i].x = luaL_checknumber(L, (i + 1)*2);
-			vecs[i].y = luaL_checknumber(L, (i + 1)*2 + 1);
-		}
-		chain->CreateLoop(vecs, number);
-		delete[] vecs;
-		fixtureDef->shape = chain;
-	} else {
-		assert(false);
-		return 0;
-	}
-
-	lua_newtable(L);
-	lua_pushlightuserdata(L, fixtureDef);
-	lua_setfield(L, -2, "__self");
-	luaL_getmetatable(L, "shape");
-	lua_setmetatable(L, -2);
-	return 1;
-}
-
-static b2FixtureDef* luam_tofixture(lua_State* L, int index)
-{
-	assert(L);
-
-	luaL_checktype(L, index, LUA_TTABLE);
-	lua_getfield(L, index, "__self");
-	b2FixtureDef* shape = (b2FixtureDef*) lua_touserdata(L, -1);
-	return shape;
-}
-
-#define SHAPE_GETSET_SOME_VALUE(value) \
-	int mlua_set_##value##_shape(lua_State* L) \
-	{ \
-		b2FixtureDef* fixtureDef = luam_tofixture(L, 1); \
-		lua_Number value = luaL_checknumber(L, 2); \
-		fixtureDef->value = value; \
-		return 0; \
-	} \
-	int mlua_get_##value##_shape(lua_State* L) \
-	{ \
-		b2FixtureDef* fixtureDef = luam_tofixture(L, 1); \
-		lua_pushnumber(L, fixtureDef->value); \
-		return 1; \
-	}
-SHAPE_GETSET_SOME_VALUE(density)
-SHAPE_GETSET_SOME_VALUE(restitution)
-SHAPE_GETSET_SOME_VALUE(friction)
-
-int mlua_set_sensor_shape(lua_State* L)
-{
-	assert(L);
-
-	b2FixtureDef* fixtureDef = luam_tofixture(L, 1);
-	bool sensor = lua_toboolean(L, 2);
-	fixtureDef->isSensor = sensor;
-	return 0;
-}
-
-int mlua_gc_shape(lua_State* L)
-{
-	assert(L);
-
-	b2FixtureDef* fixtureDef = luam_tofixture(L, 1);
-	delete fixtureDef->shape;
-	delete fixtureDef;
-	return 0;
-}
-
-#define DECLARE_SHAPE_FUNCTION(name) {#name, shape_##name}
-#define DECLARE_SHAPE_GETSET(x) DECLARE_SHAPE_FUNCTION(set_##x), DECLARE_SHAPE_FUNCTION(get_##x)
-
-// Body methods
-
 int mlua_new_body(lua_State* L)
 {
 	assert(L);
@@ -457,195 +347,15 @@ int mlua_new_body(lua_State* L)
 	return 1;
 }
 
-static b2Body* luam_tobody(lua_State* L, int index)
-{
-	luaL_checktype(L, index, LUA_TTABLE);
-	lua_getfield(L, index, "__self");
-	b2Body* body = (b2Body*) lua_touserdata(L, -1);
-	return body;
-}
-
-#define BODY_GETSET_VEC2(value, get_expr, set_expr) \
-	int mlua_set_##value##_body(lua_State* L) \
-	{ \
-		b2Body* body = luam_tobody(L, 1); \
-		lua_Number x = luaL_checknumber(L, 2); \
-		lua_Number y = luaL_checknumber(L, 3); \
-		b2Vec2 vector(x, y); \
-		set_expr; \
-		return 0; \
-	} \
-	int mlua_get_##value##_body(lua_State* L) \
-	{ \
-		b2Body* body = luam_tobody(L, 1); \
-		const b2Vec2 vector = get_expr; \
-		lua_pushnumber(L, vector.x); \
-		lua_pushnumber(L, vector.y); \
-		return 2; \
-	}
-
-BODY_GETSET_VEC2(position, body->GetPosition(), body->SetTransform(vector, body->GetAngle()))
-BODY_GETSET_VEC2(linear_velocity, body->GetLinearVelocity(), body->SetLinearVelocity(vector))
-
-#define BODY_GETSET_FLOAT(value, get_expr, set_expr) \
-	int mlua_set_##value##_body(lua_State* L) \
-	{ \
-		b2Body* body = luam_tobody(L, 1); \
-		lua_Number value = luaL_checknumber(L, 2); \
-		set_expr; \
-		return 0; \
-	} \
-	int mlua_get_##value##_body(lua_State* L) \
-	{ \
-		b2Body* body = luam_tobody(L, 1); \
-		const lua_Number value = get_expr; \
-		lua_pushnumber(L, value); \
-		return 1; \
-	}
-
-BODY_GETSET_FLOAT(angle, body->GetAngle(), body->SetTransform(body->GetPosition(), angle))
-BODY_GETSET_FLOAT(angular_velocity, body->GetAngularVelocity(), body->SetAngularVelocity(angular_velocity))
-BODY_GETSET_FLOAT(linear_damping, body->GetLinearDamping(), body->SetLinearDamping(linear_damping))
-BODY_GETSET_FLOAT(angular_damping, body->GetAngularDamping(), body->SetAngularDamping(angular_damping))
-
-int mlua_set_active_body(lua_State* L)
-{
-	assert(L);
-
-	b2Body* body = luam_tobody(L, 1);
-	bool active = lua_toboolean(L, 2);
-	body->SetActive(active);
-	return 0;
-}
-
-int mlua_set_bullet_body(lua_State* L)
-{
-	assert(L);
-
-	b2Body* body = luam_tobody(L, 1);
-	bool bullet = lua_toboolean(L, 2);
-	body->SetBullet(bullet);
-	return 0;
-}
-
-int mlua_get_mass_body(lua_State* L)
-{
-	assert(L);
-
-	b2Body* body = luam_tobody(L, 1);
-	const lua_Number mass = body->GetMass();
-	lua_pushnumber(L, mass);
-	return 1;
-}
-
-int mlua_set_mass_center_body(lua_State* L)
-{
-	assert(L);
-
-	b2Body* body = luam_tobody(L, 1);
-	lua_Number cx = luaL_checknumber(L, 2);
-	lua_Number cy = luaL_checknumber(L, 3);
-	b2MassData md;
-	body->GetMassData(&md);
-	md.center = b2Vec2(cx, cy);
-	body->SetMassData(&md);
-	return 0;
-}
-
-#define BODY_GETSET_BOOL(value, get_expr, set_expr) \
-	int mlua_set_##value##_body(lua_State* L) \
-	{ \
-		assert(L); \
-		b2Body* body = luam_tobody(L, 1); \
-		bool value = lua_toboolean(L, 2); \
-		set_expr; \
-		return 0; \
-	} \
-	int mlua_get_##value##_body(lua_State* L) \
-	{ \
-		assert(L); \
-		b2Body* body = luam_tobody(L, 1); \
-		const bool value = get_expr; \
-		lua_pushboolean(L, value); \
-		return 1; \
-	}
-
-BODY_GETSET_BOOL(fixed_rotation, body->IsFixedRotation(), body->SetFixedRotation(fixed_rotation))
-
-int mlua_apply_force_body(lua_State* L)
-{
-	assert(L);
-
-	b2Body* body = luam_tobody(L, 1);
-	lua_Number fx = luaL_checknumber(L, 2);
-	lua_Number fy = luaL_checknumber(L, 3);
-	b2Vec2 pos;
-	if (lua_gettop(L) > 4) {
-		lua_Number dx = luaL_checknumber(L, 4);
-		lua_Number dy = luaL_checknumber(L, 5);
-		body->ApplyForce(b2Vec2(fx, fy), b2Vec2(dx, dy), true);
-	} else {
-		pos = body->GetWorldCenter();
-		body->ApplyForceToCenter(b2Vec2(fx, fy), true);
-	}
-	return 0;
-}
-int mlua_apply_linear_impulse_body(lua_State* L)
-{
-	assert(L);
-
-	b2Body* body = luam_tobody(L, 1);
-	lua_Number fx = luaL_checknumber(L, 2);
-	lua_Number fy = luaL_checknumber(L, 3);
-	b2Vec2 pos;
-	if (lua_gettop(L) > 4) {
-		lua_Number dx = luaL_checknumber(L, 4);
-		lua_Number dy = luaL_checknumber(L, 5);
-		pos = b2Vec2(dx, dy);
-	} else {
-		pos = body->GetWorldCenter();
-	}
-	body->ApplyLinearImpulse(b2Vec2(fx, fy), pos, true);
-	return 0;
-}
-int mlua_apply_angular_impulse_body(lua_State* L)
-{
-	assert(L);
-
-	b2Body* body = luam_tobody(L, 1);
-	lua_Number angle = luaL_checknumber(L, 2);
-	body->ApplyAngularImpulse(angle, true);
-	return 0;
-}
-int mlua_apply_torque_body(lua_State* L)
-{
-	assert(L);
-
-	b2Body* body = luam_tobody(L, 1);
-	lua_Number torque = luaL_checknumber(L, 2);
-	body->ApplyTorque(torque, true);
-	return 0;
-}
-
-int mlua_dump_body(lua_State* L)
-{
-	assert(L);
-
-	b2Body* body = luam_tobody(L, 1);
-	body->Dump();
-	return 0;
-}
-
 int mlua_destroy_body(lua_State* L)
 {
 	assert(L);
+	assert(world);
 
 	b2Body* body = luam_tobody(L, 1);
 	world->DestroyBody(body);
 	return 0;
 }
-
-// Joint methods
 
 int mlua_new_joint(lua_State* L)
 {
@@ -708,110 +418,10 @@ int mlua_new_joint(lua_State* L)
 	return 1;
 }
 
-static b2Joint* luam_tojoint(lua_State* L, int index)
-{
-	assert(L);
-
-	luaL_checktype(L, index, LUA_TTABLE);
-	lua_getfield(L, index, "__self");
-	b2Joint* joint = (b2Joint*) lua_touserdata(L, -1);
-	return joint;
-}
-inline static b2MouseJoint* luam_tomousejoint(lua_State* L, int index)
-{
-	return (b2MouseJoint*) luam_tojoint(L, index);
-}
-inline static b2DistanceJoint* luam_todistancejoint(lua_State* L, int index)
-{
-	return (b2DistanceJoint*) luam_tojoint(L, index);
-}
-inline static b2RopeJoint* luam_toropejoint(lua_State* L, int index)
-{
-	return (b2RopeJoint*) luam_tojoint(L, index);
-}
-inline static b2RevoluteJoint* luam_torevolutejoint(lua_State* L, int index)
-{
-	return (b2RevoluteJoint*) luam_tojoint(L, index);
-}
-
-int mlua_set_target_joint(lua_State* L)
-{
-	assert(L);
-
-	b2MouseJoint* joint = luam_tomousejoint(L, 1);
-	lua_Number x = luaL_checknumber(L, 2);
-	lua_Number y = luaL_checknumber(L, 3);
-	joint->SetTarget(b2Vec2(x, y));
-	return 0;
-}
-
-int mlua_set_length_joint(lua_State* L)
-{
-	assert(L);
-
-	b2DistanceJoint* joint = luam_todistancejoint(L, 1);
-	lua_Number length = luaL_checknumber(L, 2);
-	joint->SetLength(length);
-	return 0;
-}
-int mlua_set_frequency_joint(lua_State* L)
-{
-	assert(L);
-
-	b2DistanceJoint* joint = luam_todistancejoint(L, 1);
-	lua_Number freq = luaL_checknumber(L, 2);
-	joint->SetFrequency(freq);
-	return 0;
-}
-
-int mlua_set_max_length_joint(lua_State* L)
-{
-	assert(L);
-
-	b2RopeJoint* joint = luam_toropejoint(L, 1);
-	lua_Number maxlength = luaL_checknumber(L, 2);
-	joint->SetMaxLength(maxlength);
-	return 0;
-}
-
-int mlua_set_angle_limits_joint(lua_State* L)
-{
-	assert(L);
-
-	b2RevoluteJoint* joint = luam_torevolutejoint(L, 1);
-	lua_Number min = luaL_checknumber(L, 2);
-	lua_Number max = luaL_checknumber(L, 3);
-	if (min != max) {
-		joint->SetLimits(min, max);
-		joint->EnableLimit(true);
-	} else {
-		joint->EnableLimit(false);
-	}
-	return 0;
-}
-
-int mlua_set_motor_speed_joint(lua_State* L)
-{
-	assert(L);
-
-	b2RevoluteJoint* joint = luam_torevolutejoint(L, 1);
-	lua_Number speed = luaL_checknumber(L, 2);
-	lua_Number maxtorque = 20;
-	if (lua_gettop(L) > 3)
-		maxtorque = luaL_checknumber(L, 3);
-	if (speed != 0) {
-		joint->SetMotorSpeed(speed);
-		joint->SetMaxMotorTorque(maxtorque);
-		joint->EnableMotor(true);
-	} else {
-		joint->EnableMotor(false);
-	}
-	return 0;
-}
-
 int mlua_destroy_joint(lua_State* L)
 {
 	assert(L);
+	assert(world);
 
 	b2Joint* joint = luam_tojoint(L, 1);
 	world->DestroyJoint(joint);
