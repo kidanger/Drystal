@@ -7,6 +7,8 @@ DISABLE_WARNING_EFFCPP;
 #include <Box2D/Box2D.h>
 REENABLE_WARNING;
 
+#include "physic_p.hpp"
+
 b2Body* luam_tobody(lua_State* L, int index)
 {
 	assert(L);

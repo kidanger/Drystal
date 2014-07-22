@@ -19,6 +19,7 @@
 #include <lua.hpp>
 
 #include "system.hpp"
+#include "system_bind.hpp"
 #include "lua_functions.hpp"
 
 DECLARE_PUSHPOP(System, system)

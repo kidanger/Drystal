@@ -20,6 +20,8 @@ file(WRITE ${LUAFILES_OUTPUT} "\
 #include <cstring>
 #include <lua.hpp>
 
+#include \"luafiles.hpp\"
+
 int load_luafiles(lua_State* L)
 {
     (void) L;")
