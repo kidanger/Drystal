@@ -517,6 +517,7 @@ Surface * Display::create_surface(int w, int h, int texw, int texh, unsigned cha
 	surface->has_mipmap = true;
 	surface->npot = false;
 	surface->filter = LINEAR;
+	surface->ref = 0;
 
 	glBindTexture(GL_TEXTURE_2D, current_from ? current_from->tex : 0);
 
