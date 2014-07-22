@@ -1,4 +1,7 @@
 #include "module.hpp"
+#include "audio_bind.hpp"
+#include "music_bind.hpp"
+#include "sound_bind.hpp"
 
 BEGIN_MODULE(audio)
 	DECLARE_FUNCTION(load_music)
