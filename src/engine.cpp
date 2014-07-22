@@ -27,6 +27,7 @@
 #include "stats.hpp"
 #include "audio/audio.hpp"
 #include "event/event.hpp"
+#include "macro.hpp"
 
 #ifdef EMSCRIPTEN
 #include "emscripten.h"
@@ -108,7 +109,7 @@ long unsigned Engine::get_now()
 	// in microsecond
 	struct timeval stTimeVal;
 	gettimeofday(&stTimeVal, NULL);
-	return stTimeVal.tv_sec * 1000000ll + stTimeVal.tv_usec;
+	return stTimeVal.tv_sec * USEC_PER_SEC + stTimeVal.tv_usec;
 }
 
 void Engine::update()
@@ -121,7 +122,7 @@ void Engine::update()
 	if (!run)
 		return;
 
-	float dt = (get_now() - last_update) / 1000000.;
+	float dt = (get_now() - last_update) /(float) USEC_PER_SEC;
 	last_update = get_now();
 
 	update_audio(dt);

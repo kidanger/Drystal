@@ -28,6 +28,7 @@
 
 #include "server.hpp"
 #include "socket.hpp"
+#include "macro.hpp"
 
 void Server::listen(int port) {
 	assert(port >= 0 && port < 65536);
@@ -83,12 +84,12 @@ bool Server::readyToRead(float timeout, float* time) {
 
 	struct timeval tv;
 	tv.tv_sec = (int) timeout;
-	tv.tv_usec = (timeout - tv.tv_sec) * 1000000;
+	tv.tv_usec = (timeout - tv.tv_sec) * USEC_PER_SEC;
 
 	int ret = select(64, &sett, NULL, NULL, &tv);
 
 	*time = tv.tv_sec;
-	*time += tv.tv_usec / 1000000.;
+	*time += tv.tv_usec / (float) USEC_PER_SEC;
 	return ret > 0;
 }
 

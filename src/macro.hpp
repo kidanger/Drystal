@@ -28,3 +28,5 @@
 #endif
 
 #define _unused_ __attribute__ ((unused))
+
+#define USEC_PER_SEC 1000000ULL
