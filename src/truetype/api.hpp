@@ -1,4 +1,5 @@
 #include "module.hpp"
+#include "font_bind.hpp"
 
 BEGIN_MODULE(truetype)
 	DECLARE_FUNCTION(load_font)

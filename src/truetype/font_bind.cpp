@@ -16,8 +16,8 @@
  */
 #include <lua.hpp>
 
-#include "api.hpp"
 #include "font.hpp"
+#include "font_bind.hpp"
 #include "lua_functions.hpp"
 
 DECLARE_PUSHPOP(Font, font)
