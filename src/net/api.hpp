@@ -1,4 +1,6 @@
 #include "module.hpp"
+#include "socket_bind.hpp"
+#include "server_bind.hpp"
 
 BEGIN_MODULE(net)
 	/* CLIENT */

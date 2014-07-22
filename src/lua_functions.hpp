@@ -48,7 +48,7 @@ private:
 	void register_modules();
 };
 
-#define DECLARE_PUSHPOP(T, name) \
+#define DECLARE_PUSH(T, name) \
 	static void push_ ## name(lua_State *L, T *name) \
 	{ \
 		assert(L); \
@@ -57,7 +57,9 @@ private:
 		*p = name; \
 		luaL_getmetatable(L, #name); \
 		lua_setmetatable(L, -2); \
-	} \
+	}
+
+#define DECLARE_POP(T, name) \
 	static T *pop_ ## name(lua_State *L, int index) \
 	{ \
 		assert(L); \
@@ -68,6 +70,9 @@ private:
 		return *p; \
 	}
 
+#define DECLARE_PUSHPOP(T, name) \
+	DECLARE_PUSH(T, name) \
+	DECLARE_POP(T, name)
 
 extern int traceback(lua_State *L);
 #ifdef EMSCRIPTEN
