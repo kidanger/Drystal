@@ -10,7 +10,7 @@ function drystal.init()
 	drystal.resize(40, 40)
 end
 
-local music = drystal.load_music("test.ogg")
+local music = assert(drystal.load_music("test.ogg"))
 
 function drystal.key_press(key)
 	if key == 'a' then
