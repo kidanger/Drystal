@@ -15,6 +15,8 @@
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "stats.hpp"
+
+#ifdef STATS
 #include "engine.hpp"
 #include "display.hpp"
 
@@ -153,3 +155,4 @@ void Stats::compute(long unsigned now, float dt)
 	nb_flushed = 0;
 	last = now;
 }
+#endif

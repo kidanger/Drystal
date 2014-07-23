@@ -16,7 +16,9 @@
  */
 #pragma once
 
+#ifdef DODEBUG
 #define STATS
+#endif
 
 #ifdef STATS
 #include "engine.hpp"
