@@ -71,7 +71,8 @@ bool LuaFunctions::get_function(const char* name) const
 	assert(name);
 
 	lua_rawgeti(L, LUA_REGISTRYINDEX, drystal_table_ref);
-	lua_getfield(L, -1, name);
+	lua_pushstring(L, name);
+	lua_rawget(L, -2);
 	if (lua_isfunction(L, -1)) {
 		return true;
 	}
