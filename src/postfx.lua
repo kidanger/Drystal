@@ -5,7 +5,7 @@ local backsurface
 
 function drystal.create_postfx(name, code, uniforms)
 	if not drystal.screen then
-		return -- server mode probably
+		return {} -- server mode probably
 	end
 	uniforms = uniforms or {}
 	local uniforms_code = ''
@@ -24,8 +24,10 @@ function drystal.create_postfx(name, code, uniforms)
 			gl_FragColor = vec4(effect(tex, fTexCoord), 1.0);
 		}
 	]]
-	--print(code)
-	local shader = assert(drystal.new_shader(nil, nil, code))
+	local shader, err = drystal.new_shader(nil, nil, code)
+	if not shader then
+		return nil, err
+	end
 	local fx = function(...)
 		drystal.set_color(255, 255, 255)
 		drystal.set_alpha(255)
@@ -49,25 +51,26 @@ function drystal.create_postfx(name, code, uniforms)
 		end
 	end
 	drystal.postfxs[name] = fx
+	return fx
 end
 
-drystal.create_postfx('gray', [[
+assert(drystal.create_postfx('gray', [[
 	vec3 effect(sampler2D tex, vec2 coord)
 	{
 		vec3 texval = texture2D(tex, coord).rgb;
 		return mix(texval, vec3((texval.r + texval.g + texval.b) / 3.0), scale);
 	}
-]], {'scale',})
+]], {'scale',}))
 
-drystal.create_postfx('red', [[
+assert(drystal.create_postfx('red', [[
 	vec3 effect(sampler2D tex, vec2 coord)
 	{
 		vec3 texval = texture2D(tex, coord).rgb;
 		return vec3(red, 0., 0.) + texval;
 	}
-]], {'red',})
+]], {'red',}))
 
-drystal.create_postfx('distortion', [[
+assert(drystal.create_postfx('distortion', [[
 	#define pi ]] .. math.pi .. [[
 
 	vec3 effect(sampler2D tex, vec2 coord)
@@ -75,9 +78,9 @@ drystal.create_postfx('distortion', [[
 		coord.x += sin(coord.y * 8.*pi + time * 2. * pi * .75) / 100.;
 		return texture2D(tex, coord).rgb;
 	}
-]], {'time',})
+]], {'time',}))
 
-drystal.create_postfx('blurDir', [[
+assert(drystal.create_postfx('blurDir', [[
 	const float weight1 = 0.3989422804014327;
 	const float weight2 = 0.24197072451914536;
 	const float weight3 = 0.05399096651318985;
@@ -102,14 +105,14 @@ drystal.create_postfx('blurDir', [[
 		acc /= weight1 + (weight2 + weight3 + weight4) * 2.;
 		return acc;
 	}
-]], {'dx', 'dy',})
+]], {'dx', 'dy',}))
 
 drystal.postfxs.blur = function(...)
 	drystal.postfxs.blurDir(1 / drystal.current_draw_on.w, 0)
 	drystal.postfxs.blurDir(0, 1 / drystal.current_draw_on.h)
 end
 
-drystal.create_postfx('vignette', [[
+assert(drystal.create_postfx('vignette', [[
 	vec3 effect(sampler2D tex, vec2 coord)
 	{
 		vec2 m = vec2(0.5, 0.5);
@@ -117,9 +120,9 @@ drystal.create_postfx('vignette', [[
 		vec3 texval = texture2D(tex, coord).rgb;
 		return texval * smoothstep(outer, inner, d);
 	}
-]], {'outer', 'inner',})
+]], {'outer', 'inner',}))
 
-drystal.create_postfx('dither', [[
+assert(drystal.create_postfx('dither', [[
 	/*
 		Port of shader by Ceaphyrel, found at
 		http://www.assembla.com/code/MUL2010_OpenGLScenePostprocessing/subversion/nodes/MUL%20FBO/Shaders/dithering.frag?rev=83
@@ -178,7 +181,7 @@ drystal.create_postfx('dither', [[
 		float final = find_closest(x, y, grayscale);
 		return final * texval.rgb;
 	}
-]], {'scale',})
+]], {'scale',}))
 
 function drystal.postfx(name, ...)
 	if not drystal.postfxs[name] then
