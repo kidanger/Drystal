@@ -17,7 +17,7 @@
 #pragma once
 
 struct lua_State;
-struct b2Body;
+class b2Body;
 
 struct Body {
 	b2Body* body;

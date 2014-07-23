@@ -17,7 +17,7 @@
 #pragma once
 
 struct lua_State;
-struct b2Joint;
+class b2Joint;
 
 struct Joint {
 	b2Joint* joint;
