@@ -86,8 +86,10 @@ int mlua_send_socket(lua_State* L)
 	bool error = false;
 	socket->send(message, size, &error);
 	if (error) {
+		char *serr = strerror(errno);
+		log_error("Cannot send message: %s", serr);
 		lua_pushnil(L);
-		lua_pushstring(L, strerror(errno));
+		lua_pushstring(L, serr);
 		return 2;
 	}
 	return 0;
@@ -102,8 +104,10 @@ int mlua_recv_socket(lua_State* L)
 	bool error = false;
 	int len = socket->receive(buffer, sizeof(buffer), &error);
 	if (error) {
+		char *serr = strerror(errno);
+		log_error("Cannot recv message: %s", serr);
 		lua_pushnil(L);
-		lua_pushstring(L, strerror(errno));
+		lua_pushstring(L, serr);
 		return 2;
 	}
 	if (len) {
@@ -121,8 +125,10 @@ int mlua_flush_socket(lua_State* L)
 	bool error = false;
 	socket->flush(&error);
 	if (error) {
+		char *serr = strerror(errno);
+		log_error("Cannot flush socket: %s", serr);
 		lua_pushnil(L);
-		lua_pushstring(L, strerror(errno));
+		lua_pushstring(L, serr);
 		return 2;
 	}
 	return 0;

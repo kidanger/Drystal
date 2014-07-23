@@ -28,7 +28,6 @@ function Socket:send(data)
 		if not self.has_errors then
 			local _, err = self:rawsend(data)
 			if err then
-				print('send', err)
 				self.has_errors = true
 				return nil, err
 			end
@@ -43,7 +42,6 @@ function Socket:flush()
 		local data = table.concat(self.tosend)
 		local _, err = self:rawsend(data)
 		if err then
-			print('flush', err)
 			self.has_errors = true
 			return nil, err
 		end
@@ -51,7 +49,6 @@ function Socket:flush()
 	end
 	local _, err = self:rawflush() -- some data might be stuck in the C++ buffer
 	if err then
-		print('rawflush', err)
 		self.has_errors = true
 		return nil, err
 	end
@@ -60,7 +57,6 @@ end
 function Socket:recv()
 	local str, err = self:rawrecv()
 	if err then
-		print('recv', err)
 		self.has_errors = true
 		return nil, err
 	end
