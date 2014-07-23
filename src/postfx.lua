@@ -185,7 +185,6 @@ function drystal.postfx(name, ...)
 		error('Post FX ' .. name .. ' not found.')
 	end
 	local surface = drystal.current_draw_on
-	print(surface)
 	if not backsurface or backsurface.w ~= surface.w or backsurface.h ~= surface.h then
 		backsurface = drystal.new_surface(surface.w, surface.h, true)
 	end

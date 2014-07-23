@@ -432,7 +432,7 @@ static int mlua_draw_on(lua_State* L)
 	engine.display.draw_on(surface);
 
 	if (old) {
-		push_surface(L, surface);
+		push_surface(L, old);
 		return 1;
 	}
 	return 0;
@@ -449,7 +449,7 @@ static int mlua_draw_from(lua_State* L)
 	engine.display.draw_from(surface);
 
 	if (old) {
-		push_surface(L, surface);
+		push_surface(L, old);
 		return 1;
 	}
 	return 0;
@@ -721,7 +721,6 @@ static int mlua_drystal_index(lua_State* L)
 {
 	assert(L);
 
-	DEBUG("");
 	Engine &engine = get_engine();
 	const char * name = luaL_checkstring(L, 2);
 	if (!strcmp(name, "screen")) {
