@@ -63,9 +63,16 @@ private:
 	static T *pop_ ## name(lua_State *L, int index) \
 	{ \
 		assert(L); \
-		T **p = static_cast<T **>(luaL_checkudata(L, index, #name)); \
-		if (p == NULL) luaL_argerror(L, index, #name" expected"); \
-		return *p; \
+		if (!lua_istable(L, index)) { \
+			T **p = static_cast<T **>(lua_touserdata(L, index)); \
+			if (p == NULL) luaL_argerror(L, index, #name" expected"); \
+			return *p; \
+		} else { \
+			lua_getfield(L, index, "__self"); \
+			T* p = pop_##name(L, -1); \
+			lua_pop(L, 1); \
+			return p; \
+		} \
 	}
 
 #define DECLARE_PUSH2(T, name) \
@@ -79,8 +86,18 @@ private:
 		} else { \
 			T **p = static_cast<T **>(lua_newuserdata(L, sizeof(T **))); \
 			*p = name; \
-			luaL_getmetatable(L, #name); \
-			lua_setmetatable(L, -2); \
+			\
+			lua_newtable(L); /* storage */ \
+			lua_pushvalue(L, -1); \
+			lua_setfield(L, -2, "__index"); \
+			lua_pushvalue(L, -1); \
+			lua_setfield(L, -2, "__newindex"); \
+			lua_pushvalue(L, -2); /* used to retrieve the userdata in class.__index function */ \
+			lua_setfield(L, -2, "__self"); \
+			\
+			luaL_setmetatable(L, #name); /* setmetatable(storage, class) */ \
+			lua_setmetatable(L, -2); /* setmetatable(userdata, storage) */ \
+			\
 			lua_pushvalue(L, -1); \
 			name->ref = luaL_ref(L, -3); \
 		} \
