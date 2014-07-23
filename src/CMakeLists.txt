@@ -77,7 +77,6 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
 -Wformat=2 \
 -Wformat-security \
 -Wformat-nonliteral \
--Wunsafe-loop-optimizations \
 -Wpointer-arith \
 -Wmissing-include-dirs \
 -Wmissing-declarations \
