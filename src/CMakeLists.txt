@@ -61,7 +61,7 @@ if(EMSCRIPTEN)
 endif()
 
 set(DRYSTAL_FLAGS " ")
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX)
     if(CMAKE_BUILD_TYPE MATCHES DEBUG)
         set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} -ftrapv")
     endif()
@@ -73,7 +73,6 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
 -Wwrite-strings \
 -Wcast-align \
 -Wundef \
--Wlogical-op \
 -Wformat=2 \
 -Wformat-security \
 -Wformat-nonliteral \
@@ -84,6 +83,9 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
 -Weffc++ \
 -Werror")
 # -Wcast-qual \
+	if(CMAKE_COMPILER_IS_GNUCXX)
+		set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} -Wlogical-op")
+	endif()
 endif()
 
 add_executable(${DRYSTAL_OUT} ${SOURCES})

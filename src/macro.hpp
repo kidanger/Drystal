@@ -27,10 +27,23 @@
 #define END_DISABLE_WARNINGS \
 	_Pragma("GCC diagnostic pop")
 #else
+#ifdef __clang__
+#define BEGIN_DISABLE_WARNINGS \
+	_Pragma("clang diagnostic push")
+
+#define DISABLE_WARNING_EFFCPP \
+	_Pragma("clang diagnostic ignored \"-Weffc++\"")
+#define DISABLE_WARNING_STRICT_ALIASING \
+	_Pragma("clang diagnostic ignored \"-Wstrict-aliasing\"")
+
+#define END_DISABLE_WARNINGS \
+	_Pragma("clang diagnostic pop")
+#else
 #define BEGIN_DISABLE_WARNINGS
 #define DISABLE_WARNING_EFFCPP
 #define DISABLE_WARNING_STRICT_ALIASING
 #define END_DISABLE_WARNINGS
+#endif
 #endif
 
 #define _unused_ __attribute__ ((unused))
