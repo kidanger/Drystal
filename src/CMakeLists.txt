@@ -133,7 +133,7 @@ if(NOT DEFINED EMSCRIPTEN)
         add_custom_target(coverage-report DEPENDS ${DRYSTAL_OUT})
         add_custom_command(TARGET coverage-report
             COMMAND ${COVERAGE_LCOV} --directory . --capture --output-file ./coverage/drystal.lcov
-            COMMAND ${COVERAGE_LCOV} --remove ./coverage/drystal.lcov --output-file ./coverage/drystal_clean.lcov '/usr/*'
+            COMMAND ${COVERAGE_LCOV} --remove ./coverage/drystal.lcov --output-file ./coverage/drystal_clean.lcov '/usr/*' 'box2d/*'
             COMMAND ${COVERAGE_GENHTML} -t "drystal coverage" -p "${CMAKE_SOURCE_DIR}" -o ./coverage ./coverage/drystal_clean.lcov
             COMMAND echo "Open ${CMAKE_BINARY_DIR}/coverage/index.html to view the coverage analysis results."
             WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
