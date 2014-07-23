@@ -135,7 +135,6 @@ const char* getAlError(ALint error)
 			casereturn(AL_NO_ERROR);
 	}
 #undef casereturn
-	return "";
 }
 #endif
 

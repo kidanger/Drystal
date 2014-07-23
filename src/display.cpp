@@ -55,7 +55,6 @@ static const char* getGLError(GLenum error)
 			return "";
 	}
 #undef casereturn
-	return "";
 }
 
 #define GLDEBUG(x) \
