@@ -81,7 +81,8 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
 -Wmissing-include-dirs \
 -Wmissing-declarations \
 -Wredundant-decls \
--Weffc++")
+-Weffc++ \
+-Werror")
 # -Wcast-qual \
 endif()
 
