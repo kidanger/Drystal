@@ -25,7 +25,14 @@
 #include "lua_functions.hpp"
 #include "luafiles.hpp"
 #include "module.hpp"
-#include "all_api.hpp"
+#include "event/api.hpp"
+#include "physic/api.hpp"
+#include "truetype/api.hpp"
+#include "particle/api.hpp"
+#include "audio/api.hpp"
+#include "net/api.hpp"
+#include "web/api.hpp"
+#include "storage/api.hpp"
 
 static int luaopen_drystal(lua_State*); // defined at the end of this file
 
