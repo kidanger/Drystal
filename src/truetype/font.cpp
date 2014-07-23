@@ -28,6 +28,7 @@
 #include <stb_truetype.h>
 
 #include "engine.hpp"
+#include "macro.hpp"
 #include "font.hpp"
 #include "parser.hpp"
 
@@ -57,7 +58,7 @@ Font* Font::load(const char* filename, float size, int first_char, int num_chars
 	font->char_data = new stbtt_bakedchar[num_chars];
 	font->font_size = size;
 
-	size_t read = fread(file_content, 1, 1<<20, file);
+	_unused_ size_t read = fread(file_content, 1, 1<<20, file);
 	assert(read);//FIXME do not use asserts at runtime
 	fclose(file);
 

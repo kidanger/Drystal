@@ -16,15 +16,21 @@
  */
 
 #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
-#define DISABLE_WARNING_EFFCPP \
-	_Pragma("GCC diagnostic push"); \
-	_Pragma("GCC diagnostic ignored \"-Weffc++\"")
+#define BEGIN_DISABLE_WARNINGS \
+	_Pragma("GCC diagnostic push")
 
-#define REENABLE_WARNING \
+#define DISABLE_WARNING_EFFCPP \
+	_Pragma("GCC diagnostic ignored \"-Weffc++\"")
+#define DISABLE_WARNING_STRICT_ALIASING \
+	_Pragma("GCC diagnostic ignored \"-Wstrict-aliasing\"")
+
+#define END_DISABLE_WARNINGS \
 	_Pragma("GCC diagnostic pop")
 #else
+#define BEGIN_DISABLE_WARNINGS
 #define DISABLE_WARNING_EFFCPP
-#define REENABLE_WARNING
+#define DISABLE_WARNING_STRICT_ALIASING
+#define END_DISABLE_WARNINGS
 #endif
 
 #define _unused_ __attribute__ ((unused))

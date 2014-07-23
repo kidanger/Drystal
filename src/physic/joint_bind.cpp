@@ -4,9 +4,11 @@
 
 #include "macro.hpp"
 
+BEGIN_DISABLE_WARNINGS;
 DISABLE_WARNING_EFFCPP;
+DISABLE_WARNING_STRICT_ALIASING;
 #include <Box2D/Box2D.h>
-REENABLE_WARNING;
+END_DISABLE_WARNINGS;
 
 #include "engine.hpp"
 #include "joint_bind.hpp"

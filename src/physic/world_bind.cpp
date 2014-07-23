@@ -19,9 +19,11 @@
 
 #include "macro.hpp"
 
+BEGIN_DISABLE_WARNINGS;
 DISABLE_WARNING_EFFCPP;
+DISABLE_WARNING_STRICT_ALIASING;
 #include <Box2D/Box2D.h>
-REENABLE_WARNING;
+END_DISABLE_WARNINGS;
 
 #include "lua_functions.hpp"
 #include "world_bind.hpp"
@@ -402,6 +404,7 @@ int mlua_new_joint(lua_State* L)
 		joint_def = def;
 	} else {
 		assert(false);
+		return 0;
 	}
 
 	if (lua_gettop(L) >= i) {

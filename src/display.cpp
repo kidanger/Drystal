@@ -570,7 +570,7 @@ void Display::create_fbo(Surface* surface) const
 	GLDEBUG();
 	assert(fbo != 0);
 
-	GLenum status;
+	_unused_ GLenum status;
 	status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	assert(status == GL_FRAMEBUFFER_COMPLETE);
 
