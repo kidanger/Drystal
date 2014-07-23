@@ -51,26 +51,3 @@
 #define log_error(msg, ...) \
 	log_message("ERR", msg, ##__VA_ARGS__)
 
-#ifdef DODEBUG
-#ifndef EMSCRIPTEN
-#include <SDL2/SDL_opengles2.h>
-#else
-#include <SDL/SDL_opengl.h>
-#endif
-
-const char* getGLError(GLenum error);
-
-#define GLDEBUG(x) \
-	x; \
-	{ \
-		GLenum e; \
-		while( (e=glGetError()) != GL_NO_ERROR) \
-		{ \
-			fprintf(stderr, "Error at line number %d, in file %s. glGetError() returned %s for call %s\n",__LINE__, __FILE__, getGLError(e), #x ); \
-			exit(1); \
-		} \
-	}
-#else
-#define GLDEBUG(x) \
-	x;
-#endif

@@ -16,8 +16,10 @@
  */
 #ifndef EMSCRIPTEN
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_opengles2.h>
 #else
 #include <SDL/SDL.h>
+#include <SDL/SDL_opengl.h>
 #endif
 
 #define GL_VERTEX_PROGRAM_POINT_SIZE 0x8642
@@ -39,6 +41,39 @@
 #include "log.hpp"
 
 log_category("display");
+
+#ifdef DODEBUG
+static const char* getGLError(GLenum error)
+{
+#define casereturn(x) case x: return #x
+	switch (error) {
+			casereturn(GL_INVALID_ENUM);
+			casereturn(GL_INVALID_VALUE);
+			casereturn(GL_INVALID_OPERATION);
+			casereturn(GL_INVALID_FRAMEBUFFER_OPERATION);
+			casereturn(GL_OUT_OF_MEMORY);
+		default:
+		case GL_NO_ERROR:
+			return "";
+	}
+#undef casereturn
+	return "";
+}
+
+#define GLDEBUG(x) \
+	x; \
+	{ \
+		GLenum e; \
+		while((e=glGetError()) != GL_NO_ERROR) \
+		{ \
+			log_debug("%s for call %s", getGLError(e), #x); \
+			exit(1); \
+		} \
+	}
+#else
+#define GLDEBUG(x) \
+	x;
+#endif
 
 #define STRINGIZE(x) #x
 #define STRINGIZE2(x) STRINGIZE(x)
@@ -1003,19 +1038,3 @@ void Display::free_buffer(Buffer* buffer)
 	delete buffer;
 }
 
-const char* getGLError(GLenum error)
-{
-#define casereturn(x) case x: return #x
-	switch (error) {
-			casereturn(GL_INVALID_ENUM);
-			casereturn(GL_INVALID_VALUE);
-			casereturn(GL_INVALID_OPERATION);
-			casereturn(GL_INVALID_FRAMEBUFFER_OPERATION);
-			casereturn(GL_OUT_OF_MEMORY);
-		default:
-		case GL_NO_ERROR:
-			return "";
-	}
-#undef casereturn
-	return "";
-}
