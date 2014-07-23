@@ -86,7 +86,7 @@ add_library(stb_vorbis STATIC stb_vorbis.c)
 set_target_properties(stb_vorbis PROPERTIES COMPILE_DEFINITIONS "STB_VORBIS_NO_PUSHDATA_API")
 
 add_library(stb_image STATIC stb_image.c)
-set_target_properties(stb_image PROPERTIES COMPILE_DEFINITIONS "STB_IMAGE_IMPLEMENTATION")
+set_target_properties(stb_image PROPERTIES COMPILE_FLAGS "-DSTB_IMAGE_IMPLEMENTATION -DSTB_IMAGE_NO_HDR")
 
 add_library(stb_truetype STATIC stb_truetype.c)
 set_target_properties(stb_truetype PROPERTIES COMPILE_DEFINITIONS "STB_TRUETYPE_IMPLEMENTATION")
