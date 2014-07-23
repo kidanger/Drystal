@@ -14,31 +14,14 @@
     </style>
   </head>
   <body>
-    <hr/>
-    <div class="emscripten" id="status">Downloading...</div>
-    <div class="emscripten">
-      <progress value="0" max="100" id="progress" hidden=1></progress>  
-    </div>
     <div class="emscripten_border">
       <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
     </div>
-    <hr/>
-    <div class="emscripten">
-      <input type="checkbox" id="resize">Resize canvas
-      <input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer
-      &nbsp;&nbsp;&nbsp;
-      <input type="button" value="Fullscreen" onclick="Module.requestFullScreen(document.getElementById('pointerLock').checked, 
-                                                                                document.getElementById('resize').checked)">
-    </div>
-
-    <hr/>
     <textarea class="emscripten" id="output" rows="8"></textarea>
-    <hr>
+
     <script type='text/javascript'>
       // connect to canvas
       var Module = {
-        preRun: [],
-        postRun: [],
         print: (function() {
           var element = document.getElementById('output');
           element.value = ''; // clear browser cache
@@ -48,37 +31,12 @@
             element.scrollTop = 99999; // focus on bottom
           };
         })(),
-        printErr: function(text) {
-          text = Array.prototype.slice.call(arguments).join(' ');
-          console.log(text);
-        },
         canvas: document.getElementById('canvas'),
-        setStatus: function(text) {
-          if (Module.setStatus.interval) clearInterval(Module.setStatus.interval);
-          var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
-          var statusElement = document.getElementById('status');
-          var progressElement = document.getElementById('progress');
-          if (m) {
-            text = m[1];
-            progressElement.value = parseInt(m[2])*100;
-            progressElement.max = parseInt(m[4])*100;
-            progressElement.hidden = false;
-          } else {
-            progressElement.value = null;
-            progressElement.max = null;
-            progressElement.hidden = true;
-          }
-          statusElement.innerHTML = text;
-        },
-        totalDependencies: 0,
-        monitorRunDependencies: function(left) {
-          this.totalDependencies = Math.max(this.totalDependencies, left);
-          Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
-        }
       };
-      Module.setStatus('Downloading...');
+      Module.printErr = Module.print;
     </script>
     {{{DRYSTAL_ADD_ARGUMENTS}}}
-    {{{DRYSTAL_LOAD_COMPRESSED}}}
+    {{{DRYSTAL_LOAD}}}
   </body>
 </html>
+
