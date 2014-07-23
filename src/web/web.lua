@@ -18,9 +18,8 @@ function on_wget_error(file)
 end
 
 function web.wget(url, file, onload, onerror)
-	if not onload or not onerror then
-		print('invalid argument', onload, onerror)
-	end
+	assert(onload)
+	assert(onerror)
 	if wget_requests[file] then
 		-- already requested
 		table.insert(wget_requests[file].onload, onload)
