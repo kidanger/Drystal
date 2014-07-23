@@ -8,27 +8,29 @@ DISABLE_WARNING_EFFCPP;
 #include <Box2D/Box2D.h>
 REENABLE_WARNING;
 
+#include "engine.hpp"
 #include "joint_bind.hpp"
-#include "physic_p.hpp"
+
+DECLARE_POP(Joint, joint)
 
 inline static b2MouseJoint* luam_tomousejoint(lua_State* L, int index)
 {
-	return (b2MouseJoint*) luam_tojoint(L, index);
+	return (b2MouseJoint*) pop_joint(L, index)->joint;
 }
 
 inline static b2DistanceJoint* luam_todistancejoint(lua_State* L, int index)
 {
-	return (b2DistanceJoint*) luam_tojoint(L, index);
+	return (b2DistanceJoint*) pop_joint(L, index)->joint;
 }
 
 inline static b2RopeJoint* luam_toropejoint(lua_State* L, int index)
 {
-	return (b2RopeJoint*) luam_tojoint(L, index);
+	return (b2RopeJoint*) pop_joint(L, index)->joint;
 }
 
 inline static b2RevoluteJoint* luam_torevolutejoint(lua_State* L, int index)
 {
-	return (b2RevoluteJoint*) luam_tojoint(L, index);
+	return (b2RevoluteJoint*) pop_joint(L, index)->joint;
 }
 
 int mlua_set_target_joint(lua_State* L)

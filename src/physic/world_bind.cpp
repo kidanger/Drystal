@@ -25,7 +25,13 @@ REENABLE_WARNING;
 
 #include "lua_functions.hpp"
 #include "world_bind.hpp"
-#include "physic_p.hpp"
+#include "body_bind.hpp"
+#include "joint_bind.hpp"
+#include "shape_bind.hpp"
+
+DECLARE_PUSHPOP2(Body, body)
+DECLARE_PUSHPOP2(Joint, joint)
+DECLARE_POP(Shape, shape)
 
 static b2World* world;
 
@@ -87,10 +93,8 @@ public:
 		b2Body* bA = contact->GetFixtureA()->GetBody();
 		b2Body* bB = contact->GetFixtureB()->GetBody();
 
-		int refA = (int) (long) bA->GetUserData();
-		lua_rawgeti(L, LUA_REGISTRYINDEX, refA);
-		int refB = (int) (long) bB->GetUserData();
-		lua_rawgeti(L, LUA_REGISTRYINDEX, refB);
+		push_body(L, (Body*) bA->GetUserData());
+		push_body(L, (Body*) bB->GetUserData());
 	}
 
 	virtual void BeginContact(b2Contact* contact)
@@ -321,7 +325,7 @@ int mlua_new_body(lua_State* L)
 	int number_of_shapes = lua_gettop(L) - index + 1;
 	b2FixtureDef* fixtureDefs[number_of_shapes];
 	for (int i = 0; i < number_of_shapes; i++) {
-		fixtureDefs[i] = luam_tofixture(L, index++);
+		fixtureDefs[i] = pop_shape(L, index++)->fixtureDef;
 		assert(fixtureDefs[i]);
 		assert(fixtureDefs[i]->shape);
 	}
@@ -332,19 +336,17 @@ int mlua_new_body(lua_State* L)
 	}
 	def.position.Set(x, y);
 
-	b2Body* body = world->CreateBody(&def);
+	b2Body* b2body = world->CreateBody(&def);
 	for (int i = 0; i < number_of_shapes; i++) {
-		body->CreateFixture(fixtureDefs[i]);
+		b2body->CreateFixture(fixtureDefs[i]);
 	}
 
-	lua_newtable(L);
-	lua_pushlightuserdata(L, body);
-	lua_setfield(L, -2, "__self");
-	luaL_getmetatable(L, "body");
-	lua_setmetatable(L, -2);
+	Body* body = new Body;
+	body->body = b2body;
+	body->ref = 0;
+	b2body->SetUserData(body);
 
-	lua_pushvalue(L, -1);
-	body->SetUserData((void*) (size_t) luaL_ref(L, LUA_REGISTRYINDEX));
+	push_body(L, body);
 	return 1;
 }
 
@@ -353,8 +355,10 @@ int mlua_destroy_body(lua_State* L)
 	assert(L);
 	assert(world);
 
-	b2Body* body = luam_tobody(L, 1);
-	world->DestroyBody(body);
+	Body* body = pop_body(L, 1);
+	b2Body* b2body = body->body;
+	world->DestroyBody(b2body);
+	delete body;
 	return 0;
 }
 
@@ -369,26 +373,26 @@ int mlua_new_joint(lua_State* L)
 	int i = 2;
 	if (!strcmp(type, "mouse")) {
 		b2MouseJointDef* def = new b2MouseJointDef;
-		def->bodyA = luam_tobody(L, i++);
-		def->bodyB = luam_tobody(L, i++);
+		def->bodyA = pop_body(L, i++)->body;
+		def->bodyB = pop_body(L, i++)->body;
 		def->maxForce = luaL_checknumber(L, i++);
 		def->target = def->bodyB->GetWorldCenter();
 		joint_def = def;
 	} else if (!strcmp(type, "distance")) {
 		b2DistanceJointDef* def = new b2DistanceJointDef;
-		b2Body* b1 = luam_tobody(L, i++);
-		b2Body* b2 = luam_tobody(L, i++);
+		b2Body* b1 = pop_body(L, i++)->body;
+		b2Body* b2 = pop_body(L, i++)->body;
 		def->Initialize(b1, b2, b1->GetWorldCenter(), b2->GetWorldCenter());
 		joint_def = def;
 	} else if (!strcmp(type, "rope")) {
 		b2RopeJointDef* def = new b2RopeJointDef;
-		def->bodyA = luam_tobody(L, i++);
-		def->bodyB = luam_tobody(L, i++);
+		def->bodyA = pop_body(L, i++)->body;
+		def->bodyB = pop_body(L, i++)->body;
 		joint_def = def;
 	} else if (!strcmp(type, "revolute")) {
 		b2RevoluteJointDef* def = new b2RevoluteJointDef;
-		def->bodyA = luam_tobody(L, i++);
-		def->bodyB = luam_tobody(L, i++);
+		def->bodyA = pop_body(L, i++)->body;
+		def->bodyB = pop_body(L, i++)->body;
 		lua_Number anchorAx = luaL_checknumber(L, i++);
 		lua_Number anchorAy = luaL_checknumber(L, i++);
 		lua_Number anchorBx = luaL_checknumber(L, i++);
@@ -407,15 +411,12 @@ int mlua_new_joint(lua_State* L)
 
 	assert(joint_def->bodyA);
 	assert(joint_def->bodyB);
-	b2Joint* joint = world->CreateJoint(joint_def);
-
+	Joint* joint = new Joint;
+	joint->joint = world->CreateJoint(joint_def);
+	joint->ref = 0;
 	delete joint_def;
+	push_joint(L, joint);
 
-	lua_newtable(L);
-	lua_pushlightuserdata(L, joint);
-	lua_setfield(L, -2, "__self");
-	luaL_getmetatable(L, "joint");
-	lua_setmetatable(L, -2);
 	return 1;
 }
 
@@ -424,8 +425,9 @@ int mlua_destroy_joint(lua_State* L)
 	assert(L);
 	assert(world);
 
-	b2Joint* joint = luam_tojoint(L, 1);
-	world->DestroyJoint(joint);
+	Joint* joint = pop_joint(L, 1);
+	world->DestroyJoint(joint->joint);
+	delete joint;
 	return 0;
 }
 

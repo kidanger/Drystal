@@ -7,13 +7,15 @@ DISABLE_WARNING_EFFCPP;
 #include <Box2D/Box2D.h>
 REENABLE_WARNING;
 
+#include "engine.hpp"
 #include "body_bind.hpp"
-#include "physic_p.hpp"
+
+DECLARE_POP(Body, body)
 
 #define BODY_GETSET_VEC2(value, get_expr, set_expr) \
 	int mlua_set_##value##_body(lua_State* L) \
 	{ \
-		b2Body* body = luam_tobody(L, 1); \
+		b2Body* body = pop_body(L, 1)->body; \
 		lua_Number x = luaL_checknumber(L, 2); \
 		lua_Number y = luaL_checknumber(L, 3); \
 		b2Vec2 vector(x, y); \
@@ -22,7 +24,7 @@ REENABLE_WARNING;
 	} \
 	int mlua_get_##value##_body(lua_State* L) \
 	{ \
-		b2Body* body = luam_tobody(L, 1); \
+		b2Body* body = pop_body(L, 1)->body; \
 		const b2Vec2 vector = get_expr; \
 		lua_pushnumber(L, vector.x); \
 		lua_pushnumber(L, vector.y); \
@@ -35,14 +37,14 @@ BODY_GETSET_VEC2(linear_velocity, body->GetLinearVelocity(), body->SetLinearVelo
 #define BODY_GETSET_FLOAT(value, get_expr, set_expr) \
 	int mlua_set_##value##_body(lua_State* L) \
 	{ \
-		b2Body* body = luam_tobody(L, 1); \
+		b2Body* body = pop_body(L, 1)->body; \
 		lua_Number value = luaL_checknumber(L, 2); \
 		set_expr; \
 		return 0; \
 	} \
 	int mlua_get_##value##_body(lua_State* L) \
 	{ \
-		b2Body* body = luam_tobody(L, 1); \
+		b2Body* body = pop_body(L, 1)->body; \
 		const lua_Number value = get_expr; \
 		lua_pushnumber(L, value); \
 		return 1; \
@@ -57,7 +59,7 @@ int mlua_set_active_body(lua_State* L)
 {
 	assert(L);
 
-	b2Body* body = luam_tobody(L, 1);
+	b2Body* body = pop_body(L, 1)->body;
 	bool active = lua_toboolean(L, 2);
 	body->SetActive(active);
 	return 0;
@@ -67,7 +69,7 @@ int mlua_set_bullet_body(lua_State* L)
 {
 	assert(L);
 
-	b2Body* body = luam_tobody(L, 1);
+	b2Body* body = pop_body(L, 1)->body;
 	bool bullet = lua_toboolean(L, 2);
 	body->SetBullet(bullet);
 	return 0;
@@ -77,7 +79,7 @@ int mlua_get_mass_body(lua_State* L)
 {
 	assert(L);
 
-	b2Body* body = luam_tobody(L, 1);
+	b2Body* body = pop_body(L, 1)->body;
 	const lua_Number mass = body->GetMass();
 	lua_pushnumber(L, mass);
 	return 1;
@@ -87,7 +89,7 @@ int mlua_set_mass_center_body(lua_State* L)
 {
 	assert(L);
 
-	b2Body* body = luam_tobody(L, 1);
+	b2Body* body = pop_body(L, 1)->body;
 	lua_Number cx = luaL_checknumber(L, 2);
 	lua_Number cy = luaL_checknumber(L, 3);
 	b2MassData md;
@@ -101,7 +103,7 @@ int mlua_set_mass_center_body(lua_State* L)
 	int mlua_set_##value##_body(lua_State* L) \
 	{ \
 		assert(L); \
-		b2Body* body = luam_tobody(L, 1); \
+		b2Body* body = pop_body(L, 1)->body; \
 		bool value = lua_toboolean(L, 2); \
 		set_expr; \
 		return 0; \
@@ -109,7 +111,7 @@ int mlua_set_mass_center_body(lua_State* L)
 	int mlua_get_##value##_body(lua_State* L) \
 	{ \
 		assert(L); \
-		b2Body* body = luam_tobody(L, 1); \
+		b2Body* body = pop_body(L, 1)->body; \
 		const bool value = get_expr; \
 		lua_pushboolean(L, value); \
 		return 1; \
@@ -121,7 +123,7 @@ int mlua_apply_force_body(lua_State* L)
 {
 	assert(L);
 
-	b2Body* body = luam_tobody(L, 1);
+	b2Body* body = pop_body(L, 1)->body;
 	lua_Number fx = luaL_checknumber(L, 2);
 	lua_Number fy = luaL_checknumber(L, 3);
 	b2Vec2 pos;
@@ -140,7 +142,7 @@ int mlua_apply_linear_impulse_body(lua_State* L)
 {
 	assert(L);
 
-	b2Body* body = luam_tobody(L, 1);
+	b2Body* body = pop_body(L, 1)->body;
 	lua_Number fx = luaL_checknumber(L, 2);
 	lua_Number fy = luaL_checknumber(L, 3);
 	b2Vec2 pos;
@@ -159,7 +161,7 @@ int mlua_apply_angular_impulse_body(lua_State* L)
 {
 	assert(L);
 
-	b2Body* body = luam_tobody(L, 1);
+	b2Body* body = pop_body(L, 1)->body;
 	lua_Number angle = luaL_checknumber(L, 2);
 	body->ApplyAngularImpulse(angle, true);
 	return 0;
@@ -169,7 +171,7 @@ int mlua_apply_torque_body(lua_State* L)
 {
 	assert(L);
 
-	b2Body* body = luam_tobody(L, 1);
+	b2Body* body = pop_body(L, 1)->body;
 	lua_Number torque = luaL_checknumber(L, 2);
 	body->ApplyTorque(torque, true);
 	return 0;
@@ -179,7 +181,7 @@ int mlua_dump_body(lua_State* L)
 {
 	assert(L);
 
-	b2Body* body = luam_tobody(L, 1);
+	b2Body* body = pop_body(L, 1)->body;
 	body->Dump();
 	return 0;
 }

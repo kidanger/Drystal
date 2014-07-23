@@ -17,6 +17,12 @@
 #pragma once
 
 struct lua_State;
+struct b2Joint;
+
+struct Joint {
+	b2Joint* joint;
+	int ref;
+};
 
 int mlua_set_target_joint(lua_State* L);
 int mlua_set_length_joint(lua_State* L);

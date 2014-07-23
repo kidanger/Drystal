@@ -37,18 +37,6 @@ BEGIN_MODULE(physic)
 		ADD_METHOD(body, dump)
 		ADD_METHOD(body, destroy)
 	REGISTER_CLASS(body, "Body")
-	/*
-	 * Set field so gamedevs can do:
-	 * local MyBody = setmetatable({
-	 *     somevars...,
-	 * }, physic.Body)
-	 * MyBody.__index = MyBody
-	 *
-	 * ...
-	 *
-	 * local body = setmetatable(physic.new_body(.., shape), MyBody)
-	 * body.somevars = ...
-	 */
 
 	BEGIN_CLASS(shape)
 		ADD_GETSET(shape, density)

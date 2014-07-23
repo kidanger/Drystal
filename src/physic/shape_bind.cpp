@@ -8,8 +8,10 @@ DISABLE_WARNING_EFFCPP;
 #include <Box2D/Box2D.h>
 REENABLE_WARNING;
 
+#include "engine.hpp"
 #include "shape_bind.hpp"
-#include "physic_p.hpp"
+
+DECLARE_PUSHPOP2(Shape, shape)
 
 int mlua_new_shape(lua_State* L)
 {
@@ -57,25 +59,24 @@ int mlua_new_shape(lua_State* L)
 		return 0;
 	}
 
-	lua_newtable(L);
-	lua_pushlightuserdata(L, fixtureDef);
-	lua_setfield(L, -2, "__self");
-	luaL_getmetatable(L, "shape");
-	lua_setmetatable(L, -2);
+	Shape* shape = new Shape;
+	shape->fixtureDef = fixtureDef;
+	shape->ref = 0;
+	push_shape(L, shape);
 	return 1;
 }
 
 #define SHAPE_GETSET_SOME_VALUE(value) \
 	int mlua_set_##value##_shape(lua_State* L) \
 	{ \
-		b2FixtureDef* fixtureDef = luam_tofixture(L, 1); \
+		b2FixtureDef* fixtureDef = pop_shape(L, 1)->fixtureDef; \
 		lua_Number value = luaL_checknumber(L, 2); \
 		fixtureDef->value = value; \
 		return 0; \
 	} \
 	int mlua_get_##value##_shape(lua_State* L) \
 	{ \
-		b2FixtureDef* fixtureDef = luam_tofixture(L, 1); \
+		b2FixtureDef* fixtureDef = pop_shape(L, 1)->fixtureDef; \
 		lua_pushnumber(L, fixtureDef->value); \
 		return 1; \
 	}
@@ -87,7 +88,7 @@ int mlua_set_sensor_shape(lua_State* L)
 {
 	assert(L);
 
-	b2FixtureDef* fixtureDef = luam_tofixture(L, 1);
+	b2FixtureDef* fixtureDef = pop_shape(L, 1)->fixtureDef;
 	bool sensor = lua_toboolean(L, 2);
 	fixtureDef->isSensor = sensor;
 	return 0;
@@ -97,7 +98,7 @@ int mlua_gc_shape(lua_State* L)
 {
 	assert(L);
 
-	b2FixtureDef* fixtureDef = luam_tofixture(L, 1);
+	b2FixtureDef* fixtureDef = pop_shape(L, 1)->fixtureDef;
 	delete fixtureDef->shape;
 	delete fixtureDef;
 	return 0;

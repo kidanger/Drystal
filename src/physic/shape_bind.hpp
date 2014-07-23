@@ -17,6 +17,12 @@
 #pragma once
 
 struct lua_State;
+struct b2FixtureDef;
+
+struct Shape {
+	b2FixtureDef* fixtureDef;
+	int ref;
+};
 
 int mlua_new_shape(lua_State* L);
 int mlua_set_sensor_shape(lua_State* L);

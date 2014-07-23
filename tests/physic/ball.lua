@@ -7,10 +7,11 @@ local normal_sys
 
 local R = 64 -- _ pixels = 1 meter
 
-local Body = setmetatable({
+local Body = {
 	num_collide=0,
-}, drystal.Body)
+}
 Body.__index = Body
+setmetatable(drystal.Body, Body)
 
 function Body:begin_collide(other)
 	self.num_collide = self.num_collide + 1
@@ -39,7 +40,7 @@ local function create_box(w, h, args, dynamic)
 								w * R, h * R,
 								self:get_angle())
 	end
-	return setmetatable(box, Body)
+	return box
 end
 local function create_circle(radius, args, dynamic)
 	local shape = drystal.new_shape("circle", radius)
@@ -65,7 +66,7 @@ local function create_circle(radius, args, dynamic)
 	circle.p_system:set_min_lifetime(1)
 	circle.p_system:set_max_lifetime(1.5)
 	circle.p_system:start()
-	return setmetatable(circle, Body)
+	return circle
 end
 
 function drystal.init()
