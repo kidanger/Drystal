@@ -16,6 +16,8 @@
  */
 #include <cstdio>
 #include <cassert>
+#include <cstring>
+#include <cmath>
 
 #ifndef EMSCRIPTEN
 #include <SDL2/SDL_opengles2.h>
@@ -23,10 +25,7 @@
 #include <SDL/SDL_opengl.h>
 #endif
 
-extern "C" {
-#define STB_TRUETYPE_IMPLEMENTATION
-#include "stb_truetype.h"
-}
+#include <stb_truetype.h>
 
 #include "engine.hpp"
 #include "font.hpp"
@@ -128,7 +127,7 @@ void Font::draw_plain(const char* text, float x, float y)
 	while (*text) {
 		if (*text >= start && *text < end) {
 			stbtt_aligned_quad q;
-			stbtt_GetBakedQuad(char_data, *text - start, &x, &y, &q);
+			stbtt_GetBakedQuad(char_data, *text - start, &x, &y, &q, 1.0f);
 			draw_quad(engine, q);
 		}
 		++text;
@@ -210,7 +209,7 @@ void Font::get_textsize_plain(const char* text, float* w, float* h)
 	while (*text) {
 		if (*text >= start && *text < end) {
 			stbtt_aligned_quad q;
-			stbtt_GetBakedQuad(char_data, *text - start, &x, &y, &q);
+			stbtt_GetBakedQuad(char_data, *text - start, &x, &y, &q, 1.0f);
 			maxy = q.y1;
 			maxx = q.x1;
 		}
