@@ -59,8 +59,3 @@ public:
 };
 
 Engine &get_engine();
-#ifdef EMSCRIPTEN
-#define DEFINE_EXTENSION(name) extern "C" int __attribute__((used)) luaopen_##name(lua_State *L)
-#else
-#define DEFINE_EXTENSION(name) extern "C" int luaopen_##name(lua_State *L)
-#endif
