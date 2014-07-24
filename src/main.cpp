@@ -18,7 +18,11 @@
 #include <errno.h>
 #include <cstdio>
 #ifndef EMSCRIPTEN
-#include <signal.h>
+#ifdef BUILD_LIVECODING
+#include <libgen.h>// dirname()
+#include <cstdlib>
+#include "livecoding.h"
+#endif
 #else
 #include <string>
 #include <emscripten.h>
@@ -31,9 +35,9 @@
 
 log_category("main");
 
-Engine* engine;
-
 #ifdef EMSCRIPTEN
+static Engine* engine = NULL;
+
 static void mkpath(const char* path)
 {
 	char filepath[strlen(path) + 1];
@@ -105,37 +109,94 @@ int main(int argc, const char* argv[])
 	return 0;
 }
 #else
-static void reload(int)
+#ifdef BUILD_LIVECODING
+static Engine* engine = NULL;
+
+static void reload(void)
 {
-	engine->lua.reload_code();
+	assert(engine);
+
+	engine->lua.set_need_to_reload();
 }
 
+static int start_livecoding(const char *filename)
+{
+	char *filename_dup;
+	char *watched_directory;
+	int r;
+
+	assert(filename);
+
+	filename_dup = strdup(filename);
+	if (!filename_dup) {
+		return -ENOMEM;
+	}
+
+	watched_directory = dirname(filename_dup);
+	r = livecoding_init(reload);
+	if (r < 0) {
+		log_error("Cannot initialize livecoding: %s", strerror(-r));
+		free(filename_dup);
+		return -r;
+	}
+
+	r = livecoding_watch_directory_recursively(watched_directory);
+	if (r < 0) {
+		log_error("Cannot watch %s for livecoding: %s", watched_directory, strerror(-r));
+		free(filename_dup);
+		return -r;
+	}
+
+	r = livecoding_start();
+	if (r < 0) {
+		log_error("Cannot start livecoding: %s", strerror(-r));
+		free(filename_dup);
+		return -r;
+	}
+	free(filename_dup);
+
+	return 0;
+}
+#endif
 int main(int argc, const char* argv[])
 {
 	const char* filename = "main.lua";
+#ifdef BUILD_LIVECODING
+	bool livecoding = false;
+#endif
 	bool server_mode = false;
 
 	for (int i = 1; i < argc; i++) {
 		if (!strcmp(argv[i], "--server") || !strcmp(argv[i], "-s")) {
 			server_mode = true;
+#ifdef BUILD_LIVECODING
+		} else if (!strcmp(argv[i], "--livecoding") || !strcmp(argv[i], "-l")) {
+			livecoding = true;
+#endif
 		} else {
 			filename = argv[i];
 		}
 	}
 
 	Engine e(filename, 60, server_mode);
+#ifdef BUILD_LIVECODING
 	engine = &e;
-
-	struct sigaction sa;
-	sa.sa_handler = reload;
-	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = 0;
-	if (sigaction(SIGUSR1, &sa, NULL) == -1) {
-		log_error("Cannot enable livecoding, sigaction: %s", strerror(errno));
+	if (livecoding) {
+		int r = start_livecoding(filename);
+		if (r < 0) {
+			return r;
+		}
 	}
+#endif
 
 	e.load();
 	e.loop();
+
+#ifdef BUILD_LIVECODING
+	if (livecoding) {
+		livecoding_stop();
+	}
+#endif
 
 	return 0;
 }

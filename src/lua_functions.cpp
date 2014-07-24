@@ -64,6 +64,9 @@ LuaFunctions::LuaFunctions(const char *_filename) :
 	L(luaL_newstate()),
 	drystal_table_ref(LUA_NOREF),
 	filename(_filename),
+#ifdef BUILD_LIVECODING
+	need_to_reload(false),
+#endif
 	library_loaded(false)
 {
 	luaL_openlibs(L);
@@ -174,6 +177,18 @@ bool LuaFunctions::load_code()
 	return true;
 }
 
+#ifdef BUILD_LIVECODING
+void LuaFunctions::set_need_to_reload()
+{
+	need_to_reload = true;
+}
+
+std::atomic<bool>& LuaFunctions::is_need_to_reload()
+{
+	return need_to_reload;
+}
+#endif
+
 bool LuaFunctions::reload_code()
 {
 	if (get_function("prereload")) {
@@ -188,6 +203,11 @@ bool LuaFunctions::reload_code()
 			CALL(0, 0);
 		}
 	}
+
+#ifdef BUILD_LIVECODING
+	need_to_reload = false;
+#endif
+
 	return ok;
 }
 

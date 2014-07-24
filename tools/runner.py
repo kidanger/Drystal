@@ -353,35 +353,6 @@ def get_gdb_args(program, pid=None, arguments=None):
     return args
 
 
-def setup_live_coding(directory, file, drystal):
-    print(G, '- settings up live coding', N)
-
-    def has_modifications(directory, latest):
-        for f in os.listdir(directory):
-            if f.startswith('.'):
-                continue
-            full = os.path.join(directory, f)
-            if os.path.isdir(full):
-                if has_modifications(full, latest):
-                    return True
-            elif os.path.isfile(full):
-                if os.path.getmtime(full) > latest:
-                    return True
-        return False
-
-    now = time.time()
-    try:
-        while drystal.poll() is None:
-            time.sleep(1)
-            c = has_modifications(directory, now)
-            if c:
-                drystal.send_signal(signal.SIGUSR1)
-                now = time.time()
-    except KeyboardInterrupt:
-        drystal.kill()
-        sys.exit(1)
-
-
 def run_native(args):
     wd, filename = os.path.split(args.PATH)
     program, arguments = prepare_native(args.release, args.coverage)
@@ -390,24 +361,20 @@ def run_native(args):
         arguments.append(filename)
     if args.server:
         arguments.append("--server")
+    if args.live:
+        arguments.append("--livecoding")
 
     if args.debug:
-        if args.live:
-            drystal = execute([program] + arguments, fork=True, cwd=wd)
-            execute(get_gdb_args(program, pid=drystal.pid), fork=True)
-        else:
             execute(get_gdb_args(program, arguments=arguments),
                     fork=False, cwd=wd)
     elif args.profile:
         drystal = execute(['valgrind'] + VALGRIND_ARGS_PROFILE + [program] + arguments,
-                          fork=args.live, cwd=wd)
+                          cwd=wd)
     elif args.memcheck:
         drystal = execute(['valgrind'] + VALGRIND_ARGS_MEMCHECK + [program] + arguments,
-                          fork=args.live, cwd=wd)
+                          cwd=wd)
     else:
-        drystal = execute([program] + arguments, fork=args.live, cwd=wd)
-    if args.live:
-        setup_live_coding(wd, filename, drystal)
+        drystal = execute([program] + arguments, cwd=wd)
 
 
 def valid_path(path):

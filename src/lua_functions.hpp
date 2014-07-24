@@ -18,6 +18,9 @@
 
 #include <cassert>
 #include <lua.hpp>
+#ifdef BUILD_LIVECODING
+#include <atomic>
+#endif
 
 class LuaFunctions
 {
@@ -34,12 +37,19 @@ public:
 	void call_update(float dt) const;
 	void call_draw() const;
 	void call_atexit() const;
+#ifdef BUILD_LIVECODING
+	std::atomic<bool>& is_need_to_reload();
+	void set_need_to_reload();
+#endif
 
 	bool get_function(const char* name) const;
 	void free();
 
 private:
 	const char* filename;
+#ifdef BUILD_LIVECODING
+	std::atomic<bool> need_to_reload;
+#endif
 	bool library_loaded;
 
 	LuaFunctions(const LuaFunctions&);

@@ -3,6 +3,7 @@ set(SOURCES
 	engine.cpp
 	lua_functions.cpp
 	main.cpp
+	util.c
 )
 if(BUILD_EVENT)
 	add_definitions(-DBUILD_EVENT)
@@ -48,6 +49,10 @@ if(BUILD_UTILS)
 	add_definitions(-DBUILD_UTILS)
 	aux_source_directory(utils SOURCES)
 endif()
+if(NOT DEFINED EMSCRIPTEN AND BUILD_LIVECODING)
+	add_definitions(-DBUILD_LIVECODING)
+	list(APPEND SOURCES livecoding_linux.c)
+endif()
 
 include(GenerateLuaFiles)
 
@@ -57,7 +62,9 @@ if(EMSCRIPTEN)
 endif()
 
 set(DRYSTAL_FLAGS " ")
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX)
+set(DRYSTAL_CXX_FLAGS " ")
+set(DRYSTAL_C_FLAGS " ")
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX OR CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANGC)
     if(CMAKE_BUILD_TYPE MATCHES DEBUG)
         set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} -ftrapv")
     endif()
@@ -77,16 +84,23 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX)
 -Wmissing-include-dirs \
 -Wmissing-declarations \
 -Wredundant-decls \
--Weffc++ \
 -Werror")
 # -Wcast-qual \
-	if(CMAKE_COMPILER_IS_GNUCXX)
+	if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_GNUCC)
 		set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} -Wlogical-op")
+	endif()
+endif()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX)
+    set(DRYSTAL_CXX_FLAGS "${DRYSTAL_CXX_FLAGS} -Weffc++ -std=c++11")
+	if(NOT DEFINED EMSCRIPTEN AND BUILD_LIVECODING)
+		# C++11 Needed by lua_functions for std::atomic<bool> for livecoding
+		set(DRYSTAL_CXX_FLAGS "${DRYSTAL_CXX_FLAGS} -std=c++11")
 	endif()
 endif()
 
 add_executable(${DRYSTAL_OUT} ${SOURCES})
-set_target_properties(${DRYSTAL_OUT} PROPERTIES COMPILE_FLAGS ${DRYSTAL_FLAGS})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DRYSTAL_FLAGS} ${DRYSTAL_CXX_FLAGS}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${DRYSTAL_FLAGS} ${DRYSTAL_C_FLAGS}")
 
 if(NOT DEFINED EMSCRIPTEN)
 	include(FindPkgConfig)

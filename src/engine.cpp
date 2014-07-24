@@ -129,6 +129,12 @@ long unsigned Engine::get_now()
 
 void Engine::update()
 {
+#ifdef BUILD_LIVECODING
+	if (lua.is_need_to_reload()) {
+		lua.reload_code();
+	}
+#endif
+
 	AT(start)
 #ifdef BUILD_EVENT
 	event_update();

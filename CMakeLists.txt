@@ -13,6 +13,7 @@ option(BUILD_STORAGE         "Enable storage module (needs BUILD_UTILS as depend
 option(BUILD_EVENT           "Enable event module (needs BUILD_GRAPHICS as dependency)" ON)
 option(BUILD_GRAPHICS        "Enable graphics module" ON)
 option(BUILD_UTILS           "Enable utils module" ON)
+option(BUILD_LIVECODING      "Enable livecoding (needs C++11 compiler, available only on Linux)" ON)
 
 if(BUILD_FONT AND NOT BUILD_GRAPHICS)
 	message(FATAL_ERROR "Cannot enable BUILD_FONT: BUILD_GRAPHICS is needed as a dependency")
@@ -32,6 +33,9 @@ endif()
 if(BUILD_STORAGE AND NOT BUILD_UTILS)
 	message(FATAL_ERROR "Cannot enable BUILD_STORAGE: BUILD_UTILS is needed as a dependency")
 endif()
+if(BUILD_LIVECODING AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	message(FATAL_ERROR "Cannot enable BUILD_LIVECODING: Linux only")
+endif()
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON) # -fPIC
@@ -39,10 +43,17 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON) # -fPIC
 if (CMAKE_CXX_COMPILER MATCHES ".*clang")
 	set(CMAKE_COMPILER_IS_CLANGXX 1)
 endif()
+if (CMAKE_C_COMPILER MATCHES ".*clang")
+	set(CMAKE_COMPILER_IS_CLANGC  1)
+endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX)
     set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -march=native -DDODEBUG")
     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG -march=native -mtune=native")
+endif()
+if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANGC)
+    set(CMAKE_C_FLAGS_DEBUG "-g -O0 -march=native -DDODEBUG")
+    set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG -march=native -mtune=native")
 endif()
 
 include(Utils)

@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
 
 #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
 #define BEGIN_DISABLE_WARNINGS \
@@ -23,6 +24,8 @@
 	_Pragma("GCC diagnostic ignored \"-Weffc++\"")
 #define DISABLE_WARNING_STRICT_ALIASING \
 	_Pragma("GCC diagnostic ignored \"-Wstrict-aliasing\"")
+#define DISABLE_WARNING_CAST_ALIGN \
+	_Pragma("GCC diagnostic ignored \"-Wcast-align\"")
 
 #define END_DISABLE_WARNINGS \
 	_Pragma("GCC diagnostic pop")
@@ -35,6 +38,8 @@
 	_Pragma("clang diagnostic ignored \"-Weffc++\"")
 #define DISABLE_WARNING_STRICT_ALIASING \
 	_Pragma("clang diagnostic ignored \"-Wstrict-aliasing\"")
+#define DISABLE_WARNING_CAST_ALIGN \
+	_Pragma("clang diagnostic ignored \"-Wcast-align\"")
 
 #define END_DISABLE_WARNINGS \
 	_Pragma("clang diagnostic pop")
@@ -42,10 +47,19 @@
 #define BEGIN_DISABLE_WARNINGS
 #define DISABLE_WARNING_EFFCPP
 #define DISABLE_WARNING_STRICT_ALIASING
+#define DISABLE_WARNING_CAST_ALIGN
 #define END_DISABLE_WARNINGS
 #endif
 #endif
 
 #define _unused_ __attribute__ ((unused))
+#define _alignas_(x) __attribute__((aligned(__alignof(x))))
 
 #define USEC_PER_SEC 1000000ULL
+
+#define MAX(a,b) \
+	({ \
+		__typeof__ (a) _a = (a); \
+		__typeof__ (b) _b = (b); \
+		_a > _b ? _a : _b; \
+	})
