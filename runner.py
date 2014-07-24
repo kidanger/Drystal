@@ -230,10 +230,16 @@ def prepare_drystaljs(destination):
     '''
     srcjs = join(BINARY_DIRECTORY_NATIVE_WEB, 'drystal.js')
     js = join(destination, 'drystal.js')
+    memsrcjs = join(BINARY_DIRECTORY_NATIVE_WEB, 'drystal.js.mem')
+    memjs = join(destination, 'drystal.js.mem')
 
     if has_been_modified(srcjs, js):
         print(G, '- copy drystal.js', N)
         shutil.copyfile(srcjs, js)
+    if os.path.exists(memsrcjs):
+        if has_been_modified(memsrcjs, memjs):
+            print(G, '- copy drystal.js.mem', N)
+            shutil.copyfile(memsrcjs, memjs)
 
 
 def package_data(path, zipname, destination, config, verbose=False):
