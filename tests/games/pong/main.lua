@@ -2,8 +2,7 @@ local drystal = require "drystal"
 local font = require "truetype"
 require "draw"
 
-local json = require 'dkjson'
-spritesheet = json.decode(io.open('image.json'):read('*all'))
+local spritesheet = drystal.fromjson(io.open('image.json'):read('*all'))
 
 local width = 800
 local height = 600
