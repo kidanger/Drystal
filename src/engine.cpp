@@ -23,7 +23,9 @@
 
 #include "engine.hpp"
 #include "log.hpp"
+#ifdef BUILD_ENABLE_STATS
 #include "stats.hpp"
+#endif
 #ifdef BUILD_AUDIO
 #include "audio/audio.hpp"
 #endif
@@ -41,8 +43,11 @@ log_category("engine");
 // needed for get_engine
 static Engine *engine;
 
-#ifdef STATS
+#ifdef BUILD_ENABLE_STATS
 Stats stats;
+#define AT(something) stats.set_##something(get_now());
+#else
+#define AT(something)
 #endif
 
 Engine::Engine(const char* filename, unsigned int target_fps, bool server_mode) :
@@ -60,7 +65,7 @@ Engine::Engine(const char* filename, unsigned int target_fps, bool server_mode) 
 	lua(filename)
 {
 	engine = this;
-#ifdef STATS
+#ifdef BUILD_ENABLE_STATS
 	stats.reset(get_now());
 #endif
 }
@@ -151,7 +156,7 @@ void Engine::update()
 		if (draw_activated)
 			lua.call_draw();
 
-#ifdef STATS
+#ifdef BUILD_ENABLE_STATS
 		if (stats_activated)
 			stats.draw(*this);
 #endif
@@ -162,7 +167,7 @@ void Engine::update()
 #endif
 	}
 
-#ifdef STATS
+#ifdef BUILD_ENABLE_STATS
 	if (stats_activated) {
 		stats.compute(get_now(), dt);
 	}

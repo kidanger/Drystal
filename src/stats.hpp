@@ -16,11 +16,6 @@
  */
 #pragma once
 
-#if defined(DODEBUG) && defined(BUILD_GRAPHICS)
-#define STATS
-#endif
-
-#ifdef STATS
 #include "engine.hpp"
 
 class Stats
@@ -79,7 +74,4 @@ private:
 	double average_dt;
 };
 extern Stats stats;
-#define AT(something) stats.set_##something(get_now());
-#else
-#define AT(something)
-#endif
+
