@@ -883,7 +883,7 @@ int luaopen_drystal(lua_State* L)
 	ADD_METHOD(surface, draw_from)
 	ADD_METHOD(surface, set_filter)
 	ADD_GC(free_surface)
-	REGISTER_CLASS_WITH_INDEX(surface, "__Surface")
+	REGISTER_CLASS_WITH_INDEX(surface, "Surface")
 
 	BEGIN_CLASS(buffer)
 	ADD_METHOD(buffer, use)
@@ -891,13 +891,13 @@ int luaopen_drystal(lua_State* L)
 	ADD_METHOD(buffer, reset)
 	ADD_METHOD(buffer, upload_and_free)
 	ADD_GC(free_buffer)
-	REGISTER_CLASS(buffer, "__Buffer")
+	REGISTER_CLASS(buffer, "Buffer")
 
 	BEGIN_CLASS(shader)
 	ADD_METHOD(shader, use)
 	ADD_METHOD(shader, feed)
 	ADD_GC(free_shader)
-	REGISTER_CLASS(shader, "__Shader")
+	REGISTER_CLASS(shader, "Shader")
 
 	{
 		// make sure we don't free the screen until the next resize
