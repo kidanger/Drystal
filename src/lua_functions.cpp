@@ -25,14 +25,30 @@
 #include "lua_functions.hpp"
 #include "luafiles.hpp"
 #include "module.hpp"
+#ifdef BUILD_EVENT
 #include "event/api.hpp"
+#endif
+#ifdef BUILD_PHYSIC
 #include "physic/api.hpp"
+#endif
+#ifdef BUILD_FONT
 #include "truetype/api.hpp"
+#endif
+#ifdef BUILD_PARTICLE
 #include "particle/api.hpp"
+#endif
+#ifdef BUILD_AUDIO
 #include "audio/api.hpp"
+#endif
+#ifdef BUILD_NET
 #include "net/api.hpp"
+#endif
+#ifdef BUILD_WEB
 #include "web/api.hpp"
+#endif
+#ifdef BUILD_STORAGE
 #include "storage/api.hpp"
+#endif
 
 log_category("lua");
 
@@ -760,14 +776,30 @@ static int mlua_drystal_index(lua_State* L)
 
 void LuaFunctions::register_modules()
 {
+#ifdef BUILD_AUDIO
 	REGISTER_MODULE(audio, L);
+#endif
+#ifdef BUILD_EVENT
 	REGISTER_MODULE(event, L);
+#endif
+#ifdef BUILD_NET
 	REGISTER_MODULE(net, L);
+#endif
+#ifdef BUILD_PARTICLE
 	REGISTER_MODULE(particle, L);
+#endif
+#ifdef BUILD_PHYSIC
 	REGISTER_MODULE(physic, L);
+#endif
+#ifdef BUILD_STORAGE
 	REGISTER_MODULE(storage, L);
+#endif
+#ifdef BUILD_FONT
 	REGISTER_MODULE(truetype, L);
+#endif
+#ifdef BUILD_WEB
 	REGISTER_MODULE(web, L);
+#endif
 }
 
 extern "C" {

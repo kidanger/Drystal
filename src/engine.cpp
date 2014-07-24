@@ -24,8 +24,12 @@
 #include "engine.hpp"
 #include "log.hpp"
 #include "stats.hpp"
+#ifdef BUILD_AUDIO
 #include "audio/audio.hpp"
+#endif
+#ifdef BUILD_EVENT
 #include "event/event.hpp"
+#endif
 #include "macro.hpp"
 
 #ifdef EMSCRIPTEN
@@ -62,7 +66,9 @@ Engine::Engine(const char* filename, unsigned int target_fps, bool server_mode) 
 Engine::~Engine()
 {
 	lua.free();
+#ifdef BUILD_AUDIO
 	destroy_audio();
+#endif
 }
 
 //
@@ -116,8 +122,10 @@ long unsigned Engine::get_now()
 void Engine::update()
 {
 	AT(start)
+#ifdef BUILD_EVENT
 	event_update();
 	AT(event)
+#endif
 
 	// check if an event provocked a stop
 	if (!run)
@@ -126,8 +134,10 @@ void Engine::update()
 	float dt = (get_now() - last_update) / (float) USEC_PER_SEC;
 	last_update = get_now();
 
+#ifdef BUILD_AUDIO
 	update_audio(dt);
 	AT(audio)
+#endif
 
 	if (update_activated)
 		lua.call_update(dt);

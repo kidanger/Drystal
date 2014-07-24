@@ -61,17 +61,19 @@ add_library(lua-cjson STATIC lua-cjson/fpconv.c lua-cjson/strbuf.c lua_cjson_pat
 ###
 ### Box2D
 ###
-set(BOX2D_BUILD_STATIC ON CACHE BOOL "")
-set(BOX2D_BUILD_EXAMPLES OFF CACHE BOOL "")
-set(BOX2D_INSTALL_BY_DEFAULT OFF)
-set(BOX2D_INSTALL OFF CACHE BOOL "")
-add_subdirectory(box2d/Box2D)
+if(BUILD_PHYSIC)
+	set(BOX2D_BUILD_STATIC ON CACHE BOOL "")
+	set(BOX2D_BUILD_EXAMPLES OFF CACHE BOOL "")
+	set(BOX2D_INSTALL_BY_DEFAULT OFF)
+	set(BOX2D_INSTALL OFF CACHE BOOL "")
+	add_subdirectory(box2d/Box2D)
+endif()
 
 
 ###
 ### websocket
 ###
-if(NOT DEFINED EMSCRIPTEN)
+if(NOT DEFINED EMSCRIPTEN AND BUILD_NET)
     add_library(websocket STATIC websocket.c)
     find_library(CRYPTO_LIBRARY NAMES crypto)
     find_library(RESOLV_LIBRARY NAMES resolv)
@@ -82,14 +84,18 @@ endif()
 ###
 ### STB
 ###
-add_library(stb_vorbis STATIC stb_vorbis.c)
-set_target_properties(stb_vorbis PROPERTIES COMPILE_DEFINITIONS "STB_VORBIS_NO_PUSHDATA_API")
+if(BUILD_AUDIO)
+	add_library(stb_vorbis STATIC stb_vorbis.c)
+	set_target_properties(stb_vorbis PROPERTIES COMPILE_DEFINITIONS "STB_VORBIS_NO_PUSHDATA_API")
+endif()
 
 add_library(stb_image STATIC stb_image.c)
 set_target_properties(stb_image PROPERTIES COMPILE_FLAGS "-DSTB_IMAGE_IMPLEMENTATION -DSTB_IMAGE_NO_HDR")
 
-add_library(stb_truetype STATIC stb_truetype.c)
-set_target_properties(stb_truetype PROPERTIES COMPILE_DEFINITIONS "STB_TRUETYPE_IMPLEMENTATION")
+if(BUILD_FONT)
+	add_library(stb_truetype STATIC stb_truetype.c)
+	set_target_properties(stb_truetype PROPERTIES COMPILE_DEFINITIONS "STB_TRUETYPE_IMPLEMENTATION")
+endif()
 
 
 ###

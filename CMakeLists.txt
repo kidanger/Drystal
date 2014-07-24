@@ -2,6 +2,14 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 project(drystal)
 
 option(BUILD_ENABLE_COVERAGE "Enable code coverage" OFF)
+option(BUILD_PHYSIC          "Enable physic module" ON)
+option(BUILD_PARTICLE        "Enable particle module" ON)
+option(BUILD_WEB             "Enable web module" ON)
+option(BUILD_NET             "Enable net module" ON)
+option(BUILD_FONT            "Enable font module" ON)
+option(BUILD_AUDIO           "Enable audio module" ON)
+option(BUILD_STORAGE         "Enable storage module" ON)
+option(BUILD_EVENT           "Enable event module" ON)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON) # -fPIC
@@ -21,7 +29,9 @@ add_subdirectory(external)
 
 include_directories(external)
 include_directories(external/lua/src)
-include_directories(external/box2d/Box2D)
+if(BUILD_PHYSIC)
+	include_directories(external/box2d/Box2D)
+endif()
 
 add_subdirectory(src)
 
