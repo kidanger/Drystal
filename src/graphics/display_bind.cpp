@@ -246,7 +246,7 @@ int mlua_free_surface(lua_State* L)
 	return 0;
 }
 
-int mlua_draw_on(lua_State* L)
+int mlua_draw_on_surface(lua_State* L)
 {
 	assert(L);
 
@@ -262,7 +262,7 @@ int mlua_draw_on(lua_State* L)
 	return 0;
 }
 
-int mlua_draw_from(lua_State* L)
+int mlua_draw_from_surface(lua_State* L)
 {
 	assert(L);
 

@@ -32,8 +32,6 @@ BEGIN_MODULE(graphics)
 	/* DISPLAY SURFACE */
 	DECLARE_FUNCTION(load_surface)
 	DECLARE_FUNCTION(new_surface)
-	DECLARE_FUNCTION(draw_on)
-	DECLARE_FUNCTION(draw_from)
 
 	/* DISPLAY DRAWERS */
 	DECLARE_FUNCTION(draw_background)
@@ -60,8 +58,10 @@ BEGIN_MODULE(graphics)
 	DECLARE_FUNCTION(use_buffer)
 
 	BEGIN_CLASS(surface)
-	    ADD_METHOD(surface, set_filter)
-	    ADD_GC(free_surface)
+		ADD_METHOD(surface, set_filter)
+		ADD_METHOD(surface, draw_on)
+		ADD_METHOD(surface, draw_from)
+		ADD_GC(free_surface)
 	REGISTER_CLASS_WITH_INDEX(surface, "Surface")
 
 	BEGIN_CLASS(buffer)

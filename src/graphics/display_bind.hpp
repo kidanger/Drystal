@@ -37,8 +37,8 @@ int mlua_surface_class_index(lua_State* L);
 int mlua_load_surface(lua_State* L);
 int mlua_new_surface(lua_State* L);
 int mlua_free_surface(lua_State* L);
-int mlua_draw_on(lua_State* L);
-int mlua_draw_from(lua_State* L);
+int mlua_draw_on_surface(lua_State* L);
+int mlua_draw_from_surface(lua_State* L);
 int mlua_set_filter_surface(lua_State* L);
 
 int mlua_draw_background(lua_State*);
