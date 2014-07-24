@@ -91,7 +91,7 @@ int mlua_load_music(lua_State *L)
 		lua_pushvalue(L, 1);
 		callback->ref = luaL_ref(L, LUA_REGISTRYINDEX);
 
-		int samplesrate = luaL_optnumber(L, 2, DEFAULT_SAMPLES_RATE);
+		int samplesrate = luaL_optint(L, 2, DEFAULT_SAMPLES_RATE);
 		music = Music::load(callback, samplesrate);
 	}
 	push_music(L, music);
