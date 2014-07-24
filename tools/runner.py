@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf-8
+#
+# This is a drystal developer tool, it is not intended to help game developpers.
 
 import os
 import sys
