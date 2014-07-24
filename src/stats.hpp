@@ -16,7 +16,7 @@
  */
 #pragma once
 
-#ifdef DODEBUG
+#if defined(DODEBUG) && defined(BUILD_GRAPHICS)
 #define STATS
 #endif
 

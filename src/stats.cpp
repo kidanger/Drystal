@@ -18,7 +18,7 @@
 
 #ifdef STATS
 #include "engine.hpp"
-#include "display.hpp"
+#include "graphics/display.hpp"
 
 Stats::Stats()
 	: started_at(0),

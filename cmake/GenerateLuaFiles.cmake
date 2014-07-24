@@ -13,7 +13,9 @@ endif()
 if(BUILD_PARTICLE)
 	list(APPEND LUAFILES_LIST "particle/particle.lua")
 endif()
-list(APPEND LUAFILES_LIST "postfx.lua" "draw.lua" "sprite.lua")
+if(BUILD_GRAPHICS)
+	list(APPEND LUAFILES_LIST "graphics/postfx.lua" "graphics/draw.lua" "graphics/sprite.lua")
+endif()
 
 set(LUAFILES_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/luafiles.cpp)
 

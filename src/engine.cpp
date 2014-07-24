@@ -54,7 +54,9 @@ Engine::Engine(const char* filename, unsigned int target_fps, bool server_mode) 
 	update_activated(true),
 	draw_activated(true),
 	stats_activated(false),
+#ifdef BUILD_GRAPHICS
 	display(server_mode),
+#endif
 	lua(filename)
 {
 	engine = this;
@@ -77,10 +79,12 @@ Engine::~Engine()
 
 void Engine::load()
 {
+#ifdef BUILD_GRAPHICS
 	if (!display.is_available()) {
 		log_error("Cannot run the engine, display is not available");
 		return;
 	}
+#endif
 
 	bool successful_load = lua.load_code();
 	if (run)
@@ -152,8 +156,10 @@ void Engine::update()
 			stats.draw(*this);
 #endif
 
+#ifdef BUILD_GRAPHICS
 		display.flip();
 		AT(display);
+#endif
 	}
 
 #ifdef STATS

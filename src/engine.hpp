@@ -18,7 +18,9 @@
 
 #include <lua.hpp>
 
-#include "display.hpp"
+#ifdef BUILD_GRAPHICS
+#include "graphics/display.hpp"
+#endif
 #include "lua_functions.hpp"
 
 class Engine
@@ -35,7 +37,9 @@ private:
 	bool stats_activated;
 
 public:
+#ifdef BUILD_GRAPHICS
 	Display display;
+#endif
 	LuaFunctions lua;
 
 	Engine(const char* filename, unsigned int target_fps, bool server_mode);
