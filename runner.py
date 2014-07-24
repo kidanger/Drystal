@@ -33,9 +33,6 @@ EMSCRIPTEN_CMAKE_DEFINES = ['CMAKE_TOOLCHAIN_FILE=../cmake/Emscripten.cmake',
                             'EMSCRIPTEN_ROOT_PATH=' + EMSCRIPTEN_ROOT_PATH,
                             'EMSCRIPTEN=1',
                             'CMAKE_BUILD_TYPE=Release']
-COMPRESSOR = '/usr/lib/emscripten/third_party/lzma.js/lzma-native'
-DECOMPRESS_JS = '/usr/lib/emscripten/third_party/lzma.js/lzma-decoder.js'
-DECOMPRESS_NAME = 'LZMA.decompress'
 
 LIB_PATH_RELEASE = join(BUILD_NATIVE_RELEASE, 'external')
 LIB_PATH_DEBUG = join(BUILD_NATIVE_DEBUG, 'external')
@@ -45,61 +42,8 @@ VALGRIND_ARGS_PROFILE = ['--tool=callgrind']
 BROWSERS = 'chromium', 'firefox'
 
 HAS_NINJA = subprocess.call(['which', 'ninja'], stdout=subprocess.DEVNULL) == 0
-COMPRESS_DATA = True
-
-DECOMPRESS_CODE = '''
-<script type='text/javascript'>
-var decompressWorker = new Worker('decompress.js');
-var decompressCallbacks = [];
-var decompressions = 0;
-Module["decompress"] = function(data, callback) {
-    var id = decompressCallbacks.length;
-    decompressCallbacks.push(callback);
-    decompressWorker.postMessage({ data: data, id: id });
-    if (Module['setStatus']) {
-        decompressions++;
-        Module['setStatus']('Decompressing...');
-    }
-};
-decompressWorker.onmessage = function(event) {
-      decompressCallbacks[event.data.id](event.data.data);
-      decompressCallbacks[event.data.id] = null;
-      if (Module['setStatus']) {
-              decompressions--;
-              if (decompressions == 0) {
-                        Module['setStatus']('');
-                      }
-            }
-};
-</script>
-'''
 
 DRYSTAL_LOAD = '<script type="text/javascript" src="drystal.js"></script>'
-
-DRYSTAL_LOAD_COMPRESSED = '''
-''' + DECOMPRESS_CODE + '''
-<script type='text/javascript'>
-var compiledCodeXHR = new XMLHttpRequest();
-compiledCodeXHR.open('GET', 'drystal.js.compress', true);
-compiledCodeXHR.responseType = 'arraybuffer';
-compiledCodeXHR.onload = function() {
-    var arrayBuffer = compiledCodeXHR.response;
-    if (!arrayBuffer) throw('Loading compressed code failed.');
-    var byteArray = new Uint8Array(arrayBuffer);
-    Module.decompress(byteArray, function(decompressed) {
-        var source = Array.prototype.slice.apply(decompressed)
-            .map(function(x) {
-            return String.fromCharCode(x)
-        }).join(''); // createObjectURL instead?
-        var scriptTag = document.createElement('script');
-        scriptTag.setAttribute('type', 'text/javascript');
-        scriptTag.innerHTML = source;
-        document.body.appendChild(scriptTag);
-    });
-};
-compiledCodeXHR.send(null);
-</script>
-'''
 
 DRYSTAL_ADD_ARGUMENTS = '''
 <script type='text/javascript'>
@@ -280,34 +224,16 @@ def prepare_native(release=False):
     return program, []
 
 
-def prepare_drystaljs(destination, use_compress_drystal):
+def prepare_drystaljs(destination):
     '''
-        create web/decompress.js
-        compress build-web/src/drystal.js to web/drystal.js.compressed
-        or copy build-web/src/drystal.js to web/drystal.js
+        copy build-web/src/drystal.js to web/drystal.js
     '''
     srcjs = join(BINARY_DIRECTORY_NATIVE_WEB, 'drystal.js')
-    decompressjs = join(destination, 'decompress.js')
-    jscompressed = join(destination, 'drystal.js.compress')
     js = join(destination, 'drystal.js')
-    if not os.path.exists(decompressjs):
-        print(G, '- create decompress.js', N)
-        decompressor = open(decompressjs, 'w')
-        decompressor.write(open(DECOMPRESS_JS).read())
-        decompressor.write('''
-                onmessage = function(event) {
-                postMessage({ data: %s(event.data.data), id: event.data.id });
-                };
-                ''' % DECOMPRESS_NAME)
-        decompressor.close()
 
-    if has_been_modified(srcjs, js) and not use_compress_drystal:
+    if has_been_modified(srcjs, js):
         print(G, '- copy drystal.js', N)
         shutil.copyfile(srcjs, js)
-
-    if has_been_modified(srcjs, jscompressed) and use_compress_drystal:
-        print(G, '- compress drystal.js to drystal.js.compress', N)
-        execute([COMPRESSOR], stdin=srcjs, stdout=jscompressed)
 
 
 def package_data(path, zipname, destination, config, verbose=False):
@@ -346,7 +272,6 @@ def package_data(path, zipname, destination, config, verbose=False):
 
 
 def copy_and_modify_html(gamedir, zipname, destination, mainfile=None):
-    use_compress_drystal = False
     mainfile = mainfile or 'main.lua'
     htmlfile = locate_recursively(os.path.abspath(gamedir), os.getcwd(),
                                   'index.html')
@@ -356,16 +281,10 @@ def copy_and_modify_html(gamedir, zipname, destination, mainfile=None):
     print(G, '- copy', htmlfile, N)
     html = open(htmlfile, 'r').read()
 
-    if '{{{DRYSTAL_LOAD}}}' in html:
-        html = html.replace('{{{DRYSTAL_LOAD}}}', DRYSTAL_LOAD)
-    else:
-        html = html.replace('{{{DRYSTAL_LOAD_COMPRESSED}}}',
-                            DRYSTAL_LOAD_COMPRESSED)
-        use_compress_drystal = True
+    html = html.replace('{{{DRYSTAL_LOAD}}}', DRYSTAL_LOAD)
     html = html.replace('{{{DRYSTAL_ADD_ARGUMENTS}}}',
                         DRYSTAL_ADD_ARGUMENTS.replace('ARGS', str(['--zip=' + zipname, mainfile])))
     open(join(destination, 'index.html'), 'w').write(html)
-    return use_compress_drystal
 
 
 def run_repack(args):
@@ -382,11 +301,9 @@ def run_repack(args):
     cmake_update('build-web', EMSCRIPTEN_CMAKE_DEFINES)
 
     # copy html (and check which version of drystaljs is used
-    use_compress_drystal = copy_and_modify_html(directory, zipname,
-                                                args.destination,
-                                                mainfile=file)
+    copy_and_modify_html(directory, zipname, args.destination, mainfile=file)
     # copy drystaljs and its data
-    prepare_drystaljs(args.destination, use_compress_drystal)
+    prepare_drystaljs(args.destination)
 
     # pack game data and copy wgot files
     config = load_config(directory)
