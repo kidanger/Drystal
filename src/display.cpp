@@ -847,6 +847,10 @@ Shader * Display::new_shader(const char* strvert, const char* strfragcolor, cons
 		strfragtex = DEFAULT_FRAGMENT_SHADER_TEX;
 	}
 
+	assert(strfragtex);
+	assert(strfragcolor);
+	assert(strvert);
+
 	char* new_strvert = new char[SHADER_PREFIX_LEN + strlen(strvert) + 1];
 	strcpy(new_strvert, SHADER_PREFIX);
 	strcat(new_strvert, strvert);

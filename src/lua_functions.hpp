@@ -66,6 +66,7 @@ private:
 		if (!lua_istable(L, index)) { \
 			T **p = static_cast<T **>(lua_touserdata(L, index)); \
 			if (p == NULL) luaL_argerror(L, index, #name" expected"); \
+			assert(p); \
 			return *p; \
 		} else { \
 			lua_getfield(L, index, "__self"); \
@@ -85,6 +86,7 @@ private:
 			lua_rawgeti(L, -1, name->ref); \
 		} else { \
 			T **p = static_cast<T **>(lua_newuserdata(L, sizeof(T **))); \
+			assert(p); \
 			*p = name; \
 			\
 			lua_newtable(L); /* storage */ \
