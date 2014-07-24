@@ -28,6 +28,8 @@ BINARY_DIRECTORY_NATIVE_RELEASE = join(BUILD_NATIVE_RELEASE, 'src')
 BINARY_DIRECTORY_NATIVE_DEBUG = join(BUILD_NATIVE_DEBUG, 'src')
 BINARY_DIRECTORY_NATIVE_WEB = join(BUILD_WEB, 'src')
 
+NATIVE_CMAKE_DEFINES = []
+
 EMSCRIPTEN_ROOT_PATH = '/usr/lib/emscripten'
 EMSCRIPTEN_CMAKE_DEFINES = ['CMAKE_TOOLCHAIN_FILE=../cmake/Emscripten.cmake',
                             'EMSCRIPTEN_ROOT_PATH=' + EMSCRIPTEN_ROOT_PATH,
@@ -218,7 +220,7 @@ def prepare_native(release=False):
         bin_path = BINARY_DIRECTORY_NATIVE_DEBUG
         coverage = 'ON'
 
-    cmake_update(directory, ['CMAKE_BUILD_TYPE=' + build_type, 'BUILD_ENABLE_COVERAGE='+coverage])
+    cmake_update(directory, ['CMAKE_BUILD_TYPE=' + build_type, 'BUILD_ENABLE_COVERAGE='+coverage] + NATIVE_CMAKE_DEFINES)
     os.environ['LD_LIBRARY_PATH'] = lib_path
     program = join(bin_path, 'drystal')
     return program, []
