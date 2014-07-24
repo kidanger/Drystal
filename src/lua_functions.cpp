@@ -317,7 +317,6 @@ int luaopen_drystal(lua_State* L)
 
 #define EXPOSE_FUNCTION(name) {#name, mlua_##name}
 	static const luaL_Reg lib[] = {
-		{"engine_stop", mlua_stop},
 		EXPOSE_FUNCTION(stop),
 		EXPOSE_FUNCTION(reload),
 
