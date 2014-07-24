@@ -83,6 +83,7 @@ bool LuaFunctions::get_function(const char* name) const
 	lua_pushstring(L, name);
 	lua_rawget(L, -2);
 	if (lua_isfunction(L, -1)) {
+		lua_remove(L, lua_gettop(L) - 1);
 		return true;
 	}
 	lua_pop(L, 2);
@@ -91,6 +92,7 @@ bool LuaFunctions::get_function(const char* name) const
 
 void LuaFunctions::remove_userpackages() const
 {
+	assert(lua_gettop(L) == 0);
 	log_info("Removing old packages: ");
 	const char* kept[] = {
 		"_G",
@@ -121,6 +123,8 @@ void LuaFunctions::remove_userpackages() const
 		}
 		lua_pop(L, 1);
 	}
+	lua_pop(L, 2);
+	assert(lua_gettop(L) == 0);
 }
 
 bool LuaFunctions::load_code()
@@ -138,6 +142,7 @@ bool LuaFunctions::load_code()
 			lua_pop(L, 2);
 			return false;
 		}
+		library_loaded = true;
 	}
 
 	if (luaL_loadfile(L, filename) || lua_pcall(L, 0, 0, -2)) {
