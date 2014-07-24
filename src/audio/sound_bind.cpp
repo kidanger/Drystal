@@ -29,63 +29,61 @@ int mlua_load_sound(lua_State *L)
 {
 	assert(L);
 
-	const char* filename = lua_tostring(L, 1);
-	Sound *chunk = Sound::load_from_file(filename);
-	if (chunk) {
+    if (lua_isstring(L, 1)) {
+		const char* filename = lua_tostring(L, 1);
+		Sound *chunk = Sound::load_from_file(filename);
+		if (chunk) {
+			push_sound(L, chunk);
+			return 1;
+		}
+		return luaL_fileresult(L, 0, filename);
+	} else {
+		/*
+		 * Multiple configurations allowed:
+		 * [1]: table
+		 * 	len = #table (can call __len)
+		 * 	data = table[i] (can call __index)
+		 * or
+		 * [1]: table
+		 * [2]: number
+		 * 	len = number
+		 * 	data = table[i] (can call __index)
+		 * or
+		 * [1]: function
+		 * [2]: number
+		 * 	len = number
+		 * 	data = function(i)
+		 */
+		unsigned int len;
+		if (lua_gettop(L) == 1) {
+			len = luaL_len(L, 1);
+		} else {
+			len = luaL_checknumber(L, 2);
+		}
+
+		float buffer[len];
+		if (lua_istable(L, 1)) {
+			for (unsigned int i = 0; i < len; i++) {
+				lua_pushnumber(L, i + 1);
+				lua_gettable(L, 1);
+				buffer[i] = luaL_checknumber(L, -1);
+				lua_pop(L, 1);
+			}
+		} else if (lua_isfunction(L, 1)) {
+			for (unsigned int i = 0; i < len; i++) {
+				lua_pushvalue(L, 1);
+				lua_pushnumber(L, i);
+				lua_call(L, 1, 1);
+				buffer[i] = luaL_checknumber(L, -1);
+				lua_pop(L, 1);
+			}
+		}
+
+		Sound *chunk = Sound::load(len, buffer);
 		push_sound(L, chunk);
 		return 1;
 	}
-	return luaL_fileresult(L, 0, filename);
-}
-
-int mlua_create_sound(lua_State *L)
-{
-	assert(L);
-
-	/*
-	 * Multiple configurations allowed:
-	 * [1]: table
-	 * 	len = #table (can call __len)
-	 * 	data = table[i] (can call __index)
-	 * or
-	 * [1]: table
-	 * [2]: number
-	 * 	len = number
-	 * 	data = table[i] (can call __index)
-	 * or
-	 * [1]: function
-	 * [2]: number
-	 * 	len = number
-	 * 	data = function(i)
-	 */
-	unsigned int len;
-	if (lua_gettop(L) == 1) {
-		len = luaL_len(L, 1);
-	} else {
-		len = luaL_checknumber(L, 2);
-	}
-
-	float buffer[len];
-	if (lua_istable(L, 1)) {
-		for (unsigned int i = 0; i < len; i++) {
-			lua_pushnumber(L, i + 1);
-			lua_gettable(L, 1);
-			buffer[i] = luaL_checknumber(L, -1);
-			lua_pop(L, 1);
-		}
-	} else if (lua_isfunction(L, 1)) {
-		for (unsigned int i = 0; i < len; i++) {
-			lua_pushvalue(L, 1);
-			lua_pushnumber(L, i);
-			lua_call(L, 1, 1);
-			buffer[i] = luaL_checknumber(L, -1);
-			lua_pop(L, 1);
-		}
-	}
-
-	Sound *chunk = Sound::load(len, buffer);
-	push_sound(L, chunk);
-	return 1;
+	return 0;
 }
 
 int mlua_play_sound(lua_State *L)

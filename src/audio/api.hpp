@@ -8,7 +8,6 @@ BEGIN_MODULE(audio)
 	DECLARE_FUNCTION(set_music_volume)
 
 	DECLARE_FUNCTION(load_sound)
-	DECLARE_FUNCTION(create_sound)
 	DECLARE_FUNCTION(set_sound_volume)
 
 	BEGIN_CLASS(sound)
