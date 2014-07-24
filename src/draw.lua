@@ -1,7 +1,6 @@
 local drystal = require 'drystal'
 
 local _draw_quad = drystal.draw_quad
-drystal.draw_freeshape = _draw_quad
 
 function drystal.draw_rect(x, y, w, h)
 	drystal.draw_triangle(x, y, x, y+h, x+w, y)
