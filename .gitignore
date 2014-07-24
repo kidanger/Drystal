@@ -4,3 +4,4 @@ build-*/
 /web
 *.pyc
 *.swp
+/doc/_build/
