@@ -66,6 +66,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX)
         set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} -ftrapv")
     endif()
     set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} \
+-fvisibility=hidden \
 -Wall \
 -Wextra \
 -Wundef \
