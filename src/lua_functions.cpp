@@ -52,6 +52,9 @@
 #ifdef BUILD_GRAPHICS
 #include "graphics/api.hpp"
 #endif
+#ifdef BUILD_UTILS
+#include "utils/api.hpp"
+#endif
 
 log_category("lua");
 
@@ -294,12 +297,9 @@ void LuaFunctions::register_modules()
 #ifdef BUILD_GRAPHICS
 	REGISTER_MODULE(graphics, L);
 #endif
-}
-
-extern "C" {
-	extern int json_encode(lua_State* L);
-	extern int json_decode(lua_State* L);
-	extern void lua_cjson_init();
+#ifdef BUILD_UTILS
+	REGISTER_MODULE(utils, L);
+#endif
 }
 
 int luaopen_drystal(lua_State* L)
@@ -320,10 +320,6 @@ int luaopen_drystal(lua_State* L)
 		EXPOSE_FUNCTION(stop),
 		EXPOSE_FUNCTION(reload),
 
-		/* SERIALIZER */
-		{"serialize", json_encode},
-		{"deserialize", json_decode},
-
 		{NULL, NULL}
 	};
 #undef EXPOSE_FUNCTION
@@ -337,8 +333,6 @@ int luaopen_drystal(lua_State* L)
 
 	lua_pushvalue(L, -1);
 	engine.lua.drystal_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
-
-	lua_cjson_init();
 
 	assert(lua_gettop(L) == 2);
 	return 1;

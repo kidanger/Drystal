@@ -92,7 +92,7 @@ end
 
 
 local function convert_lua_to_data(lua)
-	local serialized = drystal.serialize(lua)
+	local serialized = drystal.tojson(lua)
 	local netstring = table.concat({#serialized, ':', serialized})
 	return netstring
 end
@@ -128,7 +128,7 @@ function Socket:recvlua()
 		local data = self.buffer:sub(1, self.current_size)
 		self.buffer = self.buffer:sub(self.current_size + 1)
 		self.current_size = nil
-		return drystal.deserialize(data)
+		return drystal.fromjson(data)
 	end
 
 	return nil

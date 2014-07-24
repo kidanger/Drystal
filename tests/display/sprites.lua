@@ -1,13 +1,13 @@
 local drystal = require 'drystal'
 
-local spritesheet = drystal.deserialize(io.open('image.json'):read('*all'))
+local spritesheet = drystal.fromjson(io.open('image.json'):read('*all'))
 local image = assert(drystal.load_surface(spritesheet.meta.image))
 
 local sprites = {}
 
 function drystal.init()
 	drystal.resize(600, 400)
-	drystal.draw_from(image)
+	image:draw_from()
 end
 
 function drystal.update(dt)

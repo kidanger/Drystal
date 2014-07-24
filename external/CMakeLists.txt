@@ -50,12 +50,14 @@ endif()
 ###
 ### Lua_cjson
 ###
-add_custom_command(OUTPUT lua_cjson_patched.c
-    COMMAND patch --quiet ${CMAKE_CURRENT_SOURCE_DIR}/lua-cjson/lua_cjson.c ${CMAKE_CURRENT_SOURCE_DIR}/cjson.patch -o lua_cjson_patched.c
-    COMMENT "Patching lua-cjson")
+if(BUILD_UTILS)
+	add_custom_command(OUTPUT lua_cjson_patched.c
+	    COMMAND patch --quiet ${CMAKE_CURRENT_SOURCE_DIR}/lua-cjson/lua_cjson.c ${CMAKE_CURRENT_SOURCE_DIR}/cjson.patch -o lua_cjson_patched.c
+	    COMMENT "Patching lua-cjson")
 
-include_directories(lua-cjson)
-add_library(lua-cjson STATIC lua-cjson/fpconv.c lua-cjson/strbuf.c lua_cjson_patched.c)
+	include_directories(lua-cjson)
+	add_library(lua-cjson STATIC lua-cjson/fpconv.c lua-cjson/strbuf.c lua_cjson_patched.c)
+endif()
 
 
 ###
