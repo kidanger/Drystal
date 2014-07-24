@@ -3,4 +3,4 @@ tags
 build-*/
 /web
 *.pyc
-remove.sh
+*.swp
