@@ -40,6 +40,7 @@ Stats::Stats()
 	  ticks_passed(0),
 	  average_dt(16.)
 {
+	reset(Engine::get_now());
 }
 
 void Stats::reset(long unsigned now)
@@ -72,8 +73,9 @@ void Stats::add_flush(int used)
 	size_flushed = used * 0.1 + size_flushed * 0.9;
 }
 
-void Stats::draw(Engine& engine)
+void Stats::draw()
 {
+	Engine& engine = get_engine();
 	float event_ratio = event / active;
 	float audio_ratio = audio / active;
 	float game_ratio = game / active;

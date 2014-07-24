@@ -21,6 +21,9 @@
 #ifdef BUILD_GRAPHICS
 #include "graphics/display.hpp"
 #endif
+#ifdef BUILD_ENABLE_STATS
+#include "stats.hpp"
+#endif
 #include "lua_functions.hpp"
 
 class Engine
@@ -35,6 +38,9 @@ private:
 	bool update_activated;
 	bool draw_activated;
 	bool stats_activated;
+#ifdef BUILD_ENABLE_STATS
+	Stats stats;
+#endif
 
 public:
 #ifdef BUILD_GRAPHICS

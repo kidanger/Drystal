@@ -16,15 +16,13 @@
  */
 #pragma once
 
-#include "engine.hpp"
-
 class Stats
 {
 public:
 	Stats();
 	void reset(long unsigned now);
 	void add_flush(int used);
-	void draw(Engine& engine);
+	void draw();
 	void compute(long unsigned now, float dt);
 	inline void set_display(long unsigned now)
 	{
@@ -73,5 +71,4 @@ private:
 	int ticks_passed;
 	double average_dt;
 };
-extern Stats stats;
 

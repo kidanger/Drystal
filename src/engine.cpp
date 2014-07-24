@@ -44,7 +44,6 @@ log_category("engine");
 static Engine *engine;
 
 #ifdef BUILD_ENABLE_STATS
-Stats stats;
 #define AT(something) stats.set_##something(get_now());
 #else
 #define AT(something)
@@ -59,15 +58,15 @@ Engine::Engine(const char* filename, unsigned int target_fps, bool server_mode) 
 	update_activated(true),
 	draw_activated(true),
 	stats_activated(false),
+#ifdef BUILD_ENABLE_STATS
+	stats(),
+#endif
 #ifdef BUILD_GRAPHICS
 	display(server_mode),
 #endif
 	lua(filename)
 {
 	engine = this;
-#ifdef BUILD_ENABLE_STATS
-	stats.reset(get_now());
-#endif
 }
 
 Engine::~Engine()
@@ -158,7 +157,7 @@ void Engine::update()
 
 #ifdef BUILD_ENABLE_STATS
 		if (stats_activated)
-			stats.draw(*this);
+			stats.draw();
 #endif
 
 #ifdef BUILD_GRAPHICS
