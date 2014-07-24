@@ -39,8 +39,8 @@ DECOMPRESS_NAME = 'LZMA.decompress'
 
 LIB_PATH_RELEASE = join(BUILD_NATIVE_RELEASE, 'external')
 LIB_PATH_DEBUG = join(BUILD_NATIVE_DEBUG, 'external')
-VALGRIND_ARGS_MEMCHECK = '--tool=memcheck'
-VALGRIND_ARGS_PROFILE = '--tool=callgrind'
+VALGRIND_ARGS_MEMCHECK = ['--tool=memcheck']
+VALGRIND_ARGS_PROFILE = ['--tool=callgrind']
 
 BROWSERS = 'chromium', 'firefox'
 
@@ -469,10 +469,10 @@ def run_native(args):
             execute(get_gdb_args(program, arguments=arguments),
                     fork=False, cwd=wd)
     elif args.profile:
-        drystal = execute(['valgrind', VALGRIND_ARGS_PROFILE, program] + arguments,
+        drystal = execute(['valgrind'] + VALGRIND_ARGS_PROFILE + [program] + arguments,
                           fork=args.live, cwd=wd)
     elif args.memcheck:
-        drystal = execute(['valgrind', VALGRIND_ARGS_MEMCHECK, program] + arguments,
+        drystal = execute(['valgrind'] + VALGRIND_ARGS_MEMCHECK + [program] + arguments,
                           fork=args.live, cwd=wd)
     else:
         drystal = execute([program] + arguments, fork=args.live, cwd=wd)
