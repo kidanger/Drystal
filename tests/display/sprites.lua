@@ -25,7 +25,7 @@ function drystal.draw()
 	end
 end
 
-table.insert(sprites, drystal.Sprite {
+table.insert(sprites, drystal.new_sprite {
 	x=300,
 	y=200,
 	w=40,
@@ -41,7 +41,7 @@ table.insert(sprites, drystal.Sprite {
 })
 
 local sprite = spritesheet.frames['character.png'].frame
-table.insert(sprites, drystal.Sprite {
+table.insert(sprites, drystal.new_sprite {
 	x=350,
 	y=200,
 	w=sprite.w,
