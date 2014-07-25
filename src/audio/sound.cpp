@@ -17,6 +17,7 @@
 #include <cassert>
 #include <cstdlib>
 
+#define WAVLOADER_HEADER_ONLY
 #include <wavloader.c>
 
 #include "log.hpp"

@@ -1,5 +1,6 @@
 /* wavloader - public domain wav loader no warranty implied; use at your own risk
 * written in 2013 by kidanger
+* rewritten in 2014 by Ronny Chevalier
 */
 #ifndef WAVLOADER_INCLUDE
 #define WAVLOADER_INCLUDE

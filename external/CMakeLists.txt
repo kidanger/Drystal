@@ -108,3 +108,10 @@ endif()
 if(EMSCRIPTEN)
     add_library(miniz STATIC miniz.c)
 endif()
+
+###
+### wavloader
+###
+if(BUILD_AUDIO)
+	add_library(wavloader STATIC wavloader.c)
+endif()
