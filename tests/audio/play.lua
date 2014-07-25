@@ -1,6 +1,6 @@
 local drystal = require 'drystal'
 
-local piou = drystal.load_sound("test.wav")
+local piou = assert(drystal.load_sound("test.wav"))
 
 function drystal.init()
 	print("press p to play a wav sound")

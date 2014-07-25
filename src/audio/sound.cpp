@@ -30,8 +30,7 @@ Sound::Sound(ALushort* buffer, unsigned int length, int samplesrate) :
 	ref(0)
 {
 	alGenBuffers(1, &alBuffer);
-	alBufferData(alBuffer, AL_FORMAT_MONO16,
-	             buffer, length * sizeof(ALushort), samplesrate);
+	alBufferData(alBuffer, AL_FORMAT_MONO16, buffer, length, samplesrate);
 
 	audio_check_error();
 }
@@ -43,16 +42,13 @@ Sound* Sound::load_from_file(const char *filepath)
 		return NULL;
 
 	void* buffer;
-	int length;
-	int format;
-	int channels;
-	int samplesrate;
-	int err = load_wav(filepath, &buffer, &length, &format, &channels, &samplesrate);
+	struct wave_header wave_header;
+	int err = load_wav(filepath, &wave_header, &buffer);
 	if (err) {
 		return NULL;
 	}
 
-	Sound* sound = new Sound(static_cast<ALushort*>(buffer), length, samplesrate);
+	Sound* sound = new Sound(static_cast<ALushort*>(buffer), wave_header.data_size, wave_header.sample_rate);
 	return sound;
 }
 

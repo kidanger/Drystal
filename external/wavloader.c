@@ -1,5 +1,4 @@
-/* wavloader - public domain wav loader
-                                     no warranty implied; use at your own risk
+/* wavloader - public domain wav loader no warranty implied; use at your own risk
 * written in 2013 by kidanger
 */
 #ifndef WAVLOADER_INCLUDE
@@ -8,8 +7,25 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#include <stdint.h>
 
-int load_wav(const char* filename, void** buffer, int* length, int* format, int* channels, int* samplerate);
+struct wave_header {
+	char header_id[4];
+	uint32_t chunk_size;
+	char format[4];
+	char format_id[4];
+	uint32_t format_size;
+	uint16_t audio_format;
+	uint16_t num_channels;
+	uint32_t sample_rate;
+	uint32_t byte_rate;
+	uint16_t block_align;
+	uint16_t bits_per_sample;
+	char data_id[4];
+	uint32_t data_size;
+};
+
+int load_wav(const char *filename, struct wave_header *wave_header, void **audio_data);
 
 #ifdef __cplusplus
 }
@@ -24,82 +40,89 @@ extern "C" {
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdint.h>
+#include <errno.h>
 
-int load_wav(const char* filename, void** buffer, int* length, int* format, int* channels, int* samplerate)
+int load_wav(const char *filename, struct wave_header *wave_header, void **audio_data)
 {
 	/* see https://ccrma.stanford.edu/courses/422/projects/WaveFormat/ */
-	FILE* file = fopen(filename, "rb");
-	unsigned int filesize;
+	FILE *file;
+	void *tmp_buffer = NULL;
+	int ret = 0;
+	size_t r;
+	long filesize;
 
-	int err = 1;
-#define SKIP(n) { char skip[n]; fread(skip, n, 1, file); }
-#define READ_STR(n, correct) { \
-		char str[n]; \
-		fread(str, n, 1, file); \
-		if (strncmp(str, correct, n)) { \
-			printf("failed to read %s was %s.\n", correct, str); \
-			return err; \
-		} \
-		err++; \
-	}
-#define READ_NUM(type, correct) { \
-		type num; \
-		fread(&num, sizeof(num), 1, file); \
-		if (num != correct) { \
-			printf("failed to read %d was %d\n", correct, num); \
-			return err; \
-		} \
-		err++; \
-	}
-	READ_STR(4, "RIFF"); /* ChunkID */
-	fread(&filesize, sizeof(filesize), 1, file); /* ChunkSize */
-	READ_STR(4, "WAVE"); /* Format */
-	READ_STR(4, "fmt "); /* Subchunk1ID */
-	SKIP(4); /* Subchunk1Size */
-	SKIP(2); /* AudioFormat */
-
-	short _channels;
-	fread(&_channels, 2, 1, file);
-	*channels = _channels;
-
-	fread(samplerate, 4, 1, file);
-
-	SKIP(4); /* ByteRate */
-	SKIP(2); /* BlockAlign */
-	READ_NUM(int16_t, 16); /* BitsPerSample */
-	*format = 16; /* force 16bits per sample */
-	READ_STR(4, "data");
-
-	fread(length, 4, 1, file);
-	*length /= sizeof(unsigned short);
-
-	*buffer = malloc(*length * sizeof(unsigned short));
-	int read = fread(*buffer, sizeof(unsigned short), *length, file);
-
-	if (*length != read)
-		return err;
-
-#undef SKIP
-#undef READ_STR
-#undef READ_NUM
-	return 0;
+	if (!filename || !wave_header || !audio_data) {
+		return -EINVAL;
 	}
 
+	file = fopen(filename, "rb");
+	if (!file) {
+		return -errno;
+	}
+
+	r = fread(wave_header, sizeof(struct wave_header), 1, file);
+	if (r != 1) {
+		ret = -EIO;
+		goto fail;
+	}
+
+	if (strncmp(wave_header->header_id, "RIFF", 4)) {
+		r = -ENOTSUP;
+		goto fail;
+	}
+	if (strncmp(wave_header->format, "WAVE", 4)) {
+		r = -ENOTSUP;
+		goto fail;
+	}
+	if (strncmp(wave_header->format_id, "fmt", 3)) {
+		r = -ENOTSUP;
+		goto fail;
+	}
+	if (strncmp(wave_header->data_id, "data", 4)) {
+		r = -ENOTSUP;
+		goto fail;
+	}
+	if (wave_header->format_size != 16) {
+		r = -ENOTSUP;
+		goto fail;
+	}
+	if (wave_header->audio_format != 1) {
+		r = -ENOTSUP;
+		goto fail;
+	}
+
+	fseek(file, 0L, SEEK_END);
+	filesize = ftell(file);
+	fseek(file, sizeof(struct wave_header), SEEK_SET);
+
+	if (wave_header->data_size != filesize - sizeof(struct wave_header)) {
+		ret = -EIO;
+		goto fail;
+	}
+
+	tmp_buffer = malloc(wave_header->data_size);
+	if (!tmp_buffer) {
+		ret = -ENOMEM;
+		goto fail;
+	}
+
+	r = fread(tmp_buffer, wave_header->data_size, 1, file);
+	if (r != 1) {
+		ret = -EIO;
+		goto fail;
+	}
+
+	*audio_data = tmp_buffer;
+
+	return ret;
+fail:
+	free(tmp_buffer);
+	fclose(file);
+
+	return ret;
+}
 #ifdef __cplusplus
 }
 #endif
-
-#ifdef WAVLOADER_MAIN
-int main(int argc, const char** argv)
-{
-	void* buffer;
-	int len, format, channels, samplerate;
-	int ret = load_wav(argv[1], &buffer, &len, &format, &channels, &samplerate);
-	printf("%d %d %d %d %d %p\n", ret, len, format, channels, samplerate, buffer);
-	return 0;
-}
-#endif
-
 #endif
 
