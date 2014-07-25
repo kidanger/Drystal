@@ -40,7 +40,7 @@ EMSCRIPTEN_CMAKE_DEFINES = ['CMAKE_TOOLCHAIN_FILE=../cmake/Emscripten.cmake',
 
 LIB_PATH_RELEASE = join(BUILD_NATIVE_RELEASE, 'external')
 LIB_PATH_DEBUG = join(BUILD_NATIVE_DEBUG, 'external')
-VALGRIND_ARGS_MEMCHECK = ['--tool=memcheck']
+VALGRIND_ARGS_MEMCHECK = ['--tool=memcheck', '--leak-check=full']
 VALGRIND_ARGS_PROFILE = ['--tool=callgrind']
 
 BROWSERS = 'chromium', 'firefox'
