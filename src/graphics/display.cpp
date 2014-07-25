@@ -300,6 +300,7 @@ void Display::show_cursor(bool b) const
 
 void Display::draw_background() const
 {
+	current_buffer->check_empty();
 	glClearColor(r, g, b, alpha);
 	glClear(GL_COLOR_BUFFER_BIT);
 }

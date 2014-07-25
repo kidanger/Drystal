@@ -292,9 +292,9 @@ Drawing primitives
 
    Draw a non-filled rectangle.
 
-.. lua:function:: draw_circle(x, y, radius)
+.. lua:function:: draw_circle(x, y, radius: float)
 
-   Draw a circle. The coordinate is the position of the center.
+   Draw a circle. The coordinate is the position of the center. ``radius`` is expressed in pixels.
 
     .. note:: Draw circle draws a lot of triangles. If possible, include a circle in your spritesheet and draw it with :ref:`draw_sprite <draw_sprite>`.
 
