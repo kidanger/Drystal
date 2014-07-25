@@ -26,7 +26,7 @@ private:
 	ALuint alBuffer;
 	bool free_me;
 
-	Sound(ALushort* buffer, unsigned int length, int samplesrate);
+	Sound(ALushort* buffer, unsigned int length, int samplesrate, unsigned bits_per_sample, unsigned num_channels);
 
 public:
 	int ref;

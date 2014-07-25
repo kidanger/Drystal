@@ -15,6 +15,7 @@
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <cassert>
+#include <cstdlib>
 
 #include <wavloader.c>
 
@@ -24,13 +25,29 @@
 
 log_category("sound");
 
-Sound::Sound(ALushort* buffer, unsigned int length, int samplesrate) :
+Sound::Sound(ALushort* buffer, unsigned int length, int samplesrate, unsigned bits_per_sample, unsigned num_channels) :
 	alBuffer(0),
 	free_me(false),
 	ref(0)
 {
+	ALenum format = AL_FORMAT_MONO8;
+
 	alGenBuffers(1, &alBuffer);
-	alBufferData(alBuffer, AL_FORMAT_MONO16, buffer, length, samplesrate);
+
+	if (bits_per_sample == 8) {
+		if (num_channels == 1) {
+			format = AL_FORMAT_MONO8;
+		} else if (num_channels == 2) {
+			format = AL_FORMAT_STEREO8;
+		}
+	} else if (bits_per_sample == 16) {
+		if (num_channels == 1) {
+			format = AL_FORMAT_MONO16;
+		} else if (num_channels == 2) {
+			format = AL_FORMAT_STEREO16;
+		}
+	}
+	alBufferData(alBuffer, format, buffer, length, samplesrate);
 
 	audio_check_error();
 }
@@ -41,14 +58,24 @@ Sound* Sound::load_from_file(const char *filepath)
 	if (!initialise_if_needed())
 		return NULL;
 
-	void* buffer;
+	void* buffer = NULL;
 	struct wave_header wave_header;
 	int err = load_wav(filepath, &wave_header, &buffer);
 	if (err) {
 		return NULL;
 	}
+	if (wave_header.bits_per_sample != 8 && wave_header.bits_per_sample != 16) {
+		::free(buffer);
+		return NULL;
+	}
+	if (wave_header.num_channels != 1 && wave_header.num_channels != 2) {
+		::free(buffer);
+		return NULL;
+	}
 
-	Sound* sound = new Sound(static_cast<ALushort*>(buffer), wave_header.data_size, wave_header.sample_rate);
+	Sound* sound = new Sound(static_cast<ALushort*>(buffer), wave_header.data_size,
+	                         wave_header.sample_rate, wave_header.bits_per_sample,
+	                         wave_header.num_channels);
 	return sound;
 }
 
@@ -62,7 +89,7 @@ Sound* Sound::load(unsigned int len, const float* buffer, int samplesrate)
 		converted_buffer[i] = static_cast<ALushort>(buffer[i] * 65535 / 2 + 65535 / 2);
 	}
 
-	Sound* sound = new Sound(converted_buffer, len, samplesrate);
+	Sound* sound = new Sound(converted_buffer, len, samplesrate, 16, 1);
 	return sound;
 }
 
