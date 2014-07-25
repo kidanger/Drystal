@@ -14,12 +14,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "module.hpp"
-#include "web_bind.hpp"
+#pragma once
 
-BEGIN_MODULE(web)
-	DECLARE_FUNCTION(is_web)
-	DECLARE_FUNCTION(wget)
-	DECLARE_FUNCTION(run_js)
-END_MODULE()
+#include "module.hpp"
+
+DECLARE_MODULE(web)
 

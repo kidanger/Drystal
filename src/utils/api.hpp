@@ -14,21 +14,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
+
 #include "module.hpp"
 
-extern "C" {
-	extern int json_encode(lua_State* L);
-	extern int json_decode(lua_State* L);
-	extern void lua_cjson_init();
-}
-
-BEGIN_MODULE(utils)
-    lua_cjson_init();
-
-	lua_pushcfunction(L, json_encode);
-	lua_setfield(L, -2, "tojson");
-
-	lua_pushcfunction(L, json_decode);
-	lua_setfield(L, -2, "fromjson");
-END_MODULE()
+DECLARE_MODULE(utils)
 

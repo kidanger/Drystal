@@ -16,12 +16,17 @@
  */
 #pragma once
 
+#include <lua.hpp>
+
 #define PUSH_FUNC(name, func) \
 	lua_pushcfunction(L, mlua_##func); \
 	lua_setfield(L, -2, name);
 
+#define DECLARE_MODULE(name) \
+	void register_##name(lua_State* L);
+
 #define BEGIN_MODULE(name) \
-	static inline void register_##name(lua_State* L) {
+	void register_##name(lua_State* L) {
 #define DECLARE_FUNCTION(name) \
 	lua_pushcfunction(L, mlua_##name); \
 	lua_setfield(L, -2, #name);

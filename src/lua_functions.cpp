@@ -51,6 +51,9 @@
 #endif
 #ifdef BUILD_GRAPHICS
 #include "graphics/api.hpp"
+#include "graphics/display.hpp"
+
+DECLARE_PUSH(Surface, surface)
 #endif
 #ifdef BUILD_UTILS
 #include "utils/api.hpp"

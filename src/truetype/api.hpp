@@ -14,18 +14,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
+
 #include "module.hpp"
-#include "font_bind.hpp"
 
-BEGIN_MODULE(truetype)
-	DECLARE_FUNCTION(load_font)
-
-	BEGIN_CLASS(font)
-		ADD_METHOD(font, draw)
-		ADD_METHOD(font, draw_plain)
-		ADD_METHOD(font, sizeof)
-		ADD_METHOD(font, sizeof_plain)
-		ADD_GC(free_font)
-	REGISTER_CLASS(font, "Font")
-END_MODULE()
+DECLARE_MODULE(truetype)
 
