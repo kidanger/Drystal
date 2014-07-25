@@ -20,6 +20,9 @@
 #include "engine.hpp"
 #include "buffer_bind.hpp"
 #include "lua_functions.hpp"
+#include "log.hpp"
+
+log_category("buffer");
 
 DECLARE_PUSHPOP(Buffer, buffer)
 
@@ -51,6 +54,9 @@ int mlua_use_buffer(lua_State* L)
 		engine.display.use_buffer(NULL);
 	} else {
 		Buffer* buffer = pop_buffer(L, 1);
+		if (buffer->was_freed()) {
+			return luaL_error(L, "cannot use() a freed buffer");
+		}
 		engine.display.use_buffer(buffer);
 	}
 	return 0;
@@ -77,6 +83,9 @@ int mlua_reset_buffer(lua_State* L)
 
 	Engine &engine = get_engine();
 	Buffer* buffer = pop_buffer(L, 1);
+	if (buffer->was_freed()) {
+		return luaL_error(L, "cannot reset() a freed buffer");
+	}
 	engine.display.reset_buffer(buffer);
 	return 0;
 }
@@ -87,6 +96,9 @@ int mlua_upload_and_free_buffer(lua_State* L)
 
 	Engine &engine = get_engine();
 	Buffer* buffer = pop_buffer(L, 1);
+	if (buffer->was_freed()) {
+		return luaL_error(L, "cannot upload_and_free() a freed buffer");
+	}
 	engine.display.upload_and_free_buffer(buffer);
 	return 0;
 }
@@ -95,6 +107,7 @@ int mlua_free_buffer(lua_State* L)
 {
 	assert(L);
 
+	log_debug("");
 	Engine &engine = get_engine();
 	Buffer* buffer = pop_buffer(L, 1);
 	engine.display.free_buffer(buffer);

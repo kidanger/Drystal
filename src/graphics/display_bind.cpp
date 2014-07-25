@@ -301,6 +301,15 @@ int mlua_draw_point(lua_State* L)
 	assert(L);
 
 	Engine &engine = get_engine();
+	Buffer* buffer = engine.display.get_current_buffer();
+	if (buffer->is_user_buffer()) {
+		BufferType type = buffer->get_type();
+		if (type != UNDEFINED && (type != POINT_BUFFER || buffer->has_texture()))
+			return luaL_error(L, "the current buffer cannot contain points");
+		if (buffer->is_full())
+			return luaL_error(L, "the current buffer is full");
+	}
+
 	lua_Number x = luaL_checknumber(L, 1);
 	lua_Number y = luaL_checknumber(L, 2);
 	engine.display.draw_point(x, y);
@@ -312,6 +321,15 @@ int mlua_draw_point_tex(lua_State* L)
 	assert(L);
 
 	Engine &engine = get_engine();
+	Buffer* buffer = engine.display.get_current_buffer();
+	if (buffer->is_user_buffer()) {
+		BufferType type = buffer->get_type();
+		if (type != UNDEFINED && (type != POINT_BUFFER || !buffer->has_texture()))
+			return luaL_error(L, "the current buffer cannot contain points");
+		if (buffer->is_full())
+			return luaL_error(L, "the current buffer is full");
+	}
+
 	lua_Number xi = luaL_checknumber(L, 1);
 	lua_Number yi = luaL_checknumber(L, 2);
 	lua_Number xd = luaL_checknumber(L, 3);
@@ -325,6 +343,15 @@ int mlua_draw_line(lua_State* L)
 	assert(L);
 
 	Engine &engine = get_engine();
+	Buffer* buffer = engine.display.get_current_buffer();
+	if (buffer->is_user_buffer()) {
+		BufferType type = buffer->get_type();
+		if (type != UNDEFINED && (type != LINE_BUFFER || buffer->has_texture()))
+			return luaL_error(L, "the current buffer cannot contain lines");
+		if (buffer->is_full())
+			return luaL_error(L, "the current buffer is full");
+	}
+
 	lua_Number x1 = luaL_checknumber(L, 1);
 	lua_Number y1 = luaL_checknumber(L, 2);
 	lua_Number x2 = luaL_checknumber(L, 3);
@@ -338,6 +365,15 @@ int mlua_draw_triangle(lua_State* L)
 	assert(L);
 
 	Engine &engine = get_engine();
+	Buffer* buffer = engine.display.get_current_buffer();
+	if (buffer->is_user_buffer()) {
+		BufferType type = buffer->get_type();
+		if (type != UNDEFINED && (type != TRIANGLE_BUFFER || buffer->has_texture()))
+			return luaL_error(L, "the current buffer cannot contain triangles");
+		if (buffer->is_full())
+			return luaL_error(L, "the current buffer is full");
+	}
+
 	lua_Number x1 = luaL_checknumber(L, 1);
 	lua_Number y1 = luaL_checknumber(L, 2);
 	lua_Number x2 = luaL_checknumber(L, 3);
@@ -353,6 +389,15 @@ int mlua_draw_surface(lua_State* L)
 	assert(L);
 
 	Engine &engine = get_engine();
+	Buffer* buffer = engine.display.get_current_buffer();
+	if (buffer->is_user_buffer()) {
+		BufferType type = buffer->get_type();
+		if (type != UNDEFINED && (type != TRIANGLE_BUFFER || !buffer->has_texture()))
+			return luaL_error(L, "the current buffer cannot contain textured triangles");
+		if (buffer->is_full())
+			return luaL_error(L, "the current buffer is full");
+	}
+
 	lua_Number i1 = luaL_checknumber(L, 1);
 	lua_Number i2 = luaL_checknumber(L, 2);
 	lua_Number i3 = luaL_checknumber(L, 3);
@@ -375,6 +420,15 @@ int mlua_draw_quad(lua_State* L)
 	assert(L);
 
 	Engine &engine = get_engine();
+	Buffer* buffer = engine.display.get_current_buffer();
+	if (buffer->is_user_buffer()) {
+		BufferType type = buffer->get_type();
+		if (type != UNDEFINED && (type != TRIANGLE_BUFFER || !buffer->has_texture()))
+			return luaL_error(L, "the current buffer cannot contain textured triangles");
+		if (buffer->is_full(2))
+			return luaL_error(L, "the current buffer is full");
+	}
+
 	lua_Number i1 = luaL_checknumber(L, 1);
 	lua_Number i2 = luaL_checknumber(L, 2);
 	lua_Number i3 = luaL_checknumber(L, 3);

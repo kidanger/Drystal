@@ -140,7 +140,7 @@ const char* DEFAULT_FRAGMENT_SHADER_TEX = SHADER_STRING
         );
 
 Display::Display(bool server_mode) :
-	default_buffer(),
+	default_buffer(false),
 	sdl_window(NULL),
 	screen(NULL),
 	default_shader(NULL),
@@ -1005,7 +1005,7 @@ void Display::free_shader(Shader* shader)
 
 Buffer * Display::new_buffer(unsigned int size)
 {
-	Buffer* buffer = new Buffer(size);
+	Buffer* buffer = new Buffer(true, size);
 	buffer->allocate();
 	buffer->use_camera(&camera);
 	return buffer;

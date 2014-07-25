@@ -23,9 +23,9 @@
 #include "display.hpp"
 
 
-Buffer::Buffer(unsigned int _size) :
-	type(TRIANGLE_BUFFER),
-	size(_size),
+Buffer::Buffer(bool user_buffer, unsigned int size) :
+	type(UNDEFINED),
+	size(size),
 	positions(new GLfloat[size * 2]),
 	colors(new GLfloat[size * 4]),
 	tex_coords(NULL),
@@ -35,9 +35,10 @@ Buffer::Buffer(unsigned int _size) :
 	current_tex_coord(0),
 	current_point_size(0),
 	uploaded(false),
-	has_texture(false),
+	_has_texture(false),
 	shader(NULL),
 	camera(NULL),
+	user_buffer(user_buffer),
 	ref(0)
 {
 	buffers[0] = 0;
@@ -53,7 +54,7 @@ void Buffer::allocate()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glEnableVertexAttribArray(ATTR_POSITION_INDEX);
 	glEnableVertexAttribArray(ATTR_COLOR_INDEX);
-	type = TRIANGLE_BUFFER;
+	type = UNDEFINED;
 }
 
 Buffer::~Buffer()
@@ -96,13 +97,12 @@ void Buffer::check_type(BufferType atype)
 	if (type == POINT_BUFFER && point_sizes == NULL) {
 		point_sizes = new GLfloat[size];
 	}
-
 }
 
 void Buffer::check_not_full()
 {
-	if (current_color > size - 3) { // if triangle, we will push at most 3 more elements
-		flush(); // so flush if there is less than 3 space remaining
+	if (is_full()) {
+		flush();
 	}
 }
 
@@ -115,9 +115,9 @@ void Buffer::check_empty()
 
 void Buffer::check_use_texture()
 {
-	if (!has_texture) {
+	if (!_has_texture) {
 		flush();
-		has_texture = true;
+		_has_texture = true;
 	}
 	if (tex_coords == NULL) {
 		tex_coords = new GLfloat[size * 2];
@@ -126,9 +126,9 @@ void Buffer::check_use_texture()
 
 void Buffer::check_not_use_texture()
 {
-	if (has_texture) {
+	if (_has_texture) {
 		flush();
-		has_texture = false;
+		_has_texture = false;
 	}
 }
 
@@ -180,7 +180,7 @@ void Buffer::upload(int method)
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
 	glBufferData(GL_ARRAY_BUFFER, used * 4 * sizeof(GLfloat), colors, method);
 
-	if (has_texture) {
+	if (_has_texture) {
 		glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
 		glBufferData(GL_ARRAY_BUFFER, used * 2 * sizeof(GLfloat), tex_coords, method);
 	}
@@ -199,12 +199,12 @@ void Buffer::draw(float dx, float dy)
 	}
 
 	assert(current_color == current_position);
-	assert(!has_texture || current_color == current_tex_coord);
+	assert(!_has_texture || current_color == current_tex_coord);
 	assert(type != POINT_BUFFER || current_color == current_point_size);
 
 	GLint prog;
 	VarLocationIndex locationIndex;
-	if (has_texture) {
+	if (_has_texture) {
 		prog = shader->prog_tex;
 		locationIndex = TEX;
 	} else {
@@ -221,7 +221,7 @@ void Buffer::draw(float dx, float dy)
 	glBindBuffer(GL_ARRAY_BUFFER, buffers[1]);
 	glVertexAttribPointer(ATTR_COLOR_INDEX, 4, GL_FLOAT, GL_FALSE, 0, NULL);
 
-	if (has_texture) {
+	if (_has_texture) {
 		glBindBuffer(GL_ARRAY_BUFFER, buffers[2]);
 		glEnableVertexAttribArray(ATTR_TEXCOORD_INDEX);
 		glVertexAttribPointer(ATTR_TEXCOORD_INDEX, 2, GL_FLOAT, GL_FALSE, 0, NULL);
@@ -249,7 +249,7 @@ void Buffer::draw(float dx, float dy)
 	}
 	glDrawArrays(draw_type, 0, used);
 
-	if (has_texture) {
+	if (_has_texture) {
 		glDisableVertexAttribArray(ATTR_TEXCOORD_INDEX);
 	}
 	if (type == POINT_BUFFER) {
@@ -271,6 +271,7 @@ void Buffer::flush()
 void Buffer::reset()
 {
 	current_position = current_color = current_tex_coord = current_point_size = 0;
+	type = UNDEFINED;
 }
 
 void Buffer::upload_and_free()

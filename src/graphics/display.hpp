@@ -241,4 +241,9 @@ public:
 
 	void flip();
 	bool is_available() const;
+
+	Buffer* get_current_buffer() const
+	{
+		return current_buffer;
+	}
 };

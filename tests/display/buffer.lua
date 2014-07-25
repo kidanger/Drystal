@@ -1,5 +1,28 @@
 local drystal = require "drystal"
 
+-- test sizes
+buffer = drystal.new_buffer(6)
+buffer:use()
+drystal.draw_point(1,1)
+drystal.draw_point(1,1)
+drystal.draw_point(1,1)
+drystal.draw_point(1,1)
+drystal.draw_point(1,1)
+drystal.draw_point(1,1)
+
+buffer = drystal.new_buffer(4)
+buffer:use()
+drystal.draw_line(1,1,1,1)
+drystal.draw_line(1,1,1,1)
+
+buffer = drystal.new_buffer(10)
+buffer:use()
+drystal.draw_triangle(1,1,1,1,1,1)
+drystal.draw_triangle(1,1,1,1,1,1)
+drystal.draw_triangle(1,1,1,1,1,1)
+
+drystal.use_buffer()
+
 local spritesheet = drystal.fromjson(io.open('image.json'):read('*all'))
 
 function drystal.init()

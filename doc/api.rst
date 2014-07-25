@@ -294,7 +294,7 @@ Drawing primitives
 
 .. lua:function:: draw_circle(x, y, radius: float)
 
-   Draw a circle. The coordinate is the position of the center. ``radius`` is expressed in pixels.
+   Draw a circle. The coordinate is the position of the center. ``radius`` is expressed in pixel.
 
     .. note:: Draw circle draws a lot of triangles. If possible, include a circle in your spritesheet and draw it with :ref:`draw_sprite <draw_sprite>`.
 
@@ -374,7 +374,7 @@ Camera
 Buffer
 ^^^^^^
 
-A buffer can only contain one type of shape (point, line, triangle, textured triangle).
+A buffer can **only contain one type of shape** (point, line, triangle, textured triangle).
 
 
 .. lua:class:: Buffer
@@ -394,12 +394,12 @@ A buffer can only contain one type of shape (point, line, triangle, textured tri
     .. lua:method:: upload_and_free()
 
          Send the buffer to the graphic card and free memory.
-         If a buffer is freed, you cannot call ``reset`` or ``use`` anymore.
+         If a buffer is freed, you cannot call ``reset``, ``use`` or ``upload_and_free`` anymore or errors with be thrown.
 
 .. lua:function:: new_buffer([size: int]) -> Buffer
 
    Create a buffer of the specified ``size``. ``size`` must be a multiple of the number of points of the shape you put in it.
-   For example, if you put triangle, ``size`` must be a multiple of 3.
+   For example, if you put triangles, ``size`` must be a multiple of 3.
 
 .. lua:function:: use_buffer()
 

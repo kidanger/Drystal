@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include <cstdlib>
 #define GL_GLEXT_PROTOTYPES
 #ifndef EMSCRIPTEN
 #include <SDL2/SDL_opengles2.h>
@@ -30,6 +31,7 @@ struct Camera;
 const unsigned int BUFFER_DEFAULT_SIZE = 2 * 3 * 4096;
 
 enum BufferType {
+	UNDEFINED,
 	POINT_BUFFER,
 	LINE_BUFFER,
 	TRIANGLE_BUFFER,
@@ -46,7 +48,7 @@ private:
 	GLuint buffers[4]; // first is for positions, second for colors, third (optional) for texcoords, forth (optional) for point sizes
 	GLfloat* positions;
 	GLfloat* colors;
-	GLfloat* tex_coords; // only if IMAGE_BUFFER
+	GLfloat* tex_coords; // only if has_texture
 	GLfloat* point_sizes; // only if POINT_BUFFER
 	unsigned int current_position;
 	unsigned int current_color;
@@ -54,9 +56,10 @@ private:
 	unsigned int current_point_size;
 	bool uploaded;
 
-	bool has_texture;
+	bool _has_texture;
 	Shader* shader;
 	const Camera* camera;
+	bool user_buffer;
 
 	void flush();
 	void upload(int method);
@@ -65,7 +68,7 @@ private:
 public:
 	int ref;
 
-	Buffer(unsigned int _size = BUFFER_DEFAULT_SIZE);
+	Buffer(bool user_buffer, unsigned int size = BUFFER_DEFAULT_SIZE);
 	~Buffer();
 
 	void push_vertex(GLfloat, GLfloat);
@@ -86,4 +89,35 @@ public:
 	void reset();
 	void upload_and_free();
 	void allocate();
+
+	bool has_texture() const
+	{
+		return _has_texture;
+	}
+
+	BufferType get_type() const
+	{
+		return type;
+	}
+
+	bool is_user_buffer() const
+	{
+		return user_buffer;
+	}
+
+	bool is_full(int quantity=1) const
+	{
+		if (type == POINT_BUFFER)
+			return current_position > size - 1 * quantity;
+		if (type == LINE_BUFFER)
+			return current_position > size - 2 * quantity;
+		if (type == TRIANGLE_BUFFER)
+			return current_position > size - 3 * quantity;
+		return false;
+	}
+
+	bool was_freed() const
+	{
+		return positions == NULL;
+	}
 };
