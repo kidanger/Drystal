@@ -16,7 +16,6 @@
  */
 #pragma once
 
-bool is_web();
 void run_js(const char* script);
 void wget(const char* url, const char* filename);
 

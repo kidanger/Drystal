@@ -19,7 +19,11 @@
 #include "api.hpp"
 
 BEGIN_MODULE(web)
-	DECLARE_FUNCTION(is_web)
+#ifdef EMSCRIPTEN
+	DECLARE_BOOLEAN(is_web, true)
+#else
+	DECLARE_BOOLEAN(is_web, false)
+#endif
 	DECLARE_FUNCTION(wget)
 	DECLARE_FUNCTION(run_js)
 END_MODULE()

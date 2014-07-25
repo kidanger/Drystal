@@ -698,9 +698,9 @@ Storage
 Web
 ---
 
-.. lua:function:: is_web() -> boolean
+.. lua:data:: is_web: boolean
 
-    Returns ``true`` if the game is executed inside a browser.
+    Equals ``true`` if the game is executed inside a browser.
 
 .. lua:function:: wget(url: string, filename: string, onload: function, onerror: function)
 

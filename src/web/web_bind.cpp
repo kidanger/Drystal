@@ -21,13 +21,6 @@
 #include "web.hpp"
 #include "web_bind.hpp"
 
-int mlua_is_web(lua_State* L)
-{
-	assert(L);
-	lua_pushboolean(L, is_web());
-	return 1;
-}
-
 int mlua_run_js(lua_State* L)
 {
 	assert(L);

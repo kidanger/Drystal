@@ -22,15 +22,6 @@
 #include "engine.hpp"
 #include "macro.hpp"
 
-bool is_web()
-{
-#ifdef EMSCRIPTEN
-	return true;
-#else
-	return false;
-#endif
-}
-
 #ifdef EMSCRIPTEN
 void run_js(const char* script)
 {

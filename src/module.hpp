@@ -30,6 +30,9 @@
 #define DECLARE_FUNCTION(name) \
 	lua_pushcfunction(L, mlua_##name); \
 	lua_setfield(L, -2, #name);
+#define DECLARE_BOOLEAN(name, value) \
+	lua_pushboolean(L, value); \
+	lua_setfield(L, -2, #name);
 #define END_MODULE() \
 	}
 

@@ -18,6 +18,5 @@
 
 struct lua_State;
 
-int mlua_is_web(lua_State* L);
 int mlua_wget(lua_State *L);
 int mlua_run_js(lua_State* L);

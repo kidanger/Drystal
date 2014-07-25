@@ -10,7 +10,7 @@ local function onerror(filename)
 end
 
 function drystal.init()
-	print(drystal.is_web())
+	print(drystal.is_web)
 	drystal.wget('/', 'f1', onsuccess, onerror)
 	drystal.wget('src/log.hpp', 'f2', onsuccess, onerror)
 	drystal.wget('http://google.fr', 'f3', onsuccess, onerror)

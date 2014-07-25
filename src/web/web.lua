@@ -20,7 +20,7 @@ function drystal.wget(url, file, onload, onerror)
 	assert(onload)
 	assert(onerror)
 
-	if not drystal.is_web() then
+	if not drystal.is_web then
 		return
 	end
 
