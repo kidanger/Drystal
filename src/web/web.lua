@@ -1,7 +1,6 @@
 local drystal = require 'drystal'
-local web = drystal
 
-web.raw_wget = web.wget
+drystal.raw_wget = drystal.wget
 local wget_requests = {}
 
 function drystal.on_wget_success(file)
@@ -17,18 +16,22 @@ function drystal.on_wget_error(file)
 	wget_requests[file] = nil
 end
 
-function web.wget(url, file, onload, onerror)
+function drystal.wget(url, file, onload, onerror)
 	assert(onload)
 	assert(onerror)
+
+	if not drystal.is_web() then
+		return
+	end
+
 	if wget_requests[file] then
 		-- already requested
 		table.insert(wget_requests[file].onload, onload)
 		table.insert(wget_requests[file].onerror, onerror)
 		return
 	end
-	if not web.raw_wget(url, file) then
-		return
-	end
+
+	drystal.raw_wget(url, file)
 	wget_requests[file] ={
 		onload={onload},
 		onerror={onerror},

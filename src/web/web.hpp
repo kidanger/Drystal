@@ -14,36 +14,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <lua.hpp>
-#include <cassert>
+#pragma once
 
-#include "engine.hpp"
-#include "web.hpp"
-#include "web_bind.hpp"
-
-int mlua_is_web(lua_State* L)
-{
-	assert(L);
-	lua_pushboolean(L, is_web());
-	return 1;
-}
-
-int mlua_run_js(lua_State* L)
-{
-	assert(L);
-
-	const char* script = luaL_checkstring(L, 1);
-	run_js(script);
-	return 0;
-}
-
-int mlua_wget(lua_State *L)
-{
-	assert(L);
-
-	const char *url = luaL_checkstring(L, 1);
-	const char *filename = luaL_checkstring(L, 2);
-	wget(url, filename);
-	return 0;
-}
+bool is_web();
+void run_js(const char* script);
+void wget(const char* url, const char* filename);
 
