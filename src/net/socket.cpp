@@ -59,6 +59,7 @@ Socket* Socket::connect(const char* hostname, int port)
 
 	server = gethostbyname(hostname);
 	if (server == NULL) {
+		close(fd);
 		return NULL;
 	}
 
@@ -69,6 +70,7 @@ Socket* Socket::connect(const char* hostname, int port)
 	if (::connect(fd, (const struct sockaddr*) &serv_addr, sizeof(serv_addr)) != -1
 	        && errno != EINPROGRESS) {
 		log_error("connect: %s", strerror(errno));
+		close(fd);
 		return NULL;
 	}
 
