@@ -83,7 +83,6 @@ int mlua_load_sound(lua_State *L)
 		push_sound(L, chunk);
 		return 1;
 	}
-	return 0;
 }
 
 int mlua_play_sound(lua_State *L)
