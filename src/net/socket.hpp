@@ -34,6 +34,8 @@ private:
 	std::string address;
 	std::string output;
 public:
+	int ref;
+
 	Socket(int fd, const char* address, ws_ctx_t* ctx);
 
 	static Socket* connect(const char* hostname, int port);

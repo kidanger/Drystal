@@ -942,6 +942,7 @@ Shader * Display::new_shader(const char* strvert, const char* strfragcolor, cons
 	shader->vars[TEX].zoomLocation = glGetUniformLocation(prog_tex, "cameraZoom");
 	shader->vars[TEX].rotationMatrixLocation = glGetUniformLocation(prog_tex, "rotationMatrix");
 
+	shader->ref = 0;
 	return shader;
 }
 

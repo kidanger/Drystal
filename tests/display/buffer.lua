@@ -5,7 +5,7 @@ local spritesheet = drystal.fromjson(io.open('image.json'):read('*all'))
 function drystal.init()
 	drystal.resize(600, 400)
 	image = drystal.load_surface(spritesheet.meta.image)
-	drystal.draw_from(image)
+	image:draw_from()
 	print('b to toggle buffer')
 end
 
@@ -16,7 +16,6 @@ local tick = 0
 function drystal.draw()
 	tick = tick + 1
 
-	drystal.draw_from(image)
 	drystal.set_alpha(255)
 	drystal.set_color(10, 10, 30)
 	drystal.draw_background()

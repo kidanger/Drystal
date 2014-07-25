@@ -27,7 +27,10 @@ private:
 	int first_char;
 	int num_chars;
 	stbtt_bakedchar* char_data;
+
 public:
+	int ref;
+
 	~Font();
 	void draw(const char* text, float x, float y);
 	void draw_plain(const char* text, float x, float y);

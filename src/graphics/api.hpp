@@ -20,7 +20,7 @@
 #include "buffer_bind.hpp"
 #include "lua_functions.hpp"
 
-DECLARE_PUSHPOP2(Surface, surface)
+DECLARE_PUSHPOP(Surface, surface)
 
 BEGIN_MODULE(graphics)
 	DECLARE_FUNCTION(show_cursor)

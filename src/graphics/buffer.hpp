@@ -63,6 +63,8 @@ private:
 	void partial_free();
 
 public:
+	int ref;
+
 	Buffer(unsigned int _size = BUFFER_DEFAULT_SIZE);
 	~Buffer();
 

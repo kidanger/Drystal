@@ -39,7 +39,8 @@ Socket::Socket(int fd, const char* address, ws_ctx_t* ctx):
 	tableref(LUA_REFNIL),
 	wsctx(ctx),
 	address(address),
-	output()
+	output(),
+	ref(0)
 {
 }
 

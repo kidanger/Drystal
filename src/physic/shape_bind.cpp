@@ -13,7 +13,7 @@ END_DISABLE_WARNINGS;
 #include "engine.hpp"
 #include "shape_bind.hpp"
 
-DECLARE_PUSHPOP2(Shape, shape)
+DECLARE_PUSHPOP(Shape, shape)
 
 int mlua_new_shape(lua_State* L)
 {

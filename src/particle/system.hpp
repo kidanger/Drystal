@@ -67,6 +67,8 @@ public:
 	float emission_rate;
 	float emit_counter;
 
+	int ref;
+
 	System(int x, int y);
 	~System();
 

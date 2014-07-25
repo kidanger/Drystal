@@ -26,7 +26,11 @@ private:
 	ALuint alBuffer;
 	bool free_me;
 
+	Sound(ALushort* buffer, unsigned int length, int samplesrate);
+
 public:
+	int ref;
+
 	void play(float volume = 1, float x = 0, float y = 0);
 	void free();
 

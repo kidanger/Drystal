@@ -24,6 +24,18 @@
 
 log_category("sound");
 
+Sound::Sound(ALushort* buffer, unsigned int length, int samplesrate) :
+	alBuffer(0),
+	free_me(false),
+	ref(0)
+{
+	alGenBuffers(1, &alBuffer);
+	alBufferData(alBuffer, AL_FORMAT_MONO16,
+	             buffer, length * sizeof(ALushort), samplesrate);
+
+	audio_check_error();
+}
+
 Sound* Sound::load_from_file(const char *filepath)
 {
 	assert(filepath);
@@ -34,20 +46,13 @@ Sound* Sound::load_from_file(const char *filepath)
 	int length;
 	int format;
 	int channels;
-	int samplerate;
-	int err = load_wav(filepath, &buffer, &length, &format, &channels, &samplerate);
+	int samplesrate;
+	int err = load_wav(filepath, &buffer, &length, &format, &channels, &samplesrate);
 	if (err) {
 		return NULL;
 	}
 
-	Sound* sound = new Sound;
-
-	sound->free_me = false;
-	alGenBuffers(1, &sound->alBuffer);
-	alBufferData(sound->alBuffer, AL_FORMAT_MONO16,
-	             buffer, length * sizeof(ALushort), samplerate);
-
-	audio_check_error();
+	Sound* sound = new Sound(static_cast<ALushort*>(buffer), length, samplesrate);
 	return sound;
 }
 
@@ -61,13 +66,7 @@ Sound* Sound::load(unsigned int len, const float* buffer, int samplesrate)
 		converted_buffer[i] = static_cast<ALushort>(buffer[i] * 65535 / 2 + 65535 / 2);
 	}
 
-	Sound* sound = new Sound;
-	sound->free_me = false;
-	alGenBuffers(1, &sound->alBuffer);
-	alBufferData(sound->alBuffer, AL_FORMAT_MONO16,
-	             converted_buffer, len * sizeof(ALushort), samplesrate);
-
-	audio_check_error();
+	Sound* sound = new Sound(converted_buffer, len, samplesrate);
 	return sound;
 }
 

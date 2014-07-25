@@ -31,8 +31,8 @@ END_DISABLE_WARNINGS;
 #include "joint_bind.hpp"
 #include "shape_bind.hpp"
 
-DECLARE_PUSHPOP2(Body, body)
-DECLARE_PUSHPOP2(Joint, joint)
+DECLARE_PUSHPOP(Body, body)
+DECLARE_PUSHPOP(Joint, joint)
 DECLARE_POP(Shape, shape)
 
 static b2World* world;

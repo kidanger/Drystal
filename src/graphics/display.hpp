@@ -81,6 +81,7 @@ struct Shader {
 		GLuint zoomLocation;
 		GLuint rotationMatrixLocation;
 	} vars[2];
+	int ref;
 };
 
 struct Camera {

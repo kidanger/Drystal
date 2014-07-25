@@ -37,7 +37,8 @@ Buffer::Buffer(unsigned int _size) :
 	uploaded(false),
 	has_texture(false),
 	shader(NULL),
-	camera(NULL)
+	camera(NULL),
+	ref(0)
 {
 	buffers[0] = 0;
 	buffers[1] = 0;

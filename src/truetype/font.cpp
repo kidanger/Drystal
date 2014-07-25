@@ -71,6 +71,7 @@ Font* Font::load(const char* filename, float size, int first_char, int num_chars
 	}
 
 	font->surface = engine.display.create_surface(w, h, w, h, pixels_colored);
+	font->ref = 0;
 
 	return font;
 }

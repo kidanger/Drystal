@@ -26,7 +26,7 @@
 log_category("graphics");
 
 DECLARE_PUSHPOP(Shader, shader)
-DECLARE_PUSHPOP2(Surface, surface)
+DECLARE_PUSHPOP(Surface, surface)
 
 int mlua_set_color(lua_State* L)
 {

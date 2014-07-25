@@ -31,7 +31,8 @@ System::System(int x, int y) :
 	min_lifetime(0), max_lifetime(0),
 	min_initial_acceleration(0), max_initial_acceleration(0),
 	min_initial_velocity(0), max_initial_velocity(0),
-	emission_rate(0), emit_counter(0)
+	emission_rate(0), emit_counter(0),
+	ref(0)
 {
 	particles = new Particle[size];
 	for (int i = 0; i < size; i++)

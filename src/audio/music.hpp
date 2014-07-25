@@ -45,6 +45,8 @@ private:
 	Music(MusicCallback* clb, ALenum format, int rate);
 
 public:
+	int ref;
+
 	void play();
 	void stream();
 	void stop();

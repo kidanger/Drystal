@@ -31,7 +31,8 @@ Music::Music(MusicCallback* clb, ALenum format, int rate) :
 	format(format),
 	samplesrate(rate),
 	buffersize(rate * 0.4),
-	ended(false)
+	ended(false),
+	ref(0)
 {
 	alGenBuffers(STREAM_NUM_BUFFERS, alBuffers);
 	audio_check_error();
