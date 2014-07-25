@@ -76,6 +76,7 @@ Sound* Sound::load_from_file(const char *filepath)
 	Sound* sound = new Sound(static_cast<ALushort*>(buffer), wave_header.data_size,
 	                         wave_header.sample_rate, wave_header.bits_per_sample,
 	                         wave_header.num_channels);
+	::free(buffer);
 	return sound;
 }
 
