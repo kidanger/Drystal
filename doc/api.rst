@@ -1,5 +1,5 @@
 .. highlightlang:: lua
-   :linenothreshold: 3
+   :linenothreshold: 5
 
 .. lua:module:: drystal
 
@@ -12,10 +12,12 @@ API Reference
 Engine
 ------
 
+.. _drystal-stop:
 .. lua:function:: stop()
 
     Stop execution of drystal.
 
+.. _drystal-reload:
 .. lua:function:: reload()
 
     Reload the current game. This can be useful during the development in native build.
@@ -23,26 +25,109 @@ Engine
     .. note:: F3 also reloads the game.
 
 
+Callbacks
+^^^^^^^^^
+
+.. lua:function:: init()
+
+   This function is called after script loading, before the first frame.
+   You may want to load your asset from here but you can load it before if you prefer.
+
+   .. code::
+
+      print '1'
+      function drystal.init()
+         print '3'
+      end
+      print '2'
+
+.. lua:function:: update(dt: float)
+
+   This functions is called at each frame. The ``dt`` parameter represents the time elapsed since last update (in seconds).
+   Use this function to update the game.
+
+.. lua:function:: draw()
+
+   This function is called after update. 
+
+.. lua:function:: atexit()
+
+   This function is called when the window is closed or when :ref:`drystal.stop <drystal-stop>` is called.
+
+.. lua:function:: prereload()
+
+   Called before reload of the game (by :ref:`reload <drystal-reload>`, by pressing F3 or with livereloading).
+   You can use it to save current state of the game inside a global so it is still accessible after the reload.
+
+.. lua:function:: postreload()
+
+   Called after reload of the game.
+   You can use it to restore the state of the game.
+
+.. include that in a tutorial
+.. .. literalinclude:: ../examples/red_background.lua
+..    :language: lua
+..    :linenos:
+
 Event
 -----
 
 .. .. lua:function:: set_relative_mode(relative: boolean)
 
+.. _start-text:
 .. lua:function:: start_text()
 
+   Begin text mode. Instead of receiving key_press/key_release event, key_text will be received.
+   In text mode, you get the unicode caracter corresponding to the key pressed (and modifiers).
+
 .. lua:function:: stop_text()
+
+   Stop the text mode.
 
 
 Callbacks
 ^^^^^^^^^
 
+To receive events, you have to defined some of the following functions.
+
 .. lua:function:: mouse_motion(x, y, dx, dy)
-.. lua:function:: mouse_press(x, y, button)
+
+   Called when the mouse is moved. ``dx`` and ``dy`` are difference betweend the current position and the last one.
+
+.. _mouse-press:
+.. lua:function:: mouse_press(x, y, button: int)
+
+   Called when a button (or mouse wheel) is pressed.
+
+   :param: button can be: 1 for left click, 2 for middle click, 3 for left click, 4 and 5 for mouse wheel.
+
 .. lua:function:: mouse_release(x, y, button)
+
+   Called when a button (or mouse wheel) is released.
+
+   :param: button is the same as in :ref:`mouse_press <mouse-press>`.
+
+.. _key-press:
 .. lua:function:: key_press(key)
+
+   Called when a key is pressed.
+   Depending on key repeat system configuration of the player, ``key_press`` can be called multiple times even if the user didn't released the key. ``key_release`` will be called too.
+
 .. lua:function:: key_release(key)
+
+   Same as :ref:`key_press <key-press>` but when a key is released.
+
 .. lua:function:: key_text(unicode_key)
+
+   Called in text mode (see :ref:`start_text <start-text>`).
+
 .. .. lua:function:: resize_event(w, h)
+
+.. code::
+
+   function drystal.mouse_motion(x, y)
+      print('mouse is at', x, y)
+   end
 
 
 Graphics
@@ -78,9 +163,7 @@ Window
 
 .. lua:function:: set_title(title: str)
 
-    Change the title of the window. In Web build, this has no effect.
-
-    .. todo:: Maybe ``set_title`` should modify the title of the HTML page.
+    Change the title of the window. In Web build, the title of the document is changed.
 
 .. lua:function:: show_cursor(show: bool)
 
@@ -125,7 +208,7 @@ Surface
     Create new surface of dimensions (``width``, ``height``).
     By default, the surface is black.
 
-    .. code:: lua
+    .. code::
 
         local surf = drystal.new_surface(200, 200)
         surf:draw_on() -- the following draw function will act on this surface
@@ -146,10 +229,12 @@ Surface
 Drawing primitives
 ^^^^^^^^^^^^^^^^^^
 
+.. _set-color:
 .. lua:function:: set_color(red: float [0-255], green: float [0-255], blue: float [0-255])
 
     Set current color, used by ``draw_*`` functions.
 
+.. _set-alpha:
 .. lua:function:: set_alpha(alpha: float [0-255])
 
     Set current alpha, used by ``draw_*`` functions.
@@ -166,40 +251,90 @@ Drawing primitives
 
     Clear current `draw_on` surface.
 
-.. note:: In the following function, ``x``, ``y``, ``w`` (width) and ``h`` (height) are floats. Angle are expressed in radian.
+.. note:: In the following function, ``x``, ``y``, ``w`` (width) and ``h`` (height) are floats. Angle are expressed in radians. ``x`` and ``y`` are screen coordinates.
 
 .. _draw_point:
 .. lua:function:: draw_point(x, y)
 
-.. .. lua:function:: draw_point_tex(x, y)
+   Draw a point at the given coordinate.
+
+.. .. lua:function:: draw_point_tex()
 
 .. _draw_line:
 .. lua:function:: draw_line(x1, y1, x2, y2)
 
+   Draw a line between the two given points.
+
 .. lua:function:: draw_triangle(x1, y1, x2, y2, x3, y3)
 
+   Draw a filled triangle between the three given points.
+
+.. _draw-surface:
 .. lua:function:: draw_surface(ix1, iy1, ix2, iy2, ix3, iy3, ox1, oy1, ox2, oy2, ox3, oy3)
+
+   Draw a surface (set as `current draw from`). The first 6 parameters represent a triangle in the source texture, the last 6 represent the destination triangle. The can have different size to create deformations.
+
+   Tinting is possible by using :ref:`set_color <set-color>` (255, 255, 255 for no modification).
 
 .. lua:function:: draw_quad(ix1, iy1, ix2, iy2, ix3, iy3, ix4, iy4, ox1, oy1, ox2, oy2, ox3, oy3, ox4, oy4)
 
+   Same as :ref:`draw_surface <draw-surface>` but with quadrilaterals instead of triangles.
+
 .. lua:function:: draw_rect(x, y, w, h)
+
+   Draw a filled rectangle.
+
 .. lua:function:: draw_rect_rotated(x, y, w, h, angle: float)
+
+   Draw a filled rotated rectangle.
+
 .. lua:function:: draw_square(x, y, w, h)
+
+   Draw a non-filled rectangle.
 
 .. lua:function:: draw_circle(x, y, radius)
 
-    .. note:: Draw circle draws a lot of triangles. If possible, include a circle in your spritesheet and draw it with :ref:`draw_sprite <draw_sprite>`
+   Draw a circle. The coordinate is the position of the center.
+
+    .. note:: Draw circle draws a lot of triangles. If possible, include a circle in your spritesheet and draw it with :ref:`draw_sprite <draw_sprite>`.
 
 .. lua:function:: draw_polygon(x1, y1, x2, y2, ...)
+
+   Draw a filled polygon.
+
 .. lua:function:: draw_polyline(x1, y1, x2, y2, ...)
 
-.. lua:function:: draw_image(x, y, w, h, destx, desty[, destw=w[, dh=h]])
+   Draw a non-filled polygon.
+
+.. lua:function:: draw_image(x, y, w, h, destx, desty[, destw=w[, desth=h]])
+
+   Draw an image. It can be resized if ``destw`` or ``desth`` are different than ``w`` and ``h``
 
 .. _draw_sprite:
 .. lua:function:: draw_sprite(sprite: table, x, y[, transform: table])
+
+   Draw a sprite.
+   Use :ref:`Sprite <sprite>` for easier sprite drawing.
+
+   :param: sprite must have fields x, y, w and h
+   :param: transform must have fields angle, wfactor and hfactor
+
+   .. code::
+
+      local sprite = { -- the first image of a 32x32 spritesheet
+         x = 0,
+         y = 0,
+         w = 32,
+         h = 32,
+      }
+      function drystal.draw()
+         ...
+         drystal.draw_sprite(sprite, 200, 300)
+      end
+
 .. lua:function:: draw_sprite_simple(sprite: table, x, y)
 .. lua:function:: draw_sprite_rotated(sprite: table, x, y, angle: float)
-.. lua:function:: draw_sprite_rotated(sprite: table, x, y, w, h)
+.. lua:function:: draw_sprite_resized(sprite: table, x, y, w, h)
 
 
 Blending
@@ -215,30 +350,61 @@ Blending
 Camera
 ^^^^^^
 
-.. lua:data:: x
-.. lua:data:: y
-.. lua:data:: zoom
-.. lua:data:: angle
+.. lua:data:: x (=0)
+
+   Position of the camera (x coordinate).
+
+.. lua:data:: y (=0)
+
+   Position of the camera (y coordinate).
+
+.. lua:data:: zoom (=1)
+
+   Zoom of the camera. Values greater than 1 mean zoom in, less than 1 mean zoom out.
+
+.. lua:data:: angle (=0)
+
+   Angle of the camera. You can easily apply a tilt effect with this field.
 
 .. lua:function:: reset()
+
+   Reset the camera fields to default values.
 
 
 Buffer
 ^^^^^^
 
+A buffer can only contain one type of shape (point, line, triangle, textured triangle).
+
+
 .. lua:class:: Buffer
 
     .. lua:method:: use()
 
+         Use this buffer as current buffer.
+
     .. lua:method:: draw([dx=0: float[, dy=0: float]])
+
+         Draw this buffer. ``dx`` and ``dy`` can be used to offset the draw.
 
     .. lua:method:: reset()
 
+         Remove all elements from the buffer.
+
     .. lua:method:: upload_and_free()
+
+         Send the buffer to the graphic card and free memory.
+         If a buffer is freed, you cannot call ``reset`` or ``use`` anymore.
 
 .. lua:function:: new_buffer([size: int]) -> Buffer
 
+   Create a buffer of the specified ``size``. ``size`` must be a multiple of the number of points of the shape you put in it.
+   For example, if you put triangle, ``size`` must be a multiple of 3.
+
 .. lua:function:: use_buffer()
+
+   Use default drystal buffer.
+
 
 Shader
 ^^^^^^
@@ -247,18 +413,29 @@ Shader
 
     .. lua:method:: use()
 
+         Use a shader for the following draws.
+
     .. lua:method:: feed(uniform: str, value: float)
 
 .. lua:function:: new_shader([vertex: str[, fragment_color: str[, fragment_texture: str]]]) -> Shader
 
+   Create a shader with code specified.
+   If one of the code is :lua:`nil`, code of the default shader is used.
+
 .. lua:function:: use_shader()
+
+   Use default drystal shader.
 
 Post processing
 """""""""""""""
 
-.. lua:function:: create_postfx(name: str, code: str[, unforms: table]) -> function | (nil, error)
+.. lua:function:: create_postfx(name: str, code: str[, uniforms: table]) -> function | (nil, error)
 
-    .. code:: lua
+   Create a post processing effect.
+   The ``code`` parameter should contains a *effect* function.
+   Additionnal uniforms can be declared by the ``uniforms`` parameter.
+
+    .. code::
 
         assert(drystal.create_postfx('gray', [[
             vec3 effect(sampler2D tex, vec2 coord)
@@ -268,25 +445,43 @@ Post processing
             }
         ]], {'scale'}))
 
-.. lua:function:: postfx(name: str, unforms...: floats)
+.. lua:function:: postfx(name: str, uniforms...: floats)
 
-    .. code:: lua
+      Apply a post processing effect on the current *draw on* surface. The uniform list should have the same order than in the declaration of the effect.
+
+    .. code::
 
         function drystal.draw()
             ...
             drystal.postfx('gray', 0.8)
         end
 
+
 Sprite
 """"""
 
+.. _sprite:
 .. lua:class:: Sprite
 
     .. lua:method:: draw()
 
-.. lua:function:: new_sprite(table)
+         Draw the sprite on the current *draw on* surface.
 
-.. code:: lua
+.. lua:function:: new_sprite(table) -> Sprite
+
+   Create a sprite.
+
+   :param: ``table`` contains:
+
+      - x, y coordinates,
+      - optional color table,
+      - optional alpha,
+      - optional angle,
+      - optional w, h (needed if source not defined),
+      - optional source (a sprite table (x, y, w, h); if not defined, draws a rectangle),
+      - any other fields you might need for your code.
+
+.. code::
 
     local data = { x=0, y=0, w=32, h=32 }
     local sprite = drystal.new_sprite {
@@ -491,7 +686,7 @@ Storage
 .. lua:function:: store(key: str, value: table)
 .. lua:function:: fetch(key: str) -> table
 
-.. code:: lua
+.. code::
 
     drystal.store('test', {text='wow'})
     assert(drystal.fetch('test').text == 'wow')

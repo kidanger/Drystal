@@ -5,12 +5,12 @@ function drystal.init()
 	drystal.resize(400, 400)
 end
 
-function drystal.update()
-	print'update'
+function drystal.update(dt)
+	--print('update, dt')
 end
 
 function drystal.draw()
-	print'draw'
+	--print'draw'
 end
 
 function drystal.key_press(key)
