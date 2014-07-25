@@ -20,7 +20,8 @@
 
 #include "audio.hpp"
 
-class Sound {
+class Sound
+{
 private:
 	ALuint alBuffer;
 	bool free_me;
@@ -29,7 +30,10 @@ public:
 	void play(float volume = 1, float x = 0, float y = 0);
 	void free();
 
-	bool wants_to_be_free() const { return free_me; }
+	bool wants_to_be_free() const
+	{
+		return free_me;
+	}
 
 	static Sound* load_from_file(const char *filepath);
 	static Sound* load(unsigned int len, const float* buffer, int samplesrate = DEFAULT_SAMPLES_RATE);

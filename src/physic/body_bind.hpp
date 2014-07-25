@@ -35,8 +35,8 @@ int mlua_apply_torque_body(lua_State* L);
 int mlua_dump_body(lua_State* L);
 
 #define __BODY_GET_SET(value) \
-    int mlua_set_##value##_body(lua_State* L); \
-    int mlua_get_##value##_body(lua_State* L);
+	int mlua_set_##value##_body(lua_State* L); \
+	int mlua_get_##value##_body(lua_State* L);
 
 __BODY_GET_SET(position)
 __BODY_GET_SET(linear_velocity)

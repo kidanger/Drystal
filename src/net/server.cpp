@@ -33,7 +33,8 @@
 
 log_category("net");
 
-void Server::listen(int port) {
+void Server::listen(int port)
+{
 	assert(port >= 0 && port < 65536);
 
 	fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -54,7 +55,8 @@ void Server::listen(int port) {
 	::listen(fd, 1024);
 }
 
-Socket* Server::accept(float timeout, float* time) {
+Socket* Server::accept(float timeout, float* time)
+{
 	assert(time);
 
 	int sockfd;
@@ -71,14 +73,15 @@ Socket* Server::accept(float timeout, float* time) {
 	if (sockfd) {
 		char address[512];
 		getnameinfo((struct sockaddr*)&cliaddr, clilen, address, sizeof(address),
-				NULL, 0, NI_NUMERICHOST);
+		            NULL, 0, NI_NUMERICHOST);
 		ws_ctx_t* wsctx = do_handshake(sockfd);
 		return new Socket(sockfd, address, wsctx);
 	}
 	return NULL;
 }
 
-bool Server::readyToRead(float timeout, float* time) {
+bool Server::readyToRead(float timeout, float* time)
+{
 	assert(time);
 
 	fd_set sett;

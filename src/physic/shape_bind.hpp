@@ -29,8 +29,8 @@ int mlua_set_sensor_shape(lua_State* L);
 int mlua_gc_shape(lua_State* L);
 
 #define __SHAPE_GET_SET(value) \
-    int mlua_set_##value##_shape(lua_State* L); \
-    int mlua_get_##value##_shape(lua_State* L);
+	int mlua_set_##value##_shape(lua_State* L); \
+	int mlua_get_##value##_shape(lua_State* L);
 
 __SHAPE_GET_SET(density)
 __SHAPE_GET_SET(restitution)

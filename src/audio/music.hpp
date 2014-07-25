@@ -50,7 +50,10 @@ public:
 	void stop();
 	void free();
 
-	bool is_ended() const { return ended; }
+	bool is_ended() const
+	{
+		return ended;
+	}
 
 	static Music* load(MusicCallback* callback, int samplesrate = DEFAULT_SAMPLES_RATE, int num_channels = 1);
 	static Music* load_from_file(const char* filename);

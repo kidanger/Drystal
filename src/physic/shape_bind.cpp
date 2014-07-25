@@ -50,8 +50,8 @@ int mlua_new_shape(lua_State* L)
 		int number = (lua_gettop(L) - 1) / 2;
 		b2Vec2* vecs = new b2Vec2[number];
 		for (int i = 0; i < number; i++) {
-			vecs[i].x = luaL_checknumber(L, (i + 1)*2);
-			vecs[i].y = luaL_checknumber(L, (i + 1)*2 + 1);
+			vecs[i].x = luaL_checknumber(L, (i + 1) * 2);
+			vecs[i].y = luaL_checknumber(L, (i + 1) * 2 + 1);
 		}
 		chain->CreateLoop(vecs, number);
 		delete[] vecs;

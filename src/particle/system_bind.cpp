@@ -26,8 +26,8 @@ DECLARE_PUSHPOP(System, system)
 
 int mlua_new_system(lua_State* L)
 {
-        int x;
-        int y;
+	int x;
+	int y;
 
 	assert(L);
 
@@ -124,14 +124,14 @@ int mlua_get_offset_system(lua_State* L)
 	int mlua_get_##attr##_system(lua_State* L) \
 	{ \
 		assert(L); \
-	    System* system = pop_system(L, 1);\
+		System* system = pop_system(L, 1);\
 		lua_pushnumber(L, system->attr); \
 		return 1; \
 	} \
 	int mlua_set_##attr##_system(lua_State* L) \
 	{ \
 		assert(L); \
-	    System* system = pop_system(L, 1);\
+		System* system = pop_system(L, 1);\
 		lua_Number attr = luaL_checknumber(L, 2); \
 		system->attr = attr; \
 		return 0; \
@@ -161,7 +161,7 @@ int mlua_update_system(lua_State* L)
 	int mlua_##action##_system(lua_State* L) \
 	{ \
 		assert(L); \
-	    System* system = pop_system(L, 1);\
+		System* system = pop_system(L, 1);\
 		system->action(); \
 		return 0; \
 	}

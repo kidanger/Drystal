@@ -22,7 +22,8 @@ extern "C" {
 #include "websocket.h"
 }
 
-class Socket {
+class Socket
+{
 private:
 	Socket(const Socket&);
 	Socket& operator=(const Socket&);

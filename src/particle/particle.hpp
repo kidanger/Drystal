@@ -18,7 +18,8 @@
 
 #include "system.hpp"
 
-class Particle {
+class Particle
+{
 public:
 	bool dead;
 

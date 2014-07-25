@@ -29,7 +29,7 @@ int mlua_load_sound(lua_State *L)
 {
 	assert(L);
 
-    if (lua_isstring(L, 1)) {
+	if (lua_isstring(L, 1)) {
 		const char* filename = lua_tostring(L, 1);
 		Sound *chunk = Sound::load_from_file(filename);
 		if (chunk) {

@@ -177,8 +177,7 @@ std::pair<const char*, StateModifier> keywords_data[] = {
 	std::make_pair("shadowy:",	change_shadowy),
 };
 
-struct keyword_cmp
-{
+struct keyword_cmp {
 	bool operator()(char const *a, char const *b) const
 	{
 		return std::strcmp(a, b) < 0;
@@ -186,7 +185,7 @@ struct keyword_cmp
 };
 
 std::map<const char*, StateModifier, keyword_cmp> keywords(keywords_data,
-		    keywords_data + sizeof keywords_data / sizeof keywords_data[0]);
+        keywords_data + sizeof keywords_data / sizeof keywords_data[0]);
 
 static void evaluate(TextState* state, const char* text)
 {
@@ -195,7 +194,7 @@ static void evaluate(TextState* state, const char* text)
 
 	char command[32] = {0};
 	int i = 0;
-	while(text[i] && text[i] != '|' && (i == 0 || text[i - 1] != ':')) {
+	while (text[i] && text[i] != '|' && (i == 0 || text[i - 1] != ':')) {
 		command[i] = text[i];
 		i += 1;
 	}
@@ -212,7 +211,7 @@ static const char* next_token(const char* text)
 {
 	assert(text);
 
-	while(*text) {
+	while (*text) {
 		if (*text == START || *text == END || *text == SEP)
 			break;
 		text++;

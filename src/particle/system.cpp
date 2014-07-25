@@ -67,7 +67,7 @@ void System::draw(float dx, float dy)
 {
 	Engine& engine = get_engine();
 
-	for (int i = used-1; i >= 0; i--) {
+	for (int i = used - 1; i >= 0; i--) {
 		Particle* p = &particles[i];
 
 		float liferatio = 1 - p->life / p->lifetime;

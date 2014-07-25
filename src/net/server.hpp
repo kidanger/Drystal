@@ -17,7 +17,8 @@
 #pragma once
 
 class Socket;
-class Server {
+class Server
+{
 private:
 	int fd;
 

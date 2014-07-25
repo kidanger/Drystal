@@ -43,7 +43,8 @@ Socket::Socket(int fd, const char* address, ws_ctx_t* ctx):
 {
 }
 
-Socket* Socket::connect(const char* hostname, int port) {
+Socket* Socket::connect(const char* hostname, int port)
+{
 	struct sockaddr_in serv_addr;
 	struct hostent *server;
 
@@ -65,7 +66,7 @@ Socket* Socket::connect(const char* hostname, int port) {
 	memcpy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
 	serv_addr.sin_port = htons(port);
 	if (::connect(fd, (const struct sockaddr*) &serv_addr, sizeof(serv_addr)) != -1
-			&& errno != EINPROGRESS) {
+	        && errno != EINPROGRESS) {
 		log_error("connect: %s", strerror(errno));
 		return NULL;
 	}
@@ -73,7 +74,8 @@ Socket* Socket::connect(const char* hostname, int port) {
 	return new Socket(fd, hostname, NULL);
 }
 
-void Socket::send(const char* msg, _unused_ int len, bool* error) {
+void Socket::send(const char* msg, _unused_ int len, bool* error)
+{
 	assert(error);
 	assert(msg);
 
@@ -82,7 +84,8 @@ void Socket::send(const char* msg, _unused_ int len, bool* error) {
 	flush(error);
 }
 
-void Socket::flush(bool* error) {
+void Socket::flush(bool* error)
+{
 	assert(error);
 
 	int totallen = output.length();
@@ -113,7 +116,8 @@ void Socket::flush(bool* error) {
 	}
 }
 
-int Socket::receive(char* buffer, int capacity, bool* error) {
+int Socket::receive(char* buffer, int capacity, bool* error)
+{
 	assert(buffer);
 	assert(error);
 
@@ -146,12 +150,14 @@ int Socket::receive(char* buffer, int capacity, bool* error) {
 	return n;
 }
 
-void Socket::disconnect() {
+void Socket::disconnect()
+{
 	shutdown(fd, SHUT_RDWR);
 	close(fd);
 }
 
-bool Socket::readyToRead() {
+bool Socket::readyToRead()
+{
 	fd_set sett;
 	FD_ZERO(&sett);
 	FD_SET(fd, &sett);
@@ -164,7 +170,8 @@ bool Socket::readyToRead() {
 	return ret > 0;
 }
 
-bool Socket::readyToSend() {
+bool Socket::readyToSend()
+{
 	fd_set sett;
 	FD_ZERO(&sett);
 	FD_SET(fd, &sett);
@@ -178,15 +185,18 @@ bool Socket::readyToSend() {
 }
 
 
-const char* Socket::getAddress() const {
+const char* Socket::getAddress() const
+{
 	return address.c_str();
 }
 
-void Socket::setTable(int ref) {
+void Socket::setTable(int ref)
+{
 	this->tableref = ref;
 }
 
-int Socket::getTable() const {
+int Socket::getTable() const
+{
 	return tableref;
 }
 

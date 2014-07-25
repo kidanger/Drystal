@@ -35,7 +35,8 @@ struct Size {
 };
 
 class Particle;
-class System {
+class System
+{
 private:
 	System(const System&);
 	System& operator=(const System&);

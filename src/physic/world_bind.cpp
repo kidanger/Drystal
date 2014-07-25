@@ -76,13 +76,13 @@ private:
 	int postsolve;
 
 public:
-        CustomListener(lua_State *L, int begin_contact, int end_contact, int presolve, int postsolve)
-            : L(L),
-              begin_contact(begin_contact),
-              end_contact(end_contact),
-              presolve(presolve),
-              postsolve(postsolve)
-        {}
+	CustomListener(lua_State *L, int begin_contact, int end_contact, int presolve, int postsolve)
+		: L(L),
+		  begin_contact(begin_contact),
+		  end_contact(end_contact),
+		  presolve(presolve),
+		  postsolve(postsolve)
+	{}
 
 	~CustomListener()
 	{
@@ -170,9 +170,9 @@ int mlua_on_collision(lua_State* L)
 
 	if (lua_gettop(L)) {
 		int begin_contact;
-                int end_contact;
-                int presolve;
-                int postsolve;
+		int end_contact;
+		int presolve;
+		int postsolve;
 
 		lua_pushvalue(L, 1);
 		begin_contact = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -206,17 +206,17 @@ public:
 	b2Fixture* fixture;
 	b2Vec2 point;
 
-	CustomRayCastCallback(lua_State *L, int ref) : L(L), ref(ref), fixture(NULL), point(0,0) {}
+	CustomRayCastCallback(lua_State *L, int ref) : L(L), ref(ref), fixture(NULL), point(0, 0) {}
 
 	virtual float32 ReportFixture(b2Fixture* fixture, const b2Vec2& point,
-				      _unused_ const b2Vec2& normal, float32 fraction)
+	                              _unused_ const b2Vec2& normal, float32 fraction)
 	{
 		bool save_data = true;
 		float32 new_fraction = fraction;
 
 		if (ref != LUA_REFNIL) {
 			lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
-			int refbody = (int) (size_t) fixture->GetBody()->GetUserData();
+			int refbody = (int)(size_t) fixture->GetBody()->GetUserData();
 			lua_rawgeti(L, LUA_REGISTRYINDEX, refbody);
 			lua_pushnumber(L, fraction);
 			if (lua_pcall(L, 2, 2, 0)) {
@@ -259,7 +259,7 @@ int mlua_raycast(lua_State* L)
 	luaL_unref(L, LUA_REGISTRYINDEX, callback_ref);
 
 	if (callback.fixture) {
-		int ref = (int) (size_t) callback.fixture->GetBody()->GetUserData();
+		int ref = (int)(size_t) callback.fixture->GetBody()->GetUserData();
 		lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
 		lua_pushnumber(L, callback.point.x);
 		lua_pushnumber(L, callback.point.y);
@@ -271,25 +271,25 @@ int mlua_raycast(lua_State* L)
 
 class CustomQueryCallback : public b2QueryCallback
 {
-	private:
-    		CustomQueryCallback(const CustomQueryCallback&);
-    		CustomQueryCallback& operator=(const CustomQueryCallback&);
+private:
+	CustomQueryCallback(const CustomQueryCallback&);
+	CustomQueryCallback& operator=(const CustomQueryCallback&);
 
-		lua_State* L;
-		unsigned index;
+	lua_State* L;
+	unsigned index;
 
-	public:
-		CustomQueryCallback(lua_State *L) : L(L), index(1) {}
+public:
+	CustomQueryCallback(lua_State *L) : L(L), index(1) {}
 
-		bool ReportFixture(b2Fixture* fixture)
-		{
-			int ref = (int) (size_t) fixture->GetBody()->GetUserData();
-			lua_pushnumber(L, index);
-			lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
-			lua_settable(L, -3);
-			index++;
-			return true;
-		}
+	bool ReportFixture(b2Fixture* fixture)
+	{
+		int ref = (int)(size_t) fixture->GetBody()->GetUserData();
+		lua_pushnumber(L, index);
+		lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
+		lua_settable(L, -3);
+		index++;
+		return true;
+	}
 
 };
 

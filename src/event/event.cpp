@@ -291,7 +291,7 @@ static void handle_event(const SDL_Event& event)
 			break;
 		case SDL_MOUSEMOTION:
 			call_mouse_motion(event.motion.x, event.motion.y,
-			                    event.motion.xrel, event.motion.yrel);
+			                  event.motion.xrel, event.motion.yrel);
 			break;
 		case SDL_MOUSEBUTTONDOWN:
 			call_mouse_press(event.button.x, event.button.y, event.button.button);

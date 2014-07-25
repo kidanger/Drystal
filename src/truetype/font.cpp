@@ -34,9 +34,9 @@
 
 
 // TODO: fixme
-unsigned char file_content[1<<20];
-unsigned char pixels[512*512];
-unsigned char pixels_colored[512*512*4];
+unsigned char file_content[1 << 20];
+unsigned char pixels[512 * 512];
+unsigned char pixels_colored[512 * 512 * 4];
 
 Font* Font::load(const char* filename, float size, int first_char, int num_chars)
 {
@@ -58,16 +58,16 @@ Font* Font::load(const char* filename, float size, int first_char, int num_chars
 	font->char_data = new stbtt_bakedchar[num_chars];
 	font->font_size = size;
 
-	_unused_ size_t read = fread(file_content, 1, 1<<20, file);
+	_unused_ size_t read = fread(file_content, 1, 1 << 20, file);
 	assert(read);//FIXME do not use asserts at runtime
 	fclose(file);
 
 	stbtt_BakeFontBitmap(file_content, 0, size, pixels, w, h,
-			first_char, num_chars, font->char_data);
+	                     first_char, num_chars, font->char_data);
 
-	memset(pixels_colored, 0xff, w*h*4);
-	for (int i = 0; i < w*h; i++) {
-		pixels_colored[i*4+3] = pixels[i];
+	memset(pixels_colored, 0xff, w * h * 4);
+	for (int i = 0; i < w * h; i++) {
+		pixels_colored[i * 4 + 3] = pixels[i];
 	}
 
 	font->surface = engine.display.create_surface(w, h, w, h, pixels_colored);
@@ -85,32 +85,32 @@ Font::~Font()
 static inline void draw_quad(Engine& engine, const stbtt_aligned_quad& q)
 {
 	engine.display.draw_quad(
-			// texture coordinates
-			q.s0, q.t0,
-			q.s1, q.t0,
-			q.s1, q.t1,
-			q.s0, q.t1,
-			// screen coordinates
-			q.x0, q.y0,
-			q.x1, q.y0,
-			q.x1, q.y1,
-			q.x0, q.y1
+	    // texture coordinates
+	    q.s0, q.t0,
+	    q.s1, q.t0,
+	    q.s1, q.t1,
+	    q.s0, q.t1,
+	    // screen coordinates
+	    q.x0, q.y0,
+	    q.x1, q.y0,
+	    q.x1, q.y1,
+	    q.x0, q.y1
 	);
 }
 static inline void draw_quad_fancy(Engine& engine, const stbtt_aligned_quad& q,
-		float italic=0.0, float dx=0.0, float dy=0.0)
+                                   float italic = 0.0, float dx = 0.0, float dy = 0.0)
 {
 	engine.display.draw_quad(
-			// texture coordinates
-			q.s0, q.t0,
-			q.s1, q.t0,
-			q.s1, q.t1,
-			q.s0, q.t1,
-			// screen coordinates
-			q.x0 + italic + dx, q.y0 + dy,
-			q.x1 + italic + dx, q.y0 + dy,
-			q.x1 + dx, q.y1 + dy,
-			q.x0 + dx, q.y1 + dy
+	    // texture coordinates
+	    q.s0, q.t0,
+	    q.s1, q.t0,
+	    q.s1, q.t1,
+	    q.s0, q.t1,
+	    // screen coordinates
+	    q.x0 + italic + dx, q.y0 + dy,
+	    q.x1 + italic + dx, q.y0 + dy,
+	    q.x1 + dx, q.y1 + dy,
+	    q.x0 + dx, q.y1 + dy
 	);
 }
 
@@ -172,14 +172,14 @@ void Font::draw(const char* text, float x, float y)
 				if (state->outlined) {
 					engine.display.set_color(state->outr, state->outg, state->outb);
 					float f = font_size * 0.04;
-					draw_quad_fancy(engine, q, italic,       -1*f,        0*f);
-					draw_quad_fancy(engine, q, italic,        1*f,        0*f);
-					draw_quad_fancy(engine, q, italic,        0*f,       -1*f);
-					draw_quad_fancy(engine, q, italic,        0*f,        1*f);
-					draw_quad_fancy(engine, q, italic,  M_SQRT1_2*f,  M_SQRT1_2*f);
-					draw_quad_fancy(engine, q, italic, -M_SQRT1_2*f,  M_SQRT1_2*f);
-					draw_quad_fancy(engine, q, italic, -M_SQRT1_2*f, -M_SQRT1_2*f);
-					draw_quad_fancy(engine, q, italic,  M_SQRT1_2*f, -M_SQRT1_2*f);
+					draw_quad_fancy(engine, q, italic,       -1 * f,        0 * f);
+					draw_quad_fancy(engine, q, italic,        1 * f,        0 * f);
+					draw_quad_fancy(engine, q, italic,        0 * f,       -1 * f);
+					draw_quad_fancy(engine, q, italic,        0 * f,        1 * f);
+					draw_quad_fancy(engine, q, italic,  M_SQRT1_2 * f,  M_SQRT1_2 * f);
+					draw_quad_fancy(engine, q, italic, -M_SQRT1_2 * f,  M_SQRT1_2 * f);
+					draw_quad_fancy(engine, q, italic, -M_SQRT1_2 * f, -M_SQRT1_2 * f);
+					draw_quad_fancy(engine, q, italic,  M_SQRT1_2 * f, -M_SQRT1_2 * f);
 					engine.display.set_color(state->r, state->g, state->b);
 				}
 				draw_quad_fancy(engine, q, italic);
