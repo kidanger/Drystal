@@ -40,15 +40,11 @@ static void onsuccess(const char* filename)
 {
 	assert(filename);
 
-	lua_State* L = get_engine().lua.L;
-	lua_getglobal(L, "on_wget_success");
-	if (not lua_isfunction(L, -1)) {
-		lua_pop(L, 1);
-		return;
-	}
-	lua_pushstring(L, filename);
-	if (lua_pcall(L, 1, 0, 0)) {
-		luaL_error(L, "error calling on_wget_success: %s", lua_tostring(L, -1));
+	Engine& engine = get_engine();
+	if (engine.lua.get_function("on_wget_success")) {
+		lua_State* L = engine.lua.L;
+		lua_pushstring(L, filename);
+		CALL(1, 0);
 	}
 }
 
@@ -56,15 +52,11 @@ static void onerror(const char* filename)
 {
 	assert(filename);
 
-	lua_State* L = get_engine().lua.L;
-	lua_getglobal(L, "on_wget_error");
-	if (not lua_isfunction(L, -1)) {
-		lua_pop(L, 1);
-		return;
-	}
-	lua_pushstring(L, filename);
-	if (lua_pcall(L, 1, 0, 0)) {
-		luaL_error(L, "error calling on_wget_error: %s", lua_tostring(L, -1));
+	Engine& engine = get_engine();
+	if (engine.lua.get_function("on_wget_error")) {
+		lua_State* L = engine.lua.L;
+		lua_pushstring(L, filename);
+		CALL(1, 0);
 	}
 }
 

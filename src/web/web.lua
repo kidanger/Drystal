@@ -4,17 +4,17 @@ local web = drystal
 web.raw_wget = web.wget
 local wget_requests = {}
 
-function on_wget_success(file)
+function drystal.on_wget_success(file)
 	for _, f in ipairs(wget_requests[file].onload) do
 		f(file)
 	end
-	wget_requests.file = nil
+	wget_requests[file] = nil
 end
-function on_wget_error(file)
+function drystal.on_wget_error(file)
 	for _, f in ipairs(wget_requests[file].onerror) do
 		f(file)
 	end
-	wget_requests.file = nil
+	wget_requests[file] = nil
 end
 
 function web.wget(url, file, onload, onerror)
