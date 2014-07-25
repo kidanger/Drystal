@@ -25,18 +25,26 @@ int mlua_run_js(lua_State* L)
 {
 	assert(L);
 
+#ifdef EMSCRIPTEN
 	const char* script = luaL_checkstring(L, 1);
 	run_js(script);
 	return 0;
+#else
+	return luaL_error(L, "run_js isn't available in native build");
+#endif
 }
 
 int mlua_wget(lua_State *L)
 {
 	assert(L);
 
+#ifdef EMSCRIPTEN
 	const char *url = luaL_checkstring(L, 1);
 	const char *filename = luaL_checkstring(L, 2);
 	wget(url, filename);
 	return 0;
+#else
+	return luaL_error(L, "wget isn't available in native build");
+#endif
 }
 

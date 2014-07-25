@@ -704,11 +704,11 @@ Web
 
 .. lua:function:: wget(url: string, filename: string, onload: function, onerror: function)
 
-    .. warning:: ``wget`` doesn't work in native build.
+    .. warning:: ``wget`` throws an error in native build.
 
 .. lua:function:: run_js(script: str)
 
-    .. warning:: ``run_js`` doesn't work in native build.
+    .. warning:: ``run_js`` throws an error in native build.
 
 
 Utils

@@ -20,20 +20,13 @@
 
 #include "web.hpp"
 #include "engine.hpp"
-#include "macro.hpp"
 
 #ifdef EMSCRIPTEN
 void run_js(const char* script)
 {
 	emscripten_run_script(script);
 }
-#else
-void run_js(_unused_ const char* script)
-{
-}
-#endif
 
-#ifdef EMSCRIPTEN
 static void onsuccess(const char* filename)
 {
 	assert(filename);
@@ -61,10 +54,6 @@ static void onerror(const char* filename)
 void wget(const char* url, const char* filename)
 {
 	emscripten_async_wget(url, filename, onsuccess, onerror);
-}
-#else
-void wget(_unused_ const char* url, _unused_ const char* filename)
-{
 }
 #endif
 
