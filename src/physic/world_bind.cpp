@@ -50,7 +50,9 @@ int mlua_create_world(lua_State* L)
 int mlua_update_physic(lua_State* L)
 {
 	assert(L);
-	assert(world);
+	if (world == NULL) {
+		return luaL_error(L, "world must be created before calling update_physic");
+	}
 
 	lua_Number dt = luaL_checknumber(L, 1);
 
@@ -162,7 +164,9 @@ public:
 int mlua_on_collision(lua_State* L)
 {
 	assert(L);
-	assert(world);
+	if (world == NULL) {
+		return luaL_error(L, "world must be created before calling on_collision");
+	}
 
 	if (lua_gettop(L)) {
 		int begin_contact;
@@ -234,7 +238,9 @@ public:
 int mlua_raycast(lua_State* L)
 {
 	assert(L);
-	assert(world);
+	if (world == NULL) {
+		return luaL_error(L, "world must be created before calling raycast");
+	}
 
 	lua_Number x1 = luaL_checknumber(L, 1);
 	lua_Number y1 = luaL_checknumber(L, 2);
@@ -290,7 +296,9 @@ class CustomQueryCallback : public b2QueryCallback
 int mlua_query(lua_State* L)
 {
 	assert(L);
-	assert(world);
+	if (world == NULL) {
+		return luaL_error(L, "world must be created before calling query");
+	}
 
 	lua_Number x1 = luaL_checknumber(L, 1);
 	lua_Number y1 = luaL_checknumber(L, 2);
@@ -312,7 +320,9 @@ int mlua_query(lua_State* L)
 int mlua_new_body(lua_State* L)
 {
 	assert(L);
-	assert(world);
+	if (world == NULL) {
+		return luaL_error(L, "world must be created before calling new_body");
+	}
 
 	int index = 1;
 	bool dynamic = lua_toboolean(L, index++);
@@ -355,7 +365,9 @@ int mlua_new_body(lua_State* L)
 int mlua_destroy_body(lua_State* L)
 {
 	assert(L);
-	assert(world);
+	if (world == NULL) {
+		return luaL_error(L, "world must be created before calling destroy_body");
+	}
 
 	Body* body = pop_body(L, 1);
 	b2Body* b2body = body->body;
@@ -367,7 +379,9 @@ int mlua_destroy_body(lua_State* L)
 int mlua_new_joint(lua_State* L)
 {
 	assert(L);
-	assert(world);
+	if (world == NULL) {
+		return luaL_error(L, "world must be created before calling new_joint");
+	}
 
 	b2JointDef* joint_def;
 
@@ -426,7 +440,9 @@ int mlua_new_joint(lua_State* L)
 int mlua_destroy_joint(lua_State* L)
 {
 	assert(L);
-	assert(world);
+	if (world == NULL) {
+		return luaL_error(L, "world must be created before calling destroy_joint");
+	}
 
 	Joint* joint = pop_joint(L, 1);
 	world->DestroyJoint(joint->joint);
