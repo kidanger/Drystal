@@ -114,6 +114,7 @@ int load_wav(const char *filename, struct wave_header *wave_header, void **audio
 	}
 
 	*audio_data = tmp_buffer;
+	fclose(file);
 
 	return ret;
 fail:
