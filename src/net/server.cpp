@@ -74,8 +74,7 @@ Socket* Server::accept(float timeout, float* time)
 		char address[512];
 		getnameinfo((struct sockaddr*)&cliaddr, clilen, address, sizeof(address),
 		            NULL, 0, NI_NUMERICHOST);
-		ws_ctx_t* wsctx = do_handshake(sockfd);
-		return new Socket(sockfd, address, wsctx);
+		return new Socket(sockfd, address, true);
 	}
 	return NULL;
 }

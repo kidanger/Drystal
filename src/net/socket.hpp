@@ -18,9 +18,11 @@
 
 #include <string>
 
+#ifndef EMSCRIPTEN
 extern "C" {
 #include "websocket.h"
 }
+#endif
 
 class Socket
 {
@@ -30,13 +32,15 @@ private:
 
 	int fd;
 	int tableref;
+#ifndef EMSCRIPTEN
 	ws_ctx_t* wsctx;
+#endif
 	std::string address;
 	std::string output;
 public:
 	int ref;
 
-	Socket(int fd, const char* address, ws_ctx_t* ctx);
+	Socket(int fd, const char* address, bool is_websocket);
 
 	static Socket* connect(const char* hostname, int port);
 

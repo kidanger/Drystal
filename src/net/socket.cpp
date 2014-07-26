@@ -34,14 +34,21 @@
 
 log_category("net");
 
-Socket::Socket(int fd, const char* address, ws_ctx_t* ctx):
+Socket::Socket(int fd, const char* address, bool is_websocket):
 	fd(fd),
 	tableref(LUA_REFNIL),
-	wsctx(ctx),
+#ifndef EMSCRIPTEN
+	wsctx(NULL),
+#endif
 	address(address),
 	output(),
 	ref(0)
 {
+	if (is_websocket) {
+#ifndef EMSCRIPTEN
+		wsctx = do_handshake(fd);
+#endif
+	}
 }
 
 Socket* Socket::connect(const char* hostname, int port)
@@ -74,7 +81,7 @@ Socket* Socket::connect(const char* hostname, int port)
 		return NULL;
 	}
 
-	return new Socket(fd, hostname, NULL);
+	return new Socket(fd, hostname, false);
 }
 
 void Socket::send(const char* msg, _unused_ int len, bool* error)
@@ -97,11 +104,15 @@ void Socket::flush(bool* error)
 	}
 
 	int n;
+#ifndef EMSCRIPTEN
 	if (wsctx) {
 		n = ws_send(wsctx, output.c_str(), totallen);
 	} else {
 		n = ::send(fd, output.c_str(), totallen, 0);
 	}
+#else
+	n = ::send(fd, output.c_str(), totallen, 0);
+#endif
 
 	if (n < 0) {
 #ifdef EMSCRIPTEN
@@ -129,11 +140,15 @@ int Socket::receive(char* buffer, int capacity, bool* error)
 	}
 
 	int n;
+#ifndef EMSCRIPTEN
 	if (wsctx) {
 		n = ws_recv(wsctx, buffer, capacity);
 	} else {
 		n = recv(fd, buffer, capacity, 0);
 	}
+#else
+	n = recv(fd, buffer, capacity, 0);
+#endif
 	if (n) {
 		log_debug("received %s %d", buffer, n);
 	}
