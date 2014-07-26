@@ -115,13 +115,15 @@ extern int traceback(lua_State *L);
 	lua_call(L, num_args, num_ret);
 #else
 #define CALL(num_args, num_ret) \
-	/* from lua/src/lua.c */ \
-	int base = lua_gettop(L) - num_args; \
-	lua_pushcfunction(L, traceback); \
-	lua_insert(L, base);  \
-	if (lua_pcall(L, num_args, num_ret, base)) { \
-		luaL_error(L, "%s: %s", __func__, lua_tostring(L, -1)); \
-	} \
-	lua_remove(L, base);
+	{\
+		/* from lua/src/lua.c */ \
+		int base = lua_gettop(L) - num_args; \
+		lua_pushcfunction(L, traceback); \
+		lua_insert(L, base);  \
+		if (lua_pcall(L, num_args, num_ret, base)) { \
+			luaL_error(L, "%s:%d %s(): %s", __FILE__, __LINE__, __func__, lua_tostring(L, -1)); \
+		} \
+		lua_remove(L, base); \
+	}
 #endif
 

@@ -22,7 +22,7 @@
 #include <emscripten.h>
 #include <string>
 
-const char* fetch(const char* key)
+const char *fetch(const char *key)
 {
 	assert(key);
 
@@ -31,11 +31,11 @@ const char* fetch(const char* key)
 	js += key;
 	js += "']||''} else {''}";
 
-	const char* value = emscripten_run_script_string(js.c_str());
+	const char *value = emscripten_run_script_string(js.c_str());
 	return value;
 }
 
-void store(const char* key, const char* value)
+void store(const char *key, const char *value)
 {
 	assert(key);
 	assert(value);
@@ -53,28 +53,142 @@ void store(const char* key, const char* value)
 #else
 #include <cstdio>
 #include <cstring>
+#include <lua.hpp>
+#include <sys/mman.h>
 
+#include "lua_functions.hpp"
 #include "macro.hpp"
 
-static char data[1024] = {0};
-
-const char* fetch(_unused_ const char* key)
+extern "C"
 {
-	FILE* file = fopen(".storage", "r");
-	if (file == NULL)
-		return "";
-	fread(data, sizeof(data), 1, file);
-	fclose(file);
-	return data;
+	extern int json_encode(lua_State * L);
+	extern int json_decode(lua_State * L);
 }
 
-void store(_unused_ const char* key, const char* value)
-{
-	assert(value);
+static lua_State *L = luaL_newstate();
 
-	FILE* file = fopen(".storage", "w");
-	fwrite(value, strlen(value), 1, file);
+const char *fetch(const char *key)
+{
+	long filesize;
+	FILE *file;
+	const char *data;
+	const char *value;
+
+	assert(key);
+	assert(lua_gettop(L) == 0);
+
+	file = fopen(".storage", "r");
+	if (!file) {
+		return NULL;
+	}
+
+	fseek(file, 0L, SEEK_END);
+	filesize = ftell(file);
+	fseek(file, 0L, SEEK_SET);
+
+	data = (const char*) mmap(0, filesize, PROT_READ, MAP_PRIVATE, fileno(file), 0);
+	if (data == MAP_FAILED) {
+		goto fail;
+	}
+
+	// decode the data from the file to a lua table
+	lua_pushcfunction(L, json_decode);
+	lua_pushstring(L, data);
+	CALL(1, 1);
+
+	// get the value associated with the key
+	lua_pushstring(L, key);
+	lua_gettable(L, 1);
+	if (lua_isnil(L, -1)) {
+		lua_pop(L, 2);
+		goto fail;
+	}
+	value = luaL_checkstring(L, -1);
+
+	// pop the table and the string
+	lua_pop(L, 2);
+
+	assert(lua_gettop(L) == 0);
+
+	munmap((void *) data, filesize);
+
 	fclose(file);
+	return value;
+
+fail:
+	fclose(file);
+	assert(lua_gettop(L) == 0);
+	return NULL;
+}
+
+void store(const char *key, const char *value)
+{
+	long filesize;
+	FILE *file;
+	const char *stored_data;
+
+	assert(key);
+	assert(value);
+	assert(lua_gettop(L) == 0);
+
+	file = fopen(".storage", "r");
+	if (!file) {
+		return;
+	}
+
+	fseek(file, 0L, SEEK_END);
+	filesize = ftell(file);
+	fseek(file, 0L, SEEK_SET);
+
+	if (filesize > 0) {
+		// If there is something in the file, we mmap it and decode it to create a table
+		int r;
+		const char *data = (const char *) mmap(0, filesize, PROT_READ, MAP_PRIVATE, fileno(file), 0);
+		if (data == MAP_FAILED) {
+			goto finish;
+		}
+
+		lua_pushcfunction(L, json_decode);
+		lua_pushstring(L, data);
+		CALL(1, 1);
+
+		r = munmap((void *) data, filesize);
+		if (r < 0) {
+			lua_pop(L, 1);
+			goto finish;
+		}
+	} else {
+		lua_newtable(L);
+	}
+
+	file = freopen(".storage", "w", file);
+	if (!file) {
+		return;
+	}
+
+	// add the new element to the table
+	lua_pushstring(L, value);
+	lua_setfield(L, -2, key);
+
+	// encode the table in json
+	lua_pushcfunction(L, json_encode);
+	lua_pushvalue(L, 1);
+	CALL(1, 1);
+
+	// store this in the file
+	if (lua_isnil(L, -1)) {
+		lua_pop(L, 2);
+		goto finish;
+	}
+	stored_data = luaL_checkstring(L, -1);
+	fputs(stored_data, file);
+
+	// pop the table and the string
+	lua_pop(L, 2);
+
+finish:
+	fclose(file);
+	assert(lua_gettop(L) == 0);
 }
 #endif
 
