@@ -1,6 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 project(drystal)
 
+option(BUILD_MANPAGES        "Build manpages" ON)
 option(BUILD_ENABLE_COVERAGE "Enable code coverage" OFF)
 option(BUILD_ENABLE_STATS    "Enable statistics (needs BUILD_GRAPHICS as dependency)" OFF)
 option(BUILD_PHYSIC          "Enable physic module" ON)
@@ -62,6 +63,9 @@ endif()
 
 include(Utils)
 
+if(BUILD_MANPAGES)
+	add_subdirectory(man)
+endif()
 add_subdirectory(external)
 
 include_directories(external)
