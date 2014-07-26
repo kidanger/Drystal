@@ -428,6 +428,12 @@ void Display::set_filter(Surface* surface, FilterMode filter) const
 		//DEBUGV("ani: %f", maximumAnisotropy);
 
 		glBindTexture(GL_TEXTURE_2D, current_from ? current_from->tex : 0);
+
+		if (surface == current_from && !surface->has_mipmap && surface->filter >= BILINEAR && !surface->npot) {
+			glGenerateMipmap(GL_TEXTURE_2D);
+			GLDEBUG();
+			surface->has_mipmap = true;
+		}
 	}
 }
 
@@ -550,7 +556,7 @@ Surface * Display::create_surface(int w, int h, int texw, int texh, unsigned cha
 	surface->texw = texw;
 	surface->texh = texh;
 	surface->has_fbo = false;
-	surface->has_mipmap = true;
+	surface->has_mipmap = false;
 	surface->npot = false;
 	surface->filter = LINEAR;
 	surface->ref = 0;
