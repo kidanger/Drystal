@@ -11,7 +11,7 @@ local sounds = {
 local loaded = {}
 for i, s in pairs(sounds) do
 	if not drystal.file_exists(s) then
-		drystal.wget('gamedata/' .. s, s, function ()
+		drystal.wget(s, s, function ()
 			local sound = drystal.load_sound(s)
 			loaded[i] = sound
 		end, function() print('can\'t download sound', s) end)
