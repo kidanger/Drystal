@@ -95,7 +95,7 @@ Sound* Sound::load(unsigned int len, const float* buffer, int samplesrate)
 		converted_buffer[i] = static_cast<ALushort>(buffer[i] * 65535 / 2 + 65535 / 2);
 	}
 
-	Sound* sound = new Sound(converted_buffer, len, samplesrate, 16, 1);
+	Sound* sound = new Sound(converted_buffer, len * sizeof(ALushort), samplesrate, 16, 1);
 	return sound;
 }
 
