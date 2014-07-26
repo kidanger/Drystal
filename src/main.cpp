@@ -158,6 +158,17 @@ static int start_livecoding(const char *filename)
 	return 0;
 }
 #endif
+static void help(void)
+{
+	printf("drystal [OPTIONS] <game.lua>\n\n"
+			"OPTIONS\n"	
+			"    -h --help       Show this help message and exit\n"
+			"    -s --server     Enable the server mode\n"
+#ifdef BUILD_LIVECODING
+			"    -l --livecoding Enable the livecoding which will reload the lua code when modifications are done\n"
+#endif
+			);
+}
 int main(int argc, const char* argv[])
 {
 	const char* filename = "main.lua";
@@ -167,7 +178,10 @@ int main(int argc, const char* argv[])
 	bool server_mode = false;
 
 	for (int i = 1; i < argc; i++) {
-		if (!strcmp(argv[i], "--server") || !strcmp(argv[i], "-s")) {
+		if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")) {
+			help();
+			return 0;
+		} else if (!strcmp(argv[i], "--server") || !strcmp(argv[i], "-s")) {
 			server_mode = true;
 #ifdef BUILD_LIVECODING
 		} else if (!strcmp(argv[i], "--livecoding") || !strcmp(argv[i], "-l")) {
