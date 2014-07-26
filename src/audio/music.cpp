@@ -70,9 +70,14 @@ void Music::play()
 
 void Music::stop()
 {
+	if (source == NULL)
+		return;
+
 	alSourceStop(source->alSource);
 	alSourcei(source->alSource, AL_BUFFER, 0);
+	callback->rewind();
 	source->used = false;
+	source = NULL;
 }
 
 void Music::free()
@@ -145,6 +150,12 @@ public:
 		size *= this->info.channels;
 		return size;
 	}
+
+	void rewind()
+	{
+		stb_vorbis_seek_start(stream);
+	}
+
 private:
 	VorbisMusicCallback(const VorbisMusicCallback&);
 	VorbisMusicCallback& operator=(const VorbisMusicCallback&);

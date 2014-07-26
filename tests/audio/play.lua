@@ -17,11 +17,16 @@ function drystal.key_press(key)
 		drystal.stop()
 	elseif key == 'p' then
 		piou:play()
+		print('play sound')
 	elseif key == 'l' then
 		drystal.set_music_volume(0.3)
 	elseif key == 'z' then
 		drystal.set_sound_volume(0.3)
 	elseif key == 'i' then
 		music:play()
+		print('play music')
+	elseif key == 'o' then
+		music:stop()
+		print('stop music')
 	end
 end

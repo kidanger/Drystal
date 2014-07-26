@@ -63,6 +63,10 @@ public:
 		return i;
 	}
 
+	void rewind()
+	{
+	}
+
 	~LuaMusicCallback()
 	{
 		luaL_unref(L, LUA_REGISTRYINDEX, ref);

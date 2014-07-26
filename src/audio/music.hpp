@@ -27,6 +27,7 @@ class MusicCallback
 public:
 	virtual ~MusicCallback() {}
 	virtual unsigned int feed_buffer(unsigned short * buffer, unsigned int len) = 0;
+	virtual void rewind() = 0;
 };
 
 struct Source;
