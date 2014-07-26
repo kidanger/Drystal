@@ -144,7 +144,7 @@ void Font::draw_plain(const char* text, float x, float y)
 		engine.display.draw_from(old_surface);
 }
 
-void Font::draw(const char* text, float x, float y)
+void Font::draw(const char* text, float x, float y, int align)
 {
 	assert(text);
 
@@ -157,20 +157,44 @@ void Font::draw(const char* text, float x, float y)
 	Surface* old_surface = engine.display.get_draw_from();
 	engine.display.draw_from(surface);
 
-	TextState* state;
 	const char* textend = text;
 	int r, g, b, a;
 	engine.display.get_color(&r, &g, &b);
 	engine.display.get_alpha(&a);
-	reset_parser(r, g, b, a);
+
+	TextState* state = push_parser();
+	state->r = r;
+	state->g = g;
+	state->b = b;
+	state->alpha = a;
 	while (parse(&state, text, textend)) {
 		engine.display.set_color(state->r, state->g, state->b);
 		engine.display.set_alpha(state->alpha);
+
+		float line_width;
+		float line_height;
+		if (*(text-1) != '}' && *(text-1) != '|') {
+			get_textsize(text, &line_width, &line_height, 1);
+			if (align == 2) {
+				x = initialx - line_width / 2;
+			} else if (align == 3) {
+				x = initialx - line_width;
+			}
+		}
+
 		while (text < textend) {
 			unsigned char chr = *text;
 			if (chr == '\n') {
-				x = initialx;
-				y += font_size;
+				get_textsize(text + 1, &line_width, &line_height, 1);
+
+				if (align == 1) {
+					x = initialx;
+				} else if (align == 2) {
+					x = initialx - line_width / 2;
+				} else if (align == 3) {
+					x = initialx - line_width;
+				}
+				y += line_height;
 			} else if (chr >= start && chr < end) {
 				float italic = state->italic;
 				stbtt_aligned_quad q;
@@ -198,6 +222,7 @@ void Font::draw(const char* text, float x, float y)
 			text++;
 		}
 	}
+	pop_parser();
 	engine.display.set_color(r, g, b);
 	engine.display.set_alpha(a);
 	if (old_surface)
@@ -234,7 +259,7 @@ void Font::get_textsize_plain(const char* text, float* w, float* h)
 	*h = maxy;
 }
 
-void Font::get_textsize(const char* text, float* w, float* h)
+void Font::get_textsize(const char* text, float* w, float* h, int nblinesmax)
 {
 	assert(text);
 	assert(w);
@@ -247,14 +272,18 @@ void Font::get_textsize(const char* text, float* w, float* h)
 
 	int start = first_char;
 	int end = start + num_chars;
+	int nblines = 0;
 
-	TextState* state;
 	const char* textend = text;
-	reset_parser(0, 0, 0, 0);
+	TextState* state = push_parser();
 	while (parse(&state, text, textend)) {
 		while (text < textend) {
 			unsigned char chr = *text;
 			if (chr == '\n') {
+				nblines++;
+				if (nblinesmax != -1 && nblines == nblinesmax) {
+					goto end;
+				}
 				x = 0;
 				y += font_size;
 			} else if (chr >= start && chr < end) {
@@ -268,6 +297,8 @@ void Font::get_textsize(const char* text, float* w, float* h)
 			text++;
 		}
 	}
+end:
+	pop_parser();
 	*w = maxx;
 	*h = maxy;
 }

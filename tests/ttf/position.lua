@@ -36,7 +36,7 @@ function drystal.draw()
 	drystal.set_color(0, 0, 0)
 	local shadowed = 'Oh {shadowx:%.2f|shadowy:%.2f|outline|r:200|waw!}'
 	shadowed = shadowed:format(shadowx, shadowy)
-	arial:draw_align(shadowed, 300, 200, 'center')
+	arial:draw(shadowed, 300, 200, 2)
 end
 
 function drystal.mouse_motion(x, y)

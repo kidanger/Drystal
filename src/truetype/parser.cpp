@@ -28,8 +28,11 @@
 log_category("font");
 
 #define MAX_STATES 16
-TextState g_states[MAX_STATES];
-static int g_index = 0;
+#define MAX_PARSERS 2
+static TextState g_states[MAX_STATES][MAX_PARSERS];
+static int g_indexes[MAX_PARSERS] = {0};
+static int g_indexparser = -1;
+#define INDEX (g_indexes[g_indexparser])
 
 #define START '{'
 #define SEP '|'
@@ -219,24 +222,16 @@ static const char* next_token(const char* text)
 	return text;
 }
 
-void reset_parser(int r, int g, int b, int a)
-{
-	g_index = 0;
-	g_states[g_index].r = r;
-	g_states[g_index].g = g;
-	g_states[g_index].b = b;
-	g_states[g_index].alpha = a;
-}
 bool parse(TextState** state, const char*& start, const char*& end)
 {
-	*state = &g_states[g_index];
+	*state = &g_states[g_indexparser][INDEX];
 
 	const char* next = next_token(start);
 	if (*next == 0) {
 		end = next;
 	} else if (*start == END) {
-		if (g_index > 0)
-			g_index--;
+		if (INDEX > 0)
+			INDEX--;
 		start++;
 		end++;
 	} else if (*next == END) {
@@ -244,24 +239,40 @@ bool parse(TextState** state, const char*& start, const char*& end)
 	} else if (*next == START && start < next) {
 		end = next;
 	} else if (*next == START) {
-		if (g_index < MAX_STATES)
-			g_index++;
-		g_states[g_index] = g_states[g_index - 1];
+		if (INDEX < MAX_STATES)
+			INDEX++;
+		g_states[g_indexparser][INDEX] = g_states[g_indexparser][INDEX - 1];
 
 		do {
 			start = next + 1;
 			next = next_token(next + 1);
 			if (*next == SEP) {
-				evaluate(&g_states[g_index], start);
+				evaluate(&g_states[g_indexparser][INDEX], start);
 			}
 		} while (*next != END && *next != START);
 		end = next;
 
-		*state = &g_states[g_index];
+		*state = &g_states[g_indexparser][INDEX];
 	} else {
 		// something went wrong, moving on
 		end++;
 	}
 	return *start != '\0';
+}
+
+TextState* push_parser()
+{
+	g_indexparser++;
+	INDEX = 0;
+	g_states[g_indexparser][INDEX].reset();
+	assert(g_indexparser < MAX_PARSERS);
+	assert(g_indexparser >= 0);
+	return &g_states[g_indexparser][INDEX];
+}
+
+void pop_parser()
+{
+	g_indexparser--;
+	assert(g_indexparser >= -1);
 }
 

@@ -32,9 +32,9 @@ public:
 	int ref;
 
 	~Font();
-	void draw(const char* text, float x, float y);
+	void draw(const char* text, float x, float y, int align=1);
 	void draw_plain(const char* text, float x, float y);
-	void get_textsize(const char* text, float* w, float* h);
+	void get_textsize(const char* text, float* w, float* h, int nblines=-1);
 	void get_textsize_plain(const char* text, float* w, float* h);
 
 	static Font* load(const char* filename, float size, int first_char = 32, int num_chars = 96);

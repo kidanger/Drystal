@@ -23,13 +23,13 @@ function drystal.draw()
 	drystal.draw_background()
 
 	drystal.set_color(255, 0, 0)
-	font:draw_align('abcdefghijklmopqrstuvwxyz', 512 / 2, 100, 'center')
+	font:draw('abcdefghijklmopqrstuvwxyz', 512 / 2, 100, 2)
 
 	local text = 'abd {r:0|big|b:150|bla} {small|test} {big|%:50|defghi}'
 	text = highlight(text, (math.sin(time)/2+0.5)*#text + 1)
-	font_big:draw_align(text, 512 / 2, 512 / 2, 'center')
+	font_big:draw(text, 512 / 2, 512 / 2, 2)
 
-	font:draw_plain_align(text, 512 / 2, 512 * 0.7, 'center')
+	font:draw_plain(text, 512 / 2, 512 * 0.7, 2)
 end
 
 function drystal.key_press(k)

@@ -50,8 +50,26 @@ struct TextState {
 		shadow_y(0)
 	{
 	}
+
+	void reset()
+	{
+		size = 1.0;
+		italic = 0.0;
+		r = 0;
+		g = 0;
+		b = 0;
+		alpha = 255;
+		outlined = false;
+		outr = 0;
+		outg = 0;
+		outb = 0;
+		shadow = false;
+		shadow_x = 0;
+		shadow_y = 0;
+	}
 };
 
+TextState* push_parser();
 bool parse(TextState** state, const char*& text, const char*& end);
-void reset_parser(int r, int g, int b, int a);
+void pop_parser();
 

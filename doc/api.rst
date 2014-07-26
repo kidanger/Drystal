@@ -508,10 +508,8 @@ Font rendering
 
 .. lua:class:: Font
 
-    .. lua:method:: draw(text: str, x, y)
+    .. lua:method:: draw(text: str, x, y, align: int)
     .. lua:method:: draw_plain(text: str, x, y)
-    .. lua:method:: draw_align(text: str, x, y, alignemt: str)
-    .. lua:method:: draw_align_plain(text: str, x, y, alignemt: str)
 
     .. lua:method:: sizeof(text)
     .. lua:method:: sizeof_plain(text)
