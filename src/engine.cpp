@@ -17,10 +17,6 @@
 #include <cstring>
 #include <sys/time.h>
 
-#ifndef EMSCRIPTEN
-#include <SDL2/SDL.h> // SDL_Delay
-#endif
-
 #include "engine.hpp"
 #include "log.hpp"
 #ifdef BUILD_ENABLE_STATS
@@ -33,6 +29,7 @@
 #include "event/event.hpp"
 #endif
 #include "macro.hpp"
+#include "util.h"
 
 #ifdef EMSCRIPTEN
 #include "emscripten.h"
@@ -110,9 +107,9 @@ void Engine::loop()
 		// wait few millis to stay at the targeted fps value
 		unsigned long ms_per_frame = (get_now() - at_start) / 1000;
 		if (ms_per_frame < target_ms_per_frame) {
-			long sleep_time = target_ms_per_frame - ms_per_frame;
+			unsigned long sleep_time = target_ms_per_frame - ms_per_frame;
 			if (sleep_time > 0) {
-				SDL_Delay(sleep_time);
+				msleep(sleep_time);
 			}
 		}
 	}

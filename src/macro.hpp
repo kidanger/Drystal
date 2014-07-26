@@ -56,6 +56,7 @@
 #define _alignas_(x) __attribute__((aligned(__alignof(x))))
 
 #define USEC_PER_SEC 1000000ULL
+#define MSEC_PER_SEC 1000ULL
 
 #define MAX(a,b) \
 	({ \

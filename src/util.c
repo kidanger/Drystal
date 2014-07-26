@@ -17,11 +17,23 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <time.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
 #include "util.h"
 #include "macro.hpp"
+
+void msleep(unsigned long milisec)
+{
+	struct timespec ts;
+	ts.tv_sec = milisec / MSEC_PER_SEC;
+	ts.tv_nsec = (milisec % MSEC_PER_SEC) * MSEC_PER_SEC;
+
+	/* we sleep until the time requested has passed */
+	while (nanosleep(&ts, &ts) == -1)
+		continue;
+}
 
 bool endswith(const char *s, const char *postfix)
 {

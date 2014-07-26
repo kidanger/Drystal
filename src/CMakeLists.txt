@@ -105,10 +105,11 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${DRYSTAL_FLAGS} ${DRYSTAL_C_FLAGS}")
 if(NOT DEFINED EMSCRIPTEN)
 	include(FindPkgConfig)
 
-	# FIXME Engine always needs SDL for SDL_Delay
-	pkg_search_module(SDL2 REQUIRED sdl2)
-	include_directories(${SDL2_INCLUDE_DIRS})
-	target_link_libraries(drystal ${SDL2_LIBRARIES})
+	if(BUILD_GRAPHICS OR BUILD_FONT OR BUILD_EVENT)
+		pkg_search_module(SDL2 REQUIRED sdl2)
+		include_directories(${SDL2_INCLUDE_DIRS})
+		target_link_libraries(drystal ${SDL2_LIBRARIES})
+	endif()
 
 	if(BUILD_GRAPHICS OR BUILD_FONT)
 		pkg_search_module(GL REQUIRED gl)
