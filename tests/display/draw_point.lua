@@ -7,7 +7,7 @@ local mx, my = 0, 0
 function drystal.init()
 	drystal.resize(600, 400)
 	image = drystal.load_surface(spritesheet.meta.image)
-	drystal.draw_from(image)
+	image:draw_from()
 end
 
 local time = 0
