@@ -161,15 +161,15 @@ static int start_livecoding(const char *filename)
 static void help(void)
 {
 	printf("drystal [OPTIONS] <game.lua>\n\n"
-			"OPTIONS\n"	
-			"    -h --help       Show this help message and exit\n"
+	       "OPTIONS\n"
+	       "    -h --help       Show this help message and exit\n"
 #ifdef BUILD_NET
-			"    -s --server     Enable the server mode\n"
+	       "    -s --server     Enable the server mode. It means the graphics and audio features will not be available and the window will not be created.\n"
 #endif
 #ifdef BUILD_LIVECODING
-			"    -l --livecoding Enable the livecoding which will reload the lua code when modifications are done\n"
+	       "    -l --livecoding Enable the livecoding which will reload the lua code when modifications on the files are performed\n"
 #endif
-			);
+	      );
 }
 int main(int argc, const char* argv[])
 {
