@@ -119,6 +119,7 @@ void Font::draw_plain(const char* text, float x, float y)
 {
 	assert(text);
 
+	int initialx = x;
 	int start = first_char;
 	int end = start + num_chars;
 	y += font_size * 3 / 4;
@@ -127,7 +128,10 @@ void Font::draw_plain(const char* text, float x, float y)
 	Surface* old_surface = engine.display.get_draw_from();
 	engine.display.draw_from(surface);
 	while (*text) {
-		if (*text >= start && *text < end) {
+		if (*text == '\n') {
+			x = initialx;
+			y += font_size;
+		} else if (*text >= start && *text < end) {
 			stbtt_aligned_quad q;
 			stbtt_GetBakedQuad(char_data, *text - start, &x, &y, &q, 1.0f);
 			draw_quad(engine, q);
@@ -142,6 +146,7 @@ void Font::draw(const char* text, float x, float y)
 {
 	assert(text);
 
+	int initialx = x;
 	int start = first_char;
 	int end = start + num_chars;
 	y += font_size * 3 / 4;
@@ -161,7 +166,10 @@ void Font::draw(const char* text, float x, float y)
 		engine.display.set_alpha(state->alpha);
 		while (text < textend) {
 			unsigned char chr = *text;
-			if (chr >= start && chr < end) {
+			if (chr == '\n') {
+				x = initialx;
+				y += font_size;
+			} else if (chr >= start && chr < end) {
 				float italic = state->italic;
 				stbtt_aligned_quad q;
 				stbtt_GetBakedQuad(char_data, chr - start, &x, &y, &q, state->size);
@@ -209,11 +217,14 @@ void Font::get_textsize_plain(const char* text, float* w, float* h)
 	int end = start + num_chars;
 
 	while (*text) {
-		if (*text >= start && *text < end) {
+		if (*text == '\n') {
+			x = 0;
+			y += font_size;
+		} else if (*text >= start && *text < end) {
 			stbtt_aligned_quad q;
 			stbtt_GetBakedQuad(char_data, *text - start, &x, &y, &q, 1.0f);
-			maxy = q.y1;
-			maxx = q.x1;
+			maxy = MAX(maxy, q.y1);
+			maxx = MAX(maxx, q.x1);
 		}
 		text++;
 	}
@@ -241,12 +252,15 @@ void Font::get_textsize(const char* text, float* w, float* h)
 	while (parse(&state, text, textend)) {
 		while (text < textend) {
 			unsigned char chr = *text;
-			if (chr >= start && chr < end) {
+			if (chr == '\n') {
+				x = 0;
+				y += font_size;
+			} else if (chr >= start && chr < end) {
 				float italic = state->italic;
 				stbtt_aligned_quad q;
 				stbtt_GetBakedQuad(char_data, chr - start, &x, &y, &q, state->size);
-				maxy = q.y1;
-				maxx = q.x1;
+				maxy = MAX(maxy, q.y1);
+				maxx = MAX(maxx, q.x1);
 				x += italic;
 			}
 			text++;

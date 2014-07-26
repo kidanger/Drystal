@@ -10,32 +10,22 @@ local drystal = require 'drystal'
 local Font = drystal.Font
 
 function Font:draw_align(text, x, y, alignement)
-	oldx = x
-	for str in text:gmatch("[^\n]*") do
-		local w, h = self:sizeof(str)
-		if alignement == 'center' then
-			x = x - w / 2
-		elseif alignement == 'right' then
-			x = x - w
-		end
-		self:draw(str, x, y)
-		y = y + h
-		x = oldx
+	local w, h = self:sizeof(str)
+	if alignement == 'center' then
+		x = x - w / 2
+	elseif alignement == 'right' then
+		x = x - w
 	end
+	self:draw(str, x, y)
 end
 
 function Font:draw_plain_align(text, x, y, alignement)
-	oldx = x
-	for str in text:gmatch("[^\n]*") do
-		local w, h = self:sizeof_plain(str)
-		if alignement == 'center' then
-			x = x - w / 2
-		elseif alignement == 'right' then
-			x = x - w
-		end
-		self:draw_plain(str, x, y)
-		y = y + h
-		x = oldx
+	local w, h = self:sizeof_plain(str)
+	if alignement == 'center' then
+		x = x - w / 2
+	elseif alignement == 'right' then
+		x = x - w
 	end
+	self:draw_plain(str, x, y)
 end
 
