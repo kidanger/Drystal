@@ -73,6 +73,10 @@ Sound* Sound::load_from_file(const char *filepath)
 		::free(buffer);
 		return NULL;
 	}
+	if (wave_header.sample_rate != 44100) {
+		::free(buffer);
+		return NULL;
+	}
 
 	Sound* sound = new Sound(static_cast<ALushort*>(buffer), wave_header.data_size,
 	                         wave_header.sample_rate, wave_header.bits_per_sample,
