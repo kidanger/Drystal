@@ -308,6 +308,7 @@ void Display::draw_background() const
 void Display::flip()
 {
 	GLDEBUG();
+
 	// save context
 	Surface* oldfrom = current_from;
 	Buffer* oldbuffer = current_buffer;
@@ -681,6 +682,7 @@ void Display::draw_point(float x, float y)
 
 	current_buffer->check_type(POINT_BUFFER);
 	current_buffer->check_not_use_texture();
+	current_buffer->check_not_full();
 
 	current_buffer->push_vertex(xx, yy);
 	current_buffer->push_point_size(point_size);

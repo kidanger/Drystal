@@ -92,10 +92,11 @@ void Buffer::check_type(BufferType atype)
 {
 	if (type != atype) {
 		flush();
-	}
-	type = atype;
-	if (type == POINT_BUFFER && point_sizes == NULL) {
-		point_sizes = new GLfloat[size];
+
+		type = atype;
+		if (type == POINT_BUFFER && point_sizes == NULL) {
+			point_sizes = new GLfloat[size];
+		}
 	}
 }
 
@@ -201,6 +202,7 @@ void Buffer::draw(float dx, float dy)
 	assert(current_color == current_position);
 	assert(!_has_texture || current_color == current_tex_coord);
 	assert(type != POINT_BUFFER || current_color == current_point_size);
+	assert(type != UNDEFINED);
 
 	GLint prog;
 	VarLocationIndex locationIndex;
@@ -271,7 +273,6 @@ void Buffer::flush()
 void Buffer::reset()
 {
 	current_position = current_color = current_tex_coord = current_point_size = 0;
-	type = UNDEFINED;
 }
 
 void Buffer::upload_and_free()
