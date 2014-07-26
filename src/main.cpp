@@ -163,7 +163,9 @@ static void help(void)
 	printf("drystal [OPTIONS] <game.lua>\n\n"
 			"OPTIONS\n"	
 			"    -h --help       Show this help message and exit\n"
+#ifdef BUILD_NET
 			"    -s --server     Enable the server mode\n"
+#endif
 #ifdef BUILD_LIVECODING
 			"    -l --livecoding Enable the livecoding which will reload the lua code when modifications are done\n"
 #endif
@@ -181,8 +183,10 @@ int main(int argc, const char* argv[])
 		if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")) {
 			help();
 			return 0;
+#ifdef BUILD_NET
 		} else if (!strcmp(argv[i], "--server") || !strcmp(argv[i], "-s")) {
 			server_mode = true;
+#endif
 #ifdef BUILD_LIVECODING
 		} else if (!strcmp(argv[i], "--livecoding") || !strcmp(argv[i], "-l")) {
 			livecoding = true;
