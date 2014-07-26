@@ -117,5 +117,4 @@ function test()
 	assert(not(a2 < a1))
 end
 
---test() -- Run the tests on load, error if any fail
--- nop, don't run, it doesn't works in emscripten TODO: why ?
+test()
