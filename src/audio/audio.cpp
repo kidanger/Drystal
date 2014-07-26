@@ -95,6 +95,12 @@ void update_audio(_unused_ float dt)
 				music->stream();
 			}
 		}
+		if (!source.used) {
+			// if the source is not playing anymore,
+			// remove any buffer attached to it
+			alSourcei(source.alSource, AL_BUFFER, 0);
+			audio_check_error();
+		}
 	}
 }
 

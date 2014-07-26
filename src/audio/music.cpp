@@ -56,7 +56,9 @@ void Music::play()
 	}
 
 	alSourceQueueBuffers(source->alSource, STREAM_NUM_BUFFERS, alBuffers);
+	audio_check_error();
 	alSourcef(source->alSource, AL_GAIN, get_music_volume());
+	audio_check_error();
 	alSourcePlay(source->alSource);
 	audio_check_error();
 
