@@ -45,7 +45,7 @@ Font* Font::load(const char* filename, float size, int first_char, int num_chars
 	Engine& engine = get_engine();
 
 	FILE* file = fopen(filename, "rb");
-	if (not file)
+	if (!file)
 		return NULL;
 
 	// TODO: compute texture size
@@ -58,8 +58,10 @@ Font* Font::load(const char* filename, float size, int first_char, int num_chars
 	font->char_data = new stbtt_bakedchar[num_chars];
 	font->font_size = size;
 
-	_unused_ size_t read = fread(file_content, 1, 1 << 20, file);
-	assert(read);//FIXME do not use asserts at runtime
+	size_t read = fread(file_content, 1, 1 << 20, file);
+	if (read == 0) {
+		return NULL;
+	}
 	fclose(file);
 
 	stbtt_BakeFontBitmap(file_content, 0, size, pixels, w, h,
