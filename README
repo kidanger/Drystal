@@ -33,6 +33,9 @@ LICENSE:
 GITWEB:
     http://git.kidanger.net/drystal.git/
 
+DOCUMENTATION:
+    http://drystal.github.io/
+
 REQUIREMENTS:
     - SDL2
     - OpenAL
