@@ -1889,13 +1889,13 @@ extern int stbtt_BakeFontBitmap(const unsigned char *data, int offset,  // font 
 void stbtt_GetBakedQuad(stbtt_bakedchar *chardata, int char_index, float *xpos, float *ypos, stbtt_aligned_quad *q, float factor)
 {
    stbtt_bakedchar *b = chardata + char_index;
-   int round_x = STBTT_ifloor((*xpos + b->xoff*factor) + 0.5);
-   int round_y = STBTT_ifloor((*ypos + b->yoff*factor) + 0.5);
+   float x = (*xpos + b->xoff*factor);
+   float y = (*ypos + b->yoff*factor);
 
-   q->x0 = round_x;
-   q->y0 = round_y;
-   q->x1 = round_x + (b->x1 - b->x0) * factor;
-   q->y1 = round_y + (b->y1 - b->y0) * factor;
+   q->x0 = x;
+   q->y0 = y;
+   q->x1 = x + (b->x1 - b->x0) * factor;
+   q->y1 = y + (b->y1 - b->y0) * factor;
 
    q->s0 = b->x0;
    q->t0 = b->y0;
