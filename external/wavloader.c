@@ -68,27 +68,27 @@ int load_wav(const char *filename, struct wave_header *wave_header, void **audio
 	}
 
 	if (strncmp(wave_header->header_id, "RIFF", 4)) {
-		r = -ENOTSUP;
+		ret = -ENOTSUP;
 		goto fail;
 	}
 	if (strncmp(wave_header->format, "WAVE", 4)) {
-		r = -ENOTSUP;
+		ret = -ENOTSUP;
 		goto fail;
 	}
 	if (strncmp(wave_header->format_id, "fmt", 3)) {
-		r = -ENOTSUP;
+		ret = -ENOTSUP;
 		goto fail;
 	}
 	if (strncmp(wave_header->data_id, "data", 4)) {
-		r = -ENOTSUP;
+		ret = -ENOTSUP;
 		goto fail;
 	}
 	if (wave_header->format_size != 16) {
-		r = -ENOTSUP;
+		ret = -ENOTSUP;
 		goto fail;
 	}
 	if (wave_header->audio_format != 1) {
-		r = -ENOTSUP;
+		ret = -ENOTSUP;
 		goto fail;
 	}
 
