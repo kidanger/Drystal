@@ -2,7 +2,7 @@ local drystal = require 'drystal'
 
 function drystal.init()
 	drystal.resize(300, 200)
-	surf = drystal.load_surface('npot.png')
+	surf = assert(drystal.load_surface('npot.png'))
 	local w, h = surf.w, surf.h
 
 	assert(w == 200, 'width is not 200, ' .. w)

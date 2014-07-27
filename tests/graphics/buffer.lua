@@ -10,12 +10,12 @@ drystal.draw_point(1,1)
 drystal.draw_point(1,1)
 drystal.draw_point(1,1)
 
-buffer = drystal.new_buffer(4)
+buffer = assert(drystal.new_buffer(4))
 buffer:use()
 drystal.draw_line(1,1,1,1)
 drystal.draw_line(1,1,1,1)
 
-buffer = drystal.new_buffer(10)
+buffer = assert(drystal.new_buffer(10))
 buffer:use()
 drystal.draw_triangle(1,1,1,1,1,1)
 drystal.draw_triangle(1,1,1,1,1,1)
@@ -23,11 +23,11 @@ drystal.draw_triangle(1,1,1,1,1,1)
 
 drystal.use_buffer()
 
-local spritesheet = drystal.fromjson(io.open('image.json'):read('*all'))
+local spritesheet = assert(drystal.fromjson(io.open('image.json'):read('*all')))
 
 function drystal.init()
 	drystal.resize(600, 400)
-	image = drystal.load_surface(spritesheet.meta.image)
+	image = assert(drystal.load_surface(spritesheet.meta.image))
 	image:draw_from()
 	print('b to toggle buffer')
 end
@@ -53,7 +53,7 @@ function drystal.draw()
 
 	if bufferize then
 		if not buffer then
-			buffer = drystal.new_buffer(number * 6)
+			buffer = assert(drystal.new_buffer(number * 6))
 			buffer:use()
 			heavy_draw(number)
 			buffer:upload_and_free()

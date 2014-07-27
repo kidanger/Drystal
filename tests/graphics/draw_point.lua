@@ -1,6 +1,6 @@
 local drystal = require 'drystal'
 
-local spritesheet = drystal.fromjson(io.open('image.json'):read('*all'))
+local spritesheet = assert(drystal.fromjson(io.open('image.json'):read('*all')))
 
 local mx, my = 0, 0
 

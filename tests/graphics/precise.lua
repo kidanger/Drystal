@@ -8,7 +8,7 @@ function drystal.init()
 	drystal.resize(800, 600)
 	drystal.camera.reset()
 
-	image = drystal.load_surface('precise.png')
+	image = assert(drystal.load_surface('precise.png'))
 	image:set_filter(drystal.NEAREST)
 
 	surface = drystal.new_surface(w, h)
@@ -16,7 +16,7 @@ function drystal.init()
 	drystal.set_color(255, 0, 0)
 	drystal.draw_rect(0, 0, w, h)
 
-	local s2 = drystal.new_surface(w-2, h-2)
+	local s2 = assert(drystal.new_surface(w-2, h-2))
 	s2:draw_on()
 	drystal.set_color(0, 255, 0)
 	drystal.draw_rect(0, 0, w-2, h-2)
