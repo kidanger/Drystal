@@ -283,9 +283,10 @@ public:
 
 	bool ReportFixture(b2Fixture* fixture)
 	{
-		int ref = (int)(size_t) fixture->GetBody()->GetUserData();
+		assert(fixture);
+		Body *body = (Body *) fixture->GetBody()->GetUserData();
 		lua_pushnumber(L, index);
-		lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
+		push_body(L, body);
 		lua_settable(L, -3);
 		index++;
 		return true;
