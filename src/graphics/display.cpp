@@ -317,6 +317,7 @@ void Display::flip()
 	float oldb = b;
 	float oldalpha = alpha;
 	bool olddebug = debug_mode;
+	Camera oldcamera = camera;
 
 	// draw 'screen' on real screen, using default context (buffer, color, no debug, etc)
 	use_buffer(NULL);
@@ -324,6 +325,7 @@ void Display::flip()
 	use_shader(default_shader);
 	set_color(255, 255, 255);
 	set_alpha(255);
+	reset_camera();
 	float w = screen->w;
 	float h = screen->h;
 	debug_mode = false;
@@ -343,6 +345,9 @@ void Display::flip()
 	this->g = oldg;
 	this->b = oldb;
 	this->alpha = oldalpha;
+	set_camera_angle(oldcamera.angle);
+	set_camera_position(oldcamera.dx, oldcamera.dy);
+	set_camera_zoom(oldcamera.zoom);
 
 	GLDEBUG();
 }
