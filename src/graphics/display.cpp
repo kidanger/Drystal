@@ -1003,10 +1003,12 @@ void Display::feed_shader(Shader* shader, const char* name, float value)
 void Display::free_shader(Shader* shader)
 {
 	assert(shader);
-	GLuint prog;
-	glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*)&prog);
-	if (prog == shader->prog_color)
-		use_shader(default_shader);
+	if (shader != default_shader) {
+		GLuint prog;
+		glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*)&prog);
+		if (prog == shader->prog_color || prog == shader->prog_tex)
+			use_shader(default_shader);
+	}
 
 	glDeleteShader(shader->vert);
 	glDeleteShader(shader->frag_color);
