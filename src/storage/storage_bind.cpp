@@ -16,6 +16,9 @@
  */
 #include <cassert>
 #include <lua.hpp>
+#ifndef EMSCRIPTEN
+#include <cstdlib>
+#endif
 
 #include "lua_functions.hpp"
 #include "storage_bind.hpp"
@@ -48,9 +51,9 @@ int mlua_fetch(lua_State* L)
 	assert(L);
 
 	const char* key = luaL_checkstring(L, 1);
-	const char* value = fetch(key);
+	char* value = fetch(key);
 
-	if (!value || !value[0]) {
+	if (!value) {
 		lua_pushnil(L);
 		return 1;
 	}
@@ -58,6 +61,10 @@ int mlua_fetch(lua_State* L)
 	lua_pushcfunction(L, json_decode);
 	lua_pushstring(L, value);
 	CALL(1, 1);
+
+#ifndef EMSCRIPTEN
+	free(value);
+#endif
 	// table is returned by json_decode
 	return 1;
 }

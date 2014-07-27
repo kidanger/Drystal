@@ -16,6 +16,6 @@
  */
 #pragma once
 
-const char* fetch(const char* key);
+char* fetch(const char* key);
 void store(const char* key, const char* value);
 

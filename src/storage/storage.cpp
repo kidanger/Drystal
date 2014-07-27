@@ -22,7 +22,7 @@
 #include <emscripten.h>
 #include <string>
 
-const char *fetch(const char *key)
+char *fetch(const char *key)
 {
 	assert(key);
 
@@ -31,7 +31,7 @@ const char *fetch(const char *key)
 	js += key;
 	js += "']||''} else {''}";
 
-	const char *value = emscripten_run_script_string(js.c_str());
+	char *value = emscripten_run_script_string(js.c_str());
 	return value;
 }
 
@@ -65,12 +65,12 @@ extern "C"
 	extern int json_decode(lua_State * L);
 }
 
-const char *fetch(const char *key)
+char *fetch(const char *key)
 {
 	long filesize;
 	FILE *file;
 	const char *data;
-	const char *value;
+	char *value;
 	lua_State *L;
 
 	assert(key);
@@ -105,7 +105,7 @@ const char *fetch(const char *key)
 		lua_pop(L, 2);
 		goto fail;
 	}
-	value = luaL_checkstring(L, -1);
+	value = strdup(luaL_checkstring(L, -1));
 
 	// pop the table and the string
 	lua_pop(L, 2);
