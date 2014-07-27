@@ -1,0 +1,28 @@
+{
+   xorg_modules
+   Memcheck:Leak
+   ...
+   obj:/usr/lib/xorg/modules/dri/*.so
+   ...
+}
+{
+   mesa
+   Memcheck:Leak
+   ...
+   obj:/usr/lib/mesa/*.so*
+   ...
+}
+{
+   X11
+   Memcheck:Leak
+   ...
+   obj:/usr/lib/libX11.so*
+   ...
+}
+{
+   alsa
+   Memcheck:Leak
+   obj:/usr/lib/libasound.so*
+   ...
+}
+
