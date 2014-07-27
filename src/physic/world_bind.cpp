@@ -216,8 +216,8 @@ public:
 
 		if (ref != LUA_REFNIL) {
 			lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
-			int refbody = (int)(size_t) fixture->GetBody()->GetUserData();
-			lua_rawgeti(L, LUA_REGISTRYINDEX, refbody);
+			Body *body = (Body *) fixture->GetBody()->GetUserData();
+			push_body(L, body);
 			lua_pushnumber(L, fraction);
 			if (lua_pcall(L, 2, 2, 0)) {
 				luaL_error(L, "error calling raycast callback: %s", lua_tostring(L, -1));
@@ -259,8 +259,8 @@ int mlua_raycast(lua_State* L)
 	luaL_unref(L, LUA_REGISTRYINDEX, callback_ref);
 
 	if (callback.fixture) {
-		int ref = (int)(size_t) callback.fixture->GetBody()->GetUserData();
-		lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
+		Body *body = (Body *) callback.fixture->GetBody()->GetUserData();
+		push_body(L, body);
 		lua_pushnumber(L, callback.point.x);
 		lua_pushnumber(L, callback.point.y);
 		return 3;
