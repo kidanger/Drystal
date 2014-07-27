@@ -7,26 +7,26 @@ local image_sprite = {x=16, y=16, w=32, h=32}
 function drystal.init()
 	drystal.resize(800, 600)
 	drystal.camera.reset()
-	drystal.set_filter_mode(drystal.FILTER_NEAREST)
 
 	image = drystal.load_surface('precise.png')
+	image:set_filter(drystal.NEAREST)
 
 	surface = drystal.new_surface(w, h)
-	drystal.draw_on(surface)
+	surface:draw_on()
 	drystal.set_color(255, 0, 0)
 	drystal.draw_rect(0, 0, w, h)
 
 	local s2 = drystal.new_surface(w-2, h-2)
-	drystal.draw_on(s2)
+	s2:draw_on()
 	drystal.set_color(0, 255, 0)
 	drystal.draw_rect(0, 0, w-2, h-2)
 
-	drystal.draw_from(s2)
-	drystal.draw_on(surface)
+	s2:draw_from()
+	surface:draw_on()
 	drystal.set_color(255, 255, 255)
 	drystal.draw_sprite({x=0, y=0, w=w-2, h=h-2}, 1, 1)
 
-	drystal.draw_on(drystal.screen)
+	drystal.screen:draw_on()
 end
 
 function drystal.draw()
@@ -41,11 +41,11 @@ function drystal.draw()
 
 	drystal.draw_rect(150-w, 150, w, h)
 
-	drystal.draw_from(surface)
+	surface:draw_from()
 	drystal.set_color(255, 255, 255)
 	drystal.draw_sprite({x=0, y=0, w=w, h=h}, 150, 150)
 
-	drystal.draw_from(image)
+	image:draw_from()
 	drystal.set_color(255, 255, 255)
 	drystal.draw_sprite(image_sprite, 150+w, 150)
 end

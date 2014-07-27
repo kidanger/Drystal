@@ -105,7 +105,7 @@ function draw_font_nocolor:draw()
 	for i = 1, number do
 		local x = random(W)
 		local y = random(H)
-		font:draw_plain_align(text, x, y, 'center')
+		font:draw_plain(text, x, y)
 	end
 end
 
@@ -122,7 +122,7 @@ function draw_font_color:draw()
 	for i = 1, number do
 		local x = random(W)
 		local y = random(H)
-		font:draw_align(text, x, y, 'center')
+		font:draw(text, x, y)
 	end
 end
 
@@ -130,7 +130,7 @@ function drystal.init()
 	drystal.resize(W, H)
 	font = assert(drystal.load_font('arial.ttf', 16))
 	spritesheet = assert(drystal.load_surface('spritesheet.png'))
-	drystal.draw_from(spritesheet)
+	spritesheet:draw_from()
 	set_state(states[current_state])
 
 	print('name                max')
