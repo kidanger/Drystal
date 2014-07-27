@@ -27,6 +27,9 @@
 #include "engine.hpp"
 #include "lua_functions.hpp"
 #include "event.hpp"
+#include "log.hpp"
+
+log_category("event");
 
 typedef Sint32 SDL_Keycode;
 
@@ -327,5 +330,19 @@ void event_update()
 	while (SDL_PollEvent(&event)) {
 		handle_event(event);
 	}
+}
+
+void event_init(void)
+{
+	int err = SDL_InitSubSystem(SDL_INIT_EVENTS);
+	if (err) {
+		log_error("Cannot initialize SDL events subsystem");
+		return;
+	}
+}
+
+void event_destroy(void)
+{
+	SDL_QuitSubSystem(SDL_INIT_EVENTS);
 }
 

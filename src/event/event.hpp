@@ -17,3 +17,6 @@
 #pragma once
 
 void event_update();
+void event_destroy();
+void event_init();
+

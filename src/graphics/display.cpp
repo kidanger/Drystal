@@ -161,9 +161,9 @@ Display::Display(bool server_mode) :
 		available = true;
 		return;
 	}
-	int err = SDL_Init(SDL_INIT_VIDEO);
+	int err = SDL_InitSubSystem(SDL_INIT_VIDEO);
 	if (err) {
-		log_error("Cannot initialize SDL");
+		log_error("Cannot initialize SDL video subsystem");
 		return;
 	}
 	// create the window in the constructor
@@ -188,6 +188,7 @@ Display::~Display()
 		// freed by lua's gc
 		screen = NULL;
 	}
+	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
 bool Display::is_available() const

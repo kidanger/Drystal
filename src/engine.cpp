@@ -16,6 +16,13 @@
  */
 #include <cstring>
 #include <sys/time.h>
+#if defined(BUILD_EVENT) || defined(BUILD_FONT) || defined(BUILD_GRAPHICS)
+#ifndef EMSCRIPTEN
+#include <SDL2/SDL.h>
+#else
+#include <SDL/SDL.h>
+#endif
+#endif
 
 #include "engine.hpp"
 #include "log.hpp"
@@ -64,6 +71,16 @@ Engine::Engine(const char* filename, unsigned int target_fps, bool server_mode) 
 	lua(filename)
 {
 	engine = this;
+#if defined(BUILD_EVENT) || defined(BUILD_FONT) || defined(BUILD_GRAPHICS)
+	int err = SDL_Init(0);
+	if (err) {
+		log_error("Cannot initialize SDL");
+		return;
+	}
+#endif
+#ifdef BUILD_EVENT
+	event_init();
+#endif
 }
 
 Engine::~Engine()
@@ -71,6 +88,12 @@ Engine::~Engine()
 	lua.free();
 #ifdef BUILD_AUDIO
 	destroy_audio();
+#endif
+#ifdef BUILD_EVENT
+	event_destroy();
+#endif
+#if defined(BUILD_EVENT) || defined(BUILD_FONT) || defined(BUILD_GRAPHICS)
+	SDL_Quit();
 #endif
 }
 
