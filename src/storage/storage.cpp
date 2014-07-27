@@ -65,18 +65,20 @@ extern "C"
 	extern int json_decode(lua_State * L);
 }
 
-static lua_State *L = luaL_newstate();
-
 const char *fetch(const char *key)
 {
 	long filesize;
 	FILE *file;
 	const char *data;
 	const char *value;
+	lua_State *L;
 
 	assert(key);
-	assert(lua_gettop(L) == 0);
 
+	L = luaL_newstate();
+	if (!L) {
+		return NULL;
+	}
 	file = fopen(".storage", "r");
 	if (!file) {
 		return NULL;
@@ -113,11 +115,13 @@ const char *fetch(const char *key)
 	munmap((void *) data, filesize);
 
 	fclose(file);
+	lua_close(L);
 	return value;
 
 fail:
 	fclose(file);
 	assert(lua_gettop(L) == 0);
+	lua_close(L);
 	return NULL;
 }
 
@@ -126,11 +130,15 @@ void store(const char *key, const char *value)
 	long filesize;
 	FILE *file;
 	const char *stored_data;
+	lua_State *L;
 
 	assert(key);
 	assert(value);
-	assert(lua_gettop(L) == 0);
 
+	L = luaL_newstate();
+	if (!L) {
+		return;
+	}
 	file = fopen(".storage", "r");
 	if (!file) {
 		return;
@@ -189,6 +197,7 @@ void store(const char *key, const char *value)
 finish:
 	fclose(file);
 	assert(lua_gettop(L) == 0);
+	lua_close(L);
 }
 #endif
 
