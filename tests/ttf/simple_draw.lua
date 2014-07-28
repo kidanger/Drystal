@@ -14,7 +14,8 @@ function drystal.update(dt)
 end
 
 local function highlight(text, pos)
-	return text:sub(0, pos-1) .. '{big|'.. text:sub(pos, pos) .. '}' .. text:sub(pos+1, #text)
+	pos = math.floor(pos)
+	return text:sub(0, pos-1) .. '{big|'.. text:sub(pos, pos) .. '}' .. text:sub(pos+1, -1)
 end
 
 function drystal.draw()
@@ -26,10 +27,10 @@ function drystal.draw()
 	font:draw('abcdefghijklmopqrstuvwxyz', 512 / 2, 100, 2)
 
 	local text = 'abd {r:0|big|b:150|bla} {small|test} {big|%:50|defghi}'
-	text = highlight(text, (math.sin(time)/2+0.5)*#text + 1)
+	text = highlight(text, (math.sin(time/10)/2+0.5)*#text + 1)
 	font_big:draw(text, 512 / 2, 512 / 2, 2)
 
-	font:draw_plain(text, 512 / 2, 512 * 0.7, 2)
+	font:draw_plain(text, 10, 512 * 0.7)
 end
 
 function drystal.key_press(k)

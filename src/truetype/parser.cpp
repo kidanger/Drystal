@@ -215,7 +215,7 @@ static const char* next_token(const char* text)
 	assert(text);
 
 	while (*text) {
-		if (*text == START || *text == END || *text == SEP)
+		if (*text == START || *text == END || *text == SEP || !*text)
 			break;
 		text++;
 	}
@@ -249,7 +249,7 @@ bool parse(TextState** state, const char*& start, const char*& end)
 			if (*next == SEP) {
 				evaluate(&g_states[g_indexparser][INDEX], start);
 			}
-		} while (*next != END && *next != START);
+		} while (*next != END && *next != START && *next && *(next + 1));
 		end = next;
 
 		*state = &g_states[g_indexparser][INDEX];
