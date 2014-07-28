@@ -67,9 +67,9 @@ extern "C"
 
 char *fetch(const char *key)
 {
-	long filesize;
-	FILE *file;
-	const char *data;
+	long filesize = 0;
+	FILE *file = NULL;
+	const char *data = NULL;
 	char *value;
 	lua_State *L;
 
@@ -81,7 +81,7 @@ char *fetch(const char *key)
 	}
 	file = fopen(".storage", "r");
 	if (!file) {
-		return NULL;
+		goto fail;
 	}
 
 	fseek(file, 0L, SEEK_END);
@@ -119,7 +119,12 @@ char *fetch(const char *key)
 	return value;
 
 fail:
-	fclose(file);
+	if (data) {
+		munmap((void *) data, filesize);
+	}
+	if (file) {
+		fclose(file);
+	}
 	assert(lua_gettop(L) == 0);
 	lua_close(L);
 	return NULL;
@@ -128,7 +133,7 @@ fail:
 void store(const char *key, const char *value)
 {
 	long filesize;
-	FILE *file;
+	FILE *file = NULL;
 	const char *stored_data;
 	lua_State *L;
 
@@ -141,7 +146,7 @@ void store(const char *key, const char *value)
 	}
 	file = fopen(".storage", "r");
 	if (!file) {
-		return;
+		goto finish;
 	}
 
 	fseek(file, 0L, SEEK_END);
@@ -171,7 +176,7 @@ void store(const char *key, const char *value)
 
 	file = freopen(".storage", "w", file);
 	if (!file) {
-		return;
+		goto finish;
 	}
 
 	// add the new element to the table
@@ -195,7 +200,9 @@ void store(const char *key, const char *value)
 	lua_pop(L, 2);
 
 finish:
-	fclose(file);
+	if (file) {
+		fclose(file);
+	}
 	assert(lua_gettop(L) == 0);
 	lua_close(L);
 }
