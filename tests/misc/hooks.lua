@@ -16,7 +16,7 @@ end
 function drystal.key_press(key)
 	print('key_press', key)
 	if key == 'a' then
-		drystal.engine_stop()
+		drystal.stop()
 	end
 end
 function drystal.key_release(key)
