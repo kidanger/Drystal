@@ -15,12 +15,12 @@ Engine
 .. _drystal-stop:
 .. lua:function:: stop()
 
-   Stop execution of drystal.
+   Stops the execution of drystal.
 
 .. _drystal-reload:
 .. lua:function:: reload()
 
-   Reload the current game. This can be useful during the development in native build.
+   Reloads the current game. This can be useful during the development on your desktop.
 
    .. note:: F3 also reloads the game.
 
@@ -31,7 +31,7 @@ Callbacks
 .. lua:function:: init()
 
    This function is called after script loading, before the first frame.
-   You may want to load your asset from here but you can load it before if you prefer.
+   You may want to load your assets from here but you can load them before if you prefer.
 
    .. code::
 
@@ -43,12 +43,12 @@ Callbacks
 
 .. lua:function:: update(dt: float)
 
-   This functions is called at each frame. The ``dt`` parameter represents the time elapsed since last update (in seconds).
-   Use this function to update the game.
+   This functions is called at each frame. The ``dt`` parameter represents the time elapsed since the last update (in seconds).
+   Use this function to update the game state.
 
 .. lua:function:: draw()
 
-   This function is called after update. 
+   This function is called after the ``update`` function.
 
 .. lua:function:: atexit()
 
@@ -56,12 +56,12 @@ Callbacks
 
 .. lua:function:: prereload()
 
-   Called before reload of the game (by :ref:`reload <drystal-reload>`, by pressing F3 or with livereloading).
-   You can use it to save current state of the game inside a global so it is still accessible after the reload.
+   Called before the game is reloaded (by :ref:`reload <drystal-reload>`, by pressing F3 or with livereloading).
+   You can use it to save the current state of the game inside a global variable, so it will still be accessible after the reload.
 
 .. lua:function:: postreload()
 
-   Called after reload of the game.
+   Called after the game was reloaded.
    You can use it to restore the state of the game.
 
 .. include that in a tutorial
@@ -77,12 +77,12 @@ Event
 .. _start-text:
 .. lua:function:: start_text()
 
-   Begin text mode. Instead of receiving key_press/key_release event, key_text will be received.
+   Begins text mode. Instead of receiving key_press/key_release events, key_text will be received.
    In text mode, you get the unicode caracter corresponding to the key pressed (and modifiers).
 
 .. lua:function:: stop_text()
 
-   Stop the text mode.
+   Stops the text mode.
 
 
 Callbacks
@@ -111,7 +111,7 @@ To receive events, you have to defined some of the following functions.
 .. lua:function:: key_press(key)
 
    Called when a key is pressed.
-   Depending on key repeat system configuration of the player, ``key_press`` can be called multiple times even if the user didn't released the key. ``key_release`` will be called too.
+   Depending on key repeat system configuration of the player, ``key_press`` can be called multiple times even if the user did not released the key. ``key_release`` will be called too.
 
 .. lua:function:: key_release(key)
 
@@ -150,7 +150,7 @@ Window
 
 .. lua:function:: resize(width: int, height: int)
 
-   Resize the window (canvas in case of web build) to the dimensions specified.
+   Resizes the window (or the canvas in the browser) to the specified dimensions.
 
    .. note:: Unlike some engines, you can resize the window without having to recreate your surfaces or shaders.
 
@@ -163,7 +163,7 @@ Window
 
 .. lua:function:: set_fullscreen(fullscreen: bool)
 
-   Enable or disable the fullscreen mode.
+   Enables or disables the fullscreen mode.
 
    .. note:: It will make the game fits the whole page in a browser and not use
              the fullscreen mode. We choose this behavior because the echap key will not
@@ -181,11 +181,11 @@ Window
 
 .. lua:function:: set_title(title: str)
 
-   Change the title of the window. In Web build, the title of the document is changed.
+   Changes the title of the window. In the browser, the title of the document is changed.
 
 .. lua:function:: show_cursor(show: bool)
 
-   Decide if the mouse cursor should be hidden or not.
+   Decides if the mouse cursor should be hidden or not.
 
 Surface
 ^^^^^^^
@@ -223,7 +223,7 @@ Surface
 
 .. lua:function:: new_surface(width, height)
 
-   Create new surface of dimensions (``width``, ``height``).
+   Creates a new surface of dimensions (``width``, ``height``).
    By default, the surface is black.
 
    .. code::
@@ -238,8 +238,8 @@ Surface
 
 .. lua:function:: load_surface(filename)
 
-   Load a surface from a file.
-   If the file doesn't exist or is invalid, ``load_surface`` returns (`nil`, error).
+   Loads a surface from a file.
+   If the file does not exist or is invalid, ``load_surface`` returns (`nil`, error).
 
    .. note:: Use :lua:`assert(drystal.load_surface 'test.png')` to make sure the surface is loaded.
 
@@ -250,47 +250,47 @@ Drawing primitives
 .. _set-color:
 .. lua:function:: set_color(red: float [0-255], green: float [0-255], blue: float [0-255])
 
-   Set current color, used by ``draw_*`` functions.
+   Sets current color used by ``draw_*`` functions.
 
 .. _set-alpha:
 .. lua:function:: set_alpha(alpha: float [0-255])
 
-   Set current alpha, used by ``draw_*`` functions.
+   Sets the current alpha used by ``draw_*`` functions.
 
 .. lua:function:: set_line_width(width: float)
 
-   Set current line width, used by :ref:`draw_line <draw_line>`.
+   Sets the current line width used by :ref:`draw_line <draw_line>`.
 
 .. lua:function:: set_point_size(size float)
 
-   Set current point size, used by :ref:`draw_point <draw_point>`.
+   Sets the current point size used by :ref:`draw_point <draw_point>`.
 
 .. lua:function:: draw_background()
 
-   Clear current `draw_on` surface.
+   Clears the current `draw_on` surface.
 
 .. note:: In the following function, ``x``, ``y``, ``w`` (width) and ``h`` (height) are floats. Angle are expressed in radians. ``x`` and ``y`` are screen coordinates.
 
 .. _draw_point:
 .. lua:function:: draw_point(x, y)
 
-   Draw a point at the given coordinate.
+   Draws a point at the given coordinate.
 
 .. .. lua:function:: draw_point_tex()
 
 .. _draw_line:
 .. lua:function:: draw_line(x1, y1, x2, y2)
 
-   Draw a line between the two given points.
+   Draws a line between the two given points.
 
 .. lua:function:: draw_triangle(x1, y1, x2, y2, x3, y3)
 
-   Draw a filled triangle between the three given points.
+   Draws a filled triangle between the three given points.
 
 .. _draw-surface:
 .. lua:function:: draw_surface(ix1, iy1, ix2, iy2, ix3, iy3, ox1, oy1, ox2, oy2, ox3, oy3)
 
-   Draw a surface (set as `current draw from`). The first 6 parameters represent a triangle in the source texture, the last 6 represent the destination triangle. The can have different size to create deformations.
+   Draws a surface (set as `current draw from`). The first 6 parameters represent a triangle in the source texture, the last 6 represent the destination triangle. They can have different sizes to create deformations.
 
    Tinting is possible by using :ref:`set_color <set-color>` (255, 255, 255 for no modification).
 
@@ -300,38 +300,38 @@ Drawing primitives
 
 .. lua:function:: draw_rect(x, y, w, h)
 
-   Draw a filled rectangle.
+   Draws a filled rectangle.
 
 .. lua:function:: draw_rect_rotated(x, y, w, h, angle: float)
 
-   Draw a filled rotated rectangle.
+   Draws a filled rotated rectangle.
 
 .. lua:function:: draw_square(x, y, w, h)
 
-   Draw a non-filled rectangle.
+   Draws a non-filled rectangle.
 
 .. lua:function:: draw_circle(x, y, radius: float)
 
-   Draw a circle. The coordinate is the position of the center. ``radius`` is expressed in pixel.
+   Draws a circle. The coordinate is the position of the center. ``radius`` is expressed in pixel.
 
-    .. note:: Draw circle draws a lot of triangles. If possible, include a circle in your spritesheet and draw it with :ref:`draw_sprite <draw_sprite>`.
+    .. note:: This function draws a lot of triangles. If possible, include a circle in your spritesheet and draw it with :ref:`draw_sprite <draw_sprite>`.
 
 .. lua:function:: draw_polygon(x1, y1, x2, y2, ...)
 
-   Draw a filled polygon.
+   Draws a filled polygon.
 
 .. lua:function:: draw_polyline(x1, y1, x2, y2, ...)
 
-   Draw a non-filled polygon.
+   Draws a non-filled polygon.
 
 .. lua:function:: draw_image(x, y, w, h, destx, desty[, destw=w[, desth=h]])
 
-   Draw an image. It can be resized if ``destw`` or ``desth`` are different than ``w`` and ``h``
+   Draws an image. It can be resized if ``destw`` or ``desth`` are different than ``w`` and ``h``
 
 .. _draw_sprite:
 .. lua:function:: draw_sprite(sprite: table, x, y[, transform: table])
 
-   Draw a sprite.
+   Draws a sprite.
    Use :ref:`Sprite <sprite>` for easier sprite drawing.
 
    :param: sprite must have fields x, y, w and h
@@ -386,7 +386,7 @@ Camera
 
 .. lua:function:: reset()
 
-   Reset the camera fields to default values.
+   Resets the camera fields to default values.
 
 
 Buffer
@@ -407,21 +407,21 @@ A buffer can **only contain one type of shape** (point, line, triangle, textured
 
    .. lua:method:: reset()
 
-      Remove all elements from the buffer.
+      Removes all elements from the buffer.
 
    .. lua:method:: upload_and_free()
 
-      Send the buffer to the graphic card and free memory.
-      If a buffer is freed, you cannot call ``reset``, ``use`` or ``upload_and_free`` anymore or errors with be thrown.
+      Sends the buffer to the graphic card and free memory.
+      If a buffer is freed, you cannot call ``reset``, ``use`` or ``upload_and_free`` anymore or errors will be thrown.
 
 .. lua:function:: new_buffer([size: int]) -> Buffer
 
-   Create a buffer of the specified ``size``. ``size`` must be a multiple of the number of points of the shape you put in it.
+   Creates a buffer of the specified ``size``. ``size`` must be a multiple of the number of points of the shape you put in it.
    For example, if you put triangles, ``size`` must be a multiple of 3.
 
 .. lua:function:: use_buffer()
 
-   Use default drystal buffer.
+   Tells drystal to use the default buffer.
 
 
 Shader
@@ -431,26 +431,26 @@ Shader
 
    .. lua:method:: use()
 
-      Use a shader for the following draws.
+      Use this shader for the following draws.
 
    .. lua:method:: feed(uniform: str, value: float)
 
 .. lua:function:: new_shader([vertex: str[, fragment_color: str[, fragment_texture: str]]]) -> Shader
 
-   Create a shader with code specified.
+   Creates a shader with code specified.
    If one of the code is :lua:`nil`, code of the default shader is used.
 
 .. lua:function:: use_shader()
 
-   Use default drystal shader.
+   Tells drystal to use the default shader.
 
 Post processing
 """""""""""""""
 
 .. lua:function:: create_postfx(name: str, code: str[, uniforms: table]) -> function | (nil, error)
 
-   Create a post processing effect.
-   The ``code`` parameter should contains a *effect* function.
+   Creates a post processing effect.
+   The ``code`` parameter must contain a *effect* function.
    Additionnal uniforms can be declared by the ``uniforms`` parameter.
 
    .. code::
@@ -465,7 +465,7 @@ Post processing
 
 .. lua:function:: postfx(name: str, uniforms...: floats)
 
-      Apply a post processing effect on the current *draw on* surface. The uniform list should have the same order than in the declaration of the effect.
+      Applies a post processing effect on the current *draw on* surface. The uniform list must have the same order than in the declaration of the effect.
 
    .. code::
 
@@ -483,11 +483,11 @@ Sprite
 
    .. lua:method:: draw()
 
-      Draw the sprite on the current *draw on* surface.
+      Draws the sprite on the current *draw on* surface.
 
 .. lua:function:: new_sprite(table) -> Sprite
 
-   Create a sprite.
+   Creates a sprite.
 
    :param: ``table`` contains:
 
@@ -529,7 +529,7 @@ Font rendering
    .. _font-draw:
    .. lua:method:: draw(text: str, x, y[, alignment=1: int])
 
-      Draw ``text`` at given coordinates.
+      Draws ``text`` at the given coordinates.
       Supports '\\n'.
       A particular syntax can be used to create some text effects, for example:
 
@@ -558,7 +558,7 @@ Font rendering
 
 .. lua:function:: load_font(filename: str, size: float) -> Font | (nil, error)
 
-   Load a truetype font (.ttf file) at desired size.
+   Loads a truetype font (.ttf file) at desired size.
 
 
 Particle System
@@ -625,18 +625,18 @@ Learning how to use Box2D_ will help to hunder Drystal's physic module.
 
 .. lua:function:: create_world(gravity_x: float, gravity_y: float)
 
-   .. warning:: If ``create_world`` isn't called before other physic functions, errors will occur.
+   .. warning:: If ``create_world`` is not called before other physic functions, errors will occur.
 
 .. lua:function:: update_physic(dt: float)
 
-   Update the world.
+   Updates the world.
 
 .. lua:function:: on_collision(todo)
 .. lua:function:: raycast(todo)
 
 .. lua:function:: query(x1, y1, x2, y2) -> table
 
-   Return a table with all bodies contains inside the area defined by ``x1``, ``y1``, ``x2`` and ``y1``.
+   Returns a table with all bodies contains inside the area defined by ``x1``, ``y1``, ``x2`` and ``y1``.
 
 .. lua:function:: new_shape('box', width, height, centerx, centery)
 .. lua:function:: new_shape('circle', radius)
@@ -644,7 +644,7 @@ Learning how to use Box2D_ will help to hunder Drystal's physic module.
 
 .. lua:function:: new_body(is_dynamic: boolean, [x, y], shape1, shape2, ...)
 
-   Create a body at given position (or 0, 0) with given shapes. If ``is_dynamic`` is false, the body will be static.
+   Creates a body at given position (or 0, 0) with given shapes. If ``is_dynamic`` is false, the body will be static.
 
 .. lua:function:: new_joint(todo)
 
@@ -725,11 +725,13 @@ Audio
 
    .. lua:method:: stop()
 
-      Stop the music.
+      Stops the music.
 
 .. lua:function:: load_music(filename: str) -> Music | (nil, error)
 
-   Load a music from a file. It has to be in Ogg_ format.
+   Loads a music from a file.
+
+   .. warning:: Only the Ogg_ format is available.
 
 .. lua:function:: load_music(callback: function[, samplesrate=44100: int]) -> Music | (nil, error)
 .. lua:function:: set_music_volume(volume: float [0-1])
@@ -738,7 +740,7 @@ Audio
 
    .. lua:method:: play([volume=1[, x=0[, y=0]]])
 
-      Play the sound at given volume and position.
+      Plays the sound at given volume and position.
 
       :param: volume float between 0 and 1
       :param: x float between -1 and 1 (-1 is full left, 1 is full right)
@@ -746,7 +748,7 @@ Audio
 
 .. lua:function:: load_sound(filename: str) -> Sound | (nil, error)
 
-   Load a sound from a file. It has to be in WAV_ format. Only 44100Hz, 8 bits or 16 bits are supported.
+   Loads a sound from a file. It has to be in WAV_ format. Only 44100Hz, 8 bits or 16 bits are supported.
    If you want to use positional audio, it has to be mono audio.
 
 .. lua:function:: load_sound(callback: function, numsamples: int) -> Sound | (nil, error)
@@ -762,11 +764,11 @@ Storage is a way to store data for futur executions.
 
 .. lua:function:: store(key: str, value: table)
 
-   Store a table in the storage.
+   Stores a table in the storage.
 
 .. lua:function:: fetch(key: str) -> table | nil
 
-   Retrieve the table associated with the given key.
+   Retrieves the table associated with the given key.
 
 .. code::
 
@@ -774,7 +776,7 @@ Storage is a way to store data for futur executions.
    assert(drystal.fetch('test').text == 'wow')
 
 .. note:: Serialization of the table is done by a JSON module.
-      In web, data are available in ``localStorage`` from Javascript.
+      In the browser, data are stored in the ``localStorage`` from Javascript.
 
 
 Web
@@ -786,11 +788,11 @@ Web
 
 .. lua:function:: wget(url: string, filename: string, onload: function, onerror: function)
 
-   .. warning:: ``wget`` throws an error in native build.
+   .. warning:: ``wget`` is not available on the desktop and will throw an error if it is used on the desktop.
 
 .. lua:function:: run_js(script: str)
 
-   .. warning:: ``run_js`` throws an error in native build.
+   .. warning:: ``run_js`` is not available on the desktop and will throw an error if it is used on the desktop.
 
 
 Utils
