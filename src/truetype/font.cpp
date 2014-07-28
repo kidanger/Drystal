@@ -60,6 +60,7 @@ Font* Font::load(const char* filename, float size, int first_char, int num_chars
 
 	size_t read = fread(file_content, 1, 1 << 20, file);
 	if (read == 0) {
+		fclose(file);
 		return NULL;
 	}
 	fclose(file);
