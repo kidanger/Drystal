@@ -334,15 +334,19 @@ void event_update()
 
 void event_init(void)
 {
+#ifndef EMSCRIPTEN
 	int err = SDL_InitSubSystem(SDL_INIT_EVENTS);
 	if (err) {
 		log_error("Cannot initialize SDL events subsystem");
 		return;
 	}
+#endif
 }
 
 void event_destroy(void)
 {
+#ifndef EMSCRIPTEN
 	SDL_QuitSubSystem(SDL_INIT_EVENTS);
+#endif
 }
 
