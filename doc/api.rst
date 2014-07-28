@@ -15,14 +15,14 @@ Engine
 .. _drystal-stop:
 .. lua:function:: stop()
 
-    Stop execution of drystal.
+   Stop execution of drystal.
 
 .. _drystal-reload:
 .. lua:function:: reload()
 
-    Reload the current game. This can be useful during the development in native build.
+   Reload the current game. This can be useful during the development in native build.
 
-    .. note:: F3 also reloads the game.
+   .. note:: F3 also reloads the game.
 
 
 Callbacks
@@ -99,7 +99,7 @@ To receive events, you have to defined some of the following functions.
 
    Called when a button (or mouse wheel) is pressed.
 
-   :param: button can be: 1 for left click, 2 for middle click, 3 for left click, 4 and 5 for mouse wheel.
+   :param: button can be: 1 for left click, 2 for middle click, 3 for right click, 4 and 5 for mouse wheel.
 
 .. lua:function:: mouse_release(x, y, button)
 
@@ -138,36 +138,36 @@ Window
 
 .. lua:data:: screen
 
-    `screen` is the surface representing the window/canvas, which will be blit after execution of the `drystal.draw` callback.
+   `screen` is the surface representing the window/canvas, which will be blit after execution of the `drystal.draw` callback.
 
 .. lua:data:: current_draw_on
 
-    :ref:`Surface:draw_on() <Surface-draw-on>`
+   :ref:`Surface:draw_on() <Surface-draw-on>`
 
 .. lua:data:: current_draw_from
 
-    :ref:`Surface:draw_from() <Surface-draw-from>`
+   :ref:`Surface:draw_from() <Surface-draw-from>`
 
 .. lua:function:: resize(width: int, height: int)
 
-    Resize the window (canvas in case of web build) to the dimensions specified.
+   Resize the window (canvas in case of web build) to the dimensions specified.
 
-    .. note:: Unlike some engines, you can resize the window without having to recreate your surfaces or shaders.
+   .. note:: Unlike some engines, you can resize the window without having to recreate your surfaces or shaders.
 
-    .. code-block:: lua
-        :linenos:
+   .. code-block:: lua
+      :linenos:
 
-        drystal.resize(200, 300)
-        assert(drystal.screen.w == 200)
-        assert(drystal.screen.h == 300)
+      drystal.resize(200, 300)
+      assert(drystal.screen.w == 200)
+      assert(drystal.screen.h == 300)
 
 .. lua:function:: set_title(title: str)
 
-    Change the title of the window. In Web build, the title of the document is changed.
+   Change the title of the window. In Web build, the title of the document is changed.
 
 .. lua:function:: show_cursor(show: bool)
 
-    Decide if the mouse cursor should be hidden or not.
+   Decide if the mouse cursor should be hidden or not.
 
 Surface
 ^^^^^^^
@@ -176,54 +176,54 @@ Surface
 
     Object representing a surface. Surfaces can be drawn on other surfaces (screen included).
 
-    .. lua:data:: w
+   .. lua:data:: w
 
-        Width of the surface.
+      Width of the surface.
 
-    .. lua:data:: h
+   .. lua:data:: h
 
-        Height of the surface.
+      Height of the surface.
 
-    .. _Surface-draw-on:
-    .. lua:method:: draw_on() -> Surface
+   .. _Surface-draw-on:
+   .. lua:method:: draw_on() -> Surface
 
-        Use this surface as backbuffer (draw method be redirected to this surface instead of screen).
+      Use this surface as destinatin/backbuffer (draw method be redirected to this surface instead of screen) for futur draws.
 
-        :return: the old surface which was used
+      :return: the old surface which was used
 
-    .. _Surface-draw-from:
-    .. lua:method:: draw_from() -> Surface
+   .. _Surface-draw-from:
+   .. lua:method:: draw_from() -> Surface
 
-        Use this surface for textured draws (like ``drystal.draw_sprite``).
+      Use this surface as source for futur textured draws (like ``drystal.draw_sprite``).
 
-        :return: the old surface which was used
+      :return: the old surface which was used
 
-    .. lua:method:: set_filter(filter)
+   .. lua:method:: set_filter(filter)
 
-        :param: filter is one of ``drystal.NEAREST``, ``drystal.LINEAR``, ``drystal.BILINEAR`` or ``drystal.TRILINEAR``.
+      :param: filter is one of ``drystal.NEAREST``, ``drystal.LINEAR``, ``drystal.BILINEAR`` or ``drystal.TRILINEAR``.
 
 
 .. lua:function:: new_surface(width, height)
 
-    Create new surface of dimensions (``width``, ``height``).
-    By default, the surface is black.
+   Create new surface of dimensions (``width``, ``height``).
+   By default, the surface is black.
 
-    .. code::
+   .. code::
 
-        local surf = drystal.new_surface(200, 200)
-        surf:draw_on() -- the following draw function will act on this surface
-        drystal.set_color(255, 255, 255)
-        drystal.draw_circle(surf.w / 2, surf.h / 2, 100) -- draw a white circle inside the surface
-        drystal.screen:draw_on()
-        ...
+      local surf = drystal.new_surface(200, 200)
+      surf:draw_on() -- the following draw function will act on this surface
+      drystal.set_color(255, 255, 255)
+      drystal.draw_circle(surf.w / 2, surf.h / 2, 100) -- draw a white circle inside the surface
+      drystal.screen:draw_on()
+      ...
 
 
 .. lua:function:: load_surface(filename)
 
-    Load a surface from a file.
-    If the file doesn't exist or is invalid, ``load_surface`` returns (`nil`, error).
+   Load a surface from a file.
+   If the file doesn't exist or is invalid, ``load_surface`` returns (`nil`, error).
 
-    .. note:: Use :lua:`assert(drystal.load_surface 'test.png')` to make sure the surface is loaded.
+   .. note:: Use :lua:`assert(drystal.load_surface 'test.png')` to make sure the surface is loaded.
 
 
 Drawing primitives
@@ -232,24 +232,24 @@ Drawing primitives
 .. _set-color:
 .. lua:function:: set_color(red: float [0-255], green: float [0-255], blue: float [0-255])
 
-    Set current color, used by ``draw_*`` functions.
+   Set current color, used by ``draw_*`` functions.
 
 .. _set-alpha:
 .. lua:function:: set_alpha(alpha: float [0-255])
 
-    Set current alpha, used by ``draw_*`` functions.
+   Set current alpha, used by ``draw_*`` functions.
 
 .. lua:function:: set_line_width(width: float)
 
-    Set current line width, used by :ref:`draw_line <draw_line>`.
+   Set current line width, used by :ref:`draw_line <draw_line>`.
 
 .. lua:function:: set_point_size(size float)
 
-    Set current point size, used by :ref:`draw_point <draw_point>`.
+   Set current point size, used by :ref:`draw_point <draw_point>`.
 
 .. lua:function:: draw_background()
 
-    Clear current `draw_on` surface.
+   Clear current `draw_on` surface.
 
 .. note:: In the following function, ``x``, ``y``, ``w`` (width) and ``h`` (height) are floats. Angle are expressed in radians. ``x`` and ``y`` are screen coordinates.
 
@@ -379,22 +379,22 @@ A buffer can **only contain one type of shape** (point, line, triangle, textured
 
 .. lua:class:: Buffer
 
-    .. lua:method:: use()
+   .. lua:method:: use()
 
-         Use this buffer as current buffer.
+      Use this buffer as current buffer.
 
-    .. lua:method:: draw([dx=0: float[, dy=0: float]])
+   .. lua:method:: draw([dx=0: float[, dy=0: float]])
 
-         Draw this buffer. ``dx`` and ``dy`` can be used to offset the draw.
+      Draw this buffer. ``dx`` and ``dy`` can be used to offset the draw.
 
-    .. lua:method:: reset()
+   .. lua:method:: reset()
 
-         Remove all elements from the buffer.
+      Remove all elements from the buffer.
 
-    .. lua:method:: upload_and_free()
+   .. lua:method:: upload_and_free()
 
-         Send the buffer to the graphic card and free memory.
-         If a buffer is freed, you cannot call ``reset``, ``use`` or ``upload_and_free`` anymore or errors with be thrown.
+      Send the buffer to the graphic card and free memory.
+      If a buffer is freed, you cannot call ``reset``, ``use`` or ``upload_and_free`` anymore or errors with be thrown.
 
 .. lua:function:: new_buffer([size: int]) -> Buffer
 
@@ -411,11 +411,11 @@ Shader
 
 .. lua:class:: Shader
 
-    .. lua:method:: use()
+   .. lua:method:: use()
 
-         Use a shader for the following draws.
+      Use a shader for the following draws.
 
-    .. lua:method:: feed(uniform: str, value: float)
+   .. lua:method:: feed(uniform: str, value: float)
 
 .. lua:function:: new_shader([vertex: str[, fragment_color: str[, fragment_texture: str]]]) -> Shader
 
@@ -435,26 +435,26 @@ Post processing
    The ``code`` parameter should contains a *effect* function.
    Additionnal uniforms can be declared by the ``uniforms`` parameter.
 
-    .. code::
+   .. code::
 
-        assert(drystal.create_postfx('gray', [[
-            vec3 effect(sampler2D tex, vec2 coord)
-            {
-                vec3 texval = texture2D(tex, coord).rgb;
-                return mix(texval, vec3((texval.r + texval.g + texval.b) / 3.0), scale);
-            }
-        ]], {'scale'}))
+      assert(drystal.create_postfx('gray', [[
+         vec3 effect(sampler2D tex, vec2 coord)
+         {
+             vec3 texval = texture2D(tex, coord).rgb;
+             return mix(texval, vec3((texval.r + texval.g + texval.b) / 3.0), scale);
+         }
+      ]], {'scale'}))
 
 .. lua:function:: postfx(name: str, uniforms...: floats)
 
       Apply a post processing effect on the current *draw on* surface. The uniform list should have the same order than in the declaration of the effect.
 
-    .. code::
+   .. code::
 
-        function drystal.draw()
-            ...
-            drystal.postfx('gray', 0.8)
-        end
+      function drystal.draw()
+         ...
+         drystal.postfx('gray', 0.8)
+      end
 
 
 Sprite
@@ -463,9 +463,9 @@ Sprite
 .. _sprite:
 .. lua:class:: Sprite
 
-    .. lua:method:: draw()
+   .. lua:method:: draw()
 
-         Draw the sprite on the current *draw on* surface.
+      Draw the sprite on the current *draw on* surface.
 
 .. lua:function:: new_sprite(table) -> Sprite
 
@@ -508,13 +508,39 @@ Font rendering
 
 .. lua:class:: Font
 
-    .. lua:method:: draw(text: str, x, y, align: int)
-    .. lua:method:: draw_plain(text: str, x, y)
+   .. _font-draw:
+   .. lua:method:: draw(text: str, x, y[, alignment=1: int])
 
-    .. lua:method:: sizeof(text)
-    .. lua:method:: sizeof_plain(text)
+      Draw ``text`` at given coordinates.
+      Supports '\\n'.
+      A particular syntax can be used to create some text effects, for example:
+
+         - :lua:`"test {r:255|g:0|b:0|!}"` will print the ``!`` in red,
+         - :lua:`"{outline|outg:255|t{nooutline|e}st}"` will print ``test`` with a green outline, except the ``e``.
+
+      :param:
+
+         - if alignment is 1, text is left aligned (default)
+         - if alignment is 2, text is centered around ``x``.
+         - if alignment is 3, text is right aligned``x``.
+
+   .. _font-draw-plain:
+   .. lua:method:: draw_plain(text: str, x, y)
+
+      Same as :ref:`draw <font-draw>`, except it doesn't align nor accept formating.
+      Use this function for faster text drawing.
+
+   .. lua:method:: sizeof(text) -> float, float
+
+      Returns width and height the text would use if it was drawn on the screen.
+
+   .. lua:method:: sizeof_plain(text)
+
+      Returns width and height the text would use if it was drawn on the screen by :ref:`draw_plain <font-draw-plain>`.
 
 .. lua:function:: load_font(filename: str, size: float) -> Font | (nil, error)
+
+   Load a truetype font (.ttf file) at desired size.
 
 
 Particle System
@@ -522,51 +548,51 @@ Particle System
 
 .. lua:class:: System
 
-    .. lua:method:: start()
-    .. lua:method:: pause()
-    .. lua:method:: emit()
-    .. lua:method:: stop()
+   .. lua:method:: start()
+   .. lua:method:: pause()
+   .. lua:method:: emit()
+   .. lua:method:: stop()
 
-    .. lua:method:: draw([x=0: float[, y=0: float]))
-    .. lua:method:: update(dt: float)
+   .. lua:method:: draw([x=0: float[, y=0: float]))
+   .. lua:method:: update(dt: float)
 
-    .. lua:method:: is_running() -> boolean
-    .. lua:method:: set_running(run: boolean)
+   .. lua:method:: is_running() -> boolean
+   .. lua:method:: set_running(run: boolean)
 
-    .. lua:method:: add_size(at_lifetime, size)
-    .. lua:method:: add_size(at_lifetime, minsize, maxsize)
-    .. lua:method:: add_color(at_lifetime, r, g, b)
-    .. lua:method:: add_color(at_lifetime, minr, maxr, ming, maxg, minb, maxg)
+   .. lua:method:: add_size(at_lifetime, size)
+   .. lua:method:: add_size(at_lifetime, minsize, maxsize)
+   .. lua:method:: add_color(at_lifetime, r, g, b)
+   .. lua:method:: add_color(at_lifetime, minr, maxr, ming, maxg, minb, maxg)
 
-    .. lua:method:: set_position(x: float, y: float)
-    .. lua:method:: get_position() -> float, float
+   .. lua:method:: set_position(x: float, y: float)
+   .. lua:method:: get_position() -> float, float
 
-    .. lua:method:: set_offset(x: float, y: float)
-    .. lua:method:: get_offset() -> float, float
+   .. lua:method:: set_offset(x: float, y: float)
+   .. lua:method:: get_offset() -> float, float
 
-    .. lua:method:: set_lifetime(min: float[, max=min: float])
-    .. lua:method:: get_lifetime() -> float, float
+   .. lua:method:: set_lifetime(min: float[, max=min: float])
+   .. lua:method:: get_lifetime() -> float, float
 ..    .. lua:method:: set_min_lifetime(min: float)
 ..    .. lua:method:: get_min_lifetime() -> float
 ..    .. lua:method:: set_max_lifetime(max: float)
 ..    .. lua:method:: get_max_lifetime() -> float
 
-    .. lua:method:: set_direction(min: float[, max=min: float])
-    .. lua:method:: get_direction() -> float, float
+   .. lua:method:: set_direction(min: float[, max=min: float])
+   .. lua:method:: get_direction() -> float, float
 ..    .. lua:method:: set_min_direction(min: float)
 ..    .. lua:method:: get_min_direction() -> float
 ..    .. lua:method:: set_max_direction(max: float)
 ..    .. lua:method:: get_max_direction() -> float
 
-    .. lua:method:: set_initial_acceleration(min: float[, max=min: float])
-    .. lua:method:: get_initial_acceleration() -> float, float
+   .. lua:method:: set_initial_acceleration(min: float[, max=min: float])
+   .. lua:method:: get_initial_acceleration() -> float, float
 ..    .. lua:method:: set_min_initial_acceleration(min: float)
 ..    .. lua:method:: get_min_initial_acceleration() -> float
 ..    .. lua:method:: set_max_initial_acceleration(max: float)
 ..    .. lua:method:: get_max_initial_acceleration() -> float
 
-    .. lua:method:: set_initial_velocity(min: float[, max=min: float])
-    .. lua:method:: get_initial_velocity() -> float, float
+   .. lua:method:: set_initial_velocity(min: float[, max=min: float])
+   .. lua:method:: get_initial_velocity() -> float, float
 ..    .. lua:method:: set_min_initial_velocity(min: float)
 ..    .. lua:method:: get_min_initial_velocity() -> float
 ..    .. lua:method:: set_max_initial_velocity(max: float)
@@ -577,120 +603,160 @@ Particle System
 Physic
 ------
 
+Learning how to use Box2D_ will help to hunder Drystal's physic module.
+
 .. lua:function:: create_world(gravity_x: float, gravity_y: float)
 
-    .. warning:: If ``create_world`` isn't called before other physic functions, errors will occur.
+   .. warning:: If ``create_world`` isn't called before other physic functions, errors will occur.
 
 .. lua:function:: update_physic(dt: float)
 
+   Update the world.
+
 .. lua:function:: on_collision(todo)
 .. lua:function:: raycast(todo)
-.. lua:function:: query(todo)
 
-.. lua:function:: new_shape(todo)
-.. lua:function:: new_body(todo)
+.. lua:function:: query(x1, y1, x2, y2) -> table
+
+   Return a table with all bodies contains inside the area defined by ``x1``, ``y1``, ``x2`` and ``y1``.
+
+.. lua:function:: new_shape('box', width, height, centerx, centery)
+.. lua:function:: new_shape('circle', radius)
+.. lua:function:: new_shape('chain', x1, y1, x2, y2, ...)
+
+.. lua:function:: new_body(is_dynamic: boolean, [x, y], shape1, shape2, ...)
+
+   Create a body at given position (or 0, 0) with given shapes. If ``is_dynamic`` is false, the body will be static.
+
 .. lua:function:: new_joint(todo)
 
 .. lua:class:: Shape
 
-    .. lua:method:: set_density(density: float)
-    .. lua:method:: get_density() -> float
-    .. lua:method:: set_restitution(restitution float)
-    .. lua:method:: get_restitution() -> float
-    .. lua:method:: set_friction(friction float)
-    .. lua:method:: get_friction() -> float
-    .. lua:method:: set_sensor(sensor: boolean)
+   .. lua:method:: set_density(density: float)
+   .. lua:method:: get_density() -> float
+   .. lua:method:: set_restitution(restitution float)
+   .. lua:method:: get_restitution() -> float
+   .. lua:method:: set_friction(friction float)
+   .. lua:method:: get_friction() -> float
+   .. lua:method:: set_sensor(sensor: boolean)
 
 .. lua:class:: Body
 
-    .. lua:method:: set_position(x: float, y: float)
-    .. lua:method:: get_position() -> float, float
-    .. lua:method:: set_angle(angle: float)
-    .. lua:method:: get_angle() -> float
-    .. lua:method:: set_linear_velocity(x: float, y: float)
-    .. lua:method:: get_linear_velocity() -> float, float
-    .. lua:method:: set_angular_velocity(x: float, y: float)
-    .. lua:method:: get_angular_velocity() -> float, float
-    .. lua:method:: set_linear_damping(damping: float)
-    .. lua:method:: get_linear_damping() -> float
-    .. lua:method:: set_angular_damping(damping: float)
-    .. lua:method:: get_angular_damping() -> float
-    .. lua:method:: set_fixed_rotation(fixed: boolean)
-    .. lua:method:: get_fixed_rotation() -> boolean
+   .. lua:method:: set_position(x: float, y: float)
+   .. lua:method:: get_position() -> float, float
+   .. lua:method:: set_angle(angle: float)
+   .. lua:method:: get_angle() -> float
+   .. lua:method:: set_linear_velocity(x: float, y: float)
+   .. lua:method:: get_linear_velocity() -> float, float
+   .. lua:method:: set_angular_velocity(x: float, y: float)
+   .. lua:method:: get_angular_velocity() -> float, float
+   .. lua:method:: set_linear_damping(damping: float)
+   .. lua:method:: get_linear_damping() -> float
+   .. lua:method:: set_angular_damping(damping: float)
+   .. lua:method:: get_angular_damping() -> float
+   .. lua:method:: set_fixed_rotation(fixed: boolean)
+   .. lua:method:: get_fixed_rotation() -> boolean
 
-    .. lua:method:: set_active(active: boolean)
-    .. lua:method:: set_bullet(bullet: boolean)
-    .. lua:method:: get_mass() -> float
-    .. lua:method:: set_mass_center(x, y)
-    .. lua:method:: apply_force(x, y)
-    .. lua:method:: apply_linear_impulse(x, y)
-    .. lua:method:: apply_angular_impulse(angle)
-    .. lua:method:: apply_torque(torque)
-    .. lua:method:: dump()
-    .. lua:method:: destroy()
+   .. lua:method:: set_active(active: boolean)
+   .. lua:method:: set_bullet(bullet: boolean)
+   .. lua:method:: get_mass() -> float
+   .. lua:method:: set_mass_center(x, y)
+   .. lua:method:: apply_force(x, y)
+   .. lua:method:: apply_linear_impulse(x, y)
+   .. lua:method:: apply_angular_impulse(angle)
+   .. lua:method:: apply_torque(torque)
+   .. lua:method:: dump()
+   .. lua:method:: destroy()
 
 .. lua:class:: Joint
 
-    .. lua:method:: set_target(x, y)
+   .. lua:method:: set_target(x, y)
 
-        .. warning:: only for mouse joint
+      .. warning:: only for mouse joint
 
-    .. lua:method:: set_length(length: float)
+   .. lua:method:: set_length(length: float)
 
-        .. warning:: only for distance joint
+      .. warning:: only for distance joint
 
-    .. lua:method:: set_frequency(frequency: float)
+   .. lua:method:: set_frequency(frequency: float)
 
-        .. warning:: only for distance joint
+      .. warning:: only for distance joint
 
-    .. lua:method:: set_max_length(max_length: float)
+   .. lua:method:: set_max_length(max_length: float)
 
-        .. warning:: only for distance joint
+      .. warning:: only for distance joint
 
-    .. lua:method:: set_angle_limits(min, max)
+   .. lua:method:: set_angle_limits(min, max)
 
-        .. warning:: only for revolute joint
+      .. warning:: only for revolute joint
 
-    .. lua:method:: set_motor_speed(speed: float[, maxtorque=20: float])
+   .. lua:method:: set_motor_speed(speed: float[, maxtorque=20: float])
 
-        .. warning:: only for revolute joint
+      .. warning:: only for revolute joint
 
-    .. lua:method:: destroy()
+   .. lua:method:: destroy()
 
 Audio
 -----
 
 .. lua:class:: Music
 
-    .. lua:method:: play()
-    .. lua:method:: stop()
+   .. lua:method:: play()
+
+      Play the music (from the beginning).
+
+   .. lua:method:: stop()
+
+      Stop the music.
 
 .. lua:function:: load_music(filename: str) -> Music | (nil, error)
+
+   Load a music from a file. It has to be in Ogg_ format.
+
 .. lua:function:: load_music(callback: function[, samplesrate=44100: int]) -> Music | (nil, error)
 .. lua:function:: set_music_volume(volume: float [0-1])
 
 .. lua:class:: Sound
 
-    .. lua:method:: play([volume=1[, x=0[, y=0]]])
+   .. lua:method:: play([volume=1[, x=0[, y=0]]])
+
+      Play the sound at given volume and position.
+
+      :param: volume float between 0 and 1
+      :param: x float between -1 and 1 (-1 is full left, 1 is full right)
+      :param: y float between -1 and 1
 
 .. lua:function:: load_sound(filename: str) -> Sound | (nil, error)
-.. lua:function:: load_sound(callback: function) -> Sound | (nil, error)
+
+   Load a sound from a file. It has to be in WAV_ format. Only 44100Hz, 8 bits or 16 bits are supported.
+   If you want to use positional audio, it has to be mono audio.
+
+.. lua:function:: load_sound(callback: function, numsamples: int) -> Sound | (nil, error)
 .. lua:function:: load_sound(data: table) -> Sound | (nil, error)
 .. lua:function:: set_sound_volume(volume: float [0-1])
 
 Storage
 -------
 
+In browser, this module uses Javascript's localStorage feature. In desktop, it uses files.
+
+Storage is a way to store data for futur executions.
+
 .. lua:function:: store(key: str, value: table)
-.. lua:function:: fetch(key: str) -> table
+
+   Store a table in the storage.
+
+.. lua:function:: fetch(key: str) -> table | nil
+
+   Retrieve the table associated with the given key.
 
 .. code::
 
-    drystal.store('test', {text='wow'})
-    assert(drystal.fetch('test').text == 'wow')
+   drystal.store('test', {text='wow'})
+   assert(drystal.fetch('test').text == 'wow')
 
 .. note:: Serialization of the table is done by a JSON module.
-        In web, data are available in ``localStorage`` from Javascript.
+      In web, data are available in ``localStorage`` from Javascript.
 
 
 Web
@@ -698,15 +764,15 @@ Web
 
 .. lua:data:: is_web: boolean
 
-    Equals ``true`` if the game is executed inside a browser.
+   Equals ``true`` if the game is executed inside a browser.
 
 .. lua:function:: wget(url: string, filename: string, onload: function, onerror: function)
 
-    .. warning:: ``wget`` throws an error in native build.
+   .. warning:: ``wget`` throws an error in native build.
 
 .. lua:function:: run_js(script: str)
 
-    .. warning:: ``run_js`` throws an error in native build.
+   .. warning:: ``run_js`` throws an error in native build.
 
 
 Utils
@@ -716,5 +782,8 @@ Utils
 
 .. lua:function:: file_exists(filename: str) -> boolean
 
-    Returns ``true`` if the file exists.
+   Returns ``true`` if the file exists.
 
+.. _Ogg: https://en.wikipedia.org/wiki/Ogg
+.. _WAV: https://en.wikipedia.org/wiki/WAV
+.. _Box2D: http://box2d.org/
