@@ -798,8 +798,6 @@ Web
 Utils
 -----
 
-.. lua:function:: display_logo(sprite: {x, y, w, h}, background: {r, g, b})
-
 .. lua:function:: file_exists(filename: str) -> boolean
 
    Returns ``true`` if the file exists.
