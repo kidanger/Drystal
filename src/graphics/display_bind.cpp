@@ -75,6 +75,19 @@ int mlua_set_line_width(lua_State* L)
 	return 0;
 }
 
+int mlua_set_fullscreen(lua_State* L)
+{
+	assert(L);
+
+	bool fullscreen = lua_toboolean(L, 1);
+	Engine &engine = get_engine();
+	engine.display.set_fullscreen(fullscreen);
+
+	push_surface(L, engine.display.get_screen());
+	lua_setfield(L, LUA_REGISTRYINDEX, "screen");
+	return 0;
+}
+
 int mlua_set_title(lua_State* L)
 {
 	assert(L);

@@ -129,6 +129,9 @@ private:
 
 	float point_size;
 
+	int original_width;
+	int original_height;
+
 	bool available;
 	bool debug_mode;
 
@@ -160,6 +163,7 @@ public:
 	void resize(int w, int h);
 	void screen2scene(float x, float y, float * tx, float * ty) const;
 	void toggle_debug_mode();
+	void set_fullscreen(bool fullscreen);
 
 	void set_color(int red, int green, int blue);
 	void set_alpha(int a);
@@ -247,3 +251,4 @@ public:
 		return current_buffer;
 	}
 };
+

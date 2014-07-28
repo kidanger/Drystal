@@ -31,6 +31,7 @@ int mlua_camera_reset(lua_State*);
 
 int mlua_show_cursor(lua_State* L);
 int mlua_resize(lua_State* L);
+int mlua_set_fullscreen(lua_State* L);
 int mlua_screen2scene(lua_State* L);
 
 int mlua_surface_class_index(lua_State* L);

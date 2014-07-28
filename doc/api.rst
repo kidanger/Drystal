@@ -161,6 +161,24 @@ Window
       assert(drystal.screen.w == 200)
       assert(drystal.screen.h == 300)
 
+.. lua:function:: set_fullscreen(fullscreen: bool)
+
+   Enable or disable the fullscreen mode.
+
+   .. note:: It will make the game fits the whole page in a browser and not use
+             the fullscreen mode. We choose this behavior because the echap key will not
+             be available anymore and it makes less sense to play a game in fullscreen with a browser.
+             You also need to ensure that there is no border or margin for the canvas in your index.html.
+   .. code-block:: css
+
+      html,body {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+      }
+
 .. lua:function:: set_title(title: str)
 
    Change the title of the window. In Web build, the title of the document is changed.

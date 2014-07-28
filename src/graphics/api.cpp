@@ -28,6 +28,7 @@ BEGIN_MODULE(graphics)
 
 	DECLARE_FUNCTION(resize)
 	DECLARE_FUNCTION(set_title)
+	DECLARE_FUNCTION(set_fullscreen)
 	DECLARE_FUNCTION(screen2scene)
 
 	/* DISPLAY SURFACE */

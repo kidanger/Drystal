@@ -154,6 +154,8 @@ Display::Display(bool server_mode) :
 	alpha(1),
 	camera(),
 	point_size(1),
+	original_width(0),
+	original_height(0),
 	available(false),
 	debug_mode(false)
 {
@@ -208,12 +210,35 @@ void Display::set_title(const char *title) const
 	SDL_SetWindowTitle(sdl_window, title);
 }
 
+void Display::set_fullscreen(bool fullscreen)
+{
+	if (fullscreen) {
+#ifdef EMSCRIPTEN
+		emscripten_run_script("var canvas = window.document.getElementById('canvas');canvas.width=window.innerWidth;canvas.height=window.innerHeight;");
+#else
+		SDL_SetWindowFullscreen(sdl_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+#endif
+		int w, h;
+		SDL_GetWindowSize(sdl_window, &w, &h);
+		// freed by lua's gc
+		screen = new_surface(w, h, true);
+		draw_on(screen);
+	} else {
+#ifndef EMSCRIPTEN
+		SDL_SetWindowFullscreen(sdl_window, SDL_FALSE);
+#endif
+		resize(original_width, original_height);
+	}
+}
+
 void Display::resize(int w, int h)
 {
-	int oldw, oldh;
-	SDL_GetWindowSize(sdl_window, &oldw, &oldh);
-	if (w == oldw && h == oldh)
+	int currentw, currenth;
+	SDL_GetWindowSize(sdl_window, &currentw, &currenth);
+	if (w == currentw && h == currenth)
 		return;
+	original_width = w;
+	original_height = h;
 #ifdef EMSCRIPTEN
 	emscripten_set_canvas_size(w, h);
 #else
@@ -221,13 +246,12 @@ void Display::resize(int w, int h)
 	SDL_GetWindowPosition(sdl_window, &posx, &posy);
 	SDL_SetWindowSize(sdl_window, w, h); // resize
 	SDL_SetWindowPosition(sdl_window,
-	                      posx + oldw / 2 - w / 2,
-	                      posy + oldh / 2 - h / 2); // and move it back
+	                      posx + currentw / 2 - w / 2,
+	                      posy + currenth / 2 - h / 2); // and move it back
 #endif
 	SDL_GetWindowSize(sdl_window, &w, &h);
 	// freed by lua's gc
 	screen = new_surface(w, h, true);
-	current = NULL; // force update
 	draw_on(screen);
 }
 
@@ -243,6 +267,8 @@ void Display::create_window(int w, int h)
 	SDL_GL_CreateContext(sdl_window);
 	assert(sdl_window);
 #else
+	original_width = w;
+	original_height = h;
 	SDL_SetVideoMode(w, h, 32, SDL_OPENGL);
 #endif
 
