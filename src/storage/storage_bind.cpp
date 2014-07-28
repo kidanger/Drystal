@@ -53,7 +53,7 @@ int mlua_fetch(lua_State* L)
 	const char* key = luaL_checkstring(L, 1);
 	char* value = fetch(key);
 
-	if (!value) {
+	if (!value || !value[0]) {
 		lua_pushnil(L);
 		return 1;
 	}
