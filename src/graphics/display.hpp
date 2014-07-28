@@ -80,6 +80,7 @@ struct Shader {
 		GLuint dyLocation;
 		GLuint zoomLocation;
 		GLuint rotationMatrixLocation;
+		GLuint destinationSizeLocation;
 	} vars[2];
 	int ref;
 };
@@ -87,15 +88,12 @@ struct Shader {
 struct Camera {
 	float dx;
 	float dy;
-	float dx_transformed;
-	float dy_transformed;
 	float zoom;
 	float angle;
 	float matrix[4];
 
 	Camera() :
 		dx(0), dy(0),
-		dx_transformed(0), dy_transformed(0),
 		zoom(1), angle(0)
 	{
 		matrix[0] = 0;
@@ -138,11 +136,6 @@ private:
 	Display(const Display&);
 	Display& operator=(const Display&);
 
-	inline void convert_coords(float x, float y, float *dx, float *dy) const
-	{
-		*dx = (2. * x / current->w) - 1;
-		*dy = (2. * y / current->h) - 1;
-	}
 	inline void convert_texcoords(float x, float y, float *dx, float *dy) const
 	{
 		*dx = x / current_from->texw;

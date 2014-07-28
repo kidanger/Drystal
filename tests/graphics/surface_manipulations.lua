@@ -10,6 +10,8 @@ attribute vec2 texCoord;
 varying vec4 fColor;
 varying vec2 fTexCoord;
 
+uniform vec2 destinationSize;
+
 #define pi ]]..math.pi..[[
 
 uniform float tick;
@@ -20,10 +22,9 @@ float rand(vec2 co){
 
 void main()
 {
-	vec2 p1 = position;
-	vec2 pos = position.xy;
-	pos.x += rand(vec2(p1.x, tick/10.+100.)) * .01;
-	pos.y += rand(vec2(p1.y, tick/10.)) * .01;
+	vec2 pos = (2. * position/destinationSize) - 1.;
+	pos.x += rand(vec2(pos.x, tick/10.+100.)) * .01;
+	pos.y += rand(vec2(pos.y, tick/10.)) * .01;
 
 	gl_Position = vec4(pos, 0., 1.);
 	fColor = color;

@@ -26,6 +26,7 @@
 
 struct Shader;
 struct Camera;
+struct Surface;
 
 // should be multiple of 2 (for GL_LINES) and of 3 (GL_TRIANGLES)
 const unsigned int BUFFER_DEFAULT_SIZE = 2 * 3 * 4096;
@@ -67,6 +68,7 @@ private:
 
 public:
 	int ref;
+	const Surface* draw_on;
 
 	Buffer(bool user_buffer, unsigned int size = BUFFER_DEFAULT_SIZE);
 	~Buffer();

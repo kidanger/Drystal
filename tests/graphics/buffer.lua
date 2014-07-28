@@ -59,12 +59,11 @@ function drystal.draw()
 			buffer:upload_and_free()
 			drystal.use_buffer()
 		end
-		buffer:draw(math.sin(tick/10)*50)
+		buffer:draw(math.sin(tick/10)*sprite.w)
 	else
 		heavy_draw(number)
 	end
 
-	local sprite = spritesheet.frames['character.png'].frame
 	drystal.set_color(255, 0, 0)
 	drystal.set_alpha(255)
 	drystal.draw_sprite(sprite, 332, 200)
@@ -85,6 +84,8 @@ function drystal.key_press(key)
 		drystal.stop()
 	elseif key == 'b' then
 		bufferize = not bufferize
+	elseif key == 'f' then
+		drystal.set_fullscreen(true)
 	end
 end
 

@@ -39,7 +39,8 @@ Buffer::Buffer(bool user_buffer, unsigned int size) :
 	shader(NULL),
 	camera(NULL),
 	user_buffer(user_buffer),
-	ref(0)
+	ref(0),
+	draw_on(NULL)
 {
 	buffers[0] = 0;
 	buffers[1] = 0;
@@ -234,12 +235,13 @@ void Buffer::draw(float dx, float dy)
 		glVertexAttribPointer(ATTR_POINTSIZE_INDEX, 1, GL_FLOAT, GL_FALSE, 0, NULL);
 	}
 
-	dx += camera->dx_transformed;
-	dy += camera->dy_transformed;
+	dx -= camera->dx;
+	dy -= camera->dy;
 	glUniform1f(shader->vars[locationIndex].dxLocation, dx);
 	glUniform1f(shader->vars[locationIndex].dyLocation, dy);
 	glUniform1f(shader->vars[locationIndex].zoomLocation, camera->zoom);
 	glUniformMatrix2fv(shader->vars[locationIndex].rotationMatrixLocation, 1, GL_FALSE, camera->matrix);
+	glUniform2f(shader->vars[locationIndex].destinationSizeLocation, draw_on->texw, draw_on->texh);
 
 	GLint draw_type;
 	if (type == POINT_BUFFER) {

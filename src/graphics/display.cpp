@@ -99,12 +99,13 @@ const char* DEFAULT_VERTEX_SHADER = SHADER_STRING
                                         uniform float cameraDy;
                                         uniform float cameraZoom;
                                         uniform mat2 rotationMatrix;
+                                        uniform vec2 destinationSize;		// size of the destination texture
                                         mat2 cameraMatrix = rotationMatrix * cameraZoom;
 
                                         void main()
 {
 	gl_PointSize = pointSize * cameraZoom;
-	vec2 position2d = cameraMatrix  * (position - vec2(cameraDx, cameraDy));
+	vec2 position2d = cameraMatrix * (2. * (position - vec2(cameraDx, cameraDy)) / destinationSize - 1.);
 	gl_Position = vec4(position2d, 0.0, 1.0);
 	fColor = color;
 	fTexCoord = texCoord;
@@ -474,7 +475,6 @@ void Display::reset_camera()
 	current_buffer->check_empty();
 
 	camera.dx = camera.dy = 0;
-	camera.dx_transformed = camera.dy_transformed = 0;
 	camera.angle = 0;
 	camera.zoom = 1;
 	update_camera_matrix();
@@ -517,11 +517,6 @@ void Display::update_camera_matrix()
 	camera.matrix[1] = sin(angle) * ratio;
 	camera.matrix[2] = -sin(angle) / ratio;
 	camera.matrix[3] = cos(angle);
-
-	float ddx = 2 * (- camera.dx / current->w);
-	float ddy = 2 * (- camera.dy / current->h);
-	camera.dx_transformed = ddx;
-	camera.dy_transformed = ddy;
 }
 
 void Display::draw_from(Surface* surf)
@@ -557,6 +552,7 @@ void Display::draw_on(Surface* surf)
 		int h = surf->h;
 		glViewport(0, 0, w, h);
 		update_camera_matrix();
+		current_buffer->draw_on = current;
 	}
 }
 
@@ -715,22 +711,16 @@ void Display::surface_size(Surface* surface, int *w, int *h)
 
 void Display::draw_point(float x, float y)
 {
-	float xx, yy;
-	convert_coords(x, y, &xx, &yy);
-
 	current_buffer->check_type(POINT_BUFFER);
 	current_buffer->check_not_use_texture();
 	current_buffer->check_not_full();
 
-	current_buffer->push_vertex(xx, yy);
+	current_buffer->push_vertex(x, y);
 	current_buffer->push_point_size(point_size);
 	current_buffer->push_color(r, g, b, alpha);
 }
 void Display::draw_point_tex(float xi, float yi, float xd, float yd)
 {
-	float xxd, yyd;
-	convert_coords(xd, yd, &xxd, &yyd);
-
 	float xxi, yyi;
 	convert_texcoords(xi, yi, &xxi, &yyi);
 
@@ -738,7 +728,7 @@ void Display::draw_point_tex(float xi, float yi, float xd, float yd)
 	current_buffer->check_use_texture();
 	current_buffer->check_not_full();
 
-	current_buffer->push_vertex(xxd, yyd);
+	current_buffer->push_vertex(xd, yd);
 	current_buffer->push_tex_coord(xxi, yyi);
 	current_buffer->push_point_size(point_size);
 	current_buffer->push_color(r, g, b, alpha);
@@ -746,17 +736,12 @@ void Display::draw_point_tex(float xi, float yi, float xd, float yd)
 
 void Display::draw_line(float x1, float y1, float x2, float y2)
 {
-	float xx1, xx2;
-	float yy1, yy2;
-	convert_coords(x1, y1, &xx1, &yy1);
-	convert_coords(x2, y2, &xx2, &yy2);
-
 	current_buffer->check_type(LINE_BUFFER);
 	current_buffer->check_not_use_texture();
 	current_buffer->check_not_full();
 
-	current_buffer->push_vertex(xx1, yy1);
-	current_buffer->push_vertex(xx2, yy2);
+	current_buffer->push_vertex(x1, y1);
+	current_buffer->push_vertex(x2, y2);
 	for (int i = 0; i < 2; i++)
 		current_buffer->push_color(r, g, b, alpha);
 }
@@ -769,19 +754,14 @@ void Display::draw_triangle(float x1, float y1, float x2, float y2, float x3, fl
 		draw_line(x3, y3, x1, y1);
 		return;
 	}
-	float xx1, xx2, xx3;
-	float yy1, yy2, yy3;
-	convert_coords(x1, y1, &xx1, &yy1);
-	convert_coords(x2, y2, &xx2, &yy2);
-	convert_coords(x3, y3, &xx3, &yy3);
 
 	current_buffer->check_type(TRIANGLE_BUFFER);
 	current_buffer->check_not_use_texture();
 	current_buffer->check_not_full();
 
-	current_buffer->push_vertex(xx1, yy1);
-	current_buffer->push_vertex(xx2, yy2);
-	current_buffer->push_vertex(xx3, yy3);
+	current_buffer->push_vertex(x1, y1);
+	current_buffer->push_vertex(x2, y2);
+	current_buffer->push_vertex(x3, y3);
 	for (int i = 0; i < 3; i++)
 		current_buffer->push_color(r, g, b, alpha);
 }
@@ -802,12 +782,6 @@ void Display::draw_surface(float xi1, float yi1, float xi2, float yi2, float xi3
 	convert_texcoords(xi2, yi2, &xxi2, &yyi2);
 	convert_texcoords(xi3, yi3, &xxi3, &yyi3);
 
-	float xxo1, xxo2, xxo3;
-	float yyo1, yyo2, yyo3;
-	convert_coords(xo1, yo1, &xxo1, &yyo1);
-	convert_coords(xo2, yo2, &xxo2, &yyo2);
-	convert_coords(xo3, yo3, &xxo3, &yyo3);
-
 	current_buffer->check_type(TRIANGLE_BUFFER);
 	current_buffer->check_use_texture();
 	current_buffer->check_not_full();
@@ -816,9 +790,9 @@ void Display::draw_surface(float xi1, float yi1, float xi2, float yi2, float xi3
 	current_buffer->push_tex_coord(xxi2, yyi2);
 	current_buffer->push_tex_coord(xxi3, yyi3);
 
-	current_buffer->push_vertex(xxo1, yyo1);
-	current_buffer->push_vertex(xxo2, yyo2);
-	current_buffer->push_vertex(xxo3, yyo3);
+	current_buffer->push_vertex(xo1, yo1);
+	current_buffer->push_vertex(xo2, yo2);
+	current_buffer->push_vertex(xo3, yo3);
 
 	for (int i = 0; i < 3; i++)
 		current_buffer->push_color(r, g, b, alpha);
@@ -979,11 +953,13 @@ Shader * Display::new_shader(const char* strvert, const char* strfragcolor, cons
 	shader->vars[COLOR].dyLocation = glGetUniformLocation(prog_color, "cameraDy");
 	shader->vars[COLOR].zoomLocation = glGetUniformLocation(prog_color, "cameraZoom");
 	shader->vars[COLOR].rotationMatrixLocation = glGetUniformLocation(prog_color, "rotationMatrix");
+	shader->vars[COLOR].destinationSizeLocation = glGetUniformLocation(prog_color, "destinationSize");
 
 	shader->vars[TEX].dxLocation = glGetUniformLocation(prog_tex, "cameraDx");
 	shader->vars[TEX].dyLocation = glGetUniformLocation(prog_tex, "cameraDy");
 	shader->vars[TEX].zoomLocation = glGetUniformLocation(prog_tex, "cameraZoom");
 	shader->vars[TEX].rotationMatrixLocation = glGetUniformLocation(prog_tex, "rotationMatrix");
+	shader->vars[TEX].destinationSizeLocation = glGetUniformLocation(prog_tex, "destinationSize");
 
 	shader->ref = 0;
 	return shader;
@@ -1064,9 +1040,8 @@ void Display::use_buffer(Buffer* buffer)
 void Display::draw_buffer(Buffer* buffer, float dx, float dy)
 {
 	assert(buffer);
-	dx /= current->w;
-	dy /= current->h;
 	current_buffer->check_empty();
+	buffer->draw_on = current;
 	buffer->draw(dx, dy);
 }
 void Display::reset_buffer(Buffer* buffer)
