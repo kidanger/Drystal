@@ -55,7 +55,6 @@ function drystal.init()
 	drystal.screen:draw_on()
 
 	shader = assert(drystal.new_shader(vert))
-	drystal.display_logo(spritesheet.frames['logo.png'].frame)
 end
 
 local tick = 0
