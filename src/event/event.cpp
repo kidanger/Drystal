@@ -18,6 +18,7 @@
 #include <SDL2/SDL.h>
 #else
 #include <SDL/SDL.h>
+#include <html5.h>
 #endif
 
 #include <map>
@@ -332,6 +333,14 @@ void event_update()
 	}
 }
 
+#ifdef EMSCRIPTEN
+static EM_BOOL ui_callback_func(int eventType, const EmscriptenUiEvent *uiEvent, void *userData)
+{
+	call_resize_event(uiEvent->windowInnerWidth, uiEvent->windowInnerHeight);
+	return false;
+}
+#endif
+
 void event_init(void)
 {
 #ifndef EMSCRIPTEN
@@ -340,6 +349,8 @@ void event_init(void)
 		log_error("Cannot initialize SDL events subsystem");
 		return;
 	}
+#else
+	emscripten_set_resize_callback(NULL, NULL, true, ui_callback_func);
 #endif
 }
 
