@@ -14,6 +14,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <cstring>
+
 #include "module.hpp"
 #include "engine.hpp"
 #include "display_bind.hpp"
@@ -124,4 +126,31 @@ BEGIN_MODULE(graphics)
 		lua_setfield(L, -2, "camera");
 	}
 END_MODULE()
+
+int graphics_index(lua_State* L)
+{
+	Engine &engine = get_engine();
+	const char * name = luaL_checkstring(L, 2);
+	if (!strcmp(name, "screen")) {
+		Surface* surf = engine.display.get_screen();
+		if (surf) {
+			push_surface(L, surf);
+			return 1;
+		}
+	} else if (!strcmp(name, "current_draw_on")) {
+		Surface* surf = engine.display.get_draw_on();
+		if (surf) {
+			push_surface(L, surf);
+			return 1;
+		}
+	} else if (!strcmp(name, "current_draw_from")) {
+		Surface* surf = engine.display.get_draw_from();
+		if (surf) {
+			push_surface(L, surf);
+			return 1;
+		}
+	}
+
+	return 0;
+}
 

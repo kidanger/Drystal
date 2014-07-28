@@ -51,9 +51,6 @@
 #endif
 #ifdef BUILD_GRAPHICS
 #include "graphics/api.hpp"
-#include "graphics/display.hpp"
-
-DECLARE_PUSH(Surface, surface)
 #endif
 #ifdef BUILD_UTILS
 #include "utils/api.hpp"
@@ -264,28 +261,14 @@ static int mlua_drystal_index(lua_State* L)
 static int mlua_drystal_index(_unused_ lua_State* L)
 #endif
 {
-	assert(L);
 #ifdef BUILD_GRAPHICS
-	Engine &engine = get_engine();
-	const char * name = luaL_checkstring(L, 2);
-	if (!strcmp(name, "screen")) {
-		Surface* surf = engine.display.get_screen();
-		if (surf) {
-			push_surface(L, surf);
-			return 1;
-		}
-	} else if (!strcmp(name, "current_draw_on")) {
-		Surface* surf = engine.display.get_draw_on();
-		if (surf) {
-			push_surface(L, surf);
-			return 1;
-		}
-	} else if (!strcmp(name, "current_draw_from")) {
-		Surface* surf = engine.display.get_draw_from();
-		if (surf) {
-			push_surface(L, surf);
-			return 1;
-		}
+	int r;
+
+	assert(L);
+
+	r = graphics_index(L);
+	if (r > 0) {
+		return r;
 	}
 #endif
 	return 0;

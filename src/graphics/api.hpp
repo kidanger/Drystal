@@ -20,3 +20,5 @@
 
 DECLARE_MODULE(graphics)
 
+int graphics_index(lua_State* L);
+
