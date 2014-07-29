@@ -13,29 +13,32 @@ END_DISABLE_WARNINGS;
 #include "engine.hpp"
 #include "joint_bind.hpp"
 
-DECLARE_POP(Joint, joint)
+DECLARE_POP(RevoluteJoint, revolute_joint)
+DECLARE_POP(MouseJoint, mouse_joint)
+DECLARE_POP(DistanceJoint, distance_joint)
+DECLARE_POP(RopeJoint, rope_joint)
 
 inline static b2MouseJoint* luam_tomousejoint(lua_State* L, int index)
 {
-	return (b2MouseJoint*) pop_joint(L, index)->joint;
+	return (b2MouseJoint *) pop_mouse_joint(L, index)->joint;
 }
 
 inline static b2DistanceJoint* luam_todistancejoint(lua_State* L, int index)
 {
-	return (b2DistanceJoint*) pop_joint(L, index)->joint;
+	return (b2DistanceJoint *) pop_distance_joint(L, index)->joint;
 }
 
 inline static b2RopeJoint* luam_toropejoint(lua_State* L, int index)
 {
-	return (b2RopeJoint*) pop_joint(L, index)->joint;
+	return (b2RopeJoint *) pop_rope_joint(L, index)->joint;
 }
 
 inline static b2RevoluteJoint* luam_torevolutejoint(lua_State* L, int index)
 {
-	return (b2RevoluteJoint*) pop_joint(L, index)->joint;
+	return (b2RevoluteJoint *) pop_revolute_joint(L, index)->joint;
 }
 
-int mlua_set_target_joint(lua_State* L)
+int mlua_set_target_mouse_joint(lua_State* L)
 {
 	assert(L);
 
@@ -46,7 +49,7 @@ int mlua_set_target_joint(lua_State* L)
 	return 0;
 }
 
-int mlua_set_length_joint(lua_State* L)
+int mlua_set_length_distance_joint(lua_State* L)
 {
 	assert(L);
 
@@ -56,7 +59,7 @@ int mlua_set_length_joint(lua_State* L)
 	return 0;
 }
 
-int mlua_set_frequency_joint(lua_State* L)
+int mlua_set_frequency_distance_joint(lua_State* L)
 {
 	assert(L);
 
@@ -66,7 +69,7 @@ int mlua_set_frequency_joint(lua_State* L)
 	return 0;
 }
 
-int mlua_set_max_length_joint(lua_State* L)
+int mlua_set_max_length_rope_joint(lua_State* L)
 {
 	assert(L);
 
@@ -76,7 +79,7 @@ int mlua_set_max_length_joint(lua_State* L)
 	return 0;
 }
 
-int mlua_set_angle_limits_joint(lua_State* L)
+int mlua_set_angle_limits_revolute_joint(lua_State* L)
 {
 	assert(L);
 
@@ -92,7 +95,7 @@ int mlua_set_angle_limits_joint(lua_State* L)
 	return 0;
 }
 
-int mlua_set_motor_speed_joint(lua_State* L)
+int mlua_set_motor_speed_revolute_joint(lua_State* L)
 {
 	assert(L);
 

@@ -17,6 +17,10 @@
 #pragma once
 
 struct lua_State;
+class b2MouseJoint;
+class b2RevoluteJoint;
+class b2DistanceJoint;
+class b2RopeJoint;
 class b2Joint;
 
 struct Joint {
@@ -24,10 +28,15 @@ struct Joint {
 	int ref;
 };
 
-int mlua_set_target_joint(lua_State* L);
-int mlua_set_length_joint(lua_State* L);
-int mlua_set_frequency_joint(lua_State* L);
-int mlua_set_max_length_joint(lua_State* L);
-int mlua_set_angle_limits_joint(lua_State* L);
-int mlua_set_motor_speed_joint(lua_State* L);
+typedef Joint RevoluteJoint;
+typedef Joint MouseJoint;
+typedef Joint DistanceJoint;
+typedef Joint RopeJoint;
+
+int mlua_set_target_mouse_joint(lua_State* L);
+int mlua_set_length_distance_joint(lua_State* L);
+int mlua_set_frequency_distance_joint(lua_State* L);
+int mlua_set_max_length_rope_joint(lua_State* L);
+int mlua_set_angle_limits_revolute_joint(lua_State* L);
+int mlua_set_motor_speed_revolute_joint(lua_State* L);
 

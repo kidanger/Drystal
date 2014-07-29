@@ -32,7 +32,10 @@ END_DISABLE_WARNINGS;
 #include "shape_bind.hpp"
 
 DECLARE_PUSHPOP(Body, body)
-DECLARE_PUSHPOP(Joint, joint)
+DECLARE_PUSHPOP(RopeJoint, rope_joint)
+DECLARE_PUSHPOP(DistanceJoint, distance_joint)
+DECLARE_PUSHPOP(RevoluteJoint, revolute_joint)
+DECLARE_PUSHPOP(MouseJoint, mouse_joint)
 DECLARE_POP(Shape, shape)
 
 static b2World* world;
@@ -429,25 +432,43 @@ int mlua_new_joint(lua_State* L)
 
 	assert(joint_def->bodyA);
 	assert(joint_def->bodyB);
+
 	Joint* joint = new Joint;
 	joint->joint = world->CreateJoint(joint_def);
 	joint->ref = 0;
+
+	if (!strcmp(type, "mouse")) {
+		push_mouse_joint(L, joint);
+	} else if (!strcmp(type, "distance")) {
+		push_distance_joint(L, joint);
+	} else if (!strcmp(type, "rope")) {
+		push_rope_joint(L, joint);
+	} else if (!strcmp(type, "revolute")) {
+		push_revolute_joint(L, joint);
+	}
+
 	delete joint_def;
-	push_joint(L, joint);
 
 	return 1;
 }
 
-int mlua_destroy_joint(lua_State* L)
-{
-	assert(L);
-	if (world == NULL) {
-		return luaL_error(L, "world must be created before calling Joint:destroy");
+#define __IMPLEMENT_DESTROY(T, name) \
+	int mlua_destroy_##name(lua_State* L) \
+	{ \
+		assert(L); \
+		if (world == NULL) { \
+			return luaL_error(L, "world must be created before calling " #T "::destroy"); \
+		} \
+		T* joint = pop_##name(L, 1); \
+		world->DestroyJoint(joint->joint); \
+		delete joint; \
+		return 0; \
 	}
 
-	Joint* joint = pop_joint(L, 1);
-	world->DestroyJoint(joint->joint);
-	delete joint;
-	return 0;
-}
+__IMPLEMENT_DESTROY(MouseJoint, mouse_joint)
+__IMPLEMENT_DESTROY(RopeJoint, rope_joint)
+__IMPLEMENT_DESTROY(DistanceJoint, distance_joint)
+__IMPLEMENT_DESTROY(RevoluteJoint, revolute_joint)
+
+#undef __IMPLEMENT_DESTROY
 

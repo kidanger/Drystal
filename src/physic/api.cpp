@@ -63,18 +63,26 @@ BEGIN_MODULE(physic)
 		ADD_GC(gc_shape)
 	REGISTER_CLASS(shape, "Shape")
 
-	BEGIN_CLASS(joint)
-		ADD_METHOD(joint, destroy)
-		// mouse joint
-		ADD_METHOD(joint, set_target)
-		// distance joint
-		ADD_METHOD(joint, set_length)
-		ADD_METHOD(joint, set_frequency)
-		// rope joint
-		ADD_METHOD(joint, set_max_length)
-		// revolute joint
-		ADD_METHOD(joint, set_angle_limits)
-		ADD_METHOD(joint, set_motor_speed)
-	REGISTER_CLASS(joint, "Joint")
+	BEGIN_CLASS(mouse_joint)
+		ADD_METHOD(mouse_joint, destroy)
+		ADD_METHOD(mouse_joint, set_target)
+	REGISTER_CLASS(mouse_joint, "MouseJoint")
+
+	BEGIN_CLASS(distance_joint)
+		ADD_METHOD(distance_joint, destroy)
+		ADD_METHOD(distance_joint, set_length)
+		ADD_METHOD(distance_joint, set_frequency)
+	REGISTER_CLASS(distance_joint, "DistanceJoint")
+
+	BEGIN_CLASS(rope_joint)
+		ADD_METHOD(rope_joint, destroy)
+		ADD_METHOD(rope_joint, set_max_length)
+	REGISTER_CLASS(rope_joint, "RopeJoint")
+
+	BEGIN_CLASS(revolute_joint)
+		ADD_METHOD(revolute_joint, destroy)
+		ADD_METHOD(revolute_joint, set_angle_limits)
+		ADD_METHOD(revolute_joint, set_motor_speed)
+	REGISTER_CLASS(reveolute_joint, "RevoluteJoint")
 END_MODULE()
 

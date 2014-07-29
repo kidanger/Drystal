@@ -26,5 +26,11 @@ int mlua_query(lua_State* L);
 int mlua_new_body(lua_State* L);
 int mlua_destroy_body(lua_State* L);
 int mlua_new_joint(lua_State* L);
-int mlua_destroy_joint(lua_State* L);
+#define __DECLARE_DESTROY(T, name) \
+	int mlua_destroy_##name(lua_State* L);
+__DECLARE_DESTROY(MouseJoint, mouse_joint)
+__DECLARE_DESTROY(RopeJoint, rope_joint)
+__DECLARE_DESTROY(DistanceJoint, distance_joint)
+__DECLARE_DESTROY(RevoluteJoint, revolute_joint)
+#undef __DECLARE_DESTROY
 

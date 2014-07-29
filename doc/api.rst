@@ -677,32 +677,26 @@ Learning how to use Box2D_ will help to hunder Drystal's physic module.
    .. lua:method:: dump()
    .. lua:method:: destroy()
 
-.. lua:class:: Joint
+.. lua:class:: MouseJoint
 
    .. lua:method:: set_target(x, y)
+   .. lua:method:: destroy()
 
-      .. warning:: only for mouse joint
-
-   .. lua:method:: set_length(length: float)
-
-      .. warning:: only for distance joint
-
-   .. lua:method:: set_frequency(frequency: float)
-
-      .. warning:: only for distance joint
+.. lua:class:: RopeJoint
 
    .. lua:method:: set_max_length(max_length: float)
+   .. lua:method:: destroy()
 
-      .. warning:: only for distance joint
+.. lua:class:: DistanceJoint
+
+   .. lua:method:: set_length(length: float)
+   .. lua:method:: set_frequency(frequency: float)
+   .. lua:method:: destroy()
+
+.. lua:class:: RevoluteJoint
 
    .. lua:method:: set_angle_limits(min, max)
-
-      .. warning:: only for revolute joint
-
    .. lua:method:: set_motor_speed(speed: float[, maxtorque=20: float])
-
-      .. warning:: only for revolute joint
-
    .. lua:method:: destroy()
 
 Audio
