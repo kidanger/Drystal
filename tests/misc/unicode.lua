@@ -27,12 +27,12 @@ function drystal.key_press(key)
 			texting = true
 			drystal.start_text()
 		elseif key == 'a' then
-			drystal.engine_stop()
+			drystal.stop()
 		end
 	end
 end
 function drystal.key_release(key)
-	--	print('key_release', key)
+	print('key_release', key)
 end
 
 function drystal.key_text(str)
