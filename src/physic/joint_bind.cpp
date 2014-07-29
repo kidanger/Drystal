@@ -17,6 +17,7 @@ DECLARE_POP(RevoluteJoint, revolute_joint)
 DECLARE_POP(MouseJoint, mouse_joint)
 DECLARE_POP(DistanceJoint, distance_joint)
 DECLARE_POP(RopeJoint, rope_joint)
+DECLARE_POP(PrismaticJoint, prismatic_joint)
 
 inline static b2MouseJoint* luam_tomousejoint(lua_State* L, int index)
 {
@@ -36,6 +37,11 @@ inline static b2RopeJoint* luam_toropejoint(lua_State* L, int index)
 inline static b2RevoluteJoint* luam_torevolutejoint(lua_State* L, int index)
 {
 	return (b2RevoluteJoint *) pop_revolute_joint(L, index)->joint;
+}
+
+inline static b2PrismaticJoint* luam_toprismaticjoint(lua_State* L, int index)
+{
+	return (b2PrismaticJoint *) pop_prismatic_joint(L, index)->joint;
 }
 
 int mlua_set_target_mouse_joint(lua_State* L)
@@ -112,5 +118,57 @@ int mlua_set_motor_speed_revolute_joint(lua_State* L)
 		joint->EnableMotor(false);
 	}
 	return 0;
+}
+
+int mlua_set_enable_motor_prismatic_joint(lua_State* L)
+{
+	b2PrismaticJoint* joint = luam_toprismaticjoint(L, 1);
+	bool enable = lua_toboolean(L, 2);
+	joint->EnableMotor(enable);
+
+	return 0;
+}
+
+int mlua_set_motor_speed_prismatic_joint(lua_State* L)
+{
+	b2PrismaticJoint* joint = luam_toprismaticjoint(L, 1);
+	lua_Number speed = luaL_checknumber(L, 2);
+	joint->SetMotorSpeed(speed);
+
+	return 0;
+}
+
+int mlua_set_enable_limit_prismatic_joint(lua_State* L)
+{
+	b2PrismaticJoint* joint = luam_toprismaticjoint(L, 1);
+	bool enable = lua_toboolean(L, 2);
+	joint->EnableLimit(enable);
+
+	return 0;
+}
+
+int mlua_set_max_motor_force_prismatic_joint(lua_State* L)
+{
+	b2PrismaticJoint* joint = luam_toprismaticjoint(L, 1);
+	lua_Number force = luaL_checknumber(L, 2);
+	joint->SetMaxMotorForce(force);
+
+	return 0;
+}
+
+int mlua_is_motor_enabled_prismatic_joint(lua_State* L)
+{
+	b2PrismaticJoint* joint = luam_toprismaticjoint(L, 1);
+	lua_pushboolean(L, joint->IsMotorEnabled());
+
+	return 1;
+}
+
+int mlua_is_limit_enabled_prismatic_joint(lua_State* L)
+{
+	b2PrismaticJoint* joint = luam_toprismaticjoint(L, 1);
+	lua_pushboolean(L, joint->IsLimitEnabled());
+
+	return 1;
 }
 

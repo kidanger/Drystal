@@ -36,6 +36,7 @@ DECLARE_PUSHPOP(RopeJoint, rope_joint)
 DECLARE_PUSHPOP(DistanceJoint, distance_joint)
 DECLARE_PUSHPOP(RevoluteJoint, revolute_joint)
 DECLARE_PUSHPOP(MouseJoint, mouse_joint)
+DECLARE_PUSHPOP(PrismaticJoint, prismatic_joint)
 DECLARE_POP(Shape, shape)
 
 static b2World* world;
@@ -429,6 +430,20 @@ int mlua_new_joint(lua_State* L)
 		def->localAnchorA.Set(anchorAx, anchorAy);
 		def->localAnchorB.Set(anchorBx, anchorBy);
 		joint_def = def;
+	} else if (!strcmp(type, "prismatic")) {
+		b2PrismaticJointDef* def = new b2PrismaticJointDef;
+		def->bodyA = pop_body(L, i++)->body;
+		def->bodyB = pop_body(L, i++)->body;
+		lua_Number anchorAx = luaL_checknumber(L, i++);
+		lua_Number anchorAy = luaL_checknumber(L, i++);
+		lua_Number anchorBx = luaL_checknumber(L, i++);
+		lua_Number anchorBy = luaL_checknumber(L, i++);
+		lua_Number axisx = luaL_checknumber(L, i++);
+		lua_Number axisy = luaL_checknumber(L, i++);
+		def->localAnchorA.Set(anchorAx, anchorAy);
+		def->localAnchorB.Set(anchorBx, anchorBy);
+		def->localAxisA.Set(axisx, axisy);
+		joint_def = def;
 	} else {
 		assert(false);
 		return 0;
@@ -454,6 +469,8 @@ int mlua_new_joint(lua_State* L)
 		push_rope_joint(L, joint);
 	} else if (!strcmp(type, "revolute")) {
 		push_revolute_joint(L, joint);
+	} else if (!strcmp(type, "prismatic")) {
+		push_prismatic_joint(L, joint);
 	}
 
 	delete joint_def;
@@ -478,6 +495,7 @@ __IMPLEMENT_DESTROY(MouseJoint, mouse_joint)
 __IMPLEMENT_DESTROY(RopeJoint, rope_joint)
 __IMPLEMENT_DESTROY(DistanceJoint, distance_joint)
 __IMPLEMENT_DESTROY(RevoluteJoint, revolute_joint)
+__IMPLEMENT_DESTROY(PrismaticJoint, prismatic_joint)
 
 #undef __IMPLEMENT_DESTROY
 

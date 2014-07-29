@@ -699,6 +699,16 @@ Learning how to use Box2D_ will help to hunder Drystal's physic module.
    .. lua:method:: set_motor_speed(speed: float[, maxtorque=20: float])
    .. lua:method:: destroy()
 
+.. lua:class:: PrismaticJoint
+
+   .. lua:method:: set_motor_speed(speed: float)
+   .. lua:method:: set_max_motor_force(force: float)
+   .. lua:method:: set_enable_motor(enable: boolean)
+   .. lua:method:: set_enable_limit(enable: boolean)
+   .. lua:method:: is_limit_enabled() -> boolean
+   .. lua:method:: is_motor_enabled() -> boolean
+   .. lua:method:: destroy()
+
 Audio
 -----
 

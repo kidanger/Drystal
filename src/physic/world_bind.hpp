@@ -32,5 +32,6 @@ __DECLARE_DESTROY(MouseJoint, mouse_joint)
 __DECLARE_DESTROY(RopeJoint, rope_joint)
 __DECLARE_DESTROY(DistanceJoint, distance_joint)
 __DECLARE_DESTROY(RevoluteJoint, revolute_joint)
+__DECLARE_DESTROY(PrismaticJoint, prismatic_joint)
 #undef __DECLARE_DESTROY
 
