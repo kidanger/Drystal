@@ -367,7 +367,7 @@ int mlua_destroy_body(lua_State* L)
 {
 	assert(L);
 	if (world == NULL) {
-		return luaL_error(L, "world must be created before calling destroy_body");
+		return luaL_error(L, "world must be created before calling Body:destroy");
 	}
 
 	Body* body = pop_body(L, 1);
@@ -442,7 +442,7 @@ int mlua_destroy_joint(lua_State* L)
 {
 	assert(L);
 	if (world == NULL) {
-		return luaL_error(L, "world must be created before calling destroy_joint");
+		return luaL_error(L, "world must be created before calling Joint:destroy");
 	}
 
 	Joint* joint = pop_joint(L, 1);

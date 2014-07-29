@@ -240,3 +240,6 @@ function drystal.mouse_press(x, y, b)
 	end
 end
 
+function drystal.atexit()
+	joint:destroy()
+end

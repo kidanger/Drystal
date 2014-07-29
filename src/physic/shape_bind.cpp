@@ -100,9 +100,11 @@ int mlua_gc_shape(lua_State* L)
 {
 	assert(L);
 
-	b2FixtureDef* fixtureDef = pop_shape(L, 1)->fixtureDef;
+	Shape* shape = pop_shape(L, 1);
+	b2FixtureDef* fixtureDef = shape->fixtureDef;
 	delete fixtureDef->shape;
 	delete fixtureDef;
+	delete shape;
 	return 0;
 }
 
