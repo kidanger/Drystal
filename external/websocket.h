@@ -68,6 +68,6 @@ void free_ws_ctx(ws_ctx_t *ctx);
     fprintf(stream, "  %d: ", settings.handler_id); \
     fprintf(stream, __VA_ARGS__); \
 
-#define handler_msg(...) fprintf(stdout, __VA_ARGS__);
+#define handler_msg(...)
 #define handler_emsg(...) fprintf(stderr, __VA_ARGS__);
 

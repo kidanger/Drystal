@@ -215,12 +215,12 @@ ssize_t ws_recv(ws_ctx_t *ctx, void *buf, size_t buflen) {
     }
     if (left) {
         ctx->tin_start = ctx->tin_end - left;
-        printf("partial frame from client\n");
+        //printf("partial frame from client\n");
     } else {
         ctx->tin_start = 0;
         ctx->tin_end = 0;
         memcpy(buf, ctx->tout_buf, len);
-        printf("complete frame from client\n");
+        //printf("complete frame from client\n");
     }
     return len;
 }
