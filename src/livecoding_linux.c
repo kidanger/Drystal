@@ -15,7 +15,6 @@
  * along with Drystal.If not, see <http://www.gnu.org/licenses/>.
  */
 #include <sys/inotify.h>
-#include <sys/select.h>
 #include <sys/types.h>
 #include <dirent.h>
 #include <unistd.h>
