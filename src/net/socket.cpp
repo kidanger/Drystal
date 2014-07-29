@@ -75,6 +75,7 @@ Socket* Socket::connect(const char* hostname, int port)
 	memcpy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
 	serv_addr.sin_port = htons(port);
 	if (::connect(fd, (const struct sockaddr*) &serv_addr, sizeof(serv_addr)) != -1
+	        && errno != 0
 	        && errno != EINPROGRESS) {
 		log_error("connect: %s", strerror(errno));
 		close(fd);
