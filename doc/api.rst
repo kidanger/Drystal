@@ -72,7 +72,9 @@ Callbacks
 Event
 -----
 
-.. .. lua:function:: set_relative_mode(relative: boolean)
+.. lua:function:: set_relative_mode(relative: boolean)
+
+   Relative mode is when the mouse is hidden and can't leave the window/canvas.
 
 .. _start-text:
 .. lua:function:: start_text()
