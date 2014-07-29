@@ -19,6 +19,4 @@
 struct lua_State;
 
 int mlua_set_relative_mode(lua_State* L);
-int mlua_start_text(lua_State*);
-int mlua_stop_text(lua_State*);
 

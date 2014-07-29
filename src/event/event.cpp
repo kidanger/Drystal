@@ -359,6 +359,7 @@ void event_init(void)
 	emscripten_set_resize_callback(NULL, NULL, true, em_ui_callback);
 	emscripten_set_click_callback(NULL, NULL, true, em_click_callback);
 #endif
+	SDL_StartTextInput();
 }
 
 void event_destroy(void)

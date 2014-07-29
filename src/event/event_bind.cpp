@@ -35,15 +35,3 @@ int mlua_set_relative_mode(lua_State* L)
 	return 0;
 }
 
-int mlua_start_text(lua_State*)
-{
-	SDL_StartTextInput();
-	return 0;
-}
-
-int mlua_stop_text(lua_State*)
-{
-	SDL_StopTextInput();
-	return 0;
-}
-

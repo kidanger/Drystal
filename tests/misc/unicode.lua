@@ -19,13 +19,11 @@ function drystal.key_press(key)
 		if key == 'return' then
 			texting = false
 			print('=>', text)
-			drystal.stop_text()
 		end
 	else
 		if key == 'i' then
 			text = ''
 			texting = true
-			drystal.start_text()
 		elseif key == 'a' then
 			drystal.stop()
 		end
@@ -36,8 +34,10 @@ function drystal.key_release(key)
 end
 
 function drystal.key_text(str)
-	print('key_text', str)
-	text = text .. str
-	print("text =", text)
+	if texting then
+		print('key_text', str)
+		text = text .. str
+		print("text =", text)
+	end
 end
 
