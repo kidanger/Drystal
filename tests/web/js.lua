@@ -6,5 +6,9 @@ drystal.run_js [[
 	window.alert("hello from drystal");
 ]]
 
+print(drystal.run_js [[
+"lol";
+]])
+
 drystal.stop()
 

@@ -27,8 +27,14 @@ int mlua_run_js(lua_State* L)
 
 #ifdef EMSCRIPTEN
 	const char* script = luaL_checkstring(L, 1);
-	run_js(script);
-	return 0;
+	char *ret = run_js(script);
+	if (!ret) {
+		lua_pushnil(L);
+		return 1;
+	}
+	lua_pushstring(L, ret);
+	free(ret);
+	return 1;
 #else
 	return luaL_error(L, "run_js isn't available in native build");
 #endif

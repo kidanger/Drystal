@@ -15,6 +15,7 @@
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
 #ifdef EMSCRIPTEN
+#include <cstring>
 #include <emscripten.h>
 #endif
 
@@ -22,9 +23,10 @@
 #include "engine.hpp"
 
 #ifdef EMSCRIPTEN
-void run_js(const char* script)
+char *run_js(const char* script)
 {
-	emscripten_run_script(script);
+	char *ret = emscripten_run_script_string(script);
+	return strdup(ret);
 }
 
 static void onsuccess(const char* filename)
