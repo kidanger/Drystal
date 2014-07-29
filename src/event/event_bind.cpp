@@ -19,9 +19,11 @@
 #include <SDL2/SDL.h>
 #else
 #include <SDL/SDL.h>
+#include <html5.h>
 #endif
 
 #include "engine.hpp"
+#include "event.hpp"
 #include "event_bind.hpp"
 
 int mlua_set_relative_mode(lua_State* L)
@@ -29,13 +31,7 @@ int mlua_set_relative_mode(lua_State* L)
 	assert(L);
 
 	bool relative = lua_toboolean(L, 1);
-#ifdef EMSCRIPTEN
-	Engine& engine = get_engine();
-	engine.display.show_cursor(not relative);
-	// NOT IMPLEMENTED
-#else
-	SDL_SetRelativeMouseMode(relative ? SDL_TRUE : SDL_FALSE);
-#endif
+	event_set_relative_mode(relative);
 	return 0;
 }
 

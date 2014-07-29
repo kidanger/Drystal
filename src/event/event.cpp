@@ -334,9 +334,15 @@ void event_update()
 }
 
 #ifdef EMSCRIPTEN
-static EM_BOOL ui_callback_func(int eventType, const EmscriptenUiEvent *uiEvent, void *userData)
+static EM_BOOL em_ui_callback(int eventType, const EmscriptenUiEvent *uiEvent, void *userData)
 {
 	call_resize_event(uiEvent->windowInnerWidth, uiEvent->windowInnerHeight);
+	return false;
+}
+static EM_BOOL em_click_callback(int eventType, const EmscriptenMouseEvent *keyEvent, void *userData)
+{
+	// just define it so emscripten's html5 lib can detect click
+	// and request pointer lock
 	return false;
 }
 #endif
@@ -350,7 +356,8 @@ void event_init(void)
 		return;
 	}
 #else
-	emscripten_set_resize_callback(NULL, NULL, true, ui_callback_func);
+	emscripten_set_resize_callback(NULL, NULL, true, em_ui_callback);
+	emscripten_set_click_callback(NULL, NULL, true, em_click_callback);
 #endif
 }
 
@@ -361,3 +368,15 @@ void event_destroy(void)
 #endif
 }
 
+void event_set_relative_mode(bool relative)
+{
+#ifdef EMSCRIPTEN
+	if (relative) {
+		emscripten_request_pointerlock(NULL, true);
+	} else {
+		emscripten_exit_pointerlock();
+	}
+#else
+	SDL_SetRelativeMouseMode(relative ? SDL_TRUE : SDL_FALSE);
+#endif
+}

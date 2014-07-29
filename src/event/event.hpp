@@ -20,3 +20,5 @@ void event_update();
 void event_destroy();
 void event_init();
 
+void event_set_relative_mode(bool relative);
+
