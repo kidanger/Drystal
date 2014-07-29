@@ -129,7 +129,7 @@ static int handle_events(void)
 static void *watcher_loop(_unused_ void *args)
 {
 	int r = 1;
-	bool stop_thread;
+	bool stop_thread = false;
 	struct pollfd fds[2];
 
 	fds[0].fd = fd;
@@ -138,7 +138,7 @@ static void *watcher_loop(_unused_ void *args)
 	fds[1].events = POLLIN;
 	fds[1].revents = 0;
 
-	while (r > 0) {
+	while (r > 0 && !stop_thread) {
 		r = poll(fds, 2, -1);
 		stop_thread = fds[1].revents & POLLIN;
 		if (r > 0 && !stop_thread) {
