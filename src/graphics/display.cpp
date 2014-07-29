@@ -553,6 +553,7 @@ void Display::draw_on(Surface* surf)
 		glViewport(0, 0, w, h);
 		update_camera_matrix();
 		current_buffer->draw_on = current;
+		default_buffer.draw_on = current;
 	}
 }
 
@@ -1036,6 +1037,7 @@ void Display::use_buffer(Buffer* buffer)
 		current_buffer = buffer;
 	}
 	current_buffer->use_shader(current_shader);
+	current_buffer->draw_on = current;
 }
 void Display::draw_buffer(Buffer* buffer, float dx, float dy)
 {

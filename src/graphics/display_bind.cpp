@@ -337,7 +337,8 @@ int mlua_draw_point_tex(lua_State* L)
 	Buffer* buffer = engine.display.get_current_buffer();
 	if (buffer->is_user_buffer()) {
 		BufferType type = buffer->get_type();
-		if (type != UNDEFINED && (type != POINT_BUFFER || !buffer->has_texture()))
+		if (engine.display.is_debug() && (type == UNDEFINED || type == LINE_BUFFER)) {
+		} else if (type != UNDEFINED && (type != POINT_BUFFER || !buffer->has_texture()))
 			return luaL_error(L, "the current buffer cannot contain points");
 		if (buffer->is_full())
 			return luaL_error(L, "the current buffer is full");
@@ -381,7 +382,8 @@ int mlua_draw_triangle(lua_State* L)
 	Buffer* buffer = engine.display.get_current_buffer();
 	if (buffer->is_user_buffer()) {
 		BufferType type = buffer->get_type();
-		if (type != UNDEFINED && (type != TRIANGLE_BUFFER || buffer->has_texture()))
+		if (engine.display.is_debug() && (type == UNDEFINED || type == LINE_BUFFER)) {
+		} else if (type != UNDEFINED && (type != TRIANGLE_BUFFER || buffer->has_texture()))
 			return luaL_error(L, "the current buffer cannot contain triangles");
 		if (buffer->is_full())
 			return luaL_error(L, "the current buffer is full");
@@ -405,7 +407,8 @@ int mlua_draw_surface(lua_State* L)
 	Buffer* buffer = engine.display.get_current_buffer();
 	if (buffer->is_user_buffer()) {
 		BufferType type = buffer->get_type();
-		if (type != UNDEFINED && (type != TRIANGLE_BUFFER || !buffer->has_texture()))
+		if (engine.display.is_debug() && (type == UNDEFINED || type == LINE_BUFFER)) {
+		} else if (type != UNDEFINED && (type != TRIANGLE_BUFFER || !buffer->has_texture()))
 			return luaL_error(L, "the current buffer cannot contain textured triangles");
 		if (buffer->is_full())
 			return luaL_error(L, "the current buffer is full");
@@ -436,7 +439,8 @@ int mlua_draw_quad(lua_State* L)
 	Buffer* buffer = engine.display.get_current_buffer();
 	if (buffer->is_user_buffer()) {
 		BufferType type = buffer->get_type();
-		if (type != UNDEFINED && (type != TRIANGLE_BUFFER || !buffer->has_texture()))
+		if (engine.display.is_debug() && (type == UNDEFINED || type == LINE_BUFFER)) {
+		} else if (type != UNDEFINED && (type != TRIANGLE_BUFFER || !buffer->has_texture()))
 			return luaL_error(L, "the current buffer cannot contain textured triangles");
 		if (buffer->is_full(2))
 			return luaL_error(L, "the current buffer is full");

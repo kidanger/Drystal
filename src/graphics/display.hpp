@@ -243,5 +243,10 @@ public:
 	{
 		return current_buffer;
 	}
+
+	bool is_debug() const
+	{
+		return debug_mode;
+	}
 };
 
