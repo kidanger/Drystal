@@ -39,6 +39,7 @@ DECLARE_PUSHPOP(MouseJoint, mouse_joint)
 DECLARE_POP(Shape, shape)
 
 static b2World* world;
+static float time_accumulator = 0.;
 
 int mlua_create_world(lua_State* L)
 {
@@ -58,11 +59,16 @@ int mlua_update_physic(lua_State* L)
 	}
 
 	lua_Number dt = luaL_checknumber(L, 1);
+	lua_Number timestep = luaL_optnumber(L, 2, 1./60);
 
 	int velocityIterations = 8;
 	int positionIterations = 3;
 
-	world->Step(dt, velocityIterations, positionIterations);
+	time_accumulator += dt;
+	while (time_accumulator >= timestep) {
+		world->Step(timestep, velocityIterations, positionIterations);
+		time_accumulator -= timestep;
+	}
 	return 0;
 }
 

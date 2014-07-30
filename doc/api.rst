@@ -563,7 +563,7 @@ Particle System
    .. lua:method:: stop()
 
    .. lua:method:: draw([x=0: float[, y=0: float]))
-   .. lua:method:: update(dt: float)
+   .. lua:method:: update(dt: float[, timestep=0.01])
 
    .. lua:method:: is_running() -> boolean
    .. lua:method:: set_running(run: boolean)
