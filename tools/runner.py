@@ -5,7 +5,6 @@
 
 import os
 import sys
-import time
 import shutil
 import signal
 import fnmatch
@@ -54,6 +53,10 @@ DRYSTAL_ADD_ARGUMENTS = '''
 Module[\'arguments\'] = ARGS;
 </script>
 '''
+
+def signal_handler(signum, frame):
+    print(I + 'Signal ' + str(signum) + ' caught, quitting...')
+    exit(0)
 
 
 def parent(directory):
@@ -428,6 +431,10 @@ parser_repack.add_argument('-i', '--show-include', help='show files that are (no
                         action='store_true', default=False)
 parser_repack.add_argument('-d', '--destination', help='folder where web files will be put',
                         default='web')
+
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGQUIT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
