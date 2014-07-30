@@ -30,11 +30,10 @@ class Engine
 {
 private:
 	bool server_mode;
-	float target_ms_per_frame;
+	unsigned long target_ms_per_frame;
 	bool run;
 	bool loaded;
 	long unsigned last_update;
-	float accumulator;
 
 	bool update_activated;
 	bool draw_activated;

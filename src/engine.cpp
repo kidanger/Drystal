@@ -55,11 +55,10 @@ static Engine *engine;
 
 Engine::Engine(const char* filename, unsigned int target_fps, bool server_mode) :
 	server_mode(server_mode),
-	target_ms_per_frame(1000. / target_fps),
+	target_ms_per_frame(1000 / target_fps),
 	run(true),
 	loaded(false),
 	last_update(get_now()),
-	accumulator(0),
 	update_activated(true),
 	draw_activated(true),
 	stats_activated(false),
@@ -174,13 +173,8 @@ void Engine::update()
 	AT(audio)
 #endif
 
-	accumulator += dt;
-	float sec_per_frame = target_ms_per_frame / 1000;
-	while (accumulator >= sec_per_frame) {
-		if (update_activated)
-			lua.call_update(sec_per_frame);
-		accumulator -= sec_per_frame;
-	}
+	if (update_activated)
+		lua.call_update(dt);
 	AT(game);
 
 	if (!server_mode) {
