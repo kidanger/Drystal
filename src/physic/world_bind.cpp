@@ -44,6 +44,9 @@ static float time_accumulator = 0.;
 int mlua_create_world(lua_State* L)
 {
 	assert(L);
+	if (world != NULL) {
+		return luaL_error(L, "world is already created");
+	}
 
 	lua_Number gravity_x = luaL_checknumber(L, 1);
 	lua_Number gravity_y = luaL_checknumber(L, 2);
