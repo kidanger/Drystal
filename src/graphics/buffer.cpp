@@ -21,6 +21,7 @@
 #include "log.hpp"
 #include "stats.hpp"
 #include "display.hpp"
+#include "shader.hpp"
 
 
 Buffer::Buffer(bool user_buffer, unsigned int size) :

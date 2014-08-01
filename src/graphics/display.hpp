@@ -29,11 +29,7 @@ struct SDL_Surface;
 struct SDL_Window;
 
 #include "buffer.hpp"
-
-const GLuint ATTR_POSITION_INDEX = 0; // WebGL wants 0 as an attribute, so here it is
-const GLuint ATTR_COLOR_INDEX = 1;
-const GLuint ATTR_TEXCOORD_INDEX = 2;
-const GLuint ATTR_POINTSIZE_INDEX = 3;
+#include "shader.hpp"
 
 enum BlendMode {
 	DEFAULT = 0,
@@ -60,28 +56,6 @@ struct Surface {
 	bool has_fbo;
 	bool has_mipmap;
 	bool npot;
-	int ref;
-};
-
-
-enum VarLocationIndex {
-	COLOR,
-	TEX,
-};
-struct Shader {
-	GLuint prog_color;
-	GLuint prog_tex;
-	GLuint vert;
-	GLuint frag_color;
-	GLuint frag_tex;
-
-	struct {
-		GLuint dxLocation;
-		GLuint dyLocation;
-		GLuint zoomLocation;
-		GLuint rotationMatrixLocation;
-		GLuint destinationSizeLocation;
-	} vars[2];
 	int ref;
 };
 
@@ -226,7 +200,6 @@ public:
 
 	Shader* new_shader(const char* strvert, const char* strfragcolor, const char* strfragtex, char** error);
 	void use_shader(Shader*);
-	void feed_shader(Shader*, const char*, float);
 	void free_shader(Shader*);
 
 	Buffer* new_buffer(unsigned int size = BUFFER_DEFAULT_SIZE);

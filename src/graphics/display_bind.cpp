@@ -514,11 +514,10 @@ int mlua_feed_shader(lua_State* L)
 {
 	assert(L);
 
-	Engine &engine = get_engine();
 	Shader* shader = pop_shader(L, 1);
 	const char* name = lua_tostring(L, 2);
 	lua_Number value = luaL_checknumber(L, 3);
-	engine.display.feed_shader(shader, name, value);
+	shader->feed(name, value);
 	return 0;
 }
 
