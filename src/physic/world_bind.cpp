@@ -55,6 +55,34 @@ int mlua_create_world(lua_State* L)
 	return 0;
 }
 
+int mlua_set_gravity(lua_State* L)
+{
+	assert(L);
+
+	if (!world) {
+		return luaL_error(L, "world must be created before calling set_gravity");
+	}
+
+	lua_Number gravity_x = luaL_checknumber(L, 1);
+	lua_Number gravity_y = luaL_checknumber(L, 2);
+	world->SetGravity(b2Vec2(gravity_x, gravity_y));
+	return 0;
+}
+
+int mlua_get_gravity(lua_State* L)
+{
+	assert(L);
+
+	if (!world) {
+		return luaL_error(L, "world must be created before calling get_gravity");
+	}
+
+	b2Vec2 gravity = world->GetGravity();
+	lua_pushnumber(L, gravity.x);
+	lua_pushnumber(L, gravity.y);
+	return 2;
+}
+
 int mlua_update_physic(lua_State* L)
 {
 	assert(L);

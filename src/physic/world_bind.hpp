@@ -19,6 +19,8 @@
 struct lua_State;
 
 int mlua_create_world(lua_State* L);
+int mlua_set_gravity(lua_State* L);
+int mlua_get_gravity(lua_State* L);
 int mlua_update_physic(lua_State* L);
 int mlua_on_collision(lua_State* L);
 int mlua_raycast(lua_State* L);

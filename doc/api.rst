@@ -622,6 +622,9 @@ Learning how to use Box2D_ will help to hunder Drystal's physic module.
 
    Updates the world.
 
+.. lua:function:: get_gravity() -> float, float
+.. lua:function:: set_gravity(x, y)
+
 .. lua:function:: on_collision(todo)
 .. lua:function:: raycast(todo)
 

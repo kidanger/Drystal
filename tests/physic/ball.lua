@@ -73,6 +73,14 @@ function drystal.init()
 	drystal.resize(600, 400)
 
 	drystal.create_world(0, 0.98)
+	local gx, gy = drystal.get_gravity()
+	assert(gx == 0)
+	assert(gy == 0.98)
+	drystal.set_gravity(128, 56)
+	gx, gy = drystal.get_gravity()
+	assert(gx == 128)
+	assert(gy == 56)
+	drystal.set_gravity(0, 0.98)
 
 	-- create ground
 	ground = create_box(5, .2, {friction=5}, false)

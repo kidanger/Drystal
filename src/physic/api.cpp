@@ -24,6 +24,9 @@
 BEGIN_MODULE(physic)
 	DECLARE_FUNCTION(create_world)
 
+	DECLARE_FUNCTION(set_gravity)
+	DECLARE_FUNCTION(get_gravity)
+
 	DECLARE_FUNCTION(new_shape)
 	DECLARE_FUNCTION(new_body)
 	DECLARE_FUNCTION(new_joint)
