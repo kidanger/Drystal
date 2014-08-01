@@ -408,10 +408,8 @@ void Display::reset_camera()
 {
 	current_buffer->check_empty();
 
-	camera.dx = camera.dy = 0;
-	camera.angle = 0;
-	camera.zoom = 1;
-	update_camera_matrix();
+	camera.reset();
+	camera.update_matrix(current->w, current->h);
 }
 
 void Display::set_camera_position(float dx, float dy)
@@ -421,7 +419,7 @@ void Display::set_camera_position(float dx, float dy)
 	camera.dx = dx;
 	camera.dy = dy;
 
-	update_camera_matrix();
+	camera.update_matrix(current->w, current->h);
 }
 
 void Display::set_camera_angle(float angle)
@@ -429,8 +427,7 @@ void Display::set_camera_angle(float angle)
 	current_buffer->check_empty();
 
 	camera.angle = angle;
-
-	update_camera_matrix();
+	camera.update_matrix(current->w, current->h);
 }
 
 void Display::set_camera_zoom(float zoom)
@@ -438,19 +435,6 @@ void Display::set_camera_zoom(float zoom)
 	current_buffer->check_empty();
 
 	camera.zoom = zoom;
-}
-
-void Display::update_camera_matrix()
-{
-	assert(current);
-
-	float angle = camera.angle;
-
-	float ratio = (float) current->w / current->h;
-	camera.matrix[0] = cos(angle);
-	camera.matrix[1] = sin(angle) * ratio;
-	camera.matrix[2] = -sin(angle) / ratio;
-	camera.matrix[3] = cos(angle);
 }
 
 void Display::draw_from(Surface* surf)
@@ -485,7 +469,7 @@ void Display::draw_on(Surface* surf)
 		int w = surf->w;
 		int h = surf->h;
 		glViewport(0, 0, w, h);
-		update_camera_matrix();
+		camera.update_matrix(w, h);
 		current_buffer->draw_on = current;
 		default_buffer.draw_on = current;
 	}

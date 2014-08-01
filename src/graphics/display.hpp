@@ -30,6 +30,7 @@ struct SDL_Window;
 
 #include "buffer.hpp"
 #include "shader.hpp"
+#include "camera.hpp"
 
 enum BlendMode {
 	DEFAULT = 0,
@@ -57,24 +58,6 @@ struct Surface {
 	bool has_mipmap;
 	bool npot;
 	int ref;
-};
-
-struct Camera {
-	float dx;
-	float dy;
-	float zoom;
-	float angle;
-	float matrix[4];
-
-	Camera() :
-		dx(0), dy(0),
-		zoom(1), angle(0)
-	{
-		matrix[0] = 0;
-		matrix[1] = 0;
-		matrix[2] = 0;
-		matrix[3] = 0;
-	}
 };
 
 class Display
@@ -117,7 +100,6 @@ private:
 	}
 
 	void create_window(int w, int h);
-	void update_camera_matrix();
 	void create_fbo(Surface*) const;
 	Shader* create_default_shader();
 
