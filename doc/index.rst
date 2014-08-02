@@ -6,6 +6,7 @@ Welcome to Drystal's User Guide!
     :maxdepth: 2
 
     api.rst
+    resources.rst
 
 ..    gettingstarted.rst
 ..    tutorial.rst
