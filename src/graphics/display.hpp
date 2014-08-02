@@ -99,7 +99,7 @@ private:
 		*dy = y / current_from->texh;
 	}
 
-	void create_window(int w, int h);
+	int create_window(int w, int h);
 	void create_fbo(Surface*) const;
 	Shader* create_default_shader();
 

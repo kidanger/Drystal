@@ -25,6 +25,7 @@
 #define GL_VERTEX_PROGRAM_POINT_SIZE 0x8642
 
 #include <cassert>
+#include <cerrno>
 #include <cstring>
 #include <cmath>
 
@@ -94,18 +95,23 @@ Display::Display(bool server_mode) :
 	available(false),
 	debug_mode(false)
 {
+	int r;
 	if (server_mode) { // fix those hacks!
 		available = true;
 		return;
 	}
-	int err = SDL_InitSubSystem(SDL_INIT_VIDEO);
-	if (err) {
+	r = SDL_InitSubSystem(SDL_INIT_VIDEO);
+	if (r != 0) {
 		log_error("Cannot initialize SDL video subsystem");
 		return;
 	}
 	// create the window in the constructor
 	// so we have an opengl context ready for the user
-	create_window(2, 2);
+	r = create_window(2, 2);
+	if (r < 0) {
+		log_error("Cannot create window");
+		return;
+	}
 
 	default_buffer.use_camera(&camera);
 
@@ -190,7 +196,7 @@ void Display::resize(int w, int h)
 	draw_on(screen);
 }
 
-void Display::create_window(int w, int h)
+int Display::create_window(int w, int h)
 {
 	w = w > 0 ? w : 1;
 	h = h > 0 ? h : 1;
@@ -199,8 +205,10 @@ void Display::create_window(int w, int h)
 	sdl_window = SDL_CreateWindow("Drystal",
 	                              SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 	                              w, h, SDL_WINDOW_OPENGL);
+	if (!sdl_window) {
+		return -1;
+	}
 	SDL_GL_CreateContext(sdl_window);
-	assert(sdl_window);
 #else
 	original_width = w;
 	original_height = h;
@@ -211,7 +219,9 @@ void Display::create_window(int w, int h)
 	SDL_GetWindowSize(sdl_window, &w, &h);
 
 	screen = new_surface(w, h, true);
-	assert(screen);
+	if (!screen) {
+		return -ENOMEM;
+	}
 	draw_on(screen);
 
 	default_shader = create_default_shader();
@@ -227,6 +237,8 @@ void Display::create_window(int w, int h)
 #ifndef EMSCRIPTEN
 	glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 #endif
+
+	return 0;
 }
 
 void Display::screen2scene(float x, float y, float * tx, float * ty) const
@@ -497,6 +509,9 @@ Surface * Display::create_surface(int w, int h, int texw, int texh, unsigned cha
 	GLDEBUG();
 
 	Surface* surface = new Surface;
+	if (!surface) {
+		return NULL;
+	}
 	surface->tex = tex;
 	surface->w = w;
 	surface->h = h;
@@ -554,6 +569,9 @@ Surface * Display::load_surface(const char * filename) const
 
 	if (potw != w || poth != h) {
 		unsigned char *pixels = new unsigned char[potw * poth * RGBA_SIZE];
+		if (!pixels) {
+			return NULL;
+		}
 		memset(pixels, 0, potw * poth * RGBA_SIZE);
 		for (int y = 0; y < h; y++) {
 			for (int x = 0; x < w; x++) {
@@ -585,9 +603,15 @@ Surface * Display::new_surface(int w, int h, bool force_npot) const
 	}
 
 	unsigned char *pixels = new unsigned char[potw * poth * RGBA_SIZE];
+	if (!pixels) {
+		return NULL;
+	}
 	memset(pixels, 0, potw * poth * RGBA_SIZE);
 
 	Surface *surface = create_surface(w, h, potw, poth, pixels);
+	if (!surface) {
+		return NULL;
+	}
 	if (force_npot) {
 		surface->npot = true;
 	}
