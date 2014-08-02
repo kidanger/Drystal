@@ -39,6 +39,30 @@ DECLARE_PUSHPOP(MouseJoint, mouse_joint)
 DECLARE_PUSHPOP(PrismaticJoint, prismatic_joint)
 DECLARE_POP(Shape, shape)
 
+class CustomListener : public b2ContactListener
+{
+private:
+	CustomListener(const CustomListener&);
+	CustomListener& operator=(const CustomListener&);
+
+	lua_State* L;
+	int begin_contact;
+	int end_contact;
+	int presolve;
+	int postsolve;
+
+	void pushBodies(b2Contact* contact);
+
+public:
+	CustomListener(lua_State *L, int begin_contact, int end_contact, int presolve, int postsolve);
+	~CustomListener();
+
+	virtual void BeginContact(b2Contact* contact);
+	virtual void EndContact(b2Contact* contact);
+	virtual void PreSolve(b2Contact* contact, const b2Manifold*);
+	virtual void PostSolve(b2Contact* contact, const b2ContactImpulse*);
+};
+
 static b2World* world;
 static float time_accumulator = 0.;
 
@@ -46,7 +70,24 @@ int mlua_create_world(lua_State* L)
 {
 	assert(L);
 
-	assert_lua_error(L, !world, "world is already created");
+	if (world) {
+		b2Body* bodyNode = world->GetBodyList();
+		while (bodyNode) {
+			Body* body = (Body*) bodyNode->GetUserData();
+			delete body;
+			bodyNode = bodyNode->GetNext();
+		}
+		b2Joint* jointNode = world->GetJointList();
+		while (jointNode) {
+			Joint* joint = (Joint*) jointNode->GetUserData();
+			delete joint;
+			jointNode = jointNode->GetNext();
+		}
+		CustomListener* listener = (CustomListener*) world->GetContactManager().m_contactListener;
+		delete listener;
+
+		delete world;
+	}
 
 	lua_Number gravity_x = luaL_checknumber(L, 1);
 	lua_Number gravity_y = luaL_checknumber(L, 2);
@@ -98,103 +139,92 @@ int mlua_update_physic(lua_State* L)
 	return 0;
 }
 
-class CustomListener : public b2ContactListener
+CustomListener::CustomListener(lua_State *L, int begin_contact, int end_contact, int presolve, int postsolve) :
+	L(L),
+	begin_contact(begin_contact),
+	end_contact(end_contact),
+	presolve(presolve),
+	postsolve(postsolve)
 {
-private:
-	CustomListener(const CustomListener&);
-	CustomListener& operator=(const CustomListener&);
+}
 
-	lua_State* L;
-	int begin_contact;
-	int end_contact;
-	int presolve;
-	int postsolve;
+CustomListener::~CustomListener()
+{
+	luaL_unref(L, LUA_REGISTRYINDEX, begin_contact);
+	luaL_unref(L, LUA_REGISTRYINDEX, end_contact);
+	luaL_unref(L, LUA_REGISTRYINDEX, presolve);
+	luaL_unref(L, LUA_REGISTRYINDEX, postsolve);
+}
 
-public:
-	CustomListener(lua_State *L, int begin_contact, int end_contact, int presolve, int postsolve)
-		: L(L),
-		  begin_contact(begin_contact),
-		  end_contact(end_contact),
-		  presolve(presolve),
-		  postsolve(postsolve)
-	{}
+void CustomListener::pushBodies(b2Contact* contact)
+{
+	b2Body* bA = contact->GetFixtureA()->GetBody();
+	b2Body* bB = contact->GetFixtureB()->GetBody();
 
-	~CustomListener()
-	{
-		luaL_unref(L, LUA_REGISTRYINDEX, begin_contact);
-		luaL_unref(L, LUA_REGISTRYINDEX, end_contact);
-		luaL_unref(L, LUA_REGISTRYINDEX, presolve);
-		luaL_unref(L, LUA_REGISTRYINDEX, postsolve);
-	}
+	push_body(L, (Body*) bA->GetUserData());
+	push_body(L, (Body*) bB->GetUserData());
+}
 
-	void pushBodies(b2Contact* contact)
-	{
-		b2Body* bA = contact->GetFixtureA()->GetBody();
-		b2Body* bB = contact->GetFixtureB()->GetBody();
+void CustomListener::BeginContact(b2Contact* contact)
+{
+	if (begin_contact == LUA_REFNIL)
+		return;
+	b2WorldManifold manifold;
+	contact->GetWorldManifold(&manifold);
 
-		push_body(L, (Body*) bA->GetUserData());
-		push_body(L, (Body*) bB->GetUserData());
-	}
+	lua_rawgeti(L, LUA_REGISTRYINDEX, begin_contact);
 
-	virtual void BeginContact(b2Contact* contact)
-	{
-		if (begin_contact == LUA_REFNIL)
-			return;
-		b2WorldManifold manifold;
-		contact->GetWorldManifold(&manifold);
+	pushBodies(contact);
 
-		lua_rawgeti(L, LUA_REGISTRYINDEX, begin_contact);
+	lua_pushnumber(L, manifold.points[0].x);
+	lua_pushnumber(L, manifold.points[0].y);
+	lua_pushnumber(L, manifold.normal.x);
+	lua_pushnumber(L, manifold.normal.y);
 
-		pushBodies(contact);
+	CALL(6, 0);
+}
 
-		lua_pushnumber(L, manifold.points[0].x);
-		lua_pushnumber(L, manifold.points[0].y);
-		lua_pushnumber(L, manifold.normal.x);
-		lua_pushnumber(L, manifold.normal.y);
+void CustomListener::EndContact(b2Contact* contact)
+{
+	if (end_contact == LUA_REFNIL)
+		return;
 
-		CALL(6, 0);
-	}
-	virtual void EndContact(b2Contact* contact)
-	{
-		if (end_contact == LUA_REFNIL)
-			return;
+	lua_rawgeti(L, LUA_REGISTRYINDEX, end_contact);
+	pushBodies(contact);
 
-		lua_rawgeti(L, LUA_REGISTRYINDEX, end_contact);
-		pushBodies(contact);
+	CALL(2, 0);
+}
 
-		CALL(2, 0);
-	}
+void CustomListener::PreSolve(b2Contact* contact, const b2Manifold*)
+{
+	if (presolve == LUA_REFNIL)
+		return;
+	b2WorldManifold manifold;
+	contact->GetWorldManifold(&manifold);
 
-	virtual void PreSolve(b2Contact* contact, const b2Manifold*)
-	{
-		if (presolve == LUA_REFNIL)
-			return;
-		b2WorldManifold manifold;
-		contact->GetWorldManifold(&manifold);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, presolve);
+	pushBodies(contact);
 
-		lua_rawgeti(L, LUA_REGISTRYINDEX, presolve);
-		pushBodies(contact);
+	lua_pushnumber(L, manifold.points[0].x);
+	lua_pushnumber(L, manifold.points[0].y);
+	lua_pushnumber(L, manifold.normal.x);
+	lua_pushnumber(L, manifold.normal.y);
 
-		lua_pushnumber(L, manifold.points[0].x);
-		lua_pushnumber(L, manifold.points[0].y);
-		lua_pushnumber(L, manifold.normal.x);
-		lua_pushnumber(L, manifold.normal.y);
+	CALL(6, 1);
+	bool enabled = lua_toboolean(L, -1);
+	contact->SetEnabled(enabled);
+}
 
-		CALL(6, 1);
-		bool enabled = lua_toboolean(L, -1);
-		contact->SetEnabled(enabled);
-	}
-	virtual void PostSolve(b2Contact* contact, const b2ContactImpulse*)
-	{
-		if (postsolve == LUA_REFNIL)
-			return;
+void CustomListener::PostSolve(b2Contact* contact, const b2ContactImpulse*)
+{
+	if (postsolve == LUA_REFNIL)
+		return;
 
-		lua_rawgeti(L, LUA_REGISTRYINDEX, postsolve);
-		pushBodies(contact);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, postsolve);
+	pushBodies(contact);
 
-		CALL(2, 0);
-	}
-};
+	CALL(2, 0);
+}
 
 int mlua_on_collision(lua_State* L)
 {
@@ -475,6 +505,7 @@ int mlua_new_joint(lua_State* L)
 
 	Joint* joint = new Joint;
 	joint->joint = world->CreateJoint(joint_def);
+	joint->joint->SetUserData(joint);
 	joint->ref = 0;
 
 	if (!strcmp(type, "mouse")) {
