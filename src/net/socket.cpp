@@ -57,6 +57,7 @@ Socket* Socket::connect(const char* hostname, int port)
 	struct hostent *server;
 
 	assert(hostname);
+	assert(port >= 0 && port < 65536);
 
 	int fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (fd == -1) {

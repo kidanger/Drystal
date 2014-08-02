@@ -45,9 +45,8 @@ static float time_accumulator = 0.;
 int mlua_create_world(lua_State* L)
 {
 	assert(L);
-	if (world != NULL) {
-		return luaL_error(L, "world is already created");
-	}
+
+	assert_lua_error(L, !world, "world is already created");
 
 	lua_Number gravity_x = luaL_checknumber(L, 1);
 	lua_Number gravity_y = luaL_checknumber(L, 2);
@@ -59,9 +58,7 @@ int mlua_set_gravity(lua_State* L)
 {
 	assert(L);
 
-	if (!world) {
-		return luaL_error(L, "world must be created before calling set_gravity");
-	}
+	assert_lua_error(L, world, "world must be created before calling set_gravity");
 
 	lua_Number gravity_x = luaL_checknumber(L, 1);
 	lua_Number gravity_y = luaL_checknumber(L, 2);
@@ -73,9 +70,7 @@ int mlua_get_gravity(lua_State* L)
 {
 	assert(L);
 
-	if (!world) {
-		return luaL_error(L, "world must be created before calling get_gravity");
-	}
+	assert_lua_error(L, world, "world must be created before calling get_gravity");
 
 	b2Vec2 gravity = world->GetGravity();
 	lua_pushnumber(L, gravity.x);
@@ -86,9 +81,8 @@ int mlua_get_gravity(lua_State* L)
 int mlua_update_physic(lua_State* L)
 {
 	assert(L);
-	if (world == NULL) {
-		return luaL_error(L, "world must be created before calling update_physic");
-	}
+
+	assert_lua_error(L, world, "world must be created before calling update_physic");
 
 	lua_Number dt = luaL_checknumber(L, 1);
 	lua_Number timestep = luaL_optnumber(L, 2, 1./60);
@@ -205,9 +199,8 @@ public:
 int mlua_on_collision(lua_State* L)
 {
 	assert(L);
-	if (world == NULL) {
-		return luaL_error(L, "world must be created before calling on_collision");
-	}
+
+	assert_lua_error(L, world, "world must be created before calling on_collision");
 
 	if (lua_gettop(L)) {
 		int begin_contact;
@@ -279,9 +272,8 @@ public:
 int mlua_raycast(lua_State* L)
 {
 	assert(L);
-	if (world == NULL) {
-		return luaL_error(L, "world must be created before calling raycast");
-	}
+
+	assert_lua_error(L, world, "world must be created before calling raycast");
 
 	lua_Number x1 = luaL_checknumber(L, 1);
 	lua_Number y1 = luaL_checknumber(L, 2);
@@ -338,9 +330,8 @@ public:
 int mlua_query(lua_State* L)
 {
 	assert(L);
-	if (world == NULL) {
-		return luaL_error(L, "world must be created before calling query");
-	}
+
+	assert_lua_error(L, world, "world must be created before calling query");
 
 	lua_Number x1 = luaL_checknumber(L, 1);
 	lua_Number y1 = luaL_checknumber(L, 2);
@@ -362,9 +353,8 @@ int mlua_query(lua_State* L)
 int mlua_new_body(lua_State* L)
 {
 	assert(L);
-	if (world == NULL) {
-		return luaL_error(L, "world must be created before calling new_body");
-	}
+
+	assert_lua_error(L, world, "world must be created before calling new_body");
 
 	int index = 1;
 	bool dynamic = lua_toboolean(L, index++);
@@ -407,9 +397,8 @@ int mlua_new_body(lua_State* L)
 int mlua_destroy_body(lua_State* L)
 {
 	assert(L);
-	if (world == NULL) {
-		return luaL_error(L, "world must be created before calling Body:destroy");
-	}
+
+	assert_lua_error(L, world, "world must be created before calling Body:destroy");
 
 	Body* body = pop_body(L, 1);
 	b2Body* b2body = body->body;
@@ -421,9 +410,8 @@ int mlua_destroy_body(lua_State* L)
 int mlua_new_joint(lua_State* L)
 {
 	assert(L);
-	if (world == NULL) {
-		return luaL_error(L, "world must be created before calling new_joint");
-	}
+
+	assert_lua_error(L, world, "world must be created before calling new_joint");
 
 	b2JointDef* joint_def;
 
@@ -510,9 +498,7 @@ int mlua_new_joint(lua_State* L)
 	int mlua_destroy_##name(lua_State* L) \
 	{ \
 		assert(L); \
-		if (world == NULL) { \
-			return luaL_error(L, "world must be created before calling " #T "::destroy"); \
-		} \
+		assert_lua_error(L, world, "world must be created before calling " #T ":destroy"); \
 		T* joint = pop_##name(L, 1); \
 		world->DestroyJoint(joint->joint); \
 		delete joint; \

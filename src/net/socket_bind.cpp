@@ -34,6 +34,9 @@ int mlua_connect(lua_State* L)
 
 	const char* host = luaL_checkstring(L, 1);
 	int port = luaL_checkint(L, 2);
+
+	assert_lua_error(L, port >= 0 && port < 65536, "connect: the port number must be >= 0 and < 65536");
+
 	Socket* socket = Socket::connect(host, port);
 	if (socket) {
 		lua_newtable(L);

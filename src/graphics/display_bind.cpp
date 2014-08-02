@@ -40,6 +40,11 @@ int mlua_set_color(lua_State* L)
 	int r = luaL_checkint(L, -3);
 	int g = luaL_checkint(L, -2);
 	int b = luaL_checkint(L, -1);
+
+	assert_lua_error(L, r >= 0 && r <= 255, "set_color: the red component must be >= 0 and <= 255");
+	assert_lua_error(L, g >= 0 && g <= 255, "set_color: the green component must be >= 0 and <= 255");
+	assert_lua_error(L, b >= 0 && b <= 255, "set_color: the blue component must be >= 0 and <= 255");
+
 	Engine &engine = get_engine();
 	engine.display.set_color(r, g, b);
 	return 0;
@@ -50,6 +55,9 @@ int mlua_set_alpha(lua_State* L)
 	assert(L);
 
 	int alpha = luaL_checkint(L, 1);
+
+	assert_lua_error(L, alpha >= 0 && alpha <= 255, "set_alpha: the alpha component must be >= 0 and <= 255");
+
 	Engine &engine = get_engine();
 	engine.display.set_alpha(alpha);
 	return 0;
@@ -60,6 +68,9 @@ int mlua_set_point_size(lua_State* L)
 	assert(L);
 
 	lua_Number point_size = luaL_checknumber(L, 1);
+
+	assert_lua_error(L, point_size >= 0, "set_point_size: must be >= 0");
+
 	Engine &engine = get_engine();
 	engine.display.set_point_size(point_size);
 	return 0;
@@ -70,6 +81,9 @@ int mlua_set_line_width(lua_State* L)
 	assert(L);
 
 	lua_Number width = luaL_checknumber(L, 1);
+
+	assert_lua_error(L, width >= 0, "set_line_width: must be >= 0");
+
 	Engine &engine = get_engine();
 	engine.display.set_line_width(width);
 	return 0;

@@ -31,6 +31,9 @@ int mlua_listen(lua_State* L)
 	assert(L);
 
 	int port = luaL_checkint(L, 1);
+
+	assert_lua_error(L, port >= 0 && port < 65536, "listen: the port number must be >= 0 and < 65536");
+
 	server.listen(port);
 	return 0;
 }

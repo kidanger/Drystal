@@ -122,6 +122,9 @@ Music* Music::load(MusicCallback* callback, int samplesrate, int num_channels)
 	assert(callback);
 	if (!initialise_if_needed())
 		return NULL;
+
+	assert(num_channels == 1 || num_channels == 2);
+
 	ALenum format = num_channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
 	Music* music = new Music(callback, format, samplesrate);
 	return music;

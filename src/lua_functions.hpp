@@ -127,3 +127,6 @@ extern int traceback(lua_State *L);
 	}
 #endif
 
+#define assert_lua_error(L, x, msg) \
+	if (!(x)) \
+		luaL_error(L, msg)
