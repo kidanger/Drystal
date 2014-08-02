@@ -15,7 +15,7 @@
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <cstring>
-#include <errno.h>
+#include <cerrno>
 #include <cstdio>
 #ifndef EMSCRIPTEN
 #ifdef BUILD_LIVECODING

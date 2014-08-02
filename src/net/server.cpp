@@ -19,7 +19,7 @@
 #include <cstdio>
 #include <cstring>
 #include <unistd.h>
-#include <errno.h>
+#include <cerrno>
 #include <fcntl.h>
 #include <arpa/inet.h>
 #include <sys/select.h>
