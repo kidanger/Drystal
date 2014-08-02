@@ -400,11 +400,7 @@ void Display::set_filter(Surface* surface, FilterMode filter) const
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter > LINEAR ? LINEAR : filter);
-		//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16.);
 		GLDEBUG();
-		//float maximumAnisotropy;
-		//glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maximumAnisotropy);
-		//DEBUGV("ani: %f", maximumAnisotropy);
 
 		glBindTexture(GL_TEXTURE_2D, current_from ? current_from->tex : 0);
 
