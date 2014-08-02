@@ -81,12 +81,11 @@ int mlua_reset_buffer(lua_State* L)
 {
 	assert(L);
 
-	Engine &engine = get_engine();
 	Buffer* buffer = pop_buffer(L, 1);
 	if (buffer->was_freed()) {
 		return luaL_error(L, "cannot reset() a freed buffer");
 	}
-	engine.display.reset_buffer(buffer);
+	buffer->reset();
 	return 0;
 }
 
@@ -94,12 +93,11 @@ int mlua_upload_and_free_buffer(lua_State* L)
 {
 	assert(L);
 
-	Engine &engine = get_engine();
 	Buffer* buffer = pop_buffer(L, 1);
 	if (buffer->was_freed()) {
 		return luaL_error(L, "cannot upload_and_free() a freed buffer");
 	}
-	engine.display.upload_and_free_buffer(buffer);
+	buffer->upload_and_free();
 	return 0;
 }
 
@@ -108,9 +106,8 @@ int mlua_free_buffer(lua_State* L)
 	assert(L);
 
 	log_debug("");
-	Engine &engine = get_engine();
 	Buffer* buffer = pop_buffer(L, 1);
-	engine.display.free_buffer(buffer);
+	delete buffer;
 	return 0;
 }
 

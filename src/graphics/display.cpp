@@ -913,19 +913,4 @@ void Display::draw_buffer(Buffer* buffer, float dx, float dy)
 	buffer->draw_on = current;
 	buffer->draw(dx, dy);
 }
-void Display::reset_buffer(Buffer* buffer)
-{
-	assert(buffer);
-	buffer->reset();
-}
-void Display::upload_and_free_buffer(Buffer* buffer)
-{
-	assert(buffer);
-	buffer->upload_and_free();
-}
-void Display::free_buffer(Buffer* buffer)
-{
-	assert(buffer);
-	delete buffer;
-}
 

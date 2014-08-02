@@ -187,9 +187,6 @@ public:
 	Buffer* new_buffer(unsigned int size = BUFFER_DEFAULT_SIZE);
 	void use_buffer(Buffer*);
 	void draw_buffer(Buffer*, float dx, float dy);
-	void reset_buffer(Buffer*);
-	void upload_and_free_buffer(Buffer*);
-	void free_buffer(Buffer*);
 
 	void flip();
 	bool is_available() const;
