@@ -38,11 +38,9 @@ int mlua_new_buffer(lua_State* L)
 	} else {
 		buffer = engine.display.new_buffer(); // let Display choose a size
 	}
-	if (buffer) {
-		push_buffer(L, buffer);
-		return 1;
-	}
-	return 0; // returns nil
+	assert(buffer);
+	push_buffer(L, buffer);
+	return 1;
 }
 
 int mlua_use_buffer(lua_State* L)
