@@ -82,8 +82,8 @@ end
 function drystal.draw_circle(cx, cy, r)
 	-- http://slabode.exofire.net/circle_draw.shtml
 
-	local num_segments = math.floor(10*math.sqrt(r))
-	local theta = 2 * 3.1415926 / num_segments
+	local num_segments = math.max(10, math.floor(10*math.sqrt(r)))
+	local theta = 2 * math.pi / num_segments
 	local c = math.cos(theta) -- precalculate the sine and cosine
 	local s = math.sin(theta)
 	local t
