@@ -139,6 +139,9 @@ void Buffer::check_not_use_texture()
 void Buffer::push_vertex(GLfloat x, GLfloat y)
 {
 	size_t cur = current_position * 2;
+
+	assert(cur < size * 2);
+
 	positions[cur + 0] = x;
 	positions[cur + 1] = y;
 	current_position += 1;
@@ -147,6 +150,9 @@ void Buffer::push_vertex(GLfloat x, GLfloat y)
 void Buffer::push_color(GLfloat r, GLfloat g, GLfloat b, GLfloat a)
 {
 	size_t cur = current_color * 4;
+
+	assert(cur < size * 4);
+
 	colors[cur + 0] = r;
 	colors[cur + 1] = g;
 	colors[cur + 2] = b;
@@ -157,6 +163,9 @@ void Buffer::push_color(GLfloat r, GLfloat g, GLfloat b, GLfloat a)
 void Buffer::push_tex_coord(GLfloat x, GLfloat y)
 {
 	size_t cur = current_tex_coord * 2;
+
+	assert(cur < size * 2);
+
 	tex_coords[cur + 0] = x;
 	tex_coords[cur + 1] = y;
 	current_tex_coord += 1;
@@ -165,6 +174,9 @@ void Buffer::push_tex_coord(GLfloat x, GLfloat y)
 void Buffer::push_point_size(GLfloat s)
 {
 	size_t cur = current_point_size;
+
+	assert(cur < size);
+
 	point_sizes[cur] = s;
 	current_point_size += 1;
 	uploaded = false;
@@ -205,6 +217,8 @@ void Buffer::draw(float dx, float dy)
 	assert(!_has_texture || current_color == current_tex_coord);
 	assert(type != POINT_BUFFER || current_color == current_point_size);
 	assert(type != UNDEFINED);
+	assert(shader);
+	assert(camera);
 
 	GLint prog;
 	VarLocationIndex locationIndex;
