@@ -783,6 +783,14 @@ Web
 Utils
 -----
 
+.. lua:function:: tojson(table) -> string
+
+   Serializes a Lua table into JSON_ formatted string.
+
+.. lua:function:: fromjson(json: string) -> table
+
+   Converts a JSON_ formatted string back into a Lua table.
+
 .. lua:function:: file_exists(filename: str) -> boolean
 
    Returns ``true`` if the file exists.
@@ -790,3 +798,4 @@ Utils
 .. _Ogg: https://en.wikipedia.org/wiki/Ogg
 .. _WAV: https://en.wikipedia.org/wiki/WAV
 .. _Box2D: http://box2d.org/
+.. _JSON: http://json.org/
