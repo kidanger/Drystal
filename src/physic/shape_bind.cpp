@@ -10,10 +10,10 @@ DISABLE_WARNING_STRICT_ALIASING;
 #include <Box2D/Box2D.h>
 END_DISABLE_WARNINGS;
 
-#include "engine.hpp"
 #include "shape_bind.hpp"
+#include "lua_util.hpp"
 
-DECLARE_PUSHPOP(Shape, shape)
+IMPLEMENT_PUSHPOP(Shape, shape)
 
 int mlua_new_shape(lua_State* L)
 {

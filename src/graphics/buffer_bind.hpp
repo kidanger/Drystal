@@ -16,7 +16,12 @@
  */
 #pragma once
 
+#include "lua_util.hpp"
+
 struct lua_State;
+class Buffer;
+
+DECLARE_PUSHPOP(Buffer, buffer)
 
 int mlua_new_buffer(lua_State* L);
 int mlua_use_buffer(lua_State* L);

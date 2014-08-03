@@ -20,6 +20,7 @@
 
 #include <lua.hpp>
 
+#include "lua_util.hpp"
 #include "engine.hpp"
 #include "log.hpp"
 #include "lua_functions.hpp"
@@ -76,19 +77,6 @@ void LuaFunctions::free()
 {
 	luaL_unref(L, LUA_REGISTRYINDEX, drystal_table_ref);
 	lua_close(L);
-}
-
-int traceback(lua_State *L)
-{
-	// from lua/src/lua.c
-	const char *msg = lua_tostring(L, 1);
-	if (msg)
-		luaL_traceback(L, L, msg, 1);
-	else if (!lua_isnoneornil(L, 1)) {  /* is there an error object? */
-		if (!luaL_callmeta(L, 1, "__tostring"))  /* try its 'tostring' metamethod */
-			lua_pushliteral(L, "(no error message)");
-	}
-	return 1;
 }
 
 /**

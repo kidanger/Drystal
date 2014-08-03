@@ -21,6 +21,7 @@
 
 #include "web.hpp"
 #include "engine.hpp"
+#include "lua_util.hpp"
 
 #ifdef EMSCRIPTEN
 char *run_js(const char* script)

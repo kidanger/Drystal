@@ -20,13 +20,13 @@
 
 #include "engine.hpp"
 #include "display_bind.hpp"
-#include "lua_functions.hpp"
+#include "lua_util.hpp"
 #include "log.hpp"
 
 log_category("graphics");
 
-DECLARE_PUSHPOP(Shader, shader)
-DECLARE_PUSHPOP(Surface, surface)
+IMPLEMENT_PUSHPOP(Shader, shader)
+IMPLEMENT_PUSHPOP(Surface, surface)
 
 int mlua_set_color(lua_State* L)
 {

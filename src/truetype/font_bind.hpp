@@ -16,7 +16,12 @@
  */
 #pragma once
 
+#include "lua_util.hpp"
+
 struct lua_State;
+class Font;
+
+DECLARE_PUSHPOP(Font, font)
 
 int mlua_draw_font(lua_State* L);
 int mlua_draw_plain_font(lua_State* L);

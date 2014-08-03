@@ -2,6 +2,7 @@ include_directories(.)
 set(SOURCES
 	engine.cpp
 	lua_functions.cpp
+	lua_util.cpp
 	main.cpp
 	util.c
 )

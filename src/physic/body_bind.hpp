@@ -16,6 +16,8 @@
  */
 #pragma once
 
+#include "lua_util.hpp"
+
 struct lua_State;
 class b2Body;
 
@@ -23,6 +25,8 @@ struct Body {
 	b2Body* body;
 	int ref;
 };
+
+DECLARE_PUSHPOP(Body, body)
 
 int mlua_set_active_body(lua_State* L);
 int mlua_set_bullet_body(lua_State* L);

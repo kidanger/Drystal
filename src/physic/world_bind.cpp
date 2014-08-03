@@ -25,19 +25,11 @@ DISABLE_WARNING_STRICT_ALIASING;
 #include <Box2D/Box2D.h>
 END_DISABLE_WARNINGS;
 
-#include "lua_functions.hpp"
+#include "lua_util.hpp"
 #include "world_bind.hpp"
 #include "body_bind.hpp"
 #include "joint_bind.hpp"
 #include "shape_bind.hpp"
-
-DECLARE_PUSHPOP(Body, body)
-DECLARE_PUSHPOP(RopeJoint, rope_joint)
-DECLARE_PUSHPOP(DistanceJoint, distance_joint)
-DECLARE_PUSHPOP(RevoluteJoint, revolute_joint)
-DECLARE_PUSHPOP(MouseJoint, mouse_joint)
-DECLARE_PUSHPOP(PrismaticJoint, prismatic_joint)
-DECLARE_POP(Shape, shape)
 
 class CustomListener : public b2ContactListener
 {

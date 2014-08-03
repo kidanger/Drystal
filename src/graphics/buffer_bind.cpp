@@ -24,7 +24,7 @@
 
 log_category("buffer");
 
-DECLARE_PUSHPOP(Buffer, buffer)
+IMPLEMENT_PUSHPOP(Buffer, buffer)
 
 int mlua_new_buffer(lua_State* L)
 {

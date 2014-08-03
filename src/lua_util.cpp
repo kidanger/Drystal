@@ -14,31 +14,23 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
+#include <cassert>
+#include <lua.hpp>
 
 #include "lua_util.hpp"
 
-struct lua_State;
-struct b2FixtureDef;
+int traceback(lua_State *L)
+{
+	assert(L);
 
-struct Shape {
-	b2FixtureDef* fixtureDef;
-	int ref;
-};
-
-DECLARE_PUSHPOP(Shape, shape)
-
-int mlua_new_shape(lua_State* L);
-int mlua_set_sensor_shape(lua_State* L);
-int mlua_gc_shape(lua_State* L);
-
-#define __SHAPE_GET_SET(value) \
-	int mlua_set_##value##_shape(lua_State* L); \
-	int mlua_get_##value##_shape(lua_State* L);
-
-__SHAPE_GET_SET(density)
-__SHAPE_GET_SET(restitution)
-__SHAPE_GET_SET(friction)
-
-#undef __SHAPE_GET_SET
+	// from lua/src/lua.c
+	const char *msg = lua_tostring(L, 1);
+	if (msg)
+		luaL_traceback(L, L, msg, 1);
+	else if (!lua_isnoneornil(L, 1)) {  /* is there an error object? */
+		if (!luaL_callmeta(L, 1, "__tostring"))  /* try its 'tostring' metamethod */
+			lua_pushliteral(L, "(no error message)");
+	}
+	return 1;
+}
 

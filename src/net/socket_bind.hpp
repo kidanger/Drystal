@@ -16,7 +16,12 @@
  */
 #pragma once
 
+#include "lua_util.hpp"
+
 struct lua_State;
+class Socket;
+
+DECLARE_PUSHPOP(Socket, socket)
 
 int mlua_connect(lua_State* L);
 int mlua_socket_class_index(lua_State* L);

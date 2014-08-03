@@ -19,14 +19,14 @@
 #include <cstring>
 #include <lua.hpp>
 
-#include "lua_functions.hpp"
+#include "lua_util.hpp"
 #include "socket.hpp"
 #include "socket_bind.hpp"
 #include "log.hpp"
 
 log_category("net");
 
-DECLARE_PUSHPOP(Socket, socket)
+IMPLEMENT_PUSHPOP(Socket, socket)
 
 int mlua_connect(lua_State* L)
 {

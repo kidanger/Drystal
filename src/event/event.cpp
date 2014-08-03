@@ -26,7 +26,7 @@
 
 #include "macro.hpp"
 #include "engine.hpp"
-#include "lua_functions.hpp"
+#include "lua_util.hpp"
 #include "event.hpp"
 #include "log.hpp"
 

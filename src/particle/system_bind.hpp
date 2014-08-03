@@ -16,7 +16,12 @@
  */
 #pragma once
 
+#include "lua_util.hpp"
+
 struct lua_State;
+class System;
+
+DECLARE_PUSHPOP(System, system)
 
 int mlua_new_system(lua_State* L);
 int mlua_set_position_system(lua_State* L);

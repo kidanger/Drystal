@@ -56,7 +56,7 @@ void store(const char *key, const char *value)
 #include <lua.hpp>
 #include <sys/mman.h>
 
-#include "lua_functions.hpp"
+#include "lua_util.hpp"
 #include "macro.hpp"
 
 extern "C"

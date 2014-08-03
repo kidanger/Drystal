@@ -16,7 +16,12 @@
  */
 #pragma once
 
+#include "lua_util.hpp"
+
+class Sound;
 struct lua_State;
+
+DECLARE_PUSHPOP(Sound, sound)
 
 int mlua_load_sound(lua_State *L);
 int mlua_create_sound(lua_State *L);

@@ -16,7 +16,12 @@
  */
 #pragma once
 
+#include "lua_util.hpp"
+
 struct lua_State;
+class Server;
+
+DECLARE_PUSHPOP(Server, server)
 
 int mlua_listen(lua_State* L);
 int mlua_accept(lua_State* L);

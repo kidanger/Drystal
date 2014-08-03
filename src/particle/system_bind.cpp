@@ -20,9 +20,9 @@
 
 #include "system.hpp"
 #include "system_bind.hpp"
-#include "lua_functions.hpp"
+#include "lua_util.hpp"
 
-DECLARE_PUSHPOP(System, system)
+IMPLEMENT_PUSHPOP(System, system)
 
 int mlua_new_system(lua_State* L)
 {

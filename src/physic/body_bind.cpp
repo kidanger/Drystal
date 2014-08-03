@@ -9,10 +9,10 @@ DISABLE_WARNING_STRICT_ALIASING;
 #include <Box2D/Box2D.h>
 END_DISABLE_WARNINGS;
 
-#include "lua_functions.hpp"
+#include "lua_util.hpp"
 #include "body_bind.hpp"
 
-DECLARE_POP(Body, body)
+IMPLEMENT_PUSHPOP(Body, body)
 
 #define BODY_GETSET_VEC2(value, get_expr, set_expr) \
 	int mlua_set_##value##_body(lua_State* L) \

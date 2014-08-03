@@ -18,9 +18,9 @@
 
 #include "font.hpp"
 #include "font_bind.hpp"
-#include "lua_functions.hpp"
+#include "lua_util.hpp"
 
-DECLARE_PUSHPOP(Font, font)
+IMPLEMENT_PUSHPOP(Font, font)
 
 int mlua_draw_font(lua_State* L)
 {

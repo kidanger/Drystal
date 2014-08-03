@@ -17,10 +17,11 @@
 #pragma once
 
 #include <cassert>
-#include <lua.hpp>
 #ifdef BUILD_LIVECODING
 #include <atomic>
 #endif
+
+struct lua_State;
 
 class LuaFunctions
 {
@@ -58,75 +59,3 @@ private:
 	void register_modules();
 };
 
-#define DECLARE_PUSH(T, name) \
-	static void push_ ## name(lua_State *L, T *name) \
-	{ \
-		assert(L); \
-		assert(name); \
-		lua_getfield(L, LUA_REGISTRYINDEX, "objects"); \
-		if (name->ref) { \
-			lua_rawgeti(L, -1, name->ref); \
-		} else { \
-			T **p = static_cast<T **>(lua_newuserdata(L, sizeof(T **))); \
-			assert(p); \
-			*p = name; \
-			\
-			lua_newtable(L); /* storage */ \
-			lua_pushvalue(L, -1); \
-			lua_setfield(L, -2, "__index"); \
-			lua_pushvalue(L, -1); \
-			lua_setfield(L, -2, "__newindex"); \
-			lua_pushvalue(L, -2); /* used to retrieve the userdata in class.__index function */ \
-			lua_setfield(L, -2, "__self"); \
-			\
-			luaL_setmetatable(L, #name); /* setmetatable(storage, class) */ \
-			lua_setmetatable(L, -2); /* setmetatable(userdata, storage) */ \
-			\
-			lua_pushvalue(L, -1); \
-			name->ref = luaL_ref(L, -3); \
-		} \
-		lua_remove(L, lua_gettop(L) - 1); \
-	}
-
-#define DECLARE_POP(T, name) \
-	static T *pop_ ## name(lua_State *L, int index) \
-	{ \
-		assert(L); \
-		if (!lua_istable(L, index)) { \
-			T **p = static_cast<T **>(lua_touserdata(L, index)); \
-			if (p == NULL) luaL_argerror(L, index, #name" expected"); \
-			assert(p); \
-			return *p; \
-		} else { \
-			lua_getfield(L, index, "__self"); \
-			T* p = pop_##name(L, -1); \
-			lua_pop(L, 1); \
-			return p; \
-		} \
-	}
-
-#define DECLARE_PUSHPOP(T, name) \
-	DECLARE_PUSH(T, name) \
-	DECLARE_POP(T, name)
-
-extern int traceback(lua_State *L);
-#ifdef EMSCRIPTEN
-#define CALL(num_args, num_ret) \
-	lua_call(L, num_args, num_ret);
-#else
-#define CALL(num_args, num_ret) \
-	{\
-		/* from lua/src/lua.c */ \
-		int base = lua_gettop(L) - num_args; \
-		lua_pushcfunction(L, traceback); \
-		lua_insert(L, base);  \
-		if (lua_pcall(L, num_args, num_ret, base)) { \
-			luaL_error(L, "%s:%d %s(): %s", __FILE__, __LINE__, __func__, lua_tostring(L, -1)); \
-		} \
-		lua_remove(L, base); \
-	}
-#endif
-
-#define assert_lua_error(L, x, msg) \
-	if (!(x)) \
-		luaL_error(L, msg)

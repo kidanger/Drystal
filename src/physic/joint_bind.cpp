@@ -10,14 +10,14 @@ DISABLE_WARNING_STRICT_ALIASING;
 #include <Box2D/Box2D.h>
 END_DISABLE_WARNINGS;
 
-#include "engine.hpp"
 #include "joint_bind.hpp"
+#include "lua_util.hpp"
 
-DECLARE_POP(RevoluteJoint, revolute_joint)
-DECLARE_POP(MouseJoint, mouse_joint)
-DECLARE_POP(DistanceJoint, distance_joint)
-DECLARE_POP(RopeJoint, rope_joint)
-DECLARE_POP(PrismaticJoint, prismatic_joint)
+IMPLEMENT_PUSHPOP(RopeJoint, rope_joint)
+IMPLEMENT_PUSHPOP(DistanceJoint, distance_joint)
+IMPLEMENT_PUSHPOP(RevoluteJoint, revolute_joint)
+IMPLEMENT_PUSHPOP(MouseJoint, mouse_joint)
+IMPLEMENT_PUSHPOP(PrismaticJoint, prismatic_joint)
 
 inline static b2MouseJoint* luam_tomousejoint(lua_State* L, int index)
 {

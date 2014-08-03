@@ -17,12 +17,12 @@
 #include <cassert>
 #include <lua.hpp>
 
-#include "lua_functions.hpp"
+#include "lua_util.hpp"
 #include "socket.hpp"
 #include "server.hpp"
 #include "server_bind.hpp"
 
-DECLARE_PUSH(Socket, socket)
+IMPLEMENT_PUSHPOP(Socket, socket)
 
 static Server server;
 

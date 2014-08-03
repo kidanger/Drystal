@@ -20,10 +20,11 @@
 #include "log.hpp"
 #include "sound_bind.hpp"
 #include "sound.hpp"
+#include "lua_util.hpp"
 
 log_category("sound");
 
-DECLARE_PUSHPOP(Sound, sound)
+IMPLEMENT_PUSHPOP(Sound, sound)
 
 int mlua_load_sound(lua_State *L)
 {

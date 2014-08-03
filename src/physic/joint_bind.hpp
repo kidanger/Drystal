@@ -16,8 +16,9 @@
  */
 #pragma once
 
-struct lua_State;
+#include "lua_util.hpp"
 
+struct lua_State;
 class b2Joint;
 
 struct Joint {
@@ -30,6 +31,12 @@ typedef Joint MouseJoint;
 typedef Joint DistanceJoint;
 typedef Joint RopeJoint;
 typedef Joint PrismaticJoint;
+
+DECLARE_PUSHPOP(RopeJoint, rope_joint)
+DECLARE_PUSHPOP(DistanceJoint, distance_joint)
+DECLARE_PUSHPOP(RevoluteJoint, revolute_joint)
+DECLARE_PUSHPOP(MouseJoint, mouse_joint)
+DECLARE_PUSHPOP(PrismaticJoint, prismatic_joint)
 
 int mlua_set_target_mouse_joint(lua_State* L);
 

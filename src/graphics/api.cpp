@@ -20,10 +20,7 @@
 #include "engine.hpp"
 #include "display_bind.hpp"
 #include "buffer_bind.hpp"
-#include "lua_functions.hpp"
 #include "api.hpp"
-
-DECLARE_PUSH(Surface, surface)
 
 BEGIN_MODULE(graphics)
 	DECLARE_FUNCTION(show_cursor)

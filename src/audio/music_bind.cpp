@@ -20,10 +20,11 @@
 #include "log.hpp"
 #include "music_bind.hpp"
 #include "music.hpp"
+#include "lua_util.hpp"
 
 log_category("music");
 
-DECLARE_PUSHPOP(Music, music)
+IMPLEMENT_PUSHPOP(Music, music)
 
 class LuaMusicCallback : public MusicCallback
 {

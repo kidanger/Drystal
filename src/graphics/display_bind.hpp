@@ -16,7 +16,14 @@
  */
 #pragma once
 
+#include "lua_util.hpp"
+
 struct lua_State;
+struct Shader;
+struct Surface;
+
+DECLARE_PUSHPOP(Shader, shader)
+DECLARE_PUSHPOP(Surface, surface)
 
 int mlua_set_color(lua_State* L);
 int mlua_set_alpha(lua_State* L);
