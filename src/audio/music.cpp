@@ -172,7 +172,7 @@ Music* Music::load_from_file(const char* filename)
 	if (!initialise_if_needed())
 		return NULL;
 
-	stb_vorbis* stream = stb_vorbis_open_filename((char*) filename, NULL, NULL);
+	stb_vorbis* stream = stb_vorbis_open_filename(filename, NULL, NULL);
 	if (!stream) {
 		return NULL;
 	}
