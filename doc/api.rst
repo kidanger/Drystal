@@ -684,6 +684,7 @@ Particle System
 Creates a new particle system.
 By default, attributs are initialized with random values. Make sure to call appropriate setters to obtain the desired particle effect.
 
+
 Physic
 ------
 
@@ -698,94 +699,272 @@ Learning how to use Box2D_ will help to hunder Drystal's physic module.
    Updates the world.
 
 .. lua:function:: get_gravity() -> float, float
+
+   Returns gravity of the world.
+
 .. lua:function:: set_gravity(x, y)
 
-.. lua:function:: on_collision(todo)
-.. lua:function:: raycast(todo)
+   Sets gravity of the world.
+
+.. lua:function:: on_collision(on_begin, on_end, on_presolve, on_postsolve)
+
+   Hooks some callbacks to the collision listener.
+
+   - :lua:`on_begin(body1, body2, x, y, normalx, normaly)`
+   - :lua:`on_end(body1, body2)`
+   - :lua:`on_presolve(body1, body2, x, y, normalx, normaly) -> boolean`
+   - :lua:`on_postsolve(body1, body2)`
+
+.. lua:function:: raycast(x1, y1, x2, y2, callback) -> body, x, y
+
+   :lua:`callback(body, fraction) -> float, boolean`
 
 .. lua:function:: query(x1, y1, x2, y2) -> table
 
    Returns a table with all bodies contains inside the area defined by ``x1``, ``y1``, ``x2`` and ``y1``.
 
-.. lua:function:: new_shape('box', width, height, centerx, centery)
-.. lua:function:: new_shape('circle', radius)
-.. lua:function:: new_shape('chain', x1, y1, x2, y2, ...)
+.. lua:function:: new_shape('box', width, height, x, y) -> Shape
 
-.. lua:function:: new_body(is_dynamic: boolean, [x, y], shape1, shape2, ...)
+   Creates a *box* shape.
+
+.. lua:function:: new_shape('circle', radius, x, y) -> Shape
+
+   Creates a *circle* shape.
+
+.. lua:function:: new_shape('chain', x1, y1, x2, y2, ...) -> Shape
+
+   Creates a *chain* shape. The last point will be linked to the first one.
+
+.. lua:function:: new_body(is_dynamic: boolean, [x, y], shape1, shape2, ...) -> Body
 
    Creates a body at given position (or 0, 0) with given shapes. If ``is_dynamic`` is false, the body will be static.
 
-.. lua:function:: new_joint(todo)
+.. lua:function:: new_joint('mouse', body1, body2, max_force[, collide_connected]) -> MouseJoint
+
+   Creates a mouse joint.
+
+.. lua:function:: new_joint('distance', body1, body2[, collide_connected]) -> DistanceJoint
+
+   Creates a distance joint.
+
+.. lua:function:: new_joint('rope', body1, body2[, collide_connected]) -> RopeJoint
+
+   Creates a rope joint.
+
+.. lua:function:: new_joint('revolute', body1, body2, anchor1x, anchor1y, anchor2x, anchor2y, [, collide_connected]) -> RevoluteJoint
+
+   Creates a revolute joint.
+
+.. lua:function:: new_joint('prismatic', body1, body2, anchor1x, anchor1y, anchor2x, anchor2y, axisx, axisy[, collide_connected]) -> PrismaticJoint
+
+   Creates a prismatic joint.
+
 
 .. lua:class:: Shape
 
    .. lua:method:: set_density(density: float)
+
+      Sets the density of the shape.
+
    .. lua:method:: get_density() -> float
+
+      Returns the density of the shape.
+
    .. lua:method:: set_restitution(restitution float)
+
+      Sets restitution of the shape.
+
    .. lua:method:: get_restitution() -> float
+
+      Returns restitution of the shape.
+
    .. lua:method:: set_friction(friction float)
+
+      Sets friction of the shape.
+
    .. lua:method:: get_friction() -> float
+
+      Returns friction of the shape.
+
    .. lua:method:: set_sensor(sensor: boolean)
+
+      If ``sensor`` is ``true``, the shape will not collides but the ``on_collision`` callbacks will be called.
 
 .. lua:class:: Body
 
    .. lua:method:: set_position(x: float, y: float)
+
+      Sets the position of the body.
+
    .. lua:method:: get_position() -> float, float
+
+      Returns the position of the body.
+
    .. lua:method:: set_angle(angle: float)
+
+      Sets the angle of the body.
+
    .. lua:method:: get_angle() -> float
+
+      Returns the angle of the body.
+
    .. lua:method:: set_linear_velocity(x: float, y: float)
+
+      Sets linear velocity of the body.
+
    .. lua:method:: get_linear_velocity() -> float, float
+
+      Returns linear velocity of the body.
+
    .. lua:method:: set_angular_velocity(x: float, y: float)
+
+      Sets angular velocity of the body.
+
    .. lua:method:: get_angular_velocity() -> float, float
+
+      Returns angular velocity of the body.
+
    .. lua:method:: set_linear_damping(damping: float)
+
+      Sets linear damping of the body.
+
    .. lua:method:: get_linear_damping() -> float
+
+      Returns linear damping of the body.
+
    .. lua:method:: set_angular_damping(damping: float)
+
+      Sets angular damping of the body.
+
    .. lua:method:: get_angular_damping() -> float
+
+      Returns angular damping of the body.
+
    .. lua:method:: set_fixed_rotation(fixed: boolean)
+
+      Fixes rotation of the body.
+
    .. lua:method:: get_fixed_rotation() -> boolean
 
+      Returns ``true`` if the body has fixed rotation.
+
    .. lua:method:: set_active(active: boolean)
+
+      Enables or disables a body.
+
    .. lua:method:: set_bullet(bullet: boolean)
+
+      Marks the body as fast moving object.
+
    .. lua:method:: get_mass() -> float
+
+      Returns the mass of the body.
+
    .. lua:method:: set_mass_center(x, y)
+
+      Sets the mass center.
+
    .. lua:method:: apply_force(x, y)
+
+      Applies force.
+
    .. lua:method:: apply_linear_impulse(x, y)
+
+      Applies linear impulse.
+
    .. lua:method:: apply_angular_impulse(angle)
+
+      Applies angular impulse.
+
    .. lua:method:: apply_torque(torque)
+
+      Applies torque.
+
    .. lua:method:: dump()
+
+      Prints Box2D attributs of the body.
+
    .. lua:method:: destroy()
+
+      Destroys the body.
 
 .. lua:class:: MouseJoint
 
    .. lua:method:: set_target(x, y)
+
+      Sets target position of the joint.
+
    .. lua:method:: destroy()
+
+      Destroys the joint.
 
 .. lua:class:: RopeJoint
 
    .. lua:method:: set_max_length(max_length: float)
+
+      Sets maximum length of the joint
+
    .. lua:method:: destroy()
+
+      Destroys the joint.
 
 .. lua:class:: DistanceJoint
 
    .. lua:method:: set_length(length: float)
+
+      Sets length of the joint
+
    .. lua:method:: set_frequency(frequency: float)
+
+      Sets frequency of the joint.
+
    .. lua:method:: destroy()
+
+      Destroys the joint.
 
 .. lua:class:: RevoluteJoint
 
    .. lua:method:: set_angle_limits(min, max)
+
+      Sets angle limits of the joint. If ``min`` equals ``max``, limits are disabled.
+
    .. lua:method:: set_motor_speed(speed: float[, maxtorque=20: float])
+
+      Set motor speed. If ``speed`` is 0, motor is disabled.
+
    .. lua:method:: destroy()
+
+      Destroys the joint.
 
 .. lua:class:: PrismaticJoint
 
    .. lua:method:: set_motor_speed(speed: float)
+
+      Sets motor speed.
+
    .. lua:method:: set_max_motor_force(force: float)
+
+      Sets maximum motor force.
+
    .. lua:method:: set_enable_motor(enable: boolean)
+
+      Enables or disables motor.
+
    .. lua:method:: set_enable_limit(enable: boolean)
+
+      Enables or disables limit.
+
    .. lua:method:: is_limit_enabled() -> boolean
+
+      Returns ``true`` if the joint has limit.
+
    .. lua:method:: is_motor_enabled() -> boolean
+
+      Returns ``true`` if the motor is enabled.
+
    .. lua:method:: destroy()
+
+      Destroys the joint.
 
 Audio
 -----
