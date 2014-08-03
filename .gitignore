@@ -5,3 +5,5 @@ build-*/
 *.pyc
 *.swp
 /doc/_build/
+/tests/storage/.storage
+/tests/audio/test.ogg
