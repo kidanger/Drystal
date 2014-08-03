@@ -69,7 +69,7 @@ char *fetch(const char *key)
 {
 	long filesize = 0;
 	FILE *file = NULL;
-	const char *data = NULL;
+	char *data = NULL;
 	char *value;
 	lua_State *L;
 
@@ -88,7 +88,7 @@ char *fetch(const char *key)
 	filesize = ftell(file);
 	fseek(file, 0L, SEEK_SET);
 
-	data = (const char*) mmap(0, filesize, PROT_READ, MAP_PRIVATE, fileno(file), 0);
+	data = (char*) mmap(0, filesize, PROT_READ, MAP_PRIVATE, fileno(file), 0);
 	if (data == MAP_FAILED) {
 		goto fail;
 	}
@@ -112,7 +112,7 @@ char *fetch(const char *key)
 
 	assert(lua_gettop(L) == 0);
 
-	munmap((void *) data, filesize);
+	munmap(data, filesize);
 
 	fclose(file);
 	lua_close(L);
@@ -120,7 +120,7 @@ char *fetch(const char *key)
 
 fail:
 	if (data) {
-		munmap((void *) data, filesize);
+		munmap(data, filesize);
 	}
 	if (file) {
 		fclose(file);
@@ -156,7 +156,7 @@ void store(const char *key, const char *value)
 	if (filesize > 0) {
 		// If there is something in the file, we mmap it and decode it to create a table
 		int r;
-		const char *data = (const char *) mmap(0, filesize, PROT_READ, MAP_PRIVATE, fileno(file), 0);
+		char *data = (char *) mmap(0, filesize, PROT_READ, MAP_PRIVATE, fileno(file), 0);
 		if (data == MAP_FAILED) {
 			goto finish;
 		}
@@ -165,7 +165,7 @@ void store(const char *key, const char *value)
 		lua_pushstring(L, data);
 		CALL(1, 1);
 
-		r = munmap((void *) data, filesize);
+		r = munmap(data, filesize);
 		if (r < 0) {
 			lua_pop(L, 1);
 			goto finish;

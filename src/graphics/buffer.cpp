@@ -18,7 +18,6 @@
 #include <cassert>
 
 #include "buffer.hpp"
-#include "log.hpp"
 #include "stats.hpp"
 #include "display.hpp"
 #include "shader.hpp"

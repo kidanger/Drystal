@@ -819,17 +819,17 @@ Shader * Display::new_shader(const char* strvert, const char* strfragcolor, cons
 
 	vert = glCreateShader(GL_VERTEX_SHADER);
 	assert(vert);
-	glShaderSource(vert, 1, (const char**)&new_strvert, NULL);
+	glShaderSource(vert, 1, &new_strvert, NULL);
 	glCompileShader(vert);
 
 	frag_color = glCreateShader(GL_FRAGMENT_SHADER);
 	assert(frag_color);
-	glShaderSource(frag_color, 1, (const char**)&new_strfragcolor, NULL);
+	glShaderSource(frag_color, 1, &new_strfragcolor, NULL);
 	glCompileShader(frag_color);
 
 	frag_tex = glCreateShader(GL_FRAGMENT_SHADER);
 	assert(frag_tex);
-	glShaderSource(frag_tex, 1, (const char**)&new_strfragtex, NULL);
+	glShaderSource(frag_tex, 1, &new_strfragtex, NULL);
 	glCompileShader(frag_tex);
 
 	delete[] new_strvert;
