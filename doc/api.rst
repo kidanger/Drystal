@@ -558,56 +558,131 @@ Particle System
 .. lua:class:: System
 
    .. lua:method:: start()
+
+      Starts emitting over time.
+
    .. lua:method:: pause()
+
+      Pauses emitting over time.
+
    .. lua:method:: emit()
+
+      Emits one particle. This function is useful when the system is paused and you want a fixed number of particle emission at one particular frame.
+
    .. lua:method:: stop()
 
+      Stops emitting over time.
+
    .. lua:method:: draw([x=0: float[, y=0: float]))
-   .. lua:method:: update(dt: float[, timestep=0.01])
+
+      Draws the particles of the system. ``x`` and ``y`` can be used as offset.
+
+   .. lua:method:: update(dt: float)
+
+      Updates the system and emits some particles according to the emission rate.
 
    .. lua:method:: is_running() -> boolean
+
+      Returns ``true`` if the system is started.
+
    .. lua:method:: set_running(run: boolean)
 
+      Starts or stops the system.
+
    .. lua:method:: add_size(at_lifetime, size)
+
+      Adds a size at desired particle's lifetime.
+
    .. lua:method:: add_size(at_lifetime, minsize, maxsize)
+
+      Adds a random size at desired particle's lifetime.
+
    .. lua:method:: add_color(at_lifetime, r, g, b)
+
+      Adds a color at desired particle's lifetime.
+
    .. lua:method:: add_color(at_lifetime, minr, maxr, ming, maxg, minb, maxg)
 
+      Adds a random color at desired particle's lifetime.
+
    .. lua:method:: set_position(x: float, y: float)
+
+      Sets the position of the system.
+
    .. lua:method:: get_position() -> float, float
 
+      Returns the position of the system.
+
    .. lua:method:: set_offset(x: float, y: float)
+
+      Sets the maximum position offset of a particle when emitted.
+
    .. lua:method:: get_offset() -> float, float
 
+      Returns the position offset of a particle when emitted.
+
+   .. lua:method:: set_emission_rate(frequency: float)
+
+      Sets the emission rate of the system (in Hertz).
+
+   .. lua:method:: get_emission_rate() -> float
+
+      Returns the emission rate of the system (in Hertz).
+
    .. lua:method:: set_lifetime(min: float[, max=min: float])
+
+      Sets the lifetime of particles.
+
    .. lua:method:: get_lifetime() -> float, float
+
+      Returns the lifetime of particles.
 ..    .. lua:method:: set_min_lifetime(min: float)
 ..    .. lua:method:: get_min_lifetime() -> float
 ..    .. lua:method:: set_max_lifetime(max: float)
 ..    .. lua:method:: get_max_lifetime() -> float
 
    .. lua:method:: set_direction(min: float[, max=min: float])
+
+      Sets direction of particles (in radian).
+
    .. lua:method:: get_direction() -> float, float
+
+      Returns direction of particles (in radian).
+
 ..    .. lua:method:: set_min_direction(min: float)
 ..    .. lua:method:: get_min_direction() -> float
 ..    .. lua:method:: set_max_direction(max: float)
 ..    .. lua:method:: get_max_direction() -> float
 
    .. lua:method:: set_initial_acceleration(min: float[, max=min: float])
+
+      Sets the initial acceleration of particles.
+
    .. lua:method:: get_initial_acceleration() -> float, float
+
+      Returns the initial acceleration of particles.
+
 ..    .. lua:method:: set_min_initial_acceleration(min: float)
 ..    .. lua:method:: get_min_initial_acceleration() -> float
 ..    .. lua:method:: set_max_initial_acceleration(max: float)
 ..    .. lua:method:: get_max_initial_acceleration() -> float
 
    .. lua:method:: set_initial_velocity(min: float[, max=min: float])
+
+      Sets the initial velocity of particles.
+
    .. lua:method:: get_initial_velocity() -> float, float
+
+      Returns the initial velocity of particles.
 ..    .. lua:method:: set_min_initial_velocity(min: float)
 ..    .. lua:method:: get_min_initial_velocity() -> float
 ..    .. lua:method:: set_max_initial_velocity(max: float)
 ..    .. lua:method:: get_max_initial_velocity() -> float
 
 .. lua:function:: new_system() -> System
+
+Creates a new particle system.
+By default, attributs are initialized with random values. Make sure to call appropriate setters to obtain the desired particle effect.
 
 Physic
 ------
@@ -618,7 +693,7 @@ Learning how to use Box2D_ will help to hunder Drystal's physic module.
 
    .. warning:: If ``create_world`` is not called before other physic functions, errors will occur.
 
-.. lua:function:: update_physic(dt: float)
+.. lua:function:: update_physic(dt: float[, timestep=0.01])
 
    Updates the world.
 
