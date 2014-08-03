@@ -1,5 +1,5 @@
 
-Welcome to Drystal's User Guide!
+Welcome to Drystal's website!
 ================================
 
 .. toctree::
@@ -15,39 +15,34 @@ Welcome to Drystal's User Guide!
 What is Drystal?
 ================
 
-A game engine which allows developpers to program games in Lua.
+Drystal is a Lua 2D game engine.
+It is free and open-source.
 
-Drystal can be run natively (at the moment, only GNU/Linux compilation has been tested) or through a browser.
-Emscripten_ can compile the engine to Javascript. Browsers need WebGL capabilities.
+The engine is compiled to Javascript thanks to Emscripten_.
+Games can be ran on Linux or on any platform with a recent web browser.
 
 .. and WebSockets if network is used in game.
 
-Here is an example of a drystal game:
+You can find a game made with Drystal `here <http://kidanger.github.io/Chronored>`_. It has been made in 48h during a Ludum Dare.
 
-.. code-block:: lua
-
-    local drystal = require 'drystal'
-    
-    function drystal.draw()
-      drystal.set_color(200, 200, 200)
-      drystal.draw_background()
-    end
 
 Features
 --------
 
-- **Window** creation: resizable or not, hide cursor
+- **Window** creation: hide cursor and relative mode
 - **User events**: keyboard, mouse
 - **Textures**: load various formats, render to texture support, ability to apply transformations (rotation, resizes)
-- **Drawing primitives**: lines and triangles from the C++ code, extended by Lua with rectangles (filled or not) and circles
+- **Drawing primitives**: lines, triangles, rectangles (filled or not), circles and polygons
 - **Audio** support: multiple musics, multiple sounds at once, loadable from file or from lua-generated buffers
-- **Shader** support: GLSL
+- **Shader** support: GLSL and post processing effect facilities
 
 Some additional modules:
 
 - **Truetype**: loads .ttf files and render. Using the given syntax, you can highlight words with color/size change.
 - **Web**: adds a wget function to download content (ex: download sounds if needed) or run JS code
 - **Physic**: uses Box2D to compute physic simulation (not a one-to-one binding)
+- **Particle** systems
+- **Storage** to save/load games (even in browser)
 
 .. - **Network**: TCP/WebSocket communication
 
@@ -55,13 +50,16 @@ Some additional modules:
 Contribute
 ----------
 
-- Source Code: http://github.com/drystal/drystal
+- Source Code: http://github.com/kidanger/drystal
+- Please report any issue here: http://github.com/kidanger/drystal/issues
+
 
 Support
 -------
 
-If you are having issues, please let us know.
-We have a mailing list located at: https://groups.google.com/forum/?hl=en#!forum/drystal
+If you are having trouble using Drystal, please let us know.
+We have a mailing list located at: https://groups.google.com/forum/#!forum/drystal
+
 
 License
 -------
