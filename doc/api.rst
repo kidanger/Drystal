@@ -591,19 +591,19 @@ Particle System
 
    .. lua:method:: add_size(at_lifetime, size)
 
-      Adds a size at desired particle's lifetime.
+      Adds a size at a desired particle's lifetime.
 
    .. lua:method:: add_size(at_lifetime, minsize, maxsize)
 
-      Adds a random size at desired particle's lifetime.
+      Adds a random size at a desired particle's lifetime.
 
    .. lua:method:: add_color(at_lifetime, r, g, b)
 
-      Adds a color at desired particle's lifetime.
+      Adds a color at a desired particle's lifetime.
 
    .. lua:method:: add_color(at_lifetime, minr, maxr, ming, maxg, minb, maxg)
 
-      Adds a random color at desired particle's lifetime.
+      Adds a random color at a desired particle's lifetime.
 
    .. lua:method:: set_position(x: float, y: float)
 
@@ -631,11 +631,11 @@ Particle System
 
    .. lua:method:: set_lifetime(min: float[, max=min: float])
 
-      Sets the lifetime of particles.
+      Sets the lifetime of the particles.
 
    .. lua:method:: get_lifetime() -> float, float
 
-      Returns the lifetime of particles.
+      Returns the lifetime of the particles.
 ..    .. lua:method:: set_min_lifetime(min: float)
 ..    .. lua:method:: get_min_lifetime() -> float
 ..    .. lua:method:: set_max_lifetime(max: float)
@@ -643,11 +643,11 @@ Particle System
 
    .. lua:method:: set_direction(min: float[, max=min: float])
 
-      Sets direction of particles (in radian).
+      Sets the direction of the particles (in radian).
 
    .. lua:method:: get_direction() -> float, float
 
-      Returns direction of particles (in radian).
+      Returns the direction of the particles (in radian).
 
 ..    .. lua:method:: set_min_direction(min: float)
 ..    .. lua:method:: get_min_direction() -> float
@@ -656,11 +656,11 @@ Particle System
 
    .. lua:method:: set_initial_acceleration(min: float[, max=min: float])
 
-      Sets the initial acceleration of particles.
+      Sets the initial acceleration of the particles.
 
    .. lua:method:: get_initial_acceleration() -> float, float
 
-      Returns the initial acceleration of particles.
+      Returns the initial acceleration of the particles.
 
 ..    .. lua:method:: set_min_initial_acceleration(min: float)
 ..    .. lua:method:: get_min_initial_acceleration() -> float
@@ -669,7 +669,7 @@ Particle System
 
    .. lua:method:: set_initial_velocity(min: float[, max=min: float])
 
-      Sets the initial velocity of particles.
+      Sets the initial velocity of the particles.
 
    .. lua:method:: get_initial_velocity() -> float, float
 
@@ -682,7 +682,7 @@ Particle System
 .. lua:function:: new_system() -> System
 
 Creates a new particle system.
-By default, attributs are initialized with random values. Make sure to call appropriate setters to obtain the desired particle effect.
+By default, attributes are initialized with random values. Make sure to call appropriate setters to obtain the desired particle effect.
 
 
 Physic
@@ -700,11 +700,11 @@ Learning how to use Box2D_ will help to hunder Drystal's physic module.
 
 .. lua:function:: get_gravity() -> float, float
 
-   Returns gravity of the world.
+   Returns the gravity of the world.
 
 .. lua:function:: set_gravity(x, y)
 
-   Sets gravity of the world.
+   Sets the gravity of the world.
 
 .. lua:function:: on_collision(on_begin, on_end, on_presolve, on_postsolve)
 
@@ -721,7 +721,7 @@ Learning how to use Box2D_ will help to hunder Drystal's physic module.
 
 .. lua:function:: query(x1, y1, x2, y2) -> table
 
-   Returns a table with all bodies contains inside the area defined by ``x1``, ``y1``, ``x2`` and ``y1``.
+   Returns a table with all bodies contained inside the area defined by ``x1``, ``y1``, ``x2`` and ``y1``.
 
 .. lua:function:: new_shape('box', width, height, x, y) -> Shape
 
@@ -737,7 +737,7 @@ Learning how to use Box2D_ will help to hunder Drystal's physic module.
 
 .. lua:function:: new_body(is_dynamic: boolean, [x, y], shape1, shape2, ...) -> Body
 
-   Creates a body at given position (or 0, 0) with given shapes. If ``is_dynamic`` is false, the body will be static.
+   Creates a body at the given position (or 0, 0) with the given shapes. If ``is_dynamic`` is false, the body will be static.
 
 .. lua:function:: new_joint('mouse', body1, body2, max_force[, collide_connected]) -> MouseJoint
 
@@ -772,23 +772,23 @@ Learning how to use Box2D_ will help to hunder Drystal's physic module.
 
    .. lua:method:: set_restitution(restitution float)
 
-      Sets restitution of the shape.
+      Sets the restitution of the shape.
 
    .. lua:method:: get_restitution() -> float
 
-      Returns restitution of the shape.
+      Returns the restitution of the shape.
 
    .. lua:method:: set_friction(friction float)
 
-      Sets friction of the shape.
+      Sets the friction of the shape.
 
    .. lua:method:: get_friction() -> float
 
-      Returns friction of the shape.
+      Returns the friction of the shape.
 
    .. lua:method:: set_sensor(sensor: boolean)
 
-      If ``sensor`` is ``true``, the shape will not collides but the ``on_collision`` callbacks will be called.
+      If ``sensor`` is ``true``, the shape will not collide but the ``on_collision`` callback will be called.
 
 .. lua:class:: Body
 
@@ -810,39 +810,39 @@ Learning how to use Box2D_ will help to hunder Drystal's physic module.
 
    .. lua:method:: set_linear_velocity(x: float, y: float)
 
-      Sets linear velocity of the body.
+      Sets the linear velocity of the body.
 
    .. lua:method:: get_linear_velocity() -> float, float
 
-      Returns linear velocity of the body.
+      Returns the linear velocity of the body.
 
    .. lua:method:: set_angular_velocity(x: float, y: float)
 
-      Sets angular velocity of the body.
+      Sets the angular velocity of the body.
 
    .. lua:method:: get_angular_velocity() -> float, float
 
-      Returns angular velocity of the body.
+      Returns the angular velocity of the body.
 
    .. lua:method:: set_linear_damping(damping: float)
 
-      Sets linear damping of the body.
+      Sets the linear damping of the body.
 
    .. lua:method:: get_linear_damping() -> float
 
-      Returns linear damping of the body.
+      Returns the linear damping of the body.
 
    .. lua:method:: set_angular_damping(damping: float)
 
-      Sets angular damping of the body.
+      Sets the angular damping of the body.
 
    .. lua:method:: get_angular_damping() -> float
 
-      Returns angular damping of the body.
+      Returns the angular damping of the body.
 
    .. lua:method:: set_fixed_rotation(fixed: boolean)
 
-      Fixes rotation of the body.
+      Fixes the rotation of the body.
 
    .. lua:method:: get_fixed_rotation() -> boolean
 
@@ -854,7 +854,7 @@ Learning how to use Box2D_ will help to hunder Drystal's physic module.
 
    .. lua:method:: set_bullet(bullet: boolean)
 
-      Marks the body as fast moving object.
+      Marks the body as a fast moving object.
 
    .. lua:method:: get_mass() -> float
 
@@ -866,23 +866,23 @@ Learning how to use Box2D_ will help to hunder Drystal's physic module.
 
    .. lua:method:: apply_force(x, y)
 
-      Applies force.
+      Applies a force.
 
    .. lua:method:: apply_linear_impulse(x, y)
 
-      Applies linear impulse.
+      Applies a linear impulse.
 
    .. lua:method:: apply_angular_impulse(angle)
 
-      Applies angular impulse.
+      Applies a angular impulse.
 
    .. lua:method:: apply_torque(torque)
 
-      Applies torque.
+      Applies a torque.
 
    .. lua:method:: dump()
 
-      Prints Box2D attributs of the body.
+      Prints Box2D attributes of the body.
 
    .. lua:method:: destroy()
 
@@ -892,7 +892,7 @@ Learning how to use Box2D_ will help to hunder Drystal's physic module.
 
    .. lua:method:: set_target(x, y)
 
-      Sets target position of the joint.
+      Sets the target position of the joint.
 
    .. lua:method:: destroy()
 
@@ -902,7 +902,7 @@ Learning how to use Box2D_ will help to hunder Drystal's physic module.
 
    .. lua:method:: set_max_length(max_length: float)
 
-      Sets maximum length of the joint
+      Sets the maximum length of the joint
 
    .. lua:method:: destroy()
 
@@ -912,11 +912,11 @@ Learning how to use Box2D_ will help to hunder Drystal's physic module.
 
    .. lua:method:: set_length(length: float)
 
-      Sets length of the joint
+      Sets the length of the joint
 
    .. lua:method:: set_frequency(frequency: float)
 
-      Sets frequency of the joint.
+      Sets the frequency of the joint.
 
    .. lua:method:: destroy()
 
@@ -926,11 +926,11 @@ Learning how to use Box2D_ will help to hunder Drystal's physic module.
 
    .. lua:method:: set_angle_limits(min, max)
 
-      Sets angle limits of the joint. If ``min`` equals ``max``, limits are disabled.
+      Sets the angle limits of the joint. If ``min`` equals ``max``, limits are disabled.
 
    .. lua:method:: set_motor_speed(speed: float[, maxtorque=20: float])
 
-      Set motor speed. If ``speed`` is 0, motor is disabled.
+      Set the motor speed. If ``speed`` is 0, motor is disabled.
 
    .. lua:method:: destroy()
 
@@ -940,19 +940,19 @@ Learning how to use Box2D_ will help to hunder Drystal's physic module.
 
    .. lua:method:: set_motor_speed(speed: float)
 
-      Sets motor speed.
+      Sets the motor speed.
 
    .. lua:method:: set_max_motor_force(force: float)
 
-      Sets maximum motor force.
+      Sets the maximum motor force.
 
    .. lua:method:: set_enable_motor(enable: boolean)
 
-      Enables or disables motor.
+      Enables or disables the motor.
 
    .. lua:method:: set_enable_limit(enable: boolean)
 
-      Enables or disables limit.
+      Enables or disables the limit.
 
    .. lua:method:: is_limit_enabled() -> boolean
 
