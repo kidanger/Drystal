@@ -85,8 +85,8 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX OR CMAKE_COMPILER_IS_GN
 -Wmissing-include-dirs \
 -Wmissing-declarations \
 -Wredundant-decls \
+-Wcast-qual \
 -Werror")
-# -Wcast-qual \
 	if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_GNUCC)
 		set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} -Wlogical-op")
 	endif()
