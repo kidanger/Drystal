@@ -25,7 +25,6 @@
 
 log_category("graphics");
 
-IMPLEMENT_PUSHPOP(Shader, shader)
 IMPLEMENT_PUSHPOP(Surface, surface)
 
 int mlua_set_color(lua_State* L)
@@ -119,63 +118,6 @@ int mlua_set_blend_mode(lua_State* L)
 	BlendMode mode = static_cast<BlendMode>(luaL_checknumber(L, 1));
 	Engine &engine = get_engine();
 	engine.display.set_blend_mode(mode);
-	return 0;
-}
-
-int mlua_camera__newindex(lua_State* L)
-{
-	assert(L);
-
-	Engine &engine = get_engine();
-	const char * name = luaL_checkstring(L, 2);
-	if (!strcmp(name, "x")) {
-		lua_Number dx = luaL_checknumber(L, 3);
-		engine.display.set_camera_position(dx, engine.display.get_camera().dy);
-	} else if (!strcmp(name, "y")) {
-		lua_Number dy = luaL_checknumber(L, 3);
-		engine.display.set_camera_position(engine.display.get_camera().dx, dy);
-	} else if (!strcmp(name, "angle")) {
-		lua_Number angle = luaL_checknumber(L, 3);
-		engine.display.set_camera_angle(angle);
-	} else if (!strcmp(name, "zoom")) {
-		lua_Number zoom = luaL_checknumber(L, 3);
-		engine.display.set_camera_zoom(zoom);
-	} else {
-		lua_rawset(L, 1);
-	}
-	return 0;
-}
-
-int mlua_camera__index(lua_State* L)
-{
-	assert(L);
-
-	Engine &engine = get_engine();
-	const char * name = luaL_checkstring(L, 2);
-	if (!strcmp(name, "x")) {
-		lua_Number dx = engine.display.get_camera().dx;
-		lua_pushnumber(L, dx);
-		return 1;
-	} else if (!strcmp(name, "y")) {
-		lua_Number dy = engine.display.get_camera().dy;
-		lua_pushnumber(L, dy);
-		return 1;
-	} else if (!strcmp(name, "angle")) {
-		lua_Number angle = engine.display.get_camera().angle;
-		lua_pushnumber(L, angle);
-		return 1;
-	} else if (!strcmp(name, "zoom")) {
-		lua_Number zoom = engine.display.get_camera().zoom;
-		lua_pushnumber(L, zoom);
-		return 1;
-	}
-	return 0;
-}
-
-int mlua_camera_reset(lua_State*)
-{
-	Engine &engine = get_engine();
-	engine.display.reset_camera();
 	return 0;
 }
 
@@ -478,71 +420,6 @@ int mlua_draw_quad(lua_State* L)
 	lua_Number o8 = luaL_checknumber(L, 16);
 	engine.display.draw_quad(i1, i2, i3, i4, i5, i6, i7, i8,
 	                         o1, o2, o3, o4, o5, o6, o7, o8);
-	return 0;
-}
-
-int mlua_new_shader(lua_State* L)
-{
-	assert(L);
-
-	Engine &engine = get_engine();
-	const char *vert = NULL, *frag_color = NULL, *frag_tex = NULL;
-	// strings can be nil
-	if (lua_gettop(L) >= 1) { // one argument, it's the vertex shader
-		vert = lua_tostring(L, 1);
-	}
-	if (lua_gettop(L) >= 2) {
-		frag_color = lua_tostring(L, 2);
-	}
-	if (lua_gettop(L) >= 3) {
-		frag_tex = lua_tostring(L, 3);
-	}
-	char* error;
-	Shader* shader = engine.display.new_shader(vert, frag_color, frag_tex, &error);
-	if (shader) {
-		push_shader(L, shader);
-		return 1;
-	} else {
-		lua_pushnil(L);
-		lua_pushstring(L, error);
-		delete[] error;
-		return 2;
-	}
-}
-
-int mlua_use_shader(lua_State* L)
-{
-	assert(L);
-
-	Engine &engine = get_engine();
-	if (lua_gettop(L) == 0) { // use defaut shader
-		engine.display.use_shader(NULL);
-	} else {
-		Shader* shader = pop_shader(L, -1);
-		engine.display.use_shader(shader);
-	}
-	return 0;
-}
-
-int mlua_feed_shader(lua_State* L)
-{
-	assert(L);
-
-	Shader* shader = pop_shader(L, 1);
-	const char* name = lua_tostring(L, 2);
-	lua_Number value = luaL_checknumber(L, 3);
-	shader->feed(name, value);
-	return 0;
-}
-
-int mlua_free_shader(lua_State* L)
-{
-	assert(L);
-
-	log_debug("");
-	Engine &engine = get_engine();
-	Shader* shader = pop_shader(L, 1);
-	engine.display.free_shader(shader);
 	return 0;
 }
 

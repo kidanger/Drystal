@@ -19,6 +19,8 @@
 #include "module.hpp"
 #include "engine.hpp"
 #include "display_bind.hpp"
+#include "camera_bind.hpp"
+#include "shader_bind.hpp"
 #include "buffer_bind.hpp"
 #include "api.hpp"
 

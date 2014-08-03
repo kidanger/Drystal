@@ -19,10 +19,8 @@
 #include "lua_util.hpp"
 
 struct lua_State;
-struct Shader;
 struct Surface;
 
-DECLARE_PUSHPOP(Shader, shader)
 DECLARE_PUSHPOP(Surface, surface)
 
 int mlua_set_color(lua_State* L);
@@ -31,10 +29,6 @@ int mlua_set_point_size(lua_State* L);
 int mlua_set_line_width(lua_State* L);
 int mlua_set_title(lua_State* L);
 int mlua_set_blend_mode(lua_State* L);
-
-int mlua_camera__newindex(lua_State* L);
-int mlua_camera__index(lua_State* L);
-int mlua_camera_reset(lua_State*);
 
 int mlua_show_cursor(lua_State* L);
 int mlua_resize(lua_State* L);
@@ -56,9 +50,4 @@ int mlua_draw_line(lua_State* L);
 int mlua_draw_triangle(lua_State* L);
 int mlua_draw_surface(lua_State* L);
 int mlua_draw_quad(lua_State* L);
-
-int mlua_new_shader(lua_State* L);
-int mlua_use_shader(lua_State* L);
-int mlua_feed_shader(lua_State* L);
-int mlua_free_shader(lua_State* L);
 
