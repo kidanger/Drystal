@@ -28,10 +28,10 @@ void Particle::update(System& sys, float dt)
 	y += vel * sin(dir_angle) * dt;
 
 	float liferatio = 1 - life / lifetime;
-	if (liferatio > sys.sizes[size_state + 1].at and size_state < sys.cur_size) {
+	if (liferatio > sys.sizes[size_state + 1].at && size_state < sys.cur_size) {
 		size_state += 1;
 	}
-	if (liferatio > sys.colors[color_state + 1].at and color_state < sys.cur_color) {
+	if (liferatio > sys.colors[color_state + 1].at && color_state < sys.cur_color) {
 		color_state += 1;
 	}
 }

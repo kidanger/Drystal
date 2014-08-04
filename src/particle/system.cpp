@@ -159,7 +159,7 @@ void System::update(float dt)
 	if (running) {
 		float rate = 1.0f / emission_rate;
 		emit_counter += dt;
-		if (emit_counter > rate and used < size) {
+		if (emit_counter > rate && used < size) {
 			emit();
 			emit_counter -= rate;
 		}
