@@ -75,7 +75,7 @@ class CustomDestructionListener : public b2DestructionListener
 static b2World* world;
 static float time_accumulator = 0.;
 static CustomDestructionListener destructionListener;
-float pixels_per_meter;
+float pixels_per_meter = 1;
 
 int mlua_create_world(lua_State* L)
 {
@@ -103,7 +103,7 @@ int mlua_create_world(lua_State* L)
 	lua_Number gravity_x = luaL_checknumber(L, 1);
 	lua_Number gravity_y = luaL_checknumber(L, 2);
 	if (lua_gettop(L) == 3) {
-		lua_Number ppm = luaL_optnumber(L, 3, 1);
+		lua_Number ppm = luaL_checknumber(L, 3);
 		assert_lua_error(L, ppm > 0, "pixels per meter must be a positive number");
 		pixels_per_meter = ppm;
 	}
