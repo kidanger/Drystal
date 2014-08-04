@@ -11,6 +11,7 @@ DISABLE_WARNING_STRICT_ALIASING;
 END_DISABLE_WARNINGS;
 
 #include "joint_bind.hpp"
+#include "world_bind.hpp"
 #include "log.hpp"
 #include "lua_util.hpp"
 
@@ -61,8 +62,8 @@ int mlua_set_target_mouse_joint(lua_State* L)
 	assert(L);
 
 	b2MouseJoint* joint = luam_tomousejoint(L, 1);
-	lua_Number x = luaL_checknumber(L, 2);
-	lua_Number y = luaL_checknumber(L, 3);
+	lua_Number x = luaL_checknumber(L, 2) / pixels_per_meter;
+	lua_Number y = luaL_checknumber(L, 3) / pixels_per_meter;
 	joint->SetTarget(b2Vec2(x, y));
 	return 0;
 }
@@ -72,7 +73,7 @@ int mlua_set_length_distance_joint(lua_State* L)
 	assert(L);
 
 	b2DistanceJoint* joint = luam_todistancejoint(L, 1);
-	lua_Number length = luaL_checknumber(L, 2);
+	lua_Number length = luaL_checknumber(L, 2) / pixels_per_meter;
 	joint->SetLength(length);
 	return 0;
 }
@@ -92,7 +93,7 @@ int mlua_set_max_length_rope_joint(lua_State* L)
 	assert(L);
 
 	b2RopeJoint* joint = luam_toropejoint(L, 1);
-	lua_Number maxlength = luaL_checknumber(L, 2);
+	lua_Number maxlength = luaL_checknumber(L, 2) / pixels_per_meter;
 	joint->SetMaxLength(maxlength);
 	return 0;
 }

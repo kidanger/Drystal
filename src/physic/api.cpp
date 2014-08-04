@@ -26,6 +26,8 @@ BEGIN_MODULE(physic)
 
 	DECLARE_FUNCTION(set_gravity)
 	DECLARE_FUNCTION(get_gravity)
+	DECLARE_FUNCTION(set_pixels_per_meter)
+	DECLARE_FUNCTION(get_pixels_per_meter)
 
 	DECLARE_FUNCTION(new_shape)
 	DECLARE_FUNCTION(new_body)

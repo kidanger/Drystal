@@ -75,6 +75,7 @@ class CustomDestructionListener : public b2DestructionListener
 static b2World* world;
 static float time_accumulator = 0.;
 static CustomDestructionListener destructionListener;
+float pixels_per_meter;
 
 int mlua_create_world(lua_State* L)
 {
@@ -101,6 +102,7 @@ int mlua_create_world(lua_State* L)
 
 	lua_Number gravity_x = luaL_checknumber(L, 1);
 	lua_Number gravity_y = luaL_checknumber(L, 2);
+	pixels_per_meter = luaL_optnumber(L, 3, 1);
 	world = new b2World(b2Vec2(gravity_x, gravity_y));
 	world->SetDestructionListener(&destructionListener);
 	return 0;
@@ -128,6 +130,20 @@ int mlua_get_gravity(lua_State* L)
 	lua_pushnumber(L, gravity.x);
 	lua_pushnumber(L, gravity.y);
 	return 2;
+}
+
+int mlua_set_pixels_per_meter(lua_State* L)
+{
+	lua_Number ppm = luaL_checknumber(L, 1);
+	assert_lua_error(L, ppm > 0, "pixels per meter must be a positive number");
+	pixels_per_meter = ppm;
+	return 0;
+}
+
+int mlua_get_pixels_per_meter(lua_State* L)
+{
+	lua_pushnumber(L, pixels_per_meter);
+	return 1;
 }
 
 int mlua_update_physic(lua_State* L)
@@ -187,10 +203,10 @@ void CustomListener::BeginContact(b2Contact* contact)
 
 	pushBodies(contact);
 
-	lua_pushnumber(L, manifold.points[0].x);
-	lua_pushnumber(L, manifold.points[0].y);
-	lua_pushnumber(L, manifold.normal.x);
-	lua_pushnumber(L, manifold.normal.y);
+	lua_pushnumber(L, manifold.points[0].x * pixels_per_meter);
+	lua_pushnumber(L, manifold.points[0].y * pixels_per_meter);
+	lua_pushnumber(L, manifold.normal.x * pixels_per_meter);
+	lua_pushnumber(L, manifold.normal.y * pixels_per_meter);
 
 	CALL(6, 0);
 }
@@ -216,10 +232,10 @@ void CustomListener::PreSolve(b2Contact* contact, const b2Manifold*)
 	lua_rawgeti(L, LUA_REGISTRYINDEX, presolve);
 	pushBodies(contact);
 
-	lua_pushnumber(L, manifold.points[0].x);
-	lua_pushnumber(L, manifold.points[0].y);
-	lua_pushnumber(L, manifold.normal.x);
-	lua_pushnumber(L, manifold.normal.y);
+	lua_pushnumber(L, manifold.points[0].x * pixels_per_meter);
+	lua_pushnumber(L, manifold.points[0].y * pixels_per_meter);
+	lua_pushnumber(L, manifold.normal.x * pixels_per_meter);
+	lua_pushnumber(L, manifold.normal.y * pixels_per_meter);
 
 	CALL(6, 1);
 	bool enabled = lua_toboolean(L, -1);
@@ -316,10 +332,10 @@ int mlua_raycast(lua_State* L)
 
 	assert_lua_error(L, world, "world must be created before calling raycast");
 
-	lua_Number x1 = luaL_checknumber(L, 1);
-	lua_Number y1 = luaL_checknumber(L, 2);
-	lua_Number x2 = luaL_checknumber(L, 3);
-	lua_Number y2 = luaL_checknumber(L, 4);
+	lua_Number x1 = luaL_checknumber(L, 1) / pixels_per_meter;
+	lua_Number y1 = luaL_checknumber(L, 2) / pixels_per_meter;
+	lua_Number x2 = luaL_checknumber(L, 3) / pixels_per_meter;
+	lua_Number y2 = luaL_checknumber(L, 4) / pixels_per_meter;
 	int callback_ref = LUA_REFNIL;
 	if (lua_gettop(L) == 5) {
 		lua_pushvalue(L, 5);
@@ -335,8 +351,8 @@ int mlua_raycast(lua_State* L)
 	if (callback.fixture) {
 		Body *body = (Body *) callback.fixture->GetBody()->GetUserData();
 		push_body(L, body);
-		lua_pushnumber(L, callback.point.x);
-		lua_pushnumber(L, callback.point.y);
+		lua_pushnumber(L, callback.point.x * pixels_per_meter);
+		lua_pushnumber(L, callback.point.y * pixels_per_meter);
 		return 3;
 	} else {
 		return 0;
@@ -374,10 +390,10 @@ int mlua_query(lua_State* L)
 
 	assert_lua_error(L, world, "world must be created before calling query");
 
-	lua_Number x1 = luaL_checknumber(L, 1);
-	lua_Number y1 = luaL_checknumber(L, 2);
-	lua_Number x2 = luaL_checknumber(L, 3);
-	lua_Number y2 = luaL_checknumber(L, 4);
+	lua_Number x1 = luaL_checknumber(L, 1) / pixels_per_meter;
+	lua_Number y1 = luaL_checknumber(L, 2) / pixels_per_meter;
+	lua_Number x2 = luaL_checknumber(L, 3) / pixels_per_meter;
+	lua_Number y2 = luaL_checknumber(L, 4) / pixels_per_meter;
 
 	lua_newtable(L);
 
@@ -403,8 +419,8 @@ int mlua_new_body(lua_State* L)
 	lua_Number x = 0;
 	lua_Number y = 0;
 	if (lua_isnumber(L, index)) { // x, y
-		x = luaL_checknumber(L, index++);
-		y = luaL_checknumber(L, index++);
+		x = luaL_checknumber(L, index++) / pixels_per_meter;
+		y = luaL_checknumber(L, index++) / pixels_per_meter;
 	}
 
 	int number_of_shapes = lua_gettop(L) - index + 1;
@@ -480,10 +496,10 @@ int mlua_new_joint(lua_State* L)
 		b2RevoluteJointDef* def = new b2RevoluteJointDef;
 		def->bodyA = pop_body_secure(L, i++)->body;
 		def->bodyB = pop_body_secure(L, i++)->body;
-		lua_Number anchorAx = luaL_checknumber(L, i++);
-		lua_Number anchorAy = luaL_checknumber(L, i++);
-		lua_Number anchorBx = luaL_checknumber(L, i++);
-		lua_Number anchorBy = luaL_checknumber(L, i++);
+		lua_Number anchorAx = luaL_checknumber(L, i++) / pixels_per_meter;
+		lua_Number anchorAy = luaL_checknumber(L, i++) / pixels_per_meter;
+		lua_Number anchorBx = luaL_checknumber(L, i++) / pixels_per_meter;
+		lua_Number anchorBy = luaL_checknumber(L, i++) / pixels_per_meter;
 		def->localAnchorA.Set(anchorAx, anchorAy);
 		def->localAnchorB.Set(anchorBx, anchorBy);
 		joint_def = def;
@@ -491,15 +507,16 @@ int mlua_new_joint(lua_State* L)
 		b2PrismaticJointDef* def = new b2PrismaticJointDef;
 		def->bodyA = pop_body_secure(L, i++)->body;
 		def->bodyB = pop_body_secure(L, i++)->body;
-		lua_Number anchorAx = luaL_checknumber(L, i++);
-		lua_Number anchorAy = luaL_checknumber(L, i++);
-		lua_Number anchorBx = luaL_checknumber(L, i++);
-		lua_Number anchorBy = luaL_checknumber(L, i++);
+		lua_Number anchorAx = luaL_checknumber(L, i++) / pixels_per_meter;
+		lua_Number anchorAy = luaL_checknumber(L, i++) / pixels_per_meter;
+		lua_Number anchorBx = luaL_checknumber(L, i++) / pixels_per_meter;
+		lua_Number anchorBy = luaL_checknumber(L, i++) / pixels_per_meter;
 		lua_Number axisx = luaL_checknumber(L, i++);
 		lua_Number axisy = luaL_checknumber(L, i++);
 		def->localAnchorA.Set(anchorAx, anchorAy);
 		def->localAnchorB.Set(anchorBx, anchorBy);
 		def->localAxisA.Set(axisx, axisy);
+		def->localAxisA.Normalize();
 		joint_def = def;
 	} else {
 		assert(false);

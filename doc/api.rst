@@ -710,6 +710,15 @@ Learning how to use Box2D_ will help to hunder Drystal's physic module.
 
    Sets the gravity of the world.
 
+.. lua:function:: get_pixels_per_meter() -> float
+
+   Returns the ratio used to convert coordinates and forces to/from Box2D.
+
+.. lua:function:: set_pixels_per_meter(pixels_per_meter: float)
+
+   Sets the ratio used to convert coordinates and forces to/from Box2D.
+   For example, if you set the ratio to ``64``, this means a circle with a radius of 64 will have a radius of 1 meter in the Box2d world.
+
 .. lua:function:: on_collision(on_begin, on_end, on_presolve, on_postsolve)
 
    Hooks some callbacks to the collision listener.

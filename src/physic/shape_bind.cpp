@@ -11,6 +11,7 @@ DISABLE_WARNING_STRICT_ALIASING;
 END_DISABLE_WARNINGS;
 
 #include "shape_bind.hpp"
+#include "world_bind.hpp"
 #include "log.hpp"
 #include "lua_util.hpp"
 
@@ -29,22 +30,22 @@ int mlua_new_shape(lua_State* L)
 
 	if (!strcmp(type, "box")) {
 		b2PolygonShape* polygon = new b2PolygonShape;
-		lua_Number w = luaL_checknumber(L, 2) / 2;
-		lua_Number h = luaL_checknumber(L, 3) / 2;
+		lua_Number w = luaL_checknumber(L, 2) / 2 / pixels_per_meter;
+		lua_Number h = luaL_checknumber(L, 3) / 2 / pixels_per_meter;
 		lua_Number centerx = 0;
 		lua_Number centery = 0;
 		if (lua_gettop(L) > 3) {
-			centerx = luaL_checknumber(L, 4);
-			centery = luaL_checknumber(L, 5);
+			centerx = luaL_checknumber(L, 4) / pixels_per_meter;
+			centery = luaL_checknumber(L, 5) / pixels_per_meter;
 		}
 		polygon->SetAsBox(w, h, b2Vec2(centerx, centery), 0);
 		fixtureDef->shape = polygon;
 	} else if (!strcmp(type, "circle")) {
 		b2CircleShape* circle = new b2CircleShape;
-		circle->m_radius = luaL_checknumber(L, 2);
+		circle->m_radius = luaL_checknumber(L, 2) / pixels_per_meter;
 		if (lua_gettop(L) > 2) {
-			lua_Number dx = luaL_checknumber(L, 3);
-			lua_Number dy = luaL_checknumber(L, 4);
+			lua_Number dx = luaL_checknumber(L, 3) / pixels_per_meter;
+			lua_Number dy = luaL_checknumber(L, 4) / pixels_per_meter;
 			circle->m_p.Set(dx, dy);
 		}
 		fixtureDef->shape = circle;
@@ -53,8 +54,8 @@ int mlua_new_shape(lua_State* L)
 		int number = (lua_gettop(L) - 1) / 2;
 		b2Vec2* vecs = new b2Vec2[number];
 		for (int i = 0; i < number; i++) {
-			vecs[i].x = luaL_checknumber(L, (i + 1) * 2);
-			vecs[i].y = luaL_checknumber(L, (i + 1) * 2 + 1);
+			vecs[i].x = luaL_checknumber(L, (i + 1) * 2) / pixels_per_meter;
+			vecs[i].y = luaL_checknumber(L, (i + 1) * 2 + 1) / pixels_per_meter;
 		}
 		chain->CreateLoop(vecs, number);
 		delete[] vecs;

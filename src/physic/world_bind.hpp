@@ -18,9 +18,13 @@
 
 struct lua_State;
 
+extern float pixels_per_meter;
+
 int mlua_create_world(lua_State* L);
 int mlua_set_gravity(lua_State* L);
 int mlua_get_gravity(lua_State* L);
+int mlua_set_pixels_per_meter(lua_State* L);
+int mlua_get_pixels_per_meter(lua_State* L);
 int mlua_update_physic(lua_State* L);
 int mlua_on_collision(lua_State* L);
 int mlua_raycast(lua_State* L);

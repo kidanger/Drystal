@@ -11,6 +11,7 @@ END_DISABLE_WARNINGS;
 
 #include "lua_util.hpp"
 #include "log.hpp"
+#include "world_bind.hpp"
 #include "body_bind.hpp"
 
 log_category("body");
@@ -28,8 +29,8 @@ Body* pop_body_secure(lua_State* L, int index)
 	int mlua_set_##value##_body(lua_State* L) \
 	{ \
 		b2Body* body = pop_body_secure(L, 1)->body; \
-		lua_Number x = luaL_checknumber(L, 2); \
-		lua_Number y = luaL_checknumber(L, 3); \
+		lua_Number x = luaL_checknumber(L, 2) / pixels_per_meter; \
+		lua_Number y = luaL_checknumber(L, 3) / pixels_per_meter; \
 		b2Vec2 vector(x, y); \
 		set_expr; \
 		return 0; \
@@ -38,8 +39,8 @@ Body* pop_body_secure(lua_State* L, int index)
 	{ \
 		b2Body* body = pop_body_secure(L, 1)->body; \
 		const b2Vec2 vector = get_expr; \
-		lua_pushnumber(L, vector.x); \
-		lua_pushnumber(L, vector.y); \
+		lua_pushnumber(L, vector.x * pixels_per_meter); \
+		lua_pushnumber(L, vector.y * pixels_per_meter); \
 		return 2; \
 	}
 
@@ -102,8 +103,8 @@ int mlua_set_mass_center_body(lua_State* L)
 	assert(L);
 
 	b2Body* body = pop_body_secure(L, 1)->body;
-	lua_Number cx = luaL_checknumber(L, 2);
-	lua_Number cy = luaL_checknumber(L, 3);
+	lua_Number cx = luaL_checknumber(L, 2) / pixels_per_meter;
+	lua_Number cy = luaL_checknumber(L, 3) / pixels_per_meter;
 	b2MassData md;
 	body->GetMassData(&md);
 	md.center = b2Vec2(cx, cy);
@@ -136,12 +137,12 @@ int mlua_apply_force_body(lua_State* L)
 	assert(L);
 
 	b2Body* body = pop_body_secure(L, 1)->body;
-	lua_Number fx = luaL_checknumber(L, 2);
-	lua_Number fy = luaL_checknumber(L, 3);
+	lua_Number fx = luaL_checknumber(L, 2) / pixels_per_meter;
+	lua_Number fy = luaL_checknumber(L, 3) / pixels_per_meter;
 	b2Vec2 pos;
 	if (lua_gettop(L) > 4) {
-		lua_Number dx = luaL_checknumber(L, 4);
-		lua_Number dy = luaL_checknumber(L, 5);
+		lua_Number dx = luaL_checknumber(L, 4) / pixels_per_meter;
+		lua_Number dy = luaL_checknumber(L, 5) / pixels_per_meter;
 		body->ApplyForce(b2Vec2(fx, fy), b2Vec2(dx, dy), true);
 	} else {
 		pos = body->GetWorldCenter();
@@ -155,12 +156,12 @@ int mlua_apply_linear_impulse_body(lua_State* L)
 	assert(L);
 
 	b2Body* body = pop_body_secure(L, 1)->body;
-	lua_Number fx = luaL_checknumber(L, 2);
-	lua_Number fy = luaL_checknumber(L, 3);
+	lua_Number fx = luaL_checknumber(L, 2) / pixels_per_meter;
+	lua_Number fy = luaL_checknumber(L, 3) / pixels_per_meter;
 	b2Vec2 pos;
 	if (lua_gettop(L) > 4) {
-		lua_Number dx = luaL_checknumber(L, 4);
-		lua_Number dy = luaL_checknumber(L, 5);
+		lua_Number dx = luaL_checknumber(L, 4) / pixels_per_meter;
+		lua_Number dy = luaL_checknumber(L, 5) / pixels_per_meter;
 		pos = b2Vec2(dx, dy);
 	} else {
 		pos = body->GetWorldCenter();
@@ -174,7 +175,7 @@ int mlua_apply_angular_impulse_body(lua_State* L)
 	assert(L);
 
 	b2Body* body = pop_body_secure(L, 1)->body;
-	lua_Number angle = luaL_checknumber(L, 2);
+	lua_Number angle = luaL_checknumber(L, 2) / pixels_per_meter / pixels_per_meter;
 	body->ApplyAngularImpulse(angle, true);
 	return 0;
 }
@@ -184,7 +185,7 @@ int mlua_apply_torque_body(lua_State* L)
 	assert(L);
 
 	b2Body* body = pop_body_secure(L, 1)->body;
-	lua_Number torque = luaL_checknumber(L, 2);
+	lua_Number torque = luaL_checknumber(L, 2) / pixels_per_meter / pixels_per_meter;
 	body->ApplyTorque(torque, true);
 	return 0;
 }
@@ -206,3 +207,4 @@ int mlua_free_body(lua_State* L)
 	delete body;
 	return 0;
 }
+
