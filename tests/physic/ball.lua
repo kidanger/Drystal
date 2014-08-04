@@ -30,14 +30,12 @@ local function create_box(w, h, args, dynamic)
 	box.height = h
 	function box:draw()
 		local x, y = self:get_position()
-		x = x * R
-		y = y * R
 		if self.num_collide > 0 then
 			drystal.set_color(150, 0, 0)
 		end
-		drystal.draw_rect_rotated(x - (w / 2) * R,
-								y - (h / 2) * R,
-								w * R, h * R,
+		drystal.draw_rect_rotated(x - (w / 2),
+								y - (h / 2),
+								w, h,
 								self:get_angle())
 	end
 	return box
@@ -55,10 +53,10 @@ local function create_circle(radius, args, dynamic)
 		if self.num_collide > 0 then
 			drystal.set_color(150, 0, 0)
 		end
-		drystal.draw_circle(x * R, y * R, self.radius * R)
+		drystal.draw_circle(x, y, self.radius)
 		drystal.set_color(150, 150, 150)
-		drystal.draw_line(x*R, y*R, x*R + self.radius*math.cos(angle)*R,
-							y*R + ball.radius * math.sin(angle)*R)
+		drystal.draw_line(x, y, x + self.radius*math.cos(angle),
+							y + ball.radius * math.sin(angle))
 	end
 	circle.p_system = drystal.new_system(0, 0)
 	circle.p_system:set_min_initial_acceleration(-5)
@@ -72,7 +70,7 @@ end
 function drystal.init()
 	drystal.resize(600, 400)
 
-	drystal.create_world(0, 0.98)
+	drystal.create_world(0, 0.98, R)
 	local gx, gy = drystal.get_gravity()
 	assert(gx == 0)
 	assert(gy == 0.98)
@@ -83,33 +81,33 @@ function drystal.init()
 	drystal.set_gravity(0, 0.98)
 
 	-- create ground
-	ground = create_box(5, .2, {friction=5}, false)
-	ground:set_position(5, 4.5)
+	ground = create_box(5*R, .2*R, {friction=5}, false)
+	ground:set_position(5*R, 4.5*R)
 
-	ground2 = create_box(2, .1, {}, false)
-	ground2:set_position(3.5, 2.5)
+	ground2 = create_box(2*R, .1*R, {}, false)
+	ground2:set_position(3.5*R, 2.5*R)
 	ground2:set_angle(math.pi/12)
 
 	-- create ball
-	ball = create_circle(0.2, {restitution=0.4}, true)
-	ball:set_position(3.5, 4)
+	ball = create_circle(0.2*R, {restitution=0.4}, true)
+	ball:set_position(3.5*R, 4*R)
 
-	ball2 = create_circle(0.2, {restitution=0.4}, true)
-	ball2:set_position(4, 0)
+	ball2 = create_circle(0.2*R, {restitution=0.4}, true)
+	ball2:set_position(4*R, 0*R)
 	ball2.immune = false
 	function ball2:collide_with()
 		return not self.immune
 	end
 
 	joint = drystal.new_joint('distance', ball2, ball)
-	joint:set_length(100/R)
+	joint:set_length(100)
 	joint:set_frequency(0.9)
 
 --	joint = drystal.new_joint('rope', ball2, ball, true)
 --	joint:set_max_length(100/R)
 
 	function presolve(b1, b2, x, y, dx, dy)
-		normal_sys:set_position(x*R, y*R)
+		normal_sys:set_position(x, y)
 		normal_sys:set_direction(math.atan2(dy, dx))
 		normal_sys:emit()
 		local collide = true
@@ -160,12 +158,12 @@ function drystal.update(dt)
 
 	local function update_system(ball)
 		local x, y = ball:get_position()
-		ball.p_system:set_position(x*R, y*R)
+		ball.p_system:set_position(x, y)
 		local dx, dy = ball:get_linear_velocity()
 		ball.p_system:set_min_direction(math.atan2(dy, dx) - math.pi/12)
 		ball.p_system:set_max_direction(math.atan2(dy, dx) + math.pi/12)
-		ball.p_system:set_min_initial_velocity((dx+dy)*R)
-		ball.p_system:set_max_initial_velocity((dx+dy)*R)
+		ball.p_system:set_min_initial_velocity((dx+dy))
+		ball.p_system:set_max_initial_velocity((dx+dy))
 		if ball.num_collide > 0 then
 			ball.p_system:set_emission_rate(10)
 		else
@@ -195,7 +193,7 @@ function drystal.draw()
 	drystal.set_color(0, 0, 0)
 	local x1, y1 = ball:get_position()
 	local x2, y2 = ball2:get_position()
-	drystal.draw_line(x1*R, y1*R, x2*R, y2*R)
+	drystal.draw_line(x1, y1, x2, y2)
 
 	ball.p_system:draw()
 	ball2.p_system:draw()
@@ -231,7 +229,7 @@ function drystal.mouse_release(x, y, b)
 end
 function drystal.mouse_motion(x, y)
 	if mouse_joint then
-		mouse_joint:set_target(x/R, y/R)
+		mouse_joint:set_target(x, y)
 	end
 end
 function drystal.mouse_press(x, y, b)
@@ -239,10 +237,10 @@ function drystal.mouse_press(x, y, b)
 		if not mouse_joint then
 			mouse_joint = drystal.new_joint('mouse', ground, ball, 15*ball:get_mass(), true)
 		end
-		mouse_joint:set_target(x/R, y/R)
+		mouse_joint:set_target(x, y)
 	end
 	if b == 3 then
-		ball:set_position(x/R, y/R)
+		ball:set_position(x, y)
 		ball:set_angular_velocity(0)
 		ball:set_linear_velocity(0, 0)
 	end
