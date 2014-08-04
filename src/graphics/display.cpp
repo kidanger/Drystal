@@ -807,34 +807,33 @@ Shader * Display::new_shader(const char* strvert, const char* strfragcolor, cons
 	assert(strfragcolor);
 	assert(strvert);
 
-	char* new_strvert = new char[SHADER_PREFIX_LEN + strlen(strvert) + 1];
-	strcpy(new_strvert, SHADER_PREFIX);
-	strcat(new_strvert, strvert);
-	char* new_strfragcolor = new char[SHADER_PREFIX_LEN + strlen(strfragcolor) + 1];
-	strcpy(new_strfragcolor, SHADER_PREFIX);
-	strcat(new_strfragcolor, strfragcolor);
-	char* new_strfragtex = new char[SHADER_PREFIX_LEN + strlen(strfragtex) + 1];
-	strcpy(new_strfragtex, SHADER_PREFIX);
-	strcat(new_strfragtex, strfragtex);
+	const char* new_strvert[] = {
+		SHADER_PREFIX,
+		strvert
+	};
+	const char* new_strfragcolor[] = {
+		SHADER_PREFIX,
+		strfragcolor
+	};
+	const char* new_strfragtex[] = {
+		SHADER_PREFIX,
+		strfragtex
+	};
 
 	vert = glCreateShader(GL_VERTEX_SHADER);
 	assert(vert);
-	glShaderSource(vert, 1, (const char**) &new_strvert, NULL);
+	glShaderSource(vert, 2, new_strvert, NULL);
 	glCompileShader(vert);
 
 	frag_color = glCreateShader(GL_FRAGMENT_SHADER);
 	assert(frag_color);
-	glShaderSource(frag_color, 1, (const char**) &new_strfragcolor, NULL);
+	glShaderSource(frag_color, 2, new_strfragcolor, NULL);
 	glCompileShader(frag_color);
 
 	frag_tex = glCreateShader(GL_FRAGMENT_SHADER);
 	assert(frag_tex);
-	glShaderSource(frag_tex, 1, (const char**) &new_strfragtex, NULL);
+	glShaderSource(frag_tex, 2, new_strfragtex, NULL);
 	glCompileShader(frag_tex);
-
-	delete[] new_strvert;
-	delete[] new_strfragcolor;
-	delete[] new_strfragtex;
 
 	prog_color = glCreateProgram();
 	assert(prog_color);
