@@ -23,6 +23,8 @@ class b2Joint;
 
 struct Joint {
 	b2Joint* joint;
+	Joint* nextdestroy;
+	bool getting_destroyed;
 	int ref;
 };
 

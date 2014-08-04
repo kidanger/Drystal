@@ -76,6 +76,8 @@ static b2World* world;
 static float time_accumulator = 0.;
 static CustomDestructionListener destructionListener;
 float pixels_per_meter = 1;
+static Body* destroyed_bodies;
+static Joint* destroyed_joints;
 
 int mlua_create_world(lua_State* L)
 {
@@ -167,6 +169,29 @@ int mlua_update_physic(lua_State* L)
 		world->Step(timestep, velocityIterations, positionIterations);
 		time_accumulator -= timestep;
 	}
+
+	Joint* joint = destroyed_joints;
+	while (joint) {
+		Joint* next = joint->nextdestroy;
+		if (joint->joint) {
+			world->DestroyJoint(joint->joint);
+			joint->joint = NULL;
+		}
+		joint = next;
+	}
+	destroyed_joints = NULL;
+
+	Body* body = destroyed_bodies;
+	while (body) {
+		Body* next = body->nextdestroy;
+		if (body->body) {
+			world->DestroyBody(body->body);
+			body->body = NULL;
+		}
+		body = next;
+	}
+	destroyed_bodies = NULL;
+
 	return 0;
 }
 
@@ -449,6 +474,8 @@ int mlua_new_body(lua_State* L)
 	Body* body = new Body;
 	body->body = b2body;
 	body->ref = 0;
+	body->nextdestroy = NULL;
+	body->getting_destroyed = false;
 	b2body->SetUserData(body);
 
 	push_body(L, body);
@@ -462,6 +489,16 @@ int mlua_destroy_body(lua_State* L)
 	assert_lua_error(L, world, "world must be created before calling Body:destroy");
 
 	Body* body = pop_body_secure(L, 1);
+
+	if (world->IsLocked()) {
+		if (!body->getting_destroyed) {
+			body->nextdestroy = destroyed_bodies;
+			body->getting_destroyed = true;
+			destroyed_bodies = body;
+		}
+		return 0;
+	}
+
 	b2Body* b2body = body->body;
 	world->DestroyBody(b2body);
 	body->body = NULL;
@@ -539,6 +576,8 @@ int mlua_new_joint(lua_State* L)
 	joint->joint = world->CreateJoint(joint_def);
 	joint->joint->SetUserData(joint);
 	joint->ref = 0;
+	joint->nextdestroy = NULL;
+	joint->getting_destroyed = false;
 
 	if (!strcmp(type, "mouse")) {
 		push_mouse_joint(L, joint);
@@ -562,6 +601,16 @@ int mlua_destroy_joint(lua_State* L)
 	assert(L);
 	assert_lua_error(L, world, "world must be created before calling Joint:destroy");
 	Joint* joint = pop_joint_secure(L, 1);
+
+	if (world->IsLocked()) {
+		if (!joint->getting_destroyed) { // if not already in the destruction list
+			joint->nextdestroy = destroyed_joints;
+			joint->getting_destroyed = true;
+			destroyed_joints = joint;
+		}
+		return 0;
+	}
+
 	world->DestroyJoint(joint->joint);
 	joint->joint = NULL;
 	return 0;

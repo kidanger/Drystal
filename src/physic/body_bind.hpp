@@ -23,6 +23,8 @@ class b2Body;
 
 struct Body {
 	b2Body* body;
+	Body* nextdestroy;
+	bool getting_destroyed;
 	int ref;
 };
 
