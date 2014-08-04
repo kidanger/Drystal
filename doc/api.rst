@@ -532,9 +532,9 @@ Font rendering
 
       :param:
 
-         - if alignment is 1, text is left aligned (default)
-         - if alignment is 2, text is centered around ``x``.
-         - if alignment is 3, text is right aligned``x``.
+         - if alignment is ``drystal.ALIGN_LEFT``, text is left aligned (default)
+         - if alignment is ``drystal.ALIGN_CENTER``, text is centered around ``x``.
+         - if alignment is ``drystal.ALIGN_RIGHT``, text is right aligned ``x``.
 
    .. _font-draw-plain:
    .. lua:method:: draw_plain(text: str, x, y)

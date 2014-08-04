@@ -19,6 +19,12 @@
 struct Surface;
 struct stbtt_bakedchar;
 
+enum Alignment {
+	ALIGN_LEFT,
+	ALIGN_CENTER,
+	ALIGN_RIGHT
+};
+
 class Font
 {
 private:
@@ -32,7 +38,7 @@ public:
 	int ref;
 
 	~Font();
-	void draw(const char* text, float x, float y, int align=1);
+	void draw(const char* text, float x, float y, Alignment align = ALIGN_LEFT);
 	void draw_plain(const char* text, float x, float y);
 	void get_textsize(const char* text, float* w, float* h, int nblines=-1);
 	void get_textsize_plain(const char* text, float* w, float* h);

@@ -16,10 +16,14 @@
  */
 #include "module.hpp"
 #include "font_bind.hpp"
+#include "font.hpp"
 #include "api.hpp"
 
 BEGIN_MODULE(truetype)
 	DECLARE_FUNCTION(load_font)
+	DECLARE_CONSTANT(ALIGN_LEFT)
+	DECLARE_CONSTANT(ALIGN_CENTER)
+	DECLARE_CONSTANT(ALIGN_RIGHT)
 
 	BEGIN_CLASS(font)
 		ADD_METHOD(font, draw)

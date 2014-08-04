@@ -145,7 +145,7 @@ void Font::draw_plain(const char* text, float x, float y)
 		engine.display.draw_from(old_surface);
 }
 
-void Font::draw(const char* text, float x, float y, int align)
+void Font::draw(const char* text, float x, float y, Alignment align)
 {
 	assert(text);
 
@@ -176,9 +176,9 @@ void Font::draw(const char* text, float x, float y, int align)
 		float line_height;
 		if (*(text-1) != '}' && *(text-1) != '|') {
 			get_textsize(text, &line_width, &line_height, 1);
-			if (align == 2) {
+			if (align == ALIGN_CENTER) {
 				x = initialx - line_width / 2;
-			} else if (align == 3) {
+			} else if (align == ALIGN_RIGHT) {
 				x = initialx - line_width;
 			}
 		}
@@ -188,11 +188,11 @@ void Font::draw(const char* text, float x, float y, int align)
 			if (chr == '\n') {
 				get_textsize(text + 1, &line_width, &line_height, 1);
 
-				if (align == 1) {
+				if (align == ALIGN_LEFT) {
 					x = initialx;
-				} else if (align == 2) {
+				} else if (align == ALIGN_CENTER) {
 					x = initialx - line_width / 2;
-				} else if (align == 3) {
+				} else if (align == ALIGN_RIGHT) {
 					x = initialx - line_width;
 				}
 				y += line_height;

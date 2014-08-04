@@ -73,9 +73,9 @@ function drystal.draw()
 		local _, htext = font:sizeof(text)
 		drystal.set_alpha(255)
 		drystal.set_color(255, 255, 255)
-		font:draw(text, W / 2, H / 2 - htext / 2, 2)
+		font:draw(text, W / 2, H / 2 - htext / 2, drystal.ALIGN_CENTER)
 
-		smallfont:draw('Click to restart', W / 2, H * .7, 2)
+		smallfont:draw('Click to restart', W / 2, H * .7, drystal.ALIGN_CENTER)
 	end
 end
 
