@@ -565,6 +565,10 @@ int mlua_new_joint(lua_State* L)
 		def->bodyB = pop_body_secure(L, i++)->body;
 		def->joint1 = pop_joint_secure(L, i++)->joint;
 		def->joint2 = pop_joint_secure(L, i++)->joint;
+		assert_lua_error(L, def->joint1->GetType() == e_prismaticJoint || def->joint1->GetType() == e_revoluteJoint,
+				"wrong joint type: PrismaticJoint or RevoluteJoint expected");
+		assert_lua_error(L, def->joint2->GetType() == e_prismaticJoint || def->joint2->GetType() == e_revoluteJoint,
+				"wrong joint type: PrismaticJoint or RevoluteJoint expected");
 		lua_Number ratio = luaL_checknumber(L, i++);
 		def->ratio = ratio;
 		joint_def = def;

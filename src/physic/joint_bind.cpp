@@ -35,32 +35,44 @@ Joint* pop_joint_secure(lua_State* L, int index)
 
 inline static b2GearJoint* luam_togearjoint(lua_State* L, int index)
 {
-	return (b2GearJoint *) pop_joint_secure(L, index)->joint;
+	b2GearJoint* joint = (b2GearJoint *) pop_joint_secure(L, index)->joint;
+	assert_lua_error(L, joint->GetType() == e_gearJoint, "wrong joint type: GearJoint expected");
+	return joint;
 }
 
 inline static b2MouseJoint* luam_tomousejoint(lua_State* L, int index)
 {
-	return (b2MouseJoint *) pop_joint_secure(L, index)->joint;
+	b2MouseJoint* joint = (b2MouseJoint *) pop_joint_secure(L, index)->joint;
+	assert_lua_error(L, joint->GetType() == e_mouseJoint, "wrong joint type: MouseJoint expected");
+	return joint;
 }
 
 inline static b2DistanceJoint* luam_todistancejoint(lua_State* L, int index)
 {
-	return (b2DistanceJoint *) pop_joint_secure(L, index)->joint;
+	b2DistanceJoint* joint = (b2DistanceJoint *) pop_joint_secure(L, index)->joint;
+	assert_lua_error(L, joint->GetType() == e_distanceJoint, "wrong joint type: DistanceJoint expected");
+	return joint;
 }
 
 inline static b2RopeJoint* luam_toropejoint(lua_State* L, int index)
 {
-	return (b2RopeJoint *) pop_joint_secure(L, index)->joint;
+	b2RopeJoint* joint = (b2RopeJoint *) pop_joint_secure(L, index)->joint;
+	assert_lua_error(L, joint->GetType() == e_ropeJoint, "wrong joint type: RopeJoint expected");
+	return joint;
 }
 
 inline static b2RevoluteJoint* luam_torevolutejoint(lua_State* L, int index)
 {
-	return (b2RevoluteJoint *) pop_joint_secure(L, index)->joint;
+	b2RevoluteJoint* joint = (b2RevoluteJoint *) pop_joint_secure(L, index)->joint;
+	assert_lua_error(L, joint->GetType() == e_revoluteJoint, "wrong joint type: RevoluteJoint expected");
+	return joint;
 }
 
 inline static b2PrismaticJoint* luam_toprismaticjoint(lua_State* L, int index)
 {
-	return (b2PrismaticJoint *) pop_joint_secure(L, index)->joint;
+	b2PrismaticJoint* joint = (b2PrismaticJoint *) pop_joint_secure(L, index)->joint;
+	assert_lua_error(L, joint->GetType() == e_prismaticJoint, "wrong joint type: PrismaticJoint expected");
+	return joint;
 }
 
 int mlua_set_target_mouse_joint(lua_State* L)
