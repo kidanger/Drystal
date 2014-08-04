@@ -56,6 +56,7 @@ BEGIN_MODULE(physic)
 		ADD_METHOD(body, apply_torque)
 		ADD_METHOD(body, dump)
 		ADD_METHOD(body, destroy)
+		ADD_GC(free_body)
 	REGISTER_CLASS(body, "Body")
 
 	BEGIN_CLASS(shape)

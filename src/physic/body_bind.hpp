@@ -27,6 +27,7 @@ struct Body {
 };
 
 DECLARE_PUSHPOP(Body, body)
+Body* pop_body_secure(lua_State* L, int index);
 
 int mlua_set_active_body(lua_State* L);
 int mlua_set_bullet_body(lua_State* L);
@@ -37,6 +38,7 @@ int mlua_apply_linear_impulse_body(lua_State* L);
 int mlua_apply_angular_impulse_body(lua_State* L);
 int mlua_apply_torque_body(lua_State* L);
 int mlua_dump_body(lua_State* L);
+int mlua_free_body(lua_State* L);
 
 #define __BODY_GET_SET(value) \
 	int mlua_set_##value##_body(lua_State* L); \

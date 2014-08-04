@@ -422,10 +422,10 @@ int mlua_destroy_body(lua_State* L)
 
 	assert_lua_error(L, world, "world must be created before calling Body:destroy");
 
-	Body* body = pop_body(L, 1);
+	Body* body = pop_body_secure(L, 1);
 	b2Body* b2body = body->body;
 	world->DestroyBody(b2body);
-	delete body;
+	body->body = NULL;
 	return 0;
 }
 
@@ -441,26 +441,26 @@ int mlua_new_joint(lua_State* L)
 	int i = 2;
 	if (!strcmp(type, "mouse")) {
 		b2MouseJointDef* def = new b2MouseJointDef;
-		def->bodyA = pop_body(L, i++)->body;
-		def->bodyB = pop_body(L, i++)->body;
+		def->bodyA = pop_body_secure(L, i++)->body;
+		def->bodyB = pop_body_secure(L, i++)->body;
 		def->maxForce = luaL_checknumber(L, i++);
 		def->target = def->bodyB->GetWorldCenter();
 		joint_def = def;
 	} else if (!strcmp(type, "distance")) {
 		b2DistanceJointDef* def = new b2DistanceJointDef;
-		b2Body* b1 = pop_body(L, i++)->body;
-		b2Body* b2 = pop_body(L, i++)->body;
+		b2Body* b1 = pop_body_secure(L, i++)->body;
+		b2Body* b2 = pop_body_secure(L, i++)->body;
 		def->Initialize(b1, b2, b1->GetWorldCenter(), b2->GetWorldCenter());
 		joint_def = def;
 	} else if (!strcmp(type, "rope")) {
 		b2RopeJointDef* def = new b2RopeJointDef;
-		def->bodyA = pop_body(L, i++)->body;
-		def->bodyB = pop_body(L, i++)->body;
+		def->bodyA = pop_body_secure(L, i++)->body;
+		def->bodyB = pop_body_secure(L, i++)->body;
 		joint_def = def;
 	} else if (!strcmp(type, "revolute")) {
 		b2RevoluteJointDef* def = new b2RevoluteJointDef;
-		def->bodyA = pop_body(L, i++)->body;
-		def->bodyB = pop_body(L, i++)->body;
+		def->bodyA = pop_body_secure(L, i++)->body;
+		def->bodyB = pop_body_secure(L, i++)->body;
 		lua_Number anchorAx = luaL_checknumber(L, i++);
 		lua_Number anchorAy = luaL_checknumber(L, i++);
 		lua_Number anchorBx = luaL_checknumber(L, i++);
@@ -470,8 +470,8 @@ int mlua_new_joint(lua_State* L)
 		joint_def = def;
 	} else if (!strcmp(type, "prismatic")) {
 		b2PrismaticJointDef* def = new b2PrismaticJointDef;
-		def->bodyA = pop_body(L, i++)->body;
-		def->bodyB = pop_body(L, i++)->body;
+		def->bodyA = pop_body_secure(L, i++)->body;
+		def->bodyB = pop_body_secure(L, i++)->body;
 		lua_Number anchorAx = luaL_checknumber(L, i++);
 		lua_Number anchorAy = luaL_checknumber(L, i++);
 		lua_Number anchorBx = luaL_checknumber(L, i++);
