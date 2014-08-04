@@ -82,8 +82,7 @@ void Stats::draw()
 	float display_ratio = display / active;
 	Display& drystal = engine.display;
 	int w, h;
-	// this almost looks like a lua code :)
-	drystal.surface_size(drystal.get_screen(), &w, &h);
+	drystal.get_screen()->get_size(&w, &h);
 	drystal.set_alpha(150);
 
 	float wr = 40;

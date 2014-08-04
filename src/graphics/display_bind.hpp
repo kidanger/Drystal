@@ -19,7 +19,7 @@
 #include "lua_util.hpp"
 
 struct lua_State;
-struct Surface;
+class Surface;
 
 DECLARE_PUSHPOP(Surface, surface)
 

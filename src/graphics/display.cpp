@@ -26,10 +26,7 @@
 
 #include <cassert>
 #include <cerrno>
-#include <cstring>
 #include <cmath>
-
-#include "stb_image.h"
 
 #include "display.hpp"
 
@@ -310,7 +307,7 @@ void Display::flip()
 	SDL_GL_SwapWindow(sdl_window);
 
 	// restore context
-	glBindFramebuffer(GL_FRAMEBUFFER, current->fbo);
+	current->draw_on();
 	if (oldfrom)
 		draw_from(oldfrom);
 	debug_mode = olddebug;
@@ -393,23 +390,7 @@ void Display::set_filter(Surface* surface, FilterMode filter) const
 {
 	assert(surface);
 
-	if (surface->filter != filter) {
-		surface->filter = filter;
-
-		glBindTexture(GL_TEXTURE_2D, surface->tex);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter > LINEAR ? LINEAR : filter);
-		GLDEBUG();
-
-		glBindTexture(GL_TEXTURE_2D, current_from ? current_from->tex : 0);
-
-		if (surface == current_from && !surface->has_mipmap && surface->filter >= BILINEAR && !surface->npot) {
-			glGenerateMipmap(GL_TEXTURE_2D);
-			GLDEBUG();
-			surface->has_mipmap = true;
-		}
-	}
+	surface->set_filter(filter, current_from);
 }
 
 void Display::reset_camera()
@@ -451,14 +432,7 @@ void Display::draw_from(Surface* surf)
 	if (current_from != surf) {
 		current_buffer->check_empty();
 		this->current_from = surf;
-		glBindTexture(GL_TEXTURE_2D, current_from->tex);
-		GLDEBUG();
-
-		if (!surf->has_mipmap && surf->filter >= BILINEAR && !surf->npot) {
-			glGenerateMipmap(GL_TEXTURE_2D);
-			GLDEBUG();
-			surf->has_mipmap = true;
-		}
+		surf->draw_from();
 	}
 }
 
@@ -467,12 +441,8 @@ void Display::draw_on(Surface* surf)
 	assert(surf);
 	if (current != surf) {
 		current_buffer->check_empty();
-		if (!surf->has_fbo) {
-			create_fbo(surf);
-		}
-		surf->has_mipmap = false;
 		this->current = surf;
-		glBindFramebuffer(GL_FRAMEBUFFER, current->fbo);
+		surf->draw_on();
 
 		int w = surf->w;
 		int h = surf->h;
@@ -487,104 +457,22 @@ void Display::draw_on(Surface* surf)
  * Surface
  */
 
-Surface * Display::create_surface(int w, int h, int texw, int texh, unsigned char* pixels) const
+Surface * Display::create_surface(unsigned int w, unsigned int h, unsigned int texw, unsigned int texh, unsigned char* pixels) const
 {
-	GLuint tex;
-	glGenTextures(1, &tex);
-	glBindTexture(GL_TEXTURE_2D, tex);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texw, texh, 0,
-	             GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-	GLDEBUG();
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	GLDEBUG();
-
-	Surface* surface = new Surface;
+	Surface* surface = new Surface(w, h, texw, texh, pixels, current_from, current);
 	if (!surface) {
 		return NULL;
 	}
-	surface->tex = tex;
-	surface->w = w;
-	surface->h = h;
-	surface->texw = texw;
-	surface->texh = texh;
-	surface->has_fbo = false;
-	surface->has_mipmap = false;
-	surface->npot = false;
-	surface->filter = LINEAR;
-	surface->ref = 0;
-
-	glBindTexture(GL_TEXTURE_2D, current_from ? current_from->tex : 0);
 
 	return surface;
 }
 
-void Display::create_fbo(Surface* surface) const
+Surface * Display::load_surface(const char * filename) const
 {
-	assert(surface);
-
-	// gen framebuffer object
-	GLuint fbo;
-	glGenFramebuffers(1, &fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-	                       GL_TEXTURE_2D, surface->tex, 0);
-	GLDEBUG();
-	assert(fbo != 0);
-
-	_unused_ GLenum status;
-	status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	assert(status == GL_FRAMEBUFFER_COMPLETE);
-
-	surface->fbo = fbo;
-	surface->has_fbo = true;
-
-	glBindFramebuffer(GL_FRAMEBUFFER, current ? current->fbo : 0);
+	return Surface::load(filename, current_from);
 }
 
 #define RGBA_SIZE 4
-Surface * Display::load_surface(const char * filename) const
-{
-	assert(filename);
-	int w, h;
-	int n;
-	unsigned char *data = stbi_load(filename, &w, &h, &n, RGBA_SIZE);
-
-	if (!data)
-		return NULL;
-
-	int potw = pow(2, ceil(log(w) / log(2)));
-	int poth = pow(2, ceil(log(h) / log(2)));
-
-	Surface* surface = NULL;
-
-	if (potw != w || poth != h) {
-		unsigned char *pixels = new unsigned char[potw * poth * RGBA_SIZE];
-		if (!pixels) {
-			return NULL;
-		}
-		memset(pixels, 0, potw * poth * RGBA_SIZE);
-		for (int y = 0; y < h; y++) {
-			for (int x = 0; x < w; x++) {
-				int is = (x + y * w) * RGBA_SIZE;
-				int id = (x + y * potw) * RGBA_SIZE;
-				memcpy(pixels + id, data + is, RGBA_SIZE);
-			}
-		}
-		surface = create_surface(w, h, potw, poth, pixels);
-		delete[] pixels;
-	} else {
-		surface = create_surface(w, h, w, h, data);
-	}
-
-	stbi_image_free(data);
-
-	return surface;
-}
-
 Surface * Display::new_surface(int w, int h, bool force_npot) const
 {
 	assert(w > 0);
@@ -603,15 +491,6 @@ Surface * Display::new_surface(int w, int h, bool force_npot) const
 	if (force_npot) {
 		surface->npot = true;
 	}
-
-	// we'll need a FBO anyway
-	create_fbo(surface);
-
-	// clear the surface
-	glBindFramebuffer(GL_FRAMEBUFFER, surface->fbo);
-	glClearColor(0, 0, 0, 0);
-	glClear(GL_COLOR_BUFFER_BIT);
-	glBindFramebuffer(GL_FRAMEBUFFER, current ? current->fbo : 0);
 	return surface;
 }
 
@@ -628,20 +507,7 @@ void Display::free_surface(Surface* surface)
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		current = NULL;
 	}
-	glDeleteTextures(1, &surface->tex);
-	if (surface->has_fbo) {
-		glDeleteFramebuffers(1, &surface->fbo);
-	}
 	delete surface;
-}
-
-void Display::surface_size(Surface* surface, int *w, int *h)
-{
-	assert(surface);
-	assert(w);
-	assert(h);
-	*w = surface->w;
-	*h = surface->h;
 }
 
 /**

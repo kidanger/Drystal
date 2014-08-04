@@ -16,7 +16,7 @@
  */
 #pragma once
 
-struct Surface;
+class Surface;
 struct stbtt_bakedchar;
 
 enum Alignment {

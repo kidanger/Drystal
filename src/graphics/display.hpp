@@ -31,33 +31,13 @@ struct SDL_Window;
 #include "buffer.hpp"
 #include "shader.hpp"
 #include "camera.hpp"
+#include "surface.hpp"
 
 enum BlendMode {
 	DEFAULT = 0,
 	ALPHA = 0,
 	ADD,
 	MULT,
-};
-
-enum FilterMode {
-	NEAREST = GL_NEAREST,
-	LINEAR = GL_LINEAR,
-	BILINEAR = GL_LINEAR_MIPMAP_NEAREST,
-	TRILINEAR = GL_LINEAR_MIPMAP_LINEAR,
-};
-
-struct Surface {
-	GLuint tex;
-	GLuint fbo;
-	GLuint w;
-	GLuint h;
-	GLuint texw;
-	GLuint texh;
-	FilterMode filter;
-	bool has_fbo;
-	bool has_mipmap;
-	bool npot;
-	int ref;
 };
 
 class Display
@@ -100,7 +80,6 @@ private:
 	}
 
 	int create_window(int w, int h);
-	void create_fbo(Surface*) const;
 	Shader* create_default_shader();
 
 public:
@@ -153,10 +132,9 @@ public:
 	};
 
 	Surface* get_screen() const;
-	Surface* create_surface(int w, int h, int texw, int texh, unsigned char* pixels) const;
+	Surface* create_surface(unsigned int w, unsigned int h, unsigned int texw, unsigned int texh, unsigned char* pixels) const;
 	Surface* new_surface(int w, int h, bool force_npot) const;
 	Surface* load_surface(const char *) const;
-	void surface_size(Surface* surface, int *w, int *h);
 	void free_surface(Surface*);
 
 	void draw_on(Surface*);
