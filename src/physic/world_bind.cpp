@@ -26,10 +26,13 @@ DISABLE_WARNING_STRICT_ALIASING;
 END_DISABLE_WARNINGS;
 
 #include "lua_util.hpp"
+#include "log.hpp"
 #include "world_bind.hpp"
 #include "body_bind.hpp"
 #include "joint_bind.hpp"
 #include "shape_bind.hpp"
+
+log_category("world");
 
 class CustomListener : public b2ContactListener
 {
@@ -55,8 +58,23 @@ public:
 	virtual void PostSolve(b2Contact* contact, const b2ContactImpulse*);
 };
 
+class CustomDestructionListener : public b2DestructionListener
+{
+	virtual void SayGoodbye(_unused_ b2Fixture* fixture)
+	{
+	}
+
+	virtual void SayGoodbye(b2Joint* joint)
+	{
+		Joint* j = (Joint*) joint->GetUserData();
+		j->joint = NULL;
+		log_debug("good bye joint");
+	}
+};
+
 static b2World* world;
 static float time_accumulator = 0.;
+static CustomDestructionListener destructionListener;
 
 int mlua_create_world(lua_State* L)
 {
@@ -66,13 +84,13 @@ int mlua_create_world(lua_State* L)
 		b2Body* bodyNode = world->GetBodyList();
 		while (bodyNode) {
 			Body* body = (Body*) bodyNode->GetUserData();
-			delete body;
+			body->body = NULL; // freed by lua's gc
 			bodyNode = bodyNode->GetNext();
 		}
 		b2Joint* jointNode = world->GetJointList();
 		while (jointNode) {
 			Joint* joint = (Joint*) jointNode->GetUserData();
-			delete joint;
+			joint->joint = NULL; // freed by lua's gc
 			jointNode = jointNode->GetNext();
 		}
 		CustomListener* listener = (CustomListener*) world->GetContactManager().m_contactListener;
@@ -84,6 +102,7 @@ int mlua_create_world(lua_State* L)
 	lua_Number gravity_x = luaL_checknumber(L, 1);
 	lua_Number gravity_y = luaL_checknumber(L, 2);
 	world = new b2World(b2Vec2(gravity_x, gravity_y));
+	world->SetDestructionListener(&destructionListener);
 	return 0;
 }
 
@@ -517,22 +536,13 @@ int mlua_new_joint(lua_State* L)
 	return 1;
 }
 
-#define __IMPLEMENT_DESTROY(T, name) \
-	int mlua_destroy_##name(lua_State* L) \
-	{ \
-		assert(L); \
-		assert_lua_error(L, world, "world must be created before calling " #T ":destroy"); \
-		T* joint = pop_##name(L, 1); \
-		world->DestroyJoint(joint->joint); \
-		delete joint; \
-		return 0; \
-	}
-
-__IMPLEMENT_DESTROY(MouseJoint, mouse_joint)
-__IMPLEMENT_DESTROY(RopeJoint, rope_joint)
-__IMPLEMENT_DESTROY(DistanceJoint, distance_joint)
-__IMPLEMENT_DESTROY(RevoluteJoint, revolute_joint)
-__IMPLEMENT_DESTROY(PrismaticJoint, prismatic_joint)
-
-#undef __IMPLEMENT_DESTROY
+int mlua_destroy_joint(lua_State* L)
+{
+	assert(L);
+	assert_lua_error(L, world, "world must be created before calling Joint:destroy");
+	Joint* joint = pop_joint_secure(L, 1);
+	world->DestroyJoint(joint->joint);
+	joint->joint = NULL;
+	return 0;
+}
 

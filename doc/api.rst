@@ -896,6 +896,10 @@ Learning how to use Box2D_ will help to hunder Drystal's physic module.
 
       Destroys the body.
 
+      .. warning:: Once the body is destroy, you cannot call any of its functions anymore. Make sure to remove references (:lua:`my_body = nil`).
+
+      .. warning:: Associated joints are destroyed too. Calling functions on those joints will throw an error, make sure to remove references (:lua:`my_joint = nil`).
+
 .. lua:class:: MouseJoint
 
    .. lua:method:: set_target(x, y)

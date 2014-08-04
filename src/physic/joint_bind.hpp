@@ -32,11 +32,14 @@ typedef Joint DistanceJoint;
 typedef Joint RopeJoint;
 typedef Joint PrismaticJoint;
 
-DECLARE_PUSHPOP(RopeJoint, rope_joint)
-DECLARE_PUSHPOP(DistanceJoint, distance_joint)
-DECLARE_PUSHPOP(RevoluteJoint, revolute_joint)
-DECLARE_PUSHPOP(MouseJoint, mouse_joint)
-DECLARE_PUSHPOP(PrismaticJoint, prismatic_joint)
+DECLARE_PUSH(RopeJoint, rope_joint)
+DECLARE_PUSH(DistanceJoint, distance_joint)
+DECLARE_PUSH(RevoluteJoint, revolute_joint)
+DECLARE_PUSH(MouseJoint, mouse_joint)
+DECLARE_PUSH(PrismaticJoint, prismatic_joint)
+
+DECLARE_POP(Joint, joint)
+Joint* pop_joint_secure(lua_State* L, int index);
 
 int mlua_set_target_mouse_joint(lua_State* L);
 
@@ -55,3 +58,4 @@ int mlua_set_max_motor_force_prismatic_joint(lua_State* L);
 int mlua_is_limit_enabled_prismatic_joint(lua_State* L);
 int mlua_is_motor_enabled_prismatic_joint(lua_State* L);
 
+int mlua_free_joint(lua_State* L);

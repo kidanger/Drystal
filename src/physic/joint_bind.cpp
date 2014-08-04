@@ -11,37 +11,49 @@ DISABLE_WARNING_STRICT_ALIASING;
 END_DISABLE_WARNINGS;
 
 #include "joint_bind.hpp"
+#include "log.hpp"
 #include "lua_util.hpp"
 
-IMPLEMENT_PUSHPOP(RopeJoint, rope_joint)
-IMPLEMENT_PUSHPOP(DistanceJoint, distance_joint)
-IMPLEMENT_PUSHPOP(RevoluteJoint, revolute_joint)
-IMPLEMENT_PUSHPOP(MouseJoint, mouse_joint)
-IMPLEMENT_PUSHPOP(PrismaticJoint, prismatic_joint)
+log_category("joint");
+
+IMPLEMENT_PUSH(RopeJoint, rope_joint)
+IMPLEMENT_PUSH(DistanceJoint, distance_joint)
+IMPLEMENT_PUSH(RevoluteJoint, revolute_joint)
+IMPLEMENT_PUSH(MouseJoint, mouse_joint)
+IMPLEMENT_PUSH(PrismaticJoint, prismatic_joint)
+
+IMPLEMENT_POP(Joint, joint)
+
+Joint* pop_joint_secure(lua_State* L, int index)
+{
+	Joint* joint = pop_joint(L, index);
+	assert_lua_error(L, joint->joint, "this joint has been destroyed, it can't be used anymore");
+	return joint;
+}
 
 inline static b2MouseJoint* luam_tomousejoint(lua_State* L, int index)
 {
-	return (b2MouseJoint *) pop_mouse_joint(L, index)->joint;
+	return (b2MouseJoint *) pop_joint_secure(L, index)->joint;
 }
 
 inline static b2DistanceJoint* luam_todistancejoint(lua_State* L, int index)
 {
-	return (b2DistanceJoint *) pop_distance_joint(L, index)->joint;
+	return (b2DistanceJoint *) pop_joint_secure(L, index)->joint;
 }
 
 inline static b2RopeJoint* luam_toropejoint(lua_State* L, int index)
 {
-	return (b2RopeJoint *) pop_rope_joint(L, index)->joint;
+	return (b2RopeJoint *) pop_joint_secure(L, index)->joint;
 }
 
 inline static b2RevoluteJoint* luam_torevolutejoint(lua_State* L, int index)
 {
-	return (b2RevoluteJoint *) pop_revolute_joint(L, index)->joint;
+	return (b2RevoluteJoint *) pop_joint_secure(L, index)->joint;
 }
 
 inline static b2PrismaticJoint* luam_toprismaticjoint(lua_State* L, int index)
 {
-	return (b2PrismaticJoint *) pop_prismatic_joint(L, index)->joint;
+	return (b2PrismaticJoint *) pop_joint_secure(L, index)->joint;
 }
 
 int mlua_set_target_mouse_joint(lua_State* L)
@@ -170,5 +182,14 @@ int mlua_is_limit_enabled_prismatic_joint(lua_State* L)
 	lua_pushboolean(L, joint->IsLimitEnabled());
 
 	return 1;
+}
+
+int mlua_free_joint(_unused_ lua_State* L)
+{
+	log_debug();
+	Joint* joint = pop_joint(L, 1);
+	assert_lua_error(L, !joint->joint, "joint hasn't been destroyed");
+	delete joint;
+	return 0;
 }
 
