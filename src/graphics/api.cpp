@@ -86,29 +86,16 @@ BEGIN_MODULE(graphics)
 		push_surface(L, get_engine().display.get_screen());
 		lua_setfield(L, LUA_REGISTRYINDEX, "screen");
 	}
-	{
-		// blend modes
-		lua_pushnumber(L, DEFAULT);
-		lua_setfield(L, -2, "BLEND_DEFAULT");
-		lua_pushnumber(L, ALPHA);
-		lua_setfield(L, -2, "BLEND_ALPHA");
-		lua_pushnumber(L, ADD);
-		lua_setfield(L, -2, "BLEND_ADD");
-		lua_pushnumber(L, MULT);
-		lua_setfield(L, -2, "BLEND_MULT");
-	}
-	{
-		// filter modes
-		lua_pushnumber(L, NEAREST);
-		lua_setfield(L, -2, "NEAREST");
-		lua_pushnumber(L, LINEAR);
-		lua_setfield(L, -2, "LINEAR");
-		lua_pushnumber(L, BILINEAR);
-		lua_setfield(L, -2, "BILINEAR");
-		lua_pushnumber(L, TRILINEAR);
-		lua_setfield(L, -2, "TRILINEAR");
-	}
-
+	// blend modes
+	DECLARE_CONSTANT_WITH_NAME(DEFAULT, "BLEND_DEFAULT")
+	DECLARE_CONSTANT_WITH_NAME(ALPHA, "BLEND_ALPHA")
+	DECLARE_CONSTANT_WITH_NAME(ADD, "BLEND_ADD")
+	DECLARE_CONSTANT_WITH_NAME(MULT, "BLEND_MULT")
+	// filter modes
+	DECLARE_CONSTANT(NEAREST)
+	DECLARE_CONSTANT(LINEAR)
+	DECLARE_CONSTANT(BILINEAR)
+	DECLARE_CONSTANT(TRILINEAR)
 	{
 		// camera
 		lua_newtable(L);
