@@ -772,6 +772,10 @@ Learning how to use Box2D_ will help to hunder Drystal's physic module.
 
    Creates a revolute joint.
 
+.. lua:function:: new_joint('gear', body1, body2, joint1, joint2, ratio, [, collide_connected]) -> GearJoint
+
+   Creates a gear joint. ``joint1`` and ``joint2`` must be either revolute joints or a prismatic joints.
+
 .. lua:function:: new_joint('prismatic', body1, body2, anchor1x, anchor1y, anchor2x, anchor2y, axisx, axisy[, collide_connected]) -> PrismaticJoint
 
    Creates a prismatic joint.

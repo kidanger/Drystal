@@ -22,6 +22,7 @@ IMPLEMENT_PUSH(DistanceJoint, distance_joint)
 IMPLEMENT_PUSH(RevoluteJoint, revolute_joint)
 IMPLEMENT_PUSH(MouseJoint, mouse_joint)
 IMPLEMENT_PUSH(PrismaticJoint, prismatic_joint)
+IMPLEMENT_PUSH(GearJoint, gear_joint)
 
 IMPLEMENT_POP(Joint, joint)
 
@@ -30,6 +31,11 @@ Joint* pop_joint_secure(lua_State* L, int index)
 	Joint* joint = pop_joint(L, index);
 	assert_lua_error(L, joint->joint, "this joint has been destroyed, it can't be used anymore");
 	return joint;
+}
+
+inline static b2GearJoint* luam_togearjoint(lua_State* L, int index)
+{
+	return (b2GearJoint *) pop_joint_secure(L, index)->joint;
 }
 
 inline static b2MouseJoint* luam_tomousejoint(lua_State* L, int index)
@@ -181,6 +187,26 @@ int mlua_is_limit_enabled_prismatic_joint(lua_State* L)
 {
 	b2PrismaticJoint* joint = luam_toprismaticjoint(L, 1);
 	lua_pushboolean(L, joint->IsLimitEnabled());
+
+	return 1;
+}
+
+int mlua_set_ratio_gear_joint(lua_State* L)
+{
+	b2GearJoint* joint = luam_togearjoint(L, 1);
+	lua_Number ratio = luaL_checknumber(L, 2);
+	
+	joint->SetRatio(ratio);
+
+	return 0;
+}
+
+int mlua_get_ratio_gear_joint(lua_State* L)
+{
+	b2GearJoint* joint = luam_togearjoint(L, 1);
+	
+	float ratio = joint->GetRatio();
+	lua_pushnumber(L, ratio);
 
 	return 1;
 }

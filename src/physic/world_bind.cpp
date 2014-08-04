@@ -559,6 +559,15 @@ int mlua_new_joint(lua_State* L)
 		def->localAxisA.Set(axisx, axisy);
 		def->localAxisA.Normalize();
 		joint_def = def;
+	} else if (!strcmp(type, "gear")) {
+		b2GearJointDef* def = new b2GearJointDef;
+		def->bodyA = pop_body_secure(L, i++)->body;
+		def->bodyB = pop_body_secure(L, i++)->body;
+		def->joint1 = pop_joint_secure(L, i++)->joint;
+		def->joint2 = pop_joint_secure(L, i++)->joint;
+		lua_Number ratio = luaL_checknumber(L, i++);
+		def->ratio = ratio;
+		joint_def = def;
 	} else {
 		assert(false);
 		return 0;
@@ -589,6 +598,8 @@ int mlua_new_joint(lua_State* L)
 		push_revolute_joint(L, joint);
 	} else if (!strcmp(type, "prismatic")) {
 		push_prismatic_joint(L, joint);
+	} else if (!strcmp(type, "gear")) {
+		push_gear_joint(L, joint);
 	}
 
 	delete joint_def;
