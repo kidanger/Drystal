@@ -62,3 +62,8 @@
 
 #define REGISTER_MODULE(name, L) \
 	register_##name(L)
+
+#define DECLARE_CONSTANT(constant) \
+	lua_pushnumber(L, constant); \
+	lua_setfield(L, -2, #constant);
+

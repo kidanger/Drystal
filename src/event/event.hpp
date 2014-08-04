@@ -16,6 +16,23 @@
  */
 #pragma once
 
+#ifndef EMSCRIPTEN
+#include <SDL2/SDL.h>
+#else
+#include <SDL/SDL.h>
+#endif
+
+enum Button {
+	BUTTON_LEFT        = SDL_BUTTON_LEFT,
+	BUTTON_MIDDLE      = SDL_BUTTON_MIDDLE,
+	BUTTON_RIGHT       = SDL_BUTTON_RIGHT,
+	BUTTON_EXTRA_LEFT  = SDL_BUTTON_X1,
+	BUTTON_EXTRA_RIGHT = SDL_BUTTON_X2,
+	// There is no more WHEEL_UP constant in SDL2 so we create ours
+	WHEEL_UP,
+	WHEEL_DOWN,
+};
+
 void event_update();
 void event_destroy();
 void event_init();

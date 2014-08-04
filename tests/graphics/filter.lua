@@ -60,9 +60,9 @@ function drystal.key_press(k)
 end
 
 function drystal.mouse_press(x, y, b)
-	if b == 4 then
+	if b == drystal.WHEEL_UP then
 		drystal.camera.zoom = drystal.camera.zoom * 1.2
-	elseif b == 5 then
+	elseif b == drystal.WHEEL_DOWN then
 		drystal.camera.zoom = drystal.camera.zoom / 1.2
 	end
 end

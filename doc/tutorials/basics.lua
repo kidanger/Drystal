@@ -151,7 +151,7 @@ function drystal.mouse_motion(x, y)
 end
 
 function drystal.mouse_press(x, y, button)
-	if button == 1 then
+	if button == drystal.BUTTON_LEFT then
 		if ended then
 			restart()
 		else

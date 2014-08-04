@@ -90,7 +90,8 @@ To receive events, you have to defined some of the following functions.
 
    Called when a button (or mouse wheel) is pressed.
 
-   :param: button can be: 1 for left click, 2 for middle click, 3 for right click, 4 and 5 for mouse wheel.
+   :param: button is one of ``drystal.BUTTON_LEFT``, ``drystal.BUTTON_RIGHT``, ``drystal.BUTTON_MIDDLE``,
+           ``drystal.WHEEL_UP``, ``drystal.WHEEL_DOWN``, ``drystal.BUTTON_EXTRA_LEFT`` or ``drystal.BUTTON_EXTRA_RIGHT``.
 
 .. lua:function:: mouse_release(x, y, button)
 

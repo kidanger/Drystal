@@ -233,13 +233,13 @@ function drystal.mouse_motion(x, y)
 	end
 end
 function drystal.mouse_press(x, y, b)
-	if b == 1 then
+	if b == drystal.BUTTON_LEFT then
 		if not mouse_joint then
 			mouse_joint = drystal.new_joint('mouse', ground, ball, 15*ball:get_mass(), true)
 		end
 		mouse_joint:set_target(x, y)
 	end
-	if b == 3 then
+	if b == drystal.BUTTON_RIGHT then
 		ball:set_position(x, y)
 		ball:set_angular_velocity(0)
 		ball:set_linear_velocity(0, 0)

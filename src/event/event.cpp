@@ -194,7 +194,7 @@ static void call_mouse_motion(int mx, int my, int dx, int dy)
 	}
 }
 
-static void call_mouse_press(int mx, int my, int button)
+static void call_mouse_press(int mx, int my, Button button)
 {
 	Engine& engine = get_engine();
 	if (engine.lua.get_function("mouse_press")) {
@@ -206,7 +206,7 @@ static void call_mouse_press(int mx, int my, int button)
 	}
 }
 
-static void call_mouse_release(int mx, int my, int button)
+static void call_mouse_release(int mx, int my, Button button)
 {
 	Engine& engine = get_engine();
 	if (engine.lua.get_function("mouse_release")) {
@@ -298,15 +298,15 @@ static void handle_event(const SDL_Event& event)
 			                  event.motion.xrel, event.motion.yrel);
 			break;
 		case SDL_MOUSEBUTTONDOWN:
-			call_mouse_press(event.button.x, event.button.y, event.button.button);
+			call_mouse_press(event.button.x, event.button.y, static_cast<Button>(event.button.button));
 			break;
 		case SDL_MOUSEBUTTONUP:
-			call_mouse_release(event.button.x, event.button.y, event.button.button);
+			call_mouse_release(event.button.x, event.button.y, static_cast<Button>(event.button.button));
 			break;
 		case SDL_MOUSEWHEEL: {
 			int x, y;
 			SDL_GetMouseState(&x, &y);
-			int button = event.wheel.y > 0 ? 4 : 5;
+			Button button = event.wheel.y > 0 ? WHEEL_UP : WHEEL_DOWN;
 			call_mouse_press(x, y, button);
 			call_mouse_release(x, y, button);
 		}
