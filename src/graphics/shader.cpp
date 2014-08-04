@@ -29,6 +29,7 @@ log_category("shader");
 
 const char* SHADER_PREFIX = SHADER_STRING
                             (
+                                HASH(#)version 100 \n
                                 HASH(#)ifdef GL_ES \n
                                 precision mediump float; \n
                                 HASH(#)endif \n
