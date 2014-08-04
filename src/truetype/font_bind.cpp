@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <cassert>
 #include <lua.hpp>
 
 #include "font.hpp"
@@ -24,6 +25,8 @@ IMPLEMENT_PUSHPOP(Font, font)
 
 int mlua_draw_font(lua_State* L)
 {
+	assert(L);
+
 	Font* font = pop_font(L, 1);
 	const char* text = luaL_checkstring(L, 2);
 	lua_Number x = luaL_checknumber(L, 3);
@@ -35,6 +38,8 @@ int mlua_draw_font(lua_State* L)
 
 int mlua_draw_plain_font(lua_State* L)
 {
+	assert(L);
+
 	Font* font = pop_font(L, 1);
 	const char* text = luaL_checkstring(L, 2);
 	lua_Number x = luaL_checknumber(L, 3);
@@ -45,6 +50,8 @@ int mlua_draw_plain_font(lua_State* L)
 
 int mlua_load_font(lua_State* L)
 {
+	assert(L);
+
 	const char* filename = luaL_checkstring(L, 1);
 	lua_Number size = luaL_checknumber(L, 2);
 	Font* font = Font::load(filename, size);
@@ -57,6 +64,8 @@ int mlua_load_font(lua_State* L)
 
 int mlua_sizeof_font(lua_State* L)
 {
+	assert(L);
+
 	Font* font = pop_font(L, 1);
 	const char* text = luaL_checkstring(L, 2);
 	lua_Number w, h;
@@ -68,6 +77,8 @@ int mlua_sizeof_font(lua_State* L)
 
 int mlua_sizeof_plain_font(lua_State* L)
 {
+	assert(L);
+
 	Font* font = pop_font(L, 1);
 	const char* text = luaL_checkstring(L, 2);
 	lua_Number w, h;
@@ -79,6 +90,8 @@ int mlua_sizeof_plain_font(lua_State* L)
 
 int mlua_free_font(lua_State* L)
 {
+	assert(L);
+
 	Font* font = pop_font(L, 1);
 	delete font;
 	return 0;
