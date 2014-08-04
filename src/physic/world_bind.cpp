@@ -102,7 +102,11 @@ int mlua_create_world(lua_State* L)
 
 	lua_Number gravity_x = luaL_checknumber(L, 1);
 	lua_Number gravity_y = luaL_checknumber(L, 2);
-	pixels_per_meter = luaL_optnumber(L, 3, 1);
+	if (lua_gettop(L) == 3) {
+		lua_Number ppm = luaL_optnumber(L, 3, 1);
+		assert_lua_error(L, ppm > 0, "pixels per meter must be a positive number");
+		pixels_per_meter = ppm;
+	}
 	world = new b2World(b2Vec2(gravity_x, gravity_y));
 	world->SetDestructionListener(&destructionListener);
 	return 0;
