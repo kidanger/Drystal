@@ -11,7 +11,10 @@ DISABLE_WARNING_STRICT_ALIASING;
 END_DISABLE_WARNINGS;
 
 #include "shape_bind.hpp"
+#include "log.hpp"
 #include "lua_util.hpp"
+
+log_category("shape");
 
 IMPLEMENT_PUSHPOP(Shape, shape)
 
@@ -99,6 +102,7 @@ int mlua_set_sensor_shape(lua_State* L)
 int mlua_gc_shape(lua_State* L)
 {
 	assert(L);
+	log_debug();
 
 	Shape* shape = pop_shape(L, 1);
 	b2FixtureDef* fixtureDef = shape->fixtureDef;
