@@ -18,6 +18,7 @@ function drystal.create_postfx(name, code, uniforms)
 	code = [[
 		varying vec2 fTexCoord;
 		uniform sampler2D tex;
+		uniform vec2 destinationSize;
 		]] .. uniforms_code .. [[
 		]] .. code .. [[
 		void main()
@@ -83,10 +84,12 @@ add_postfx('distortion', [[
 
 	vec3 effect(sampler2D tex, vec2 coord)
 	{
-		coord.x += sin(coord.y * 8.*pi + time * 2. * pi * .75) / 100.;
-		return texture2D(tex, coord).rgb;
+		vec2 c;
+		c.x = coord.x + sin(coord.y * 8.*pi + time * 2. * pi * .75) * powerx / destinationSize.x;
+		c.y = coord.y + sin(coord.x * 8.*pi + time * 2. * pi * .75) * powery / destinationSize.y;
+		return texture2D(tex, c).rgb;
 	}
-]], {'time',})
+]], {'time', 'powerx', 'powery'})
 
 add_postfx('blurDir', [[
 	const float weight1 = 0.3989422804014327;
