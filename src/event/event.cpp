@@ -34,7 +34,8 @@ log_category("event");
 
 typedef Sint32 SDL_Keycode;
 
-std::map<SDL_Keycode, const char*> keynames;
+static Engine* engine;
+static std::map<SDL_Keycode, const char*> keynames;
 
 /** from https://code.google.com/r/kyberneticist-webport/source/browse/project_files/web_exp/pas2c_build/emcc/patches/sdl_patch.c */
 static int initKeys()
@@ -183,9 +184,8 @@ static const char * mySDL_GetKeyName(SDL_Keycode key)
 
 static void call_mouse_motion(int mx, int my, int dx, int dy)
 {
-	Engine& engine = get_engine();
-	if (engine.lua.get_function("mouse_motion")) {
-		lua_State* L = engine.lua.L;
+	if (engine->lua.get_function("mouse_motion")) {
+		lua_State* L = engine->lua.L;
 		lua_pushnumber(L, mx);
 		lua_pushnumber(L, my);
 		lua_pushnumber(L, dx);
@@ -196,9 +196,8 @@ static void call_mouse_motion(int mx, int my, int dx, int dy)
 
 static void call_mouse_press(int mx, int my, Button button)
 {
-	Engine& engine = get_engine();
-	if (engine.lua.get_function("mouse_press")) {
-		lua_State* L = engine.lua.L;
+	if (engine->lua.get_function("mouse_press")) {
+		lua_State* L = engine->lua.L;
 		lua_pushnumber(L, mx);
 		lua_pushnumber(L, my);
 		lua_pushnumber(L, button);
@@ -208,9 +207,8 @@ static void call_mouse_press(int mx, int my, Button button)
 
 static void call_mouse_release(int mx, int my, Button button)
 {
-	Engine& engine = get_engine();
-	if (engine.lua.get_function("mouse_release")) {
-		lua_State* L = engine.lua.L;
+	if (engine->lua.get_function("mouse_release")) {
+		lua_State* L = engine->lua.L;
 		lua_pushnumber(L, mx);
 		lua_pushnumber(L, my);
 		lua_pushnumber(L, button);
@@ -222,9 +220,8 @@ static void call_key_press(const char* key_string)
 {
 	assert(key_string);
 
-	Engine& engine = get_engine();
-	if (engine.lua.get_function("key_press")) {
-		lua_State* L = engine.lua.L;
+	if (engine->lua.get_function("key_press")) {
+		lua_State* L = engine->lua.L;
 		lua_pushstring(L, key_string);
 		CALL(1, 0);
 	}
@@ -234,9 +231,8 @@ static void call_key_release(const char* key_string)
 {
 	assert(key_string);
 
-	Engine& engine = get_engine();
-	if (engine.lua.get_function("key_release")) {
-		lua_State* L = engine.lua.L;
+	if (engine->lua.get_function("key_release")) {
+		lua_State* L = engine->lua.L;
 		lua_pushstring(L, key_string);
 		CALL(1, 0);
 	}
@@ -246,9 +242,8 @@ static void call_key_text(const char* string)
 {
 	assert(string);
 
-	Engine& engine = get_engine();
-	if (engine.lua.get_function("key_text")) {
-		lua_State* L = engine.lua.L;
+	if (engine->lua.get_function("key_text")) {
+		lua_State* L = engine->lua.L;
 		lua_pushstring(L, string);
 		CALL(1, 0);
 	}
@@ -256,9 +251,8 @@ static void call_key_text(const char* string)
 
 static void call_resize_event(int w, int h)
 {
-	Engine& engine = get_engine();
-	if (engine.lua.get_function("resize_event")) {
-		lua_State* L = engine.lua.L;
+	if (engine->lua.get_function("resize_event")) {
+		lua_State* L = engine->lua.L;
 		lua_pushnumber(L, w);
 		lua_pushnumber(L, h);
 		CALL(2, 0);
@@ -267,26 +261,25 @@ static void call_resize_event(int w, int h)
 
 static void handle_event(const SDL_Event& event)
 {
-	Engine& engine = get_engine();
 	Button button;
 	switch (event.type) {
 		case SDL_QUIT:
-			engine.stop();
+			engine->stop();
 			break;
 		case SDL_KEYUP:
 			call_key_release(mySDL_GetKeyName(event.key.keysym.sym));
 			break;
 		case SDL_KEYDOWN:
 			if (event.key.keysym.sym == SDLK_F1) {
-				engine.toggle_update();
+				engine->toggle_update();
 			} else if (event.key.keysym.sym == SDLK_F2) {
-				engine.toggle_draw();
+				engine->toggle_draw();
 			} else if (event.key.keysym.sym == SDLK_F3) {
-				engine.lua.reload_code();
+				engine->lua.reload_code();
 			} else if (event.key.keysym.sym == SDLK_F4) {
-				engine.display.toggle_debug_mode();
+				engine->display.toggle_debug_mode();
 			} else if (event.key.keysym.sym == SDLK_F10) {
-				engine.toggle_stats();
+				engine->toggle_stats();
 			} else {
 				call_key_press(mySDL_GetKeyName(event.key.keysym.sym));
 			}
@@ -375,6 +368,7 @@ void event_init(void)
 	emscripten_set_click_callback(NULL, NULL, true, em_click_callback);
 #endif
 	SDL_StartTextInput();
+	engine = &get_engine();
 }
 
 void event_destroy(void)
