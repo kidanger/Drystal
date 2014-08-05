@@ -32,7 +32,7 @@ function drystal.draw_sprite_simple(sprite, x, y)
 	_draw_quad(xi, yi, xi2, yi, xi2, yi2, xi, yi2,
 				  x1, y1, x2,  y1, x2,  y2,  x1, y2)
 end
-function drystal.draw_sprite(sprite, x, y, transform)
+function drystal.draw_sprite(sprite, x, y, transform, hx, hy)
 	if not transform then
 		drystal.draw_sprite_simple(sprite, x, y)
 		return
@@ -40,18 +40,24 @@ function drystal.draw_sprite(sprite, x, y, transform)
 
 	local w = sprite.w * math.abs(transform.wfactor)
 	local h = sprite.h * math.abs(transform.hfactor)
+	if not hx then hx = w / 2 end
+	if not hy then hy = h / 2 end
+	local centerx, centery = x + hx, y + hy
 	local angle = transform.angle
 	local cos = math.cos(angle)
 	local sin = math.sin(angle)
-
-	local function rot(_x, _y)
-		return x + _x*cos - _y*sin + w/2,
-				y + _y*cos + _x*sin + h/2
+	local function rotate(_x, _y)
+		return _x * cos - _y * sin,
+			   _x * sin + _y * cos
 	end
-	local x1, y1 = rot(-w/2, -h/2)
-	local x2, y2 = rot(w/2, -h/2)
-	local x3, y3 = rot(w/2, h/2)
-	local x4, y4 = rot(-w/2, h/2)
+	local function translate(_x, _y)
+		return centerx + _x, centery + _y
+	end
+
+	local x1, y1 = translate(rotate(x - centerx, y - centery))
+	local x2, y2 = translate(rotate(x + w - centerx, y - centery))
+	local x3, y3 = translate(rotate(x + w - centerx, y + h - centery))
+	local x4, y4 = translate(rotate(x - centerx, y + h - centery))
 
 	local xi = sprite.x
 	local yi = sprite.y
@@ -68,12 +74,12 @@ function drystal.draw_sprite(sprite, x, y, transform)
 	_draw_quad(xi, yi, xi2, yi, xi2, yi2, xi, yi2,
 				  x1, y1, x2,  y2, x3,  y3,  x4, y4)
 end
-function drystal.draw_sprite_rotated(sprite, x, y, angle)
+function drystal.draw_sprite_rotated(sprite, x, y, angle, hx, hy)
 	local transform = {
 		angle=angle,
 		wfactor=1, hfactor=1
 	}
-	drystal.draw_sprite(sprite, x, y, transform)
+	drystal.draw_sprite(sprite, x, y, transform, hx, hy)
 end
 function drystal.draw_sprite_resized(sprite, x, y, w, h)
 	drystal.draw_image(sprite.x, sprite.y, sprite.w, sprite.h, x, y, w, h)
@@ -143,17 +149,27 @@ function drystal.draw_square(x, y, w, h)
 	drystal.draw_line(x+w, y, x+w, y+h)
 end
 
-function drystal.draw_rect_rotated(x, y, w, h, angle)
+function drystal.draw_rect_rotated(x, y, w, h, angle, hx, hy)
+	if not hx then hx = w / 2 end
+	if not hy then hy = h / 2 end
+	local centerx, centery = x + hx, y + hy
+
 	local cos = math.cos(angle)
 	local sin = math.sin(angle)
-	local function rot(_x, _y)
-		return x + _x*cos - _y*sin + w/2,
-				y + _y*cos + _x*sin + h/2
+
+	local function rotate(_x, _y)
+		return _x * cos - _y * sin,
+			   _x * sin + _y * cos
 	end
-	local x1, y1 = rot(-w/2, -h/2)
-	local x2, y2 = rot(w/2, -h/2)
-	local x3, y3 = rot(w/2, h/2)
-	local x4, y4 = rot(-w/2, h/2)
+	local function translate(_x, _y)
+		return centerx + _x, centery + _y
+	end
+
+	local x1, y1 = translate(rotate(x - centerx, y - centery))
+	local x2, y2 = translate(rotate(x + w - centerx, y - centery))
+	local x3, y3 = translate(rotate(x + w - centerx, y + h - centery))
+	local x4, y4 = translate(rotate(x - centerx, y + h - centery))
+
 	drystal.draw_triangle(x1, y1, x2, y2, x3, y3)
 	drystal.draw_triangle(x1, y1, x4, y4, x3, y3)
 end
