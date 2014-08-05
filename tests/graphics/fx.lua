@@ -47,7 +47,7 @@ function drystal.draw(dt)
 		drystal.postfx('pixelate', s, s)
 	end
 	if blur then
-		drystal.postfx('blur')
+		drystal.postfx('blur', 90)
 	end
 end
 

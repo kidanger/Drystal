@@ -1,7 +1,6 @@
 local drystal = require 'drystal'
 
 local postfxs = {}
-local backsurface
 local builtin_postfx = {}
 
 function drystal.create_postfx(name, code, uniforms)
@@ -30,7 +29,7 @@ function drystal.create_postfx(name, code, uniforms)
 	if not shader then
 		return nil, err
 	end
-	local fx = function(...)
+	local fx = function(backsurface, ...)
 		drystal.set_color(255, 255, 255)
 		drystal.set_alpha(255)
 
@@ -118,9 +117,43 @@ add_postfx('blurDir', [[
 	}
 ]], {'dx', 'dy',})
 
-postfxs.blur = function(...)
-	drystal.postfx('blurDir', 1, 0)
-	drystal.postfx('blurDir', 0, 1)
+local backsurface_blur
+local backsurface_blur2
+
+postfxs.blur = function(backsurface, power)
+	if not postfxs['blurDir'] then
+		local postfx = builtin_postfx['blurDir']
+		assert(drystal.create_postfx('blurDir', postfx.code, postfx.uniforms))
+	end
+	if power >= 100 or power < 0 then
+		error('blur: power should be between 0 and 100')
+	end
+
+	local old = drystal.current_draw_on
+	local oldfrom = drystal.current_draw_from
+	local w, h = old.w * (100 - power + 1)/100, old.h * (100 - power + 1)/100
+
+	if not backsurface_blur or backsurface_blur.w ~= w or backsurface_blur.h ~= h then
+		backsurface_blur = drystal.new_surface(w, h, true)
+		backsurface_blur2 = drystal.new_surface(w, h, true)
+		collectgarbage()
+	end
+
+	drystal.set_alpha(255)
+	drystal.set_color(255,255,255)
+
+	backsurface_blur:draw_on()
+	old:draw_from()
+	drystal.draw_image(0, 0, old.w, old.h, 0, 0, w, h)
+
+	postfxs['blurDir'](backsurface_blur2, 1, 0)
+	postfxs['blurDir'](backsurface_blur2, 0, 1)
+
+	old:draw_on()
+	backsurface_blur:draw_from()
+	drystal.draw_image(0, 0, w, h, 0, 0, old.w, old.h)
+
+	oldfrom:draw_from()
 end
 
 add_postfx('vignette', [[
@@ -141,7 +174,7 @@ add_postfx('pixelate', [[
 	}
 ]], {'sizex', 'sizey'})
 
-
+local backsurface
 function drystal.postfx(name, ...)
 	if not postfxs[name] then
 		if builtin_postfx[name] then
@@ -155,5 +188,5 @@ function drystal.postfx(name, ...)
 	if not backsurface or backsurface.w ~= surface.w or backsurface.h ~= surface.h then
 		backsurface = drystal.new_surface(surface.w, surface.h, true)
 	end
-	postfxs[name](...)
+	postfxs[name](backsurface, ...)
 end
