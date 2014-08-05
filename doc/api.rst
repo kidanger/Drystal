@@ -9,6 +9,10 @@
 API Reference
 =============
 
+.. contents::
+   :local:
+   :depth: 3
+
 Engine
 ------
 
