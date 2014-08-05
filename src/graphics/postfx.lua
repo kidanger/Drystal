@@ -84,9 +84,9 @@ add_postfx('distortion', [[
 
 	vec3 effect(sampler2D tex, vec2 coord)
 	{
-		vec2 c;
-		c.x = coord.x + sin(coord.y * 8.*pi + time * 2. * pi * .75) * powerx / destinationSize.x;
-		c.y = coord.y + sin(coord.x * 8.*pi + time * 2. * pi * .75) * powery / destinationSize.y;
+		vec2 c = coord;
+		c.x += sin(coord.y * 8.*pi + time * 2. * pi * .75) * powerx / destinationSize.x;
+		c.y += sin(coord.x * 8.*pi + time * 2. * pi * .75) * powery / destinationSize.y;
 		return texture2D(tex, c).rgb;
 	}
 ]], {'time', 'powerx', 'powery'})
@@ -99,7 +99,7 @@ add_postfx('blurDir', [[
 
 	vec3 effect(sampler2D tex, vec2 coord)
 	{
-		vec2 dir = vec2(dx, dy);
+		vec2 dir = vec2(dx, dy) / destinationSize;
 		vec3 acc = vec3(0., 0., 0.);
 
 		acc += texture2D(tex, coord).rgb * weight1;
@@ -119,8 +119,8 @@ add_postfx('blurDir', [[
 ]], {'dx', 'dy',})
 
 postfxs.blur = function(...)
-	drystal.postfx('blurDir', 1 / drystal.current_draw_on.w, 0)
-	drystal.postfx('blurDir', 0, 1 / drystal.current_draw_on.h)
+	drystal.postfx('blurDir', 1, 0)
+	drystal.postfx('blurDir', 0, 1)
 end
 
 add_postfx('vignette', [[
@@ -133,18 +133,14 @@ add_postfx('vignette', [[
 	}
 ]], {'outer', 'inner',})
 
-add_postfx('pixelate_', [[
+add_postfx('pixelate', [[
 	vec3 effect(sampler2D tex, vec2 coord) {
-		vec2 size = vec2(sizex, sizey) * vec2(dx, dy);
+		vec2 size = vec2(sizex, sizey) / destinationSize;
 		vec2 c = size * floor(coord/size);
 		return texture2D(tex, c).rgb;
 	}
-]], {'sizex', 'sizey', 'dx', 'dy'})
+]], {'sizex', 'sizey'})
 
-postfxs.pixelate = function(sizex, sizey)
-	drystal.postfx('pixelate_', sizex, sizey,
-				1 / drystal.current_draw_on.w, 1 / drystal.current_draw_on.h)
-end
 
 function drystal.postfx(name, ...)
 	if not postfxs[name] then
