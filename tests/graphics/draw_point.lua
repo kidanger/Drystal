@@ -16,7 +16,7 @@ function drystal.update(dt)
 end
 
 function drystal.draw()
-	drystal.set_color(255, 255, 255)
+	drystal.set_color(drystal.colors.white)
 	drystal.draw_background()
 
 	for y = 0, 400, 8 do
@@ -29,7 +29,7 @@ function drystal.draw()
 	end
 
 	drystal.set_point_size(32)
-	drystal.set_color(0, 255, 0)
+	drystal.set_color(drystal.colors.lime)
 	drystal.draw_point(mx, my)
 
 	drystal.set_point_size(16)
