@@ -20,9 +20,9 @@ struct Surface;
 struct stbtt_bakedchar;
 
 enum Alignment {
-	ALIGN_LEFT,
-	ALIGN_CENTER,
-	ALIGN_RIGHT
+	ALIGN_LEFT = 1,
+	ALIGN_CENTER = 2,
+	ALIGN_RIGHT = 3
 };
 
 class Font
