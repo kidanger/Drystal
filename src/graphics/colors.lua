@@ -34,7 +34,7 @@ local function rgb_to_hsl(r, g, b)
 		h = h / 6
 	end
 
-	return h, s, l
+	return h * 360, s, l
 end
 
 local function hue_to_rgb(p, q, t)
@@ -48,6 +48,7 @@ end
 
 local function hsl_to_rgb(h, s, l)
 	-- See http://axonflux.com/handy-rgb-to-hsl-and-rgb-to-hsv-color-model-c
+	h = h / 360
 	local r, g, b
 
 	if s == 0 then
