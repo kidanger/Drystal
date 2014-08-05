@@ -1,6 +1,7 @@
 local drystal = require 'drystal'
 
-Color = Color or { }
+local Color = {}
+drystal.Color = Color
 Color.__index = Color
 Color.__add = function(a, b)
 	return a:add(b)
