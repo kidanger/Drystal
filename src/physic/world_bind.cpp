@@ -234,8 +234,8 @@ void CustomListener::BeginContact(b2Contact* contact)
 
 	lua_pushnumber(L, manifold.points[0].x * pixels_per_meter);
 	lua_pushnumber(L, manifold.points[0].y * pixels_per_meter);
-	lua_pushnumber(L, manifold.normal.x * pixels_per_meter);
-	lua_pushnumber(L, manifold.normal.y * pixels_per_meter);
+	lua_pushnumber(L, manifold.normal.x);
+	lua_pushnumber(L, manifold.normal.y);
 
 	CALL(6, 0);
 }
@@ -263,8 +263,8 @@ void CustomListener::PreSolve(b2Contact* contact, const b2Manifold*)
 
 	lua_pushnumber(L, manifold.points[0].x * pixels_per_meter);
 	lua_pushnumber(L, manifold.points[0].y * pixels_per_meter);
-	lua_pushnumber(L, manifold.normal.x * pixels_per_meter);
-	lua_pushnumber(L, manifold.normal.y * pixels_per_meter);
+	lua_pushnumber(L, manifold.normal.x);
+	lua_pushnumber(L, manifold.normal.y);
 
 	CALL(6, 1);
 	bool enabled = lua_toboolean(L, -1);
