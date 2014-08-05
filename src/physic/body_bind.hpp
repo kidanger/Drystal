@@ -31,6 +31,7 @@ struct Body {
 DECLARE_PUSHPOP(Body, body)
 Body* pop_body_secure(lua_State* L, int index);
 
+int mlua_get_center_position_body(lua_State* L);
 int mlua_set_active_body(lua_State* L);
 int mlua_set_bullet_body(lua_State* L);
 int mlua_get_mass_body(lua_State* L);

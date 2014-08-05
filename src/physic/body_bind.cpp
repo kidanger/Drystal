@@ -25,6 +25,15 @@ Body* pop_body_secure(lua_State* L, int index)
 	return body;
 }
 
+int mlua_get_center_position_body(lua_State* L)
+{
+	b2Body* body = pop_body_secure(L, 1)->body;
+	b2Vec2 pos = body->GetWorldCenter();
+	lua_pushnumber(L, pos.x * pixels_per_meter);
+	lua_pushnumber(L, pos.y * pixels_per_meter);
+	return 2;
+}
+
 #define BODY_GETSET_VEC2(value, get_expr, set_expr) \
 	int mlua_set_##value##_body(lua_State* L) \
 	{ \

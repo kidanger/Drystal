@@ -41,6 +41,7 @@ BEGIN_MODULE(physic)
 
 	BEGIN_CLASS(body)
 		ADD_GETSET(body, position)
+		ADD_METHOD(body, get_center_position)
 		ADD_GETSET(body, angle)
 		ADD_GETSET(body, linear_velocity)
 		ADD_GETSET(body, angular_velocity)
