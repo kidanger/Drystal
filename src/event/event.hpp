@@ -29,8 +29,8 @@ enum Button {
 	BUTTON_EXTRA_LEFT  = SDL_BUTTON_X1,
 	BUTTON_EXTRA_RIGHT = SDL_BUTTON_X2,
 	// There is no more WHEEL_UP constant in SDL2 so we create ours
-	WHEEL_UP,
-	WHEEL_DOWN,
+	WHEEL_UP = 4,
+	WHEEL_DOWN = 5,
 };
 
 void event_update();
