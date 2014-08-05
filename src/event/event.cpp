@@ -268,6 +268,7 @@ static void call_resize_event(int w, int h)
 static void handle_event(const SDL_Event& event)
 {
 	Engine& engine = get_engine();
+	Button button;
 	switch (event.type) {
 		case SDL_QUIT:
 			engine.stop();
@@ -298,12 +299,26 @@ static void handle_event(const SDL_Event& event)
 			                  event.motion.xrel, event.motion.yrel);
 			break;
 		case SDL_MOUSEBUTTONDOWN:
-			call_mouse_press(event.button.x, event.button.y, static_cast<Button>(event.button.button));
+			button = static_cast<Button>(event.button.button);
+			if (button != BUTTON_LEFT && button != BUTTON_RIGHT && button != BUTTON_MIDDLE) {
+				// On SDL1 the mouse wheel up/down will be assigned to BUTTON_X1/X2 as well,
+				// so to be consistant on native and web build we must consider them as wheel up/down only
+				// and ignore all press/release except for left/middle/right button
+				break;
+			}
+			call_mouse_press(event.button.x, event.button.y, button);
 			break;
 		case SDL_MOUSEBUTTONUP:
-			call_mouse_release(event.button.x, event.button.y, static_cast<Button>(event.button.button));
+			button = static_cast<Button>(event.button.button);
+			if (button != BUTTON_LEFT && button != BUTTON_RIGHT && button != BUTTON_MIDDLE) {
+				break;
+			}
+			call_mouse_release(event.button.x, event.button.y, button);
 			break;
 		case SDL_MOUSEWHEEL: {
+			if (event.button.button > 0) {
+				break;
+			}
 			int x, y;
 			SDL_GetMouseState(&x, &y);
 			Button button = event.wheel.y > 0 ? WHEEL_UP : WHEEL_DOWN;
