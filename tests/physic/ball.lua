@@ -4,6 +4,7 @@ local ground, ground2, ball, ball2
 local joint
 local mouse_joint
 local normal_sys
+local boxes = {}
 
 local R = 64 -- _ pixels = 1 meter
 
@@ -33,10 +34,8 @@ local function create_box(w, h, args, dynamic)
 		if self.num_collide > 0 then
 			drystal.set_color(150, 0, 0)
 		end
-		drystal.draw_rect_rotated(x - (w / 2),
-								y - (h / 2),
-								w, h,
-								self:get_angle())
+		drystal.draw_rect_rotated(x, y, w, h,
+								self:get_angle(), 0, 0)
 	end
 	return box
 end
@@ -81,11 +80,11 @@ function drystal.init()
 	drystal.set_gravity(0, 0.98)
 
 	-- create ground
-	ground = create_box(5*R, .2*R, {friction=5}, false)
-	ground:set_position(5*R, 4.5*R)
+	ground = create_box(6*R, .2*R, {friction=5}, false)
+	ground:set_position(2*R, 4.5*R)
 
 	ground2 = create_box(2*R, .1*R, {}, false)
-	ground2:set_position(3.5*R, 2.5*R)
+	ground2:set_position(2*R, 2*R)
 	ground2:set_angle(math.pi/12)
 
 	-- create ball
@@ -103,8 +102,23 @@ function drystal.init()
 	joint:set_length(100)
 	joint:set_frequency(0.9)
 
---	joint = drystal.new_joint('rope', ball2, ball, true)
---	joint:set_max_length(100/R)
+	for i = 1, 600/30 do
+		local b = create_box(30, 30, {}, true)
+		local x = i * 32
+		local y = 0
+		b:set_position(x, y)
+		table.insert(boxes, b)
+		b.begin_collide = function()
+			if math.random() < 0.05 then
+				b:destroy()
+				for i, v in ipairs(boxes) do
+					if v == b then
+						table.remove(boxes, i)
+					end
+				end
+			end
+		end
+	end
 
 	function presolve(b1, b2, x, y, dx, dy)
 		normal_sys:set_position(x, y)
@@ -195,6 +209,10 @@ function drystal.draw()
 	local x2, y2 = ball2:get_position()
 	drystal.draw_line(x1, y1, x2, y2)
 
+	for _, b in ipairs(boxes) do
+		b:draw()
+	end
+
 	ball.p_system:draw()
 	ball2.p_system:draw()
 	normal_sys:draw()
@@ -235,7 +253,7 @@ end
 function drystal.mouse_press(x, y, b)
 	if b == drystal.BUTTON_LEFT then
 		if not mouse_joint then
-			mouse_joint = drystal.new_joint('mouse', ground, ball, 15*ball:get_mass(), true)
+			mouse_joint = drystal.new_joint('mouse', ground, ball, 50*ball:get_mass(), true)
 		end
 		mouse_joint:set_target(x, y)
 	end
