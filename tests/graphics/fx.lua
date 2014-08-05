@@ -3,7 +3,7 @@ local drystal = require 'drystal'
 drystal.resize(800, 600)
 
 local gray = false
-local red = false
+local multiply = false
 local distortion = false
 local blur = false
 local dither = false
@@ -34,11 +34,11 @@ function drystal.draw(dt)
 	if vignette then
 		drystal.postfx('vignette', .7, (math.sin(time)/2 + 0.5) * .2 + .2)
 	end
+	if multiply then
+		drystal.postfx('multiply', 1.9, .8, .7)
+	end
 	if gray then
 		drystal.postfx('gray', math.sin(time)/2 + .5)
-	end
-	if red then
-		drystal.postfx('red', math.sin(time * 10)/2 + .5)
 	end
 	if distortion then
 		drystal.postfx('distortion', time)
@@ -60,8 +60,8 @@ function drystal.key_press(k)
 		drystal.stop()
 	elseif k == 'g' then
 		gray = not gray
-	elseif k == 'r' then
-		red = not red
+	elseif k == 'm' then
+		multiply = not multiply
 	elseif k == 'd' then
 		distortion = not distortion
 	elseif k == 'b' then

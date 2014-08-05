@@ -70,13 +70,13 @@ add_postfx('gray', [[
 	}
 ]], {'scale',})
 
-add_postfx('red', [[
+add_postfx('multiply', [[
 	vec3 effect(sampler2D tex, vec2 coord)
 	{
 		vec3 texval = texture2D(tex, coord).rgb;
-		return vec3(red, 0., 0.) + texval;
+		return vec3(r, g, b) * texval;
 	}
-]], {'red',})
+]], {'r', 'g', 'b'})
 
 add_postfx('distortion', [[
 	#define pi ]] .. math.pi .. [[
