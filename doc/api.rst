@@ -213,7 +213,7 @@ Surface
 .. lua:function:: new_surface(width, height)
 
    Creates a new surface of dimensions (``width``, ``height``).
-   By default, the surface is black.
+   By default, the surface is transparent.
 
    .. code::
 
