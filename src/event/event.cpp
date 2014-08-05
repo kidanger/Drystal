@@ -314,7 +314,11 @@ static void handle_event(const SDL_Event& event)
 			}
 			int x, y;
 			SDL_GetMouseState(&x, &y);
+#ifdef EMSCRIPTEN
+			Button button = event.wheel.y < 0 ? WHEEL_UP : WHEEL_DOWN;
+#else
 			Button button = event.wheel.y > 0 ? WHEEL_UP : WHEEL_DOWN;
+#endif
 			call_mouse_press(x, y, button);
 			call_mouse_release(x, y, button);
 		}
