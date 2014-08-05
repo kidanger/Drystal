@@ -9,3 +9,10 @@ function drystal.file_exists(name)
 	return false
 end
 
+function table.print(t)
+	local str = {}
+	for k, v in pairs(t) do
+		table.insert(str, ('%s=%s'):format(k, v))
+	end
+	print(table.concat(str, ','))
+end
