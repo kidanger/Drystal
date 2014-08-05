@@ -191,6 +191,19 @@ add_postfx('dither', [[
 	}
 ]], {'scale',})
 
+add_postfx('pixelate_', [[
+	vec3 effect(sampler2D tex, vec2 coord) {
+		vec2 size = vec2(sizex, sizey) * vec2(dx, dy);
+		vec2 c = size * floor(coord/size);
+		return texture2D(tex, c).rgb;
+	}
+]], {'sizex', 'sizey', 'dx', 'dy'})
+
+postfxs.pixelate = function(sizex, sizey)
+	drystal.postfx('pixelate_', sizex, sizey,
+				1 / drystal.current_draw_on.w, 1 / drystal.current_draw_on.h)
+end
+
 function drystal.postfx(name, ...)
 	if not postfxs[name] then
 		if builtin_postfx[name] then

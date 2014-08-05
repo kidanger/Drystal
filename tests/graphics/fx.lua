@@ -8,6 +8,7 @@ local distortion = false
 local blur = false
 local dither = false
 local vignette = false
+local pixelate = false
 
 local time = 0
 function drystal.update(dt)
@@ -45,6 +46,10 @@ function drystal.draw(dt)
 	if dither then
 		drystal.postfx('dither', 300)
 	end
+	if pixelate then
+		local s = (math.sin(time / 10) / 2 + .5) * 16
+		drystal.postfx('pixelate', s, s)
+	end
 	if blur then
 		drystal.postfx('blur')
 	end
@@ -65,5 +70,7 @@ function drystal.key_press(k)
 		dither = not dither
 	elseif k == 'v' then
 		vignette = not vignette
+	elseif k == 'p' then
+		pixelate = not pixelate
 	end
 end
