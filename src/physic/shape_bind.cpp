@@ -38,7 +38,7 @@ int mlua_new_shape(lua_State* L)
 			centerx = luaL_checknumber(L, 4) / pixels_per_meter;
 			centery = luaL_checknumber(L, 5) / pixels_per_meter;
 		}
-		polygon->SetAsBox(w, h, b2Vec2(centerx, centery), 0);
+		polygon->SetAsBox(w, h, b2Vec2(centerx + w, centery + h), 0);
 		fixtureDef->shape = polygon;
 	} else if (!strcmp(type, "circle")) {
 		b2CircleShape* circle = new b2CircleShape;
