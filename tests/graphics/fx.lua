@@ -2,13 +2,13 @@ local drystal = require 'drystal'
 
 drystal.resize(800, 600)
 
-local gray = false
-local multiply = false
-local distortion = false
+local gray = true
+local multiply = true
+local distortion = true
 local blur = false
-local dither = false
-local vignette = false
-local pixelate = false
+local dither = true
+local vignette = true
+local pixelate = true
 
 local time = 0
 function drystal.update(dt)
