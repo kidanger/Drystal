@@ -503,11 +503,11 @@ Colors
 
    .. lua:method:: darker() -> Color
 
-      Creates a darkest color.
+      Creates a darker color.
 
    .. lua:method:: lighter() -> Color
 
-      Creates a lightest color.
+      Creates a lighter color.
 
 .. lua:function:: new_color(table) -> Color
 
