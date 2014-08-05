@@ -466,9 +466,69 @@ Post processing
          drystal.postfx('gray', 0.8)
       end
 
+Colors
+^^^^^^
+.. _color:
+.. lua:class:: Color
+
+   .. lua:method:: rgb() -> r, g, b
+ 
+      Gets the RGB values of the color.
+
+   .. lua:method:: hsl() -> h, s, l
+
+      Gets the HSL values of the color.
+
+   .. lua:method:: cmyk() -> c, m, y, k
+
+      Gets the CMYK values of the color.
+
+   .. lua:method:: add(color) -> Color
+
+      Creates a new Color which is the combination of the two colors using the CMYK subtractive color model.
+
+      .. note:: You can also use the ``+`` operator.
+
+   .. lua:method:: sub(color) -> Color
+
+      Creates a new Color which is the substraction of the two colors using the CMYK subtractive color model.
+
+      .. note:: You can also use the ``-`` operator.
+
+   .. lua:method:: mul(color) -> Color
+
+      Creates a new Color which is the multiplication of the two colors.
+
+      .. note:: You can also use the ``*`` operator.
+
+   .. lua:method:: darker() -> Color
+
+      Creates a darkest color.
+
+   .. lua:method:: lighter() -> Color
+
+      Creates a lightest color.
+
+.. lua:function:: new_color(table) -> Color
+
+   Creates a color with the RGB color model.
+
+   :param: ``table`` must contains the three components.
+
+.. lua:function:: new_color('rgb', r, g, b) -> Color
+
+   Creates a color with the RGB color model.
+
+.. lua:function:: new_color('hsl', h, s, l) -> Color
+
+   Creates a color with the HSL color model.
+
+.. lua:function:: new_color('cmyk', c, m, y, k) -> Color
+
+   Creates a color with the CMYK color model.
 
 Sprite
-""""""
+^^^^^^
 
 .. _sprite:
 .. lua:class:: Sprite
