@@ -489,8 +489,6 @@ void Display::draw_on(Surface* surf)
 
 Surface * Display::create_surface(int w, int h, int texw, int texh, unsigned char* pixels) const
 {
-	assert(pixels);
-
 	GLuint tex;
 	glGenTextures(1, &tex);
 	glBindTexture(GL_TEXTURE_2D, tex);
@@ -598,20 +596,22 @@ Surface * Display::new_surface(int w, int h, bool force_npot) const
 		poth = h;
 	}
 
-	unsigned char *pixels = new unsigned char[potw * poth * RGBA_SIZE];
-	if (!pixels) {
-		return NULL;
-	}
-	memset(pixels, 0, potw * poth * RGBA_SIZE);
-
-	Surface *surface = create_surface(w, h, potw, poth, pixels);
+	Surface *surface = create_surface(w, h, potw, poth, NULL);
 	if (!surface) {
 		return NULL;
 	}
 	if (force_npot) {
 		surface->npot = true;
 	}
-	delete[] pixels;
+
+	// we'll need a FBO anyway
+	create_fbo(surface);
+
+	// clear the surface
+	glBindFramebuffer(GL_FRAMEBUFFER, surface->fbo);
+	glClearColor(0, 0, 0, 0);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glBindFramebuffer(GL_FRAMEBUFFER, current ? current->fbo : 0);
 	return surface;
 }
 
