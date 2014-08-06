@@ -197,7 +197,7 @@ def clean(directory):
 
 def cmake_update(build, definitions=[]):
     generator = HAS_NINJA and 'Ninja' or 'Unix Makefiles'
-    compiler = HAS_NINJA and 'ninja' or 'make'
+    builder = HAS_NINJA and 'ninja' or 'make'
     if not os.path.exists(build):
         os.mkdir(build)
         defs = ['-D' + d for d in definitions]
@@ -205,8 +205,15 @@ def cmake_update(build, definitions=[]):
             print(E, 'cmake failed. Fix CMakeLists.txt and try again!', N)
             clean(build)
             sys.exit(1)
-    if execute([compiler], cwd=build) != 0:
-        print(E, compiler, 'failed, stopping.', N)
+    if execute([builder], cwd=build) != 0:
+        print(E, builder, 'failed, stopping.', N)
+        sys.exit(1)
+
+
+def run_target(build, target):
+    builder = HAS_NINJA and 'ninja' or 'make'
+    if execute([builder, target], cwd=build) != 0:
+        print(E, builder, target, 'failed, stopping.', N)
         sys.exit(1)
 
 
@@ -233,6 +240,9 @@ def prepare_native(release=False,enable_coverage=False):
         coverage = 'OFF'
 
     cmake_update(directory, ['CMAKE_BUILD_TYPE=' + build_type, 'BUILD_ENABLE_COVERAGE='+coverage] + NATIVE_CMAKE_DEFINES)
+    if enable_coverage:
+        run_target(directory, 'coverage-reset')
+
     os.environ['LD_LIBRARY_PATH'] = lib_path
     program = join(bin_path, 'drystal')
     return program, []
@@ -404,11 +414,12 @@ if __name__ == '__main__':
     parser_native.add_argument('-l', '--live', help='live coding (reload code \
                             when it has been modified)',
                             action='store_true', default=False)
-    parser_native.add_argument('-r', '--release', help='compile in release mode',
-                            action='store_true', default=False)
     parser_native.add_argument('-s', '--server', help='launch drystal in server mode',
                             action='store_true', default=False)
-    parser_native.add_argument('-c', '--coverage', help='enable code coverage',
+    group = parser_native.add_mutually_exclusive_group()
+    group.add_argument('-r', '--release', help='compile in release mode',
+                            action='store_true', default=False)
+    group.add_argument('-c', '--coverage', help='enable code coverage',
                             action='store_true', default=False)
     group = parser_native.add_mutually_exclusive_group()
     group.add_argument('-d', '--debug', help='debug with gdb',

@@ -123,6 +123,9 @@ def run_native(args):
             else:
                 execute([drystal] + test_args, cwd=wd)
 
+    if args.coverage:
+        run_target(BUILD_NATIVE_DEBUG, 'coverage-report')
+
 
 if __name__ == '__main__':
     import argparse
@@ -137,9 +140,10 @@ if __name__ == '__main__':
     parser_native = subparsers.add_parser('native', help='run with drystal',
                                         description='run with drystal')
     parser_native.set_defaults(func=run_native)
-    parser_native.add_argument('-r', '--release', help='compile in release mode',
+    group = parser_native.add_mutually_exclusive_group()
+    group.add_argument('-r', '--release', help='compile in release mode',
                             action='store_true', default=False)
-    parser_native.add_argument('-c', '--coverage', help='enable code coverage',
+    group.add_argument('-c', '--coverage', help='run coverage report',
                             action='store_true', default=False)
 
     parser_web = subparsers.add_parser('web', help='run in a browser',
