@@ -6,12 +6,11 @@
 import os
 import sys
 import shutil
-import signal
 import fnmatch
 import zipfile
-import argparse
 import subprocess
 import configparser
+import signal
 
 G = '\033[92m'
 I = '\033[95m'
@@ -57,6 +56,11 @@ Module[\'arguments\'] = ARGS;
 def signal_handler(signum, frame):
     print(I + 'Signal ' + str(signum) + ' caught, quitting...')
     exit(0)
+
+def add_signal_handlers():
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGQUIT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
 
 
 def parent(directory):
@@ -368,16 +372,13 @@ def run_native(args):
         arguments.append("--livecoding")
 
     if args.debug:
-            execute(get_gdb_args(program, arguments=arguments),
-                    fork=False, cwd=wd)
+        execute(get_gdb_args(program, arguments=arguments), cwd=wd)
     elif args.profile:
-        drystal = execute(['valgrind'] + VALGRIND_ARGS_PROFILE + [program] + arguments,
-                          cwd=wd)
+        execute(['valgrind'] + VALGRIND_ARGS_PROFILE + [program] + arguments, cwd=wd)
     elif args.memcheck:
-        drystal = execute(['valgrind'] + VALGRIND_ARGS_MEMCHECK + [program] + arguments,
-                          cwd=wd)
+        execute(['valgrind'] + VALGRIND_ARGS_MEMCHECK + [program] + arguments, cwd=wd)
     else:
-        drystal = execute([program] + arguments, cwd=wd)
+        execute([program] + arguments, cwd=wd)
 
 
 def valid_path(path):
@@ -387,56 +388,56 @@ def valid_path(path):
     return path
 
 
-parser = argparse.ArgumentParser(description='Drystal roadrunner !')
-subparsers = parser.add_subparsers(help='sub-commands')
-
-parser_native = subparsers.add_parser('native', help='run with drystal',
-                                      description='run with drystal')
-parser_native.add_argument('PATH', help='<directory>[/filename.lua]',
-                           type=valid_path)
-parser_native.set_defaults(func=run_native)
-parser_native.add_argument('-l', '--live', help='live coding (reload code \
-                           when it has been modified)',
-                           action='store_true', default=False)
-parser_native.add_argument('-r', '--release', help='compile in release mode',
-                           action='store_true', default=False)
-parser_native.add_argument('-s', '--server', help='launch drystal in server mode',
-                           action='store_true', default=False)
-parser_native.add_argument('-c', '--coverage', help='enable code coverage',
-                           action='store_true', default=False)
-group = parser_native.add_mutually_exclusive_group()
-group.add_argument('-d', '--debug', help='debug with gdb',
-                   action='store_true', default=False)
-group.add_argument('-p', '--profile', help='profile with valgrind',
-                   action='store_true', default=False)
-group.add_argument('-m', '--memcheck', help='check memory with valgrind',
-                   action='store_true', default=False)
-
-parser_web = subparsers.add_parser('web', help='run in a browser',
-                                   description='run in a browser')
-parser_web.add_argument('PATH', help='<directory>[/filename.lua]',
-                        type=valid_path)
-parser_web.set_defaults(func=run_web)
-parser_web.add_argument('-i', '--show-include', help='show files that are (not) included',
-                        action='store_true', default=False)
-parser_web.add_argument('-d', '--destination', help='folder where web files will be put',
-                        default='web')
-
-parser_repack = subparsers.add_parser('repack', help='repack',
-                                      description='repack')
-parser_repack.add_argument('PATH', help='<directory>[/filename.lua]',
-                           type=valid_path)
-parser_repack.set_defaults(func=run_repack)
-parser_repack.add_argument('-i', '--show-include', help='show files that are (not) included',
-                        action='store_true', default=False)
-parser_repack.add_argument('-d', '--destination', help='folder where web files will be put',
-                        default='web')
-
-signal.signal(signal.SIGINT, signal_handler)
-signal.signal(signal.SIGQUIT, signal_handler)
-signal.signal(signal.SIGTERM, signal_handler)
-
 if __name__ == '__main__':
+    import argparse
+
+    add_signal_handlers()
+
+    parser = argparse.ArgumentParser(description='Drystal roadrunner !')
+    subparsers = parser.add_subparsers(help='sub-commands')
+
+    parser_native = subparsers.add_parser('native', help='run with drystal',
+                                        description='run with drystal')
+    parser_native.add_argument('PATH', help='<directory>[/filename.lua]',
+                            type=valid_path)
+    parser_native.set_defaults(func=run_native)
+    parser_native.add_argument('-l', '--live', help='live coding (reload code \
+                            when it has been modified)',
+                            action='store_true', default=False)
+    parser_native.add_argument('-r', '--release', help='compile in release mode',
+                            action='store_true', default=False)
+    parser_native.add_argument('-s', '--server', help='launch drystal in server mode',
+                            action='store_true', default=False)
+    parser_native.add_argument('-c', '--coverage', help='enable code coverage',
+                            action='store_true', default=False)
+    group = parser_native.add_mutually_exclusive_group()
+    group.add_argument('-d', '--debug', help='debug with gdb',
+                    action='store_true', default=False)
+    group.add_argument('-p', '--profile', help='profile with valgrind',
+                    action='store_true', default=False)
+    group.add_argument('-m', '--memcheck', help='check memory with valgrind',
+                    action='store_true', default=False)
+
+    parser_web = subparsers.add_parser('web', help='run in a browser',
+                                    description='run in a browser')
+    parser_web.add_argument('PATH', help='<directory>[/filename.lua]',
+                            type=valid_path)
+    parser_web.set_defaults(func=run_web)
+    parser_web.add_argument('-i', '--show-include', help='show files that are (not) included',
+                            action='store_true', default=False)
+    parser_web.add_argument('-d', '--destination', help='folder where web files will be put',
+                            default='web')
+
+    parser_repack = subparsers.add_parser('repack', help='repack',
+                                        description='repack')
+    parser_repack.add_argument('PATH', help='<directory>[/filename.lua]',
+                            type=valid_path)
+    parser_repack.set_defaults(func=run_repack)
+    parser_repack.add_argument('-i', '--show-include', help='show files that are (not) included',
+                            action='store_true', default=False)
+    parser_repack.add_argument('-d', '--destination', help='folder where web files will be put',
+                            default='web')
+
     if len(sys.argv) > 1:
         args = parser.parse_args()
         args.func(args)
