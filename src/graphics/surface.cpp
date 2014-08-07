@@ -17,6 +17,7 @@
 #include <cassert>
 #include <cstring>
 #include <cmath>
+#include <cerrno>
 #include "stb_image.h"
 
 #include "surface.hpp"
@@ -133,26 +134,30 @@ void Surface::set_filter(FilterMode new_filter, Surface *current_surface)
 }
 
 #define RGBA_SIZE 4
-Surface* Surface::load(const char *filename, Surface *current_surface)
+int Surface::load(const char *filename, Surface **surface, Surface *current_surface)
 {
 	assert(filename);
+	assert(surface);
 
 	int w, h;
 	int n;
+	Surface *tmp;
 	unsigned char *data = stbi_load(filename, &w, &h, &n, RGBA_SIZE);
-
 	if (!data)
-		return NULL;
+		return -ENOMEM;
+	if (w <= 0 || w > 2048 || h <= 0 || h > 2048) {
+		stbi_image_free(data);
+		return -E2BIG;
+	}
 
 	int potw = pow(2, ceil(log(w) / log(2)));
 	int poth = pow(2, ceil(log(h) / log(2)));
 
-	Surface* surface = NULL;
-
 	if (potw != w || poth != h) {
 		unsigned char *pixels = new unsigned char[potw * poth * RGBA_SIZE];
 		if (!pixels) {
-			return NULL;
+			stbi_image_free(data);
+			return -ENOMEM;
 		}
 		memset(pixels, 0, potw * poth * RGBA_SIZE);
 		for (int y = 0; y < h; y++) {
@@ -162,14 +167,20 @@ Surface* Surface::load(const char *filename, Surface *current_surface)
 				memcpy(pixels + id, data + is, RGBA_SIZE);
 			}
 		}
-		surface = new Surface(w, h, potw, poth, pixels, current_surface, NULL);
+		tmp = new Surface(w, h, potw, poth, pixels, current_surface, NULL);
 		delete[] pixels;
 	} else {
-		surface = new Surface(w, h, w, h, data, current_surface, NULL);
+		tmp = new Surface(w, h, w, h, data, current_surface, NULL);
 	}
 
 	stbi_image_free(data);
 
-	return surface;
+	if (!tmp) {
+		return -ENOMEM;
+	}
+
+	*surface = tmp;
+
+	return 0;
 }
 

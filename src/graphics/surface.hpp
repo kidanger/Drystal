@@ -47,7 +47,7 @@ public:
 		*h = this->h;
 	}
 
-	static Surface* load(const char* filename, Surface *current_surface);
+	static int load(const char* filename, Surface **surface, Surface *current_surface);
 
 	unsigned int w;
 	unsigned int h;

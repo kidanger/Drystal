@@ -134,7 +134,7 @@ public:
 	Surface* get_screen() const;
 	Surface* create_surface(unsigned int w, unsigned int h, unsigned int texw, unsigned int texh, unsigned char* pixels) const;
 	Surface* new_surface(int w, int h, bool force_npot) const;
-	Surface* load_surface(const char *) const;
+	int load_surface(const char *filename, Surface **surface) const;
 	void free_surface(Surface*);
 
 	void draw_on(Surface*);

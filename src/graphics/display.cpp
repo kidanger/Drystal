@@ -467,9 +467,9 @@ Surface * Display::create_surface(unsigned int w, unsigned int h, unsigned int t
 	return surface;
 }
 
-Surface * Display::load_surface(const char * filename) const
+int Display::load_surface(const char * filename, Surface **surface) const
 {
-	return Surface::load(filename, current_from);
+	return Surface::load(filename, surface, current_from);
 }
 
 #define RGBA_SIZE 4

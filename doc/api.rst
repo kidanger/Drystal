@@ -213,6 +213,8 @@ Surface
 
       :param: filter is one of ``drystal.NEAREST``, ``drystal.LINEAR``, ``drystal.BILINEAR`` or ``drystal.TRILINEAR``.
 
+   .. warning:: A surface is limited to 2048x2048 pixels. We follow the `WebGL Stats <http://webglstats.com/>`_ and we use the highest texture size at 100%.
+
 
 .. lua:function:: new_surface(width, height)
 

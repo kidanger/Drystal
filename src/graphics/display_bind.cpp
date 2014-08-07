@@ -16,6 +16,7 @@
  */
 #include <cstring>
 #include <cassert>
+#include <cerrno>
 #include <lua.hpp>
 
 #include "engine.hpp"
@@ -181,14 +182,17 @@ int mlua_load_surface(lua_State* L)
 {
 	assert(L);
 
+	int r;
+	Surface *surface;
 	Engine &engine = get_engine();
 	const char * filename = luaL_checkstring(L, 1);
-	Surface* surface = engine.display.load_surface(filename);
-	if (surface) {
-		push_surface(L, surface);
-		return 1;
+	r = engine.display.load_surface(filename, &surface);
+	assert_lua_error(L, r != -E2BIG, "load_surface: surface size must be width >= 0 and width <= 2048, height >= 0 and height <= 2048");
+	if (r < 0) {
+		return luaL_fileresult(L, 0, filename);
 	}
-	return luaL_fileresult(L, 0, filename);
+	push_surface(L, surface);
+	return 1;
 }
 
 int mlua_new_surface(lua_State* L)
@@ -198,6 +202,10 @@ int mlua_new_surface(lua_State* L)
 	Engine &engine = get_engine();
 	int w = luaL_checkint(L, 1);
 	int h = luaL_checkint(L, 2);
+
+	assert_lua_error(L, w > 0 && w <= 2048, "new_surface: width must be >= 0 and <= 2048");
+	assert_lua_error(L, h > 0 && h <= 2048, "new_surface: width must be >= 0 and <= 2048");
+
 	bool force_npot = lua_toboolean(L, 3);
 	Surface* surface = engine.display.new_surface(w, h, force_npot);
 	push_surface(L, surface);
