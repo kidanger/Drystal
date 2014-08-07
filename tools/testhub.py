@@ -24,7 +24,6 @@ tests = [
 'misc/unicode.lua',
 'misc/livecode.lua',
 'misc/pointer.lua',
-'misc/title.lua',
 'misc/relative.lua',
 'misc/hooks.lua',
 'misc/fps.lua',
@@ -54,6 +53,7 @@ tests = [
 'graphics/sprites.lua',
 'graphics/surface_manipulations.lua',
 'graphics/fx.lua',
+'graphics/title.lua',
 ]
 
 addr, port = '127.0.0.1', 8000
