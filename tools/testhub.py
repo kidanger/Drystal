@@ -34,8 +34,8 @@ tests = [
 'physic/ball.lua',
 'physic/crate/main.lua',
 'physic/destroy.lua',
-'network/client.lua',
-'network/server.lua',
+'net/client.lua',
+'net/server.lua',
 'graphics/draw_point.lua',
 'graphics/precise.lua',
 'graphics/colors.lua',
@@ -133,7 +133,7 @@ if __name__ == '__main__':
     add_signal_handlers()
 
     parser = argparse.ArgumentParser(description='Drystal testhub!')
-    parser.add_argument('-t', '--test-type', help='test type', choices=['font','graphics','network','misc','web','storage', 'physic', 'particle', 'audio', 'event'])
+    parser.add_argument('-t', '--test-type', help='test type', choices=['font', 'graphics', 'net', 'misc', 'web', 'storage', 'physic', 'particle', 'audio', 'event'])
     parser.add_argument('-w', '--wait', type=int, help='tell the testhub to wait X seconds before running the next test. By default, you must quit the test.')
     subparsers = parser.add_subparsers(help='sub-commands')
 
