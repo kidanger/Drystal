@@ -1,14 +1,14 @@
 local drystal = require 'drystal'
 
+drystal.resize(600, 400)
+
 local spritesheet = assert(drystal.fromjson(io.open('image.json'):read('*all')))
-local image = assert(drystal.load_surface(spritesheet.meta.image))
+local sprite = spritesheet.frames['character.png'].frame
+
+image = assert(drystal.load_surface(spritesheet.meta.image))
+image:draw_from()
 
 local sprites = {}
-
-function drystal.init()
-	drystal.resize(600, 400)
-	image:draw_from()
-end
 
 function drystal.update(dt)
 	for _, s in ipairs(sprites) do
@@ -25,30 +25,21 @@ function drystal.draw()
 	end
 end
 
-table.insert(sprites, drystal.new_sprite {
-	x=300,
-	y=200,
-	w=40,
-	h=40,
-	color={200, 0, 0},
-	update=function(self, dt)
-		self.angle = self.angle + dt * math.pi * 2
-		self.color[1] = self.color[1] + dt * 255 * 2
-		if self.color[1] > 255 then
-			self.color[1] = 0
-		end
-	end
-})
+local s1 = drystal.new_sprite(sprite, 300, 200, 40, 40)
+s1.color = drystal.colors.red
+s1.update = function(self, dt)
+	self.angle = self.angle + dt * math.pi * 2
+end
 
-local sprite = spritesheet.frames['character.png'].frame
-table.insert(sprites, drystal.new_sprite {
-	x=350,
-	y=200,
-	w=sprite.w,
-	h=sprite.h,
-	source=sprite,
-	update=function(self, dt)
-		self.angle = self.angle + dt * math.pi * 2
+local s2 = drystal.new_sprite(sprite, 150, 200, 100, 100)
+s2.update=function(self, dt)
+	self.angle = self.angle + dt * math.pi * 2
+	self.color[1] = self.color[1] + dt * 255 * 2
+	if self.color[1] > 255 then
+		self.color[1] = 0
 	end
-})
+end
+
+table.insert(sprites, s1)
+table.insert(sprites, s2)
 

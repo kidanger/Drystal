@@ -575,38 +575,53 @@ Sprite
 .. _sprite:
 .. lua:class:: Sprite
 
+   .. lua:data:: source
+
+      Source table of the sprite.
+      It must contain ``x``, ``y``, ``w`` and ``h`` fields.
+
+   .. lua:data:: color (={255,255,255})
+
+      Tint of the sprite.
+
+   .. lua:data:: alpha (=255)
+
+      Alpha of the sprite.
+
+   .. lua:data:: x, y
+
+      Coordinates on the screen (or any destination surface).
+
+   .. lua:data:: w, h
+
+      Width and height of the sprite. If this is different than values from *source*, the sprite will be resized.
+
+   .. lua:data:: angle (=0)
+
+      Rotation of the sprite.
+
    .. lua:method:: draw()
 
       Draws the sprite on the current *draw on* surface.
+      You have to set the correct sprite sheet as *draw from* surface before use this function.
 
-.. lua:function:: new_sprite(table) -> Sprite
+.. lua:function:: new_sprite(source: table[, x=0, y=0[, w=source.w, h=source.h]]) -> Sprite
 
    Creates a sprite.
 
-   :param: ``table`` contains:
+   :param: ``source`` must contain the following fields:
 
-      - x, y coordinates,
-      - optional color table,
-      - optional alpha,
-      - optional angle,
-      - optional w, h (needed if source not defined),
-      - optional source (a sprite table (x, y, w, h); if not defined, draws a rectangle),
-      - any other fields you might need for your code.
+      - x, y : coordinates where the sprite is located in the *draw_from* image
+      - w, h : size of the sprite in the *draw_from* image
 
 .. code::
 
     local surface = assert(drystal.load_surface('spritesheet.png'))
-    local data = { x=0, y=0, w=32, h=32 }
-    local sprite = drystal.new_sprite {
-        x=350,
-        y=200,
-        w=sprite.w,
-        h=sprite.h,
-        source=sprite,              -- if nil, draw a rectangle
-        update=function(self, dt)   -- custom field
-            self.angle = self.angle + dt * math.pi * 2
-        end
-    })
+    local source = { x=0, y=0, w=32, h=32 }
+    local sprite = drystal.new_sprite(source, 350, 200)
+    sprite.update=function(self, dt)   -- custom field
+       self.angle = self.angle + dt * math.pi * 2
+    end
     function drystal.update(dt)
         sprite:update(dt)
     end
