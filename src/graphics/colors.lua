@@ -92,7 +92,7 @@ function drystal.new_color(t, x, y, z, k)
 	end
 
 	if type(x) == 'table' then
-		x, y, z = unpack(x)
+		x, y, z, k = unpack(x)
 	end
 
 	if t == 'hsl' then
