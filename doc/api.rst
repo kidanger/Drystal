@@ -154,7 +154,7 @@ Window
       assert(drystal.screen.w == 200)
       assert(drystal.screen.h == 300)
 
-.. lua:function:: set_fullscreen(fullscreen: bool)
+.. lua:function:: set_fullscreen(fullscreen: boolean)
 
    Enables or disables the fullscreen mode.
 
@@ -176,7 +176,7 @@ Window
 
    Changes the title of the window. In the browser, the title of the document is changed.
 
-.. lua:function:: show_cursor(show: bool)
+.. lua:function:: show_cursor(show: boolean)
 
    Decides if the mouse cursor should be hidden or not.
 
@@ -364,23 +364,23 @@ Camera
 
 The camera can be used the modify position and size of the following draws.
 
-.. lua:data:: x (=0)
+.. lua:data:: drystal.camera.x (=0)
 
    Position of the camera (x coordinate).
 
-.. lua:data:: y (=0)
+.. lua:data:: drystal.camera.y (=0)
 
    Position of the camera (y coordinate).
 
-.. lua:data:: zoom (=1)
+.. lua:data:: drystal.camera.zoom (=1)
 
    Zoom of the camera. Values greater than 1 mean zoom in, less than 1 mean zoom out.
 
-.. lua:data:: angle (=0)
+.. lua:data:: drystal.camera.angle (=0)
 
    Angle of the camera. You can easily apply a tilt effect with this field.
 
-.. lua:function:: reset()
+.. lua:function:: drystal.camera.reset()
 
    Resets the camera fields to default values.
 
@@ -795,7 +795,9 @@ Physic
 
 Learning how to use Box2D_ will help to hunder Drystal's physic module.
 
-.. lua:function:: create_world(gravity_x: float, gravity_y: float)
+.. lua:function:: create_world(gravity_x: float, gravity_y: float[, pixels_per_meter])
+
+   See :ref:`set_pixels_per_meter <set_pixels_per_meter>`.
 
    .. warning:: If ``create_world`` is not called before other physic functions, errors will occur.
 
@@ -815,6 +817,7 @@ Learning how to use Box2D_ will help to hunder Drystal's physic module.
 
    Returns the ratio used to convert coordinates and forces to/from Box2D.
 
+.. _set_pixels_per_meter:
 .. lua:function:: set_pixels_per_meter(pixels_per_meter: float)
 
    Sets the ratio used to convert coordinates and forces to/from Box2D.
