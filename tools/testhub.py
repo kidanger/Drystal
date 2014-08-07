@@ -11,9 +11,9 @@ import os
 import threading
 
 tests = [
-'ttf/line.lua',
-'ttf/position.lua',
-'ttf/simple_draw.lua',
+'font/line.lua',
+'font/position.lua',
+'font/simple_draw.lua',
 'audio/create.lua',
 'audio/play.lua',
 'audio/random/main.lua',
@@ -133,7 +133,7 @@ if __name__ == '__main__':
     add_signal_handlers()
 
     parser = argparse.ArgumentParser(description='Drystal testhub!')
-    parser.add_argument('-t', '--test-type', help='test type', choices=['ttf','graphics','network','misc','web','storage', 'physic', 'particle', 'audio'])
+    parser.add_argument('-t', '--test-type', help='test type', choices=['font','graphics','network','misc','web','storage', 'physic', 'particle', 'audio'])
     parser.add_argument('-w', '--wait', type=int, help='tell the testhub to wait X seconds before running the next test. By default, you must quit the test.')
     subparsers = parser.add_subparsers(help='sub-commands')
 
