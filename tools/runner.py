@@ -372,7 +372,7 @@ def get_gdb_args(program, pid=None, arguments=None):
 
 def run_native(args):
     wd, filename = os.path.split(args.PATH)
-    program, arguments = prepare_native(args.release, args.coverage)
+    program, arguments = prepare_native(args.release, False)
 
     if filename:  # other main file
         arguments.append(filename)
@@ -416,10 +416,7 @@ if __name__ == '__main__':
                             action='store_true', default=False)
     parser_native.add_argument('-s', '--server', help='launch drystal in server mode',
                             action='store_true', default=False)
-    group = parser_native.add_mutually_exclusive_group()
-    group.add_argument('-r', '--release', help='compile in release mode',
-                            action='store_true', default=False)
-    group.add_argument('-c', '--coverage', help='enable code coverage',
+    parser_native.add_argument('-r', '--release', help='compile in release mode',
                             action='store_true', default=False)
     group = parser_native.add_mutually_exclusive_group()
     group.add_argument('-d', '--debug', help='debug with gdb',
