@@ -807,18 +807,18 @@ Creates a new particle system.
 By default, attributes are initialized with random values. Make sure to call appropriate setters to obtain the desired particle effect.
 
 
-Physic
-------
+Physics
+-------
 
-Learning how to use Box2D_ will help to hunder Drystal's physic module.
+Learning how to use Box2D_ will help to hunder Drystal's physics module.
 
 .. lua:function:: create_world(gravity_x: float, gravity_y: float[, pixels_per_meter])
 
    See :ref:`set_pixels_per_meter <set_pixels_per_meter>`.
 
-   .. warning:: If ``create_world`` is not called before other physic functions, errors will occur.
+   .. warning:: If ``create_world`` is not called before other physics functions, errors will occur.
 
-.. lua:function:: update_physic(dt: float[, timestep=0.01])
+.. lua:function:: update_physics(dt: float[, timestep=0.01])
 
    Updates the world.
 

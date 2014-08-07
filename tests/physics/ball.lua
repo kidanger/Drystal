@@ -159,7 +159,7 @@ function drystal.update(dt)
 	if dt > .6 then
 		dt = .6
 	end
-	drystal.update_physic(dt)
+	drystal.update_physics(dt)
 	time = time + dt
 
 	if dir == 'left' then

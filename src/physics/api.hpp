@@ -18,5 +18,5 @@
 
 #include "module.hpp"
 
-DECLARE_MODULE(physic)
+DECLARE_MODULE(physics)
 

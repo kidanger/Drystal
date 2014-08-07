@@ -29,8 +29,8 @@
 #ifdef BUILD_EVENT
 #include "event/api.hpp"
 #endif
-#ifdef BUILD_PHYSIC
-#include "physic/api.hpp"
+#ifdef BUILD_PHYSICS
+#include "physics/api.hpp"
 #endif
 #ifdef BUILD_FONT
 #include "truetype/api.hpp"
@@ -276,8 +276,8 @@ void LuaFunctions::register_modules()
 #ifdef BUILD_PARTICLE
 	REGISTER_MODULE(particle, L);
 #endif
-#ifdef BUILD_PHYSIC
-	REGISTER_MODULE(physic, L);
+#ifdef BUILD_PHYSICS
+	REGISTER_MODULE(physics, L);
 #endif
 #ifdef BUILD_STORAGE
 	REGISTER_MODULE(storage, L);

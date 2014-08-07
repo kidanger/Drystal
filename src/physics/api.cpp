@@ -21,7 +21,7 @@
 #include "body_bind.hpp"
 #include "api.hpp"
 
-BEGIN_MODULE(physic)
+BEGIN_MODULE(physics)
 	DECLARE_FUNCTION(create_world)
 
 	DECLARE_FUNCTION(set_gravity)
@@ -33,7 +33,7 @@ BEGIN_MODULE(physic)
 	DECLARE_FUNCTION(new_body)
 	DECLARE_FUNCTION(new_joint)
 
-	DECLARE_FUNCTION(update_physic)
+	DECLARE_FUNCTION(update_physics)
 	DECLARE_FUNCTION(on_collision)
 
 	DECLARE_FUNCTION(raycast)

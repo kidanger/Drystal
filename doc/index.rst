@@ -40,7 +40,7 @@ Some additional modules:
 
 - **Truetype**: loads .ttf files and render. Using the given syntax, you can highlight words with color/size change.
 - **Web**: adds a wget function to download content (ex: download sounds if needed) or run JS code
-- **Physic**: uses Box2D to compute physic simulation (not a one-to-one binding)
+- **Physics**: uses Box2D to compute physics simulation (not a one-to-one binding)
 - **Particle** systems to easily improve the game aspect
 - **Storage** to save/load games (even in browser)
 

@@ -152,7 +152,7 @@ int mlua_get_pixels_per_meter(lua_State* L)
 	return 1;
 }
 
-int mlua_update_physic(lua_State* L)
+int mlua_update_physics(lua_State* L)
 {
 	assert(L);
 

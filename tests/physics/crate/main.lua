@@ -89,7 +89,7 @@ function drystal.update(dt)
 		nudgeToSquare(c.body, sq, 20)
 	end
 
-	drystal.update_physic(dt * 1000)
+	drystal.update_physics(dt * 1000)
 end
 
 function max_speed(body, spd)
