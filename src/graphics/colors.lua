@@ -164,7 +164,7 @@ function Color:hsl()
 end
 
 -- See http://www.w3.org/TR/css3-color/#svg-color
-drystal.colors = {
+drystal.colors = setmetatable ({
 aliceblue            = drystal.new_color {240,248,255},
 antiquewhite         = drystal.new_color {250,235,215},
 aqua                 = drystal.new_color {0,255,255},
@@ -312,5 +312,9 @@ white                = drystal.new_color {255,255,255},
 whitesmoke           = drystal.new_color {245,245,245},
 yellow               = drystal.new_color {255,255,0},
 yellowgreen          = drystal.new_color {154,205,50},
-}
+}, {
+	__index = function(self, key)
+		error('color ' .. key .. ' does not exist', 3)
+	end
+})
 
