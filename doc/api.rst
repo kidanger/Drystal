@@ -812,11 +812,11 @@ Physics
 
 Learning how to use Box2D_ will help to hunder Drystal's physics module.
 
-.. lua:function:: create_world(gravity_x: float, gravity_y: float[, pixels_per_meter])
+.. lua:function:: init_physics(gravity_x: float, gravity_y: float[, pixels_per_meter])
 
    See :ref:`set_pixels_per_meter <set_pixels_per_meter>`.
 
-   .. warning:: If ``create_world`` is not called before other physics functions, errors will occur.
+   .. warning:: If ``init_physics`` is not called before other physics functions, errors will occur.
 
 .. lua:function:: update_physics(dt: float[, timestep=0.01])
 

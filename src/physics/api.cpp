@@ -22,7 +22,7 @@
 #include "api.hpp"
 
 BEGIN_MODULE(physics)
-	DECLARE_FUNCTION(create_world)
+	DECLARE_FUNCTION(init_physics)
 
 	DECLARE_FUNCTION(set_gravity)
 	DECLARE_FUNCTION(get_gravity)

@@ -5,7 +5,7 @@ require 'point'
 function drystal.init()
 	math.randomseed(os.time())
 	drystal.resize(600, 400)
-	drystal.create_world(0, 0)
+	drystal.init_physics(0, 0)
 	-- drystal.set_ratio(32)
 
 	crates = { makeCrate(5, 5),

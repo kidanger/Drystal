@@ -69,7 +69,7 @@ end
 function drystal.init()
 	drystal.resize(600, 400)
 
-	drystal.create_world(0, 0.98, R)
+	drystal.init_physics(0, 0.98, R)
 	local gx, gy = drystal.get_gravity()
 	assert(gx == 0)
 	assert(gy == 0.98)

@@ -1,6 +1,6 @@
 local drystal = require 'drystal'
 
-drystal.create_world(0, 0)
+drystal.init_physics(0, 0)
 
 local shape = drystal.new_shape('circle', 5)
 local body = drystal.new_body(true, shape)

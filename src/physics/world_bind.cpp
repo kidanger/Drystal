@@ -79,7 +79,7 @@ float pixels_per_meter = 1;
 static Body* destroyed_bodies;
 static Joint* destroyed_joints;
 
-int mlua_create_world(lua_State* L)
+int mlua_init_physics(lua_State* L)
 {
 	assert(L);
 
@@ -118,7 +118,7 @@ int mlua_set_gravity(lua_State* L)
 {
 	assert(L);
 
-	assert_lua_error(L, world, "world must be created before calling set_gravity");
+	assert_lua_error(L, world, "physics must be initialized before calling set_gravity");
 
 	lua_Number gravity_x = luaL_checknumber(L, 1);
 	lua_Number gravity_y = luaL_checknumber(L, 2);
@@ -130,7 +130,7 @@ int mlua_get_gravity(lua_State* L)
 {
 	assert(L);
 
-	assert_lua_error(L, world, "world must be created before calling get_gravity");
+	assert_lua_error(L, world, "physics must be initialized before calling get_gravity");
 
 	b2Vec2 gravity = world->GetGravity();
 	lua_pushnumber(L, gravity.x);
@@ -156,7 +156,7 @@ int mlua_update_physics(lua_State* L)
 {
 	assert(L);
 
-	assert_lua_error(L, world, "world must be created before calling update_physic");
+	assert_lua_error(L, world, "physics must be initialized before calling update_physic");
 
 	lua_Number dt = luaL_checknumber(L, 1);
 	lua_Number timestep = luaL_optnumber(L, 2, 1./60);
@@ -286,7 +286,7 @@ int mlua_on_collision(lua_State* L)
 {
 	assert(L);
 
-	assert_lua_error(L, world, "world must be created before calling on_collision");
+	assert_lua_error(L, world, "physics must be initialized before calling on_collision");
 
 	if (lua_gettop(L)) {
 		int begin_contact;
@@ -359,7 +359,7 @@ int mlua_raycast(lua_State* L)
 {
 	assert(L);
 
-	assert_lua_error(L, world, "world must be created before calling raycast");
+	assert_lua_error(L, world, "physics must be initialized before calling raycast");
 
 	lua_Number x1 = luaL_checknumber(L, 1) / pixels_per_meter;
 	lua_Number y1 = luaL_checknumber(L, 2) / pixels_per_meter;
@@ -417,7 +417,7 @@ int mlua_query(lua_State* L)
 {
 	assert(L);
 
-	assert_lua_error(L, world, "world must be created before calling query");
+	assert_lua_error(L, world, "physics must be initialized before calling query");
 
 	lua_Number x1 = luaL_checknumber(L, 1) / pixels_per_meter;
 	lua_Number y1 = luaL_checknumber(L, 2) / pixels_per_meter;
@@ -440,7 +440,7 @@ int mlua_new_body(lua_State* L)
 {
 	assert(L);
 
-	assert_lua_error(L, world, "world must be created before calling new_body");
+	assert_lua_error(L, world, "physics must be initialized before calling new_body");
 
 	int index = 1;
 	bool dynamic = lua_toboolean(L, index++);
@@ -486,7 +486,7 @@ int mlua_destroy_body(lua_State* L)
 {
 	assert(L);
 
-	assert_lua_error(L, world, "world must be created before calling Body:destroy");
+	assert_lua_error(L, world, "physics must be initialized before calling Body:destroy");
 
 	Body* body = pop_body_secure(L, 1);
 
@@ -509,7 +509,7 @@ int mlua_new_joint(lua_State* L)
 {
 	assert(L);
 
-	assert_lua_error(L, world, "world must be created before calling new_joint");
+	assert_lua_error(L, world, "physics must be initialized before calling new_joint");
 
 	b2JointDef* joint_def;
 
@@ -614,7 +614,7 @@ int mlua_new_joint(lua_State* L)
 int mlua_destroy_joint(lua_State* L)
 {
 	assert(L);
-	assert_lua_error(L, world, "world must be created before calling Joint:destroy");
+	assert_lua_error(L, world, "physics must be initialized before calling Joint:destroy");
 	Joint* joint = pop_joint_secure(L, 1);
 
 	if (world->IsLocked()) {
