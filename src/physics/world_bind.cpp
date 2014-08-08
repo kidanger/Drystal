@@ -339,7 +339,9 @@ public:
 			Body *body = (Body *) fixture->GetBody()->GetUserData();
 			push_body(L, body);
 			lua_pushnumber(L, fraction);
-			if (lua_pcall(L, 2, 2, 0)) {
+			lua_pushnumber(L, point.x * pixels_per_meter);
+			lua_pushnumber(L, point.y * pixels_per_meter);
+			if (lua_pcall(L, 4, 2, 0)) {
 				luaL_error(L, "error calling raycast callback: %s", lua_tostring(L, -1));
 			}
 			new_fraction = luaL_checknumber(L, -2);

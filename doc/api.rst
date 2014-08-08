@@ -851,7 +851,7 @@ Learning how to use Box2D_ will help to hunder Drystal's physics module.
 
 .. lua:function:: raycast(x1, y1, x2, y2, callback) -> body, x, y
 
-   :lua:`callback(body, fraction) -> float, boolean`
+   :lua:`callback(body, fraction, x, y) -> float, boolean`
    The callback should returns a float and a boolean.
    The float works like described `here <http://www.iforce2d.net/b2dtut/world-querying>`_.
    If the boolean is `false` then the body and position is not kept for the returned values of `raycast`, which means you can select which values you want to return.
