@@ -57,7 +57,7 @@ function drystal.draw()
 		drystal.draw_rect(width*i, height*i, width*(1-i*2), height*(1-i*2))
 	end
 
-	drystal.use_shader()
+	drystal.use_default_shader()
 end
 
 function drystal.key_press(key)

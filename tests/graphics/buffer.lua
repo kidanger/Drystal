@@ -21,7 +21,7 @@ drystal.draw_triangle(1,1,1,1,1,1)
 drystal.draw_triangle(1,1,1,1,1,1)
 drystal.draw_triangle(1,1,1,1,1,1)
 
-drystal.use_buffer()
+drystal.use_default_buffer()
 
 local spritesheet = assert(drystal.fromjson(io.open('image.json'):read('*all')))
 
@@ -57,7 +57,7 @@ function drystal.draw()
 			buffer:use()
 			heavy_draw(number)
 			buffer:upload_and_free()
-			drystal.use_buffer()
+			drystal.use_default_buffer()
 		end
 		buffer:draw(math.sin(tick/10)*sprite.w)
 	else

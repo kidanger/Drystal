@@ -48,15 +48,20 @@ int mlua_use_buffer(lua_State* L)
 	assert(L);
 
 	Engine &engine = get_engine();
-	if (lua_gettop(L) == 0) { // use defaut buffer
-		engine.display.use_buffer(NULL);
-	} else {
-		Buffer* buffer = pop_buffer(L, 1);
-		if (buffer->was_freed()) {
-			return luaL_error(L, "cannot use() a freed buffer");
-		}
-		engine.display.use_buffer(buffer);
+	Buffer* buffer = pop_buffer(L, 1);
+	if (buffer->was_freed()) {
+		return luaL_error(L, "cannot use() a freed buffer");
 	}
+	engine.display.use_buffer(buffer);
+	return 0;
+}
+
+int mlua_use_default_buffer(_unused_ lua_State* L)
+{
+	assert(L);
+
+	Engine &engine = get_engine();
+	engine.display.use_default_buffer();
 	return 0;
 }
 

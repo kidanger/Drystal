@@ -25,6 +25,7 @@ DECLARE_PUSHPOP(Buffer, buffer)
 
 int mlua_new_buffer(lua_State* L);
 int mlua_use_buffer(lua_State* L);
+int mlua_use_default_buffer(lua_State* L);
 int mlua_draw_buffer(lua_State* L);
 int mlua_reset_buffer(lua_State* L);
 int mlua_upload_and_free_buffer(lua_State* L);

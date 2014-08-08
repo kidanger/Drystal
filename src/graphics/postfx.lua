@@ -42,7 +42,7 @@ function drystal.add_postfx(name, code, uniforms)
 		local old = surface:draw_from()
 		drystal.draw_image(0, 0, backsurface.w, backsurface.h, 0, 0)
 
-		drystal.use_shader()
+		drystal.use_default_shader()
 		backsurface:draw_from()
 		surface:draw_on()
 		drystal.draw_image(0, 0, backsurface.w, backsurface.h, 0, 0)

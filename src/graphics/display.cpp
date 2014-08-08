@@ -222,7 +222,7 @@ int Display::create_window(int w, int h)
 	draw_on(screen);
 
 	default_shader = create_default_shader();
-	use_shader(default_shader);
+	use_default_shader();
 	default_buffer.allocate();
 
 	set_blend_mode(DEFAULT);
@@ -291,9 +291,9 @@ void Display::flip()
 	Camera oldcamera = camera;
 
 	// draw 'screen' on real screen, using default context (buffer, color, no debug, etc)
-	use_buffer(NULL);
+	use_default_buffer();
 	draw_from(screen);
-	use_shader(default_shader);
+	use_default_shader();
 	set_color(255, 255, 255);
 	set_alpha(255);
 	reset_camera();
@@ -752,13 +752,17 @@ Shader * Display::new_shader(const char* strvert, const char* strfragcolor, cons
 
 void Display::use_shader(Shader* shader)
 {
+	assert(shader);
+
 	current_buffer->check_empty();
 
-	if (!shader) {
-		shader = default_shader;
-	}
 	current_shader = shader;
 	current_buffer->use_shader(shader);
+}
+
+void Display::use_default_shader()
+{
+	use_shader(default_shader);
 }
 
 void Display::free_shader(Shader* shader)
@@ -768,7 +772,7 @@ void Display::free_shader(Shader* shader)
 		GLuint prog;
 		glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*)&prog);
 		if (prog == shader->prog_color || prog == shader->prog_tex)
-			use_shader(default_shader);
+			use_default_shader();
 	}
 
 	delete shader;
@@ -781,16 +785,21 @@ Buffer * Display::new_buffer(unsigned int size)
 	buffer->use_camera(&camera);
 	return buffer;
 }
+
 void Display::use_buffer(Buffer* buffer)
 {
-	if (!buffer) {
-		current_buffer = &default_buffer;
-	} else {
-		current_buffer = buffer;
-	}
+	assert(buffer);
+
+	current_buffer = buffer;
 	current_buffer->use_shader(current_shader);
 	current_buffer->draw_on = current;
 }
+
+void Display::use_default_buffer()
+{
+	use_buffer(&default_buffer);
+}
+
 void Display::draw_buffer(Buffer* buffer, float dx, float dy)
 {
 	assert(buffer);

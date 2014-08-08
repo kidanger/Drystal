@@ -61,12 +61,17 @@ int mlua_use_shader(lua_State* L)
 	assert(L);
 
 	Engine &engine = get_engine();
-	if (lua_gettop(L) == 0) { // use defaut shader
-		engine.display.use_shader(NULL);
-	} else {
-		Shader* shader = pop_shader(L, -1);
-		engine.display.use_shader(shader);
-	}
+	Shader* shader = pop_shader(L, -1);
+	engine.display.use_shader(shader);
+	return 0;
+}
+
+int mlua_use_default_shader(_unused_ lua_State* L)
+{
+	assert(L);
+
+	Engine &engine = get_engine();
+	engine.display.use_default_shader();
 	return 0;
 }
 

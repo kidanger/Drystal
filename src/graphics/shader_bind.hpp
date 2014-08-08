@@ -25,6 +25,7 @@ DECLARE_PUSHPOP(Shader, shader)
 
 int mlua_new_shader(lua_State* L);
 int mlua_use_shader(lua_State* L);
+int mlua_use_default_shader(lua_State* L);
 int mlua_feed_shader(lua_State* L);
 int mlua_free_shader(lua_State* L);
 

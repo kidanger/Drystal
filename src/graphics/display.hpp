@@ -160,10 +160,12 @@ public:
 
 	Shader* new_shader(const char* strvert, const char* strfragcolor, const char* strfragtex, char** error);
 	void use_shader(Shader*);
+	void use_default_shader();
 	void free_shader(Shader*);
 
 	Buffer* new_buffer(unsigned int size = BUFFER_DEFAULT_SIZE);
 	void use_buffer(Buffer*);
+	void use_default_buffer();
 	void draw_buffer(Buffer*, float dx, float dy);
 
 	void flip();

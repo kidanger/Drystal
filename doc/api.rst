@@ -417,7 +417,7 @@ A buffer can **only contain one type of shape** (point, line, triangle, textured
    Creates a buffer of the specified ``size``. ``size`` must be a multiple of the number of points of the shape you put in it.
    For example, if you put triangles, ``size`` must be a multiple of 3.
 
-.. lua:function:: use_buffer()
+.. lua:function:: use_default_buffer()
 
    Tells drystal to use the default buffer.
 
@@ -438,7 +438,7 @@ Shader
    Creates a shader with code specified.
    If one of the code is :lua:`nil`, code of the default shader is used.
 
-.. lua:function:: use_shader()
+.. lua:function:: use_default_shader()
 
    Tells drystal to use the default shader.
 

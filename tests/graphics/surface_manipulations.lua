@@ -79,7 +79,7 @@ function drystal.draw()
 	drystal.set_color(200, 200, 200)
 	drystal.set_alpha(255)
 	drystal.draw_sprite_rotated(sprite, 16, 16, math.sin(tick))
-	drystal.use_shader()
+	drystal.use_default_shader()
 
 	drystal.set_color(100, 0, 0)
 	drystal.set_alpha(200)

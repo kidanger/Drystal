@@ -52,14 +52,6 @@ BEGIN_MODULE(graphics)
 	DECLARE_FUNCTION(set_line_width)
 	DECLARE_FUNCTION(set_blend_mode)
 
-	/* DISPLAY SHADER */
-	DECLARE_FUNCTION(new_shader)
-	DECLARE_FUNCTION(use_shader)
-
-	/* DISPLAY BUFFER */
-	DECLARE_FUNCTION(new_buffer)
-	DECLARE_FUNCTION(use_buffer)
-
 	BEGIN_CLASS(surface)
 		ADD_METHOD(surface, set_filter)
 		ADD_METHOD(surface, draw_on)
@@ -67,6 +59,8 @@ BEGIN_MODULE(graphics)
 		ADD_GC(free_surface)
 	REGISTER_CLASS_WITH_INDEX(surface, "Surface")
 
+	DECLARE_FUNCTION(new_buffer)
+	DECLARE_FUNCTION(use_default_buffer)
 	BEGIN_CLASS(buffer)
 	    ADD_METHOD(buffer, use)
 	    ADD_METHOD(buffer, draw)
@@ -75,6 +69,8 @@ BEGIN_MODULE(graphics)
 	    ADD_GC(free_buffer)
 	REGISTER_CLASS(buffer, "Buffer")
 
+	DECLARE_FUNCTION(new_shader)
+	DECLARE_FUNCTION(use_default_shader)
 	BEGIN_CLASS(shader)
 	    ADD_METHOD(shader, use)
 	    ADD_METHOD(shader, feed)
