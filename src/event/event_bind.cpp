@@ -15,14 +15,8 @@
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <cassert>
-#ifndef EMSCRIPTEN
-#include <SDL2/SDL.h>
-#else
-#include <SDL/SDL.h>
-#include <html5.h>
-#endif
+#include <lua.hpp>
 
-#include "engine.hpp"
 #include "event.hpp"
 #include "event_bind.hpp"
 
