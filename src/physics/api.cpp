@@ -105,6 +105,13 @@ BEGIN_MODULE(physics)
 		ADD_GC(free_joint)
 	REGISTER_CLASS(friction_joint, "FrictionJoint")
 
+	BEGIN_CLASS(gear_joint)
+		ADD_METHOD(joint, destroy)
+		ADD_METHOD(gear_joint, get_ratio)
+		ADD_METHOD(gear_joint, set_ratio)
+		ADD_GC(free_joint)
+	REGISTER_CLASS(gear_joint, "GearJoint")
+
 	BEGIN_CLASS(prismatic_joint)
 		ADD_METHOD(joint, destroy)
 		ADD_METHOD(prismatic_joint, set_enable_motor)
