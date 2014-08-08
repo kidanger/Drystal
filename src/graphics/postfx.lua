@@ -3,7 +3,7 @@ local drystal = require 'drystal'
 local postfxs = {}
 local builtin_postfx = {}
 
-function drystal.create_postfx(name, code, uniforms)
+function drystal.add_postfx(name, code, uniforms)
 	if not drystal.screen then
 		return {} -- server mode probably
 	end
@@ -123,7 +123,7 @@ local backsurface_blur2
 postfxs.blur = function(backsurface, power)
 	if not postfxs['blurDir'] then
 		local postfx = builtin_postfx['blurDir']
-		assert(drystal.create_postfx('blurDir', postfx.code, postfx.uniforms))
+		assert(drystal.add_postfx('blurDir', postfx.code, postfx.uniforms))
 	end
 	if power >= 100 or power < 0 then
 		error('blur: power should be between 0 and 100')
@@ -179,7 +179,7 @@ function drystal.postfx(name, ...)
 	if not postfxs[name] then
 		if builtin_postfx[name] then
 			local postfx = builtin_postfx[name]
-			assert(drystal.create_postfx(name, postfx.code, postfx.uniforms))
+			assert(drystal.add_postfx(name, postfx.code, postfx.uniforms))
 		else
 			error('Post FX ' .. name .. ' not found.')
 		end

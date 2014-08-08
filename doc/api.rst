@@ -445,15 +445,15 @@ Shader
 Post processing
 """""""""""""""
 
-.. lua:function:: create_postfx(name: str, code: str[, uniforms: table]) -> function | (nil, error)
+.. lua:function:: add_postfx(name: str, code: str[, uniforms: table]) -> function | (nil, error)
 
    Creates a post processing effect.
    The ``code`` parameter must contain a *effect* function.
-   Additionnal uniforms can be declared by the ``uniforms`` parameter.
+   Additional uniforms can be declared by the ``uniforms`` parameter.
 
    .. code::
 
-      assert(drystal.create_postfx('gray', [[
+      assert(drystal.add_postfx('gray', [[
          vec3 effect(sampler2D tex, vec2 coord)
          {
              vec3 texval = texture2D(tex, coord).rgb;
