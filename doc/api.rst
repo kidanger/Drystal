@@ -849,6 +849,16 @@ Learning how to use Box2D_ will help to hunder Drystal's physics module.
    - :lua:`on_presolve(body1, body2, x, y, normalx, normaly) -> boolean`
    - :lua:`on_postsolve(body1, body2)`
 
+.. lua:function:: raycast(x1, y1, x2, y2, 'any' | 'closest' | 'farthest') -> body, x, y
+
+   Returns any body, the closest or the farthest found during a raycast from ``(x1, y1)`` to ``(x2, y2)``.
+   It also returns the point of collision.
+
+.. lua:function:: raycast(x1, y1, x2, y2, 'all') -> bodies, points
+
+   Returns all the bodies found during a raycast from ``(x1, y1)`` to ``(x2, y2)``.
+   It also returns the points of collision.
+
 .. lua:function:: raycast(x1, y1, x2, y2, callback) -> body, x, y
 
    :lua:`callback(body, fraction, x, y) -> float, boolean`

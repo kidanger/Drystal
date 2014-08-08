@@ -219,6 +219,26 @@ function drystal.draw()
 		b:draw()
 	end
 
+	do -- raycast
+		local dx, dy = ball:get_linear_velocity()
+		local angle = math.atan2(dy, dx)
+		local xx = x1 + math.cos(angle) * 200
+		local yy = y1 + math.sin(angle) * 200
+		local _, points = drystal.raycast(x1, y1, xx, yy, 'all')
+		for _, p in ipairs(points) do
+			drystal.set_point_size(10)
+			drystal.set_color(drystal.colors.darkgreen)
+			drystal.draw_point(unpack(p))
+		end
+		local body, cx, cy = drystal.raycast(x1, y1, xx, yy, 'closest')
+		if body then
+			drystal.set_color(drystal.colors.orange)
+			xx = cx
+			yy = cy
+		end
+		drystal.draw_line(x1, y1, xx, yy)
+	end
+
 	ball.p_system:draw()
 	ball2.p_system:draw()
 	normal_sys:draw()
