@@ -8,6 +8,7 @@ local function is_getset(funcname)
 	return false
 end
 
+local funcs = {}
 for k, v in pairs(System) do
 	if is_getset(k) then
 		local attr = k:sub(string.len('get_min_') + 1)
@@ -22,8 +23,12 @@ for k, v in pairs(System) do
 			setmin(data, min)
 			setmax(data, max or min)
 		end
-		System['set_' .. attr] = set_both
-		System['get_' .. attr] = get_both
+		funcs['set_' .. attr] = set_both
+		funcs['get_' .. attr] = get_both
 	end
+end
+
+for k, v in pairs(funcs) do
+	System[k] = v
 end
 
