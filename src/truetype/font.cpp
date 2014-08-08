@@ -164,6 +164,9 @@ void Font::draw(const char* text, float x, float y, Alignment align)
 	engine.display.get_alpha(&a);
 
 	TextState* state = push_parser();
+	if (!state) {
+		return;
+	}
 	state->r = r;
 	state->g = g;
 	state->b = b;
@@ -277,6 +280,11 @@ void Font::get_textsize(const char* text, float* w, float* h, int nblinesmax)
 
 	const char* textend = text;
 	TextState* state = push_parser();
+	if (!state) {
+		*w = 0;
+		*h = 0;
+		return;
+	}
 	while (parse(&state, text, textend)) {
 		while (text < textend) {
 			unsigned char chr = *text;

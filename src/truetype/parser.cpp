@@ -27,10 +27,10 @@
 
 log_category("font");
 
-#define MAX_STATES 16
-#define MAX_PARSERS 2
-static TextState g_states[MAX_STATES][MAX_PARSERS];
-static int g_indexes[MAX_PARSERS] = {0};
+#define NB_STATES 16
+#define NB_PARSERS 2
+static TextState g_states[NB_PARSERS][NB_STATES];
+static int g_indexes[NB_PARSERS] = {0};
 static int g_indexparser = -1;
 #define INDEX (g_indexes[g_indexparser])
 
@@ -224,6 +224,8 @@ static const char* next_token(const char* text)
 
 bool parse(TextState** state, const char*& start, const char*& end)
 {
+	assert(state);
+
 	*state = &g_states[g_indexparser][INDEX];
 
 	const char* next = next_token(start);
@@ -239,9 +241,10 @@ bool parse(TextState** state, const char*& start, const char*& end)
 	} else if (*next == START && start < next) {
 		end = next;
 	} else if (*next == START) {
-		if (INDEX < MAX_STATES)
+		if (INDEX < NB_STATES - 1)
 			INDEX++;
-		g_states[g_indexparser][INDEX] = g_states[g_indexparser][INDEX - 1];
+		if (INDEX > 0)
+			g_states[g_indexparser][INDEX] = g_states[g_indexparser][INDEX - 1];
 
 		do {
 			start = next + 1;
@@ -263,10 +266,11 @@ bool parse(TextState** state, const char*& start, const char*& end)
 TextState* push_parser()
 {
 	g_indexparser++;
+	if (g_indexparser >= NB_PARSERS || g_indexparser < 0) {
+		return NULL;
+	}
 	INDEX = 0;
 	g_states[g_indexparser][INDEX].reset();
-	assert(g_indexparser < MAX_PARSERS);
-	assert(g_indexparser >= 0);
 	return &g_states[g_indexparser][INDEX];
 }
 
