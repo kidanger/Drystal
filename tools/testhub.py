@@ -14,6 +14,7 @@ tests = [
 'font/line.lua',
 'font/position.lua',
 'font/simple_draw.lua',
+'font/parser.lua',
 'audio/create.lua',
 'audio/play.lua',
 'audio/random/main.lua',
