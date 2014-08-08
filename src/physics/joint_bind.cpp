@@ -23,6 +23,7 @@ IMPLEMENT_PUSH(RevoluteJoint, revolute_joint)
 IMPLEMENT_PUSH(MouseJoint, mouse_joint)
 IMPLEMENT_PUSH(PrismaticJoint, prismatic_joint)
 IMPLEMENT_PUSH(GearJoint, gear_joint)
+IMPLEMENT_PUSH(FrictionJoint, friction_joint)
 
 IMPLEMENT_POP(Joint, joint)
 
@@ -37,6 +38,13 @@ inline static b2GearJoint* luam_togearjoint(lua_State* L, int index)
 {
 	b2GearJoint* joint = (b2GearJoint *) pop_joint_secure(L, index)->joint;
 	assert_lua_error(L, joint->GetType() == e_gearJoint, "wrong joint type: GearJoint expected");
+	return joint;
+}
+
+inline static b2FrictionJoint* luam_tofrictionjoint(lua_State* L, int index)
+{
+	b2FrictionJoint* joint = (b2FrictionJoint *) pop_joint_secure(L, index)->joint;
+	assert_lua_error(L, joint->GetType() == e_frictionJoint, "wrong joint type: FrictionJoint expected");
 	return joint;
 }
 
@@ -207,7 +215,7 @@ int mlua_set_ratio_gear_joint(lua_State* L)
 {
 	b2GearJoint* joint = luam_togearjoint(L, 1);
 	lua_Number ratio = luaL_checknumber(L, 2);
-	
+
 	joint->SetRatio(ratio);
 
 	return 0;
@@ -216,9 +224,49 @@ int mlua_set_ratio_gear_joint(lua_State* L)
 int mlua_get_ratio_gear_joint(lua_State* L)
 {
 	b2GearJoint* joint = luam_togearjoint(L, 1);
-	
+
 	float ratio = joint->GetRatio();
 	lua_pushnumber(L, ratio);
+
+	return 1;
+}
+
+int mlua_set_max_torque_friction_joint(lua_State* L)
+{
+	b2FrictionJoint* joint = luam_tofrictionjoint(L, 1);
+	lua_Number max_torque = luaL_checknumber(L, 2);
+
+	joint->SetMaxTorque(max_torque);
+
+	return 0;
+}
+
+int mlua_get_max_torque_friction_joint(lua_State* L)
+{
+	b2FrictionJoint* joint = luam_tofrictionjoint(L, 1);
+
+	float max_torque = joint->GetMaxTorque();
+	lua_pushnumber(L, max_torque);
+
+	return 1;
+}
+
+int mlua_set_max_force_friction_joint(lua_State* L)
+{
+	b2FrictionJoint* joint = luam_tofrictionjoint(L, 1);
+	lua_Number max_force = luaL_checknumber(L, 2);
+
+	joint->SetMaxForce(max_force);
+
+	return 0;
+}
+
+int mlua_get_max_force_friction_joint(lua_State* L)
+{
+	b2FrictionJoint* joint = luam_tofrictionjoint(L, 1);
+
+	float max_force = joint->GetMaxForce();
+	lua_pushnumber(L, max_force);
 
 	return 1;
 }

@@ -102,6 +102,12 @@ function drystal.init()
 	joint:set_length(100)
 	joint:set_frequency(0.9)
 
+	joint2 = drystal.new_joint('friction', ball, ground2, 0, 0, 0, 0)
+	joint2:set_max_torque(2)
+	joint2:set_max_force(0.2)
+	assert(joint2:get_max_torque() == 2)
+	assert(joint2:get_max_force() == 0.2)
+
 	for i = 1, 600/30 do
 		local b = create_box(30, 30, {}, true)
 		local x = i * 32

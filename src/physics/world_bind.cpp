@@ -559,6 +559,17 @@ int mlua_new_joint(lua_State* L)
 		def->localAxisA.Set(axisx, axisy);
 		def->localAxisA.Normalize();
 		joint_def = def;
+	} else if (!strcmp(type, "friction")) {
+		b2FrictionJointDef* def = new b2FrictionJointDef;
+		def->bodyA = pop_body_secure(L, i++)->body;
+		def->bodyB = pop_body_secure(L, i++)->body;
+		lua_Number anchorAx = luaL_checknumber(L, i++) / pixels_per_meter;
+		lua_Number anchorAy = luaL_checknumber(L, i++) / pixels_per_meter;
+		lua_Number anchorBx = luaL_checknumber(L, i++) / pixels_per_meter;
+		lua_Number anchorBy = luaL_checknumber(L, i++) / pixels_per_meter;
+		def->localAnchorA.Set(anchorAx, anchorAy);
+		def->localAnchorB.Set(anchorBx, anchorBy);
+		joint_def = def;
 	} else if (!strcmp(type, "gear")) {
 		b2GearJointDef* def = new b2GearJointDef;
 		def->bodyA = pop_body_secure(L, i++)->body;
@@ -602,6 +613,8 @@ int mlua_new_joint(lua_State* L)
 		push_revolute_joint(L, joint);
 	} else if (!strcmp(type, "prismatic")) {
 		push_prismatic_joint(L, joint);
+	} else if (!strcmp(type, "friction")) {
+		push_friction_joint(L, joint);
 	} else if (!strcmp(type, "gear")) {
 		push_gear_joint(L, joint);
 	}
