@@ -18,8 +18,6 @@
 #include <cstring>
 #include <cstdio>
 #include <cassert>
-#include <map>
-#include <utility> // std::pair
 
 #include "parser.hpp"
 #include "macro.hpp"
@@ -154,41 +152,45 @@ static void change_shadowy(const char* str, TextState* state)
 	state->shadow = true;
 }
 
+typedef void(*StateModifier)(const char*, TextState*);
 struct Keyword {
 	const char* word;
-	void(*func)(const char*, TextState*);
+	StateModifier modifier;
 };
 
-typedef void(*StateModifier)(const char*, TextState*);
-std::pair<const char*, StateModifier> keywords_data[] = {
-	std::make_pair("%:",		change_alpha),
-	std::make_pair("r:",		change_red),
-	std::make_pair("g:",		change_green),
-	std::make_pair("b:",		change_blue),
-	std::make_pair("tiny",		change_tiny),
-	std::make_pair("small",		change_small),
-	std::make_pair("normal",	change_normal),
-	std::make_pair("big",		change_big),
-	std::make_pair("BIG",		change_BIG),
-	std::make_pair("italic",	change_italic),
-	std::make_pair("outline",	change_outline),
-	std::make_pair("nooutline",	change_nooutline),
-	std::make_pair("outr:",		change_outr),
-	std::make_pair("outg:",		change_outg),
-	std::make_pair("outb:",		change_outb),
-	std::make_pair("shadowx:",	change_shadowx),
-	std::make_pair("shadowy:",	change_shadowy),
+static Keyword keywords[] = {
+	{"%:",        change_alpha},
+	{"r:",        change_red},
+	{"g:",        change_green},
+	{"b:",        change_blue},
+	{"tiny",      change_tiny},
+	{"small",     change_small},
+	{"normal",    change_normal},
+	{"big",       change_big},
+	{"BIG",       change_BIG},
+	{"italic",    change_italic},
+	{"outline",   change_outline},
+	{"nooutline", change_nooutline},
+	{"outr:",     change_outr},
+	{"outg:",     change_outg},
+	{"outb:",     change_outb},
+	{"shadowx:",  change_shadowx},
+	{"shadowy:",  change_shadowy},
+	{NULL, NULL}
 };
 
-struct keyword_cmp {
-	bool operator()(char const *a, char const *b) const
-	{
-		return std::strcmp(a, b) < 0;
+static StateModifier find_modifier(const char *word)
+{
+	unsigned int i = 0;
+
+	while (keywords[i].word) {
+		if (strcmp(keywords[i].word, word) == 0) {
+			return keywords[i].modifier;
+		}
+		i++;
 	}
-};
-
-std::map<const char*, StateModifier, keyword_cmp> keywords(keywords_data,
-        keywords_data + sizeof keywords_data / sizeof keywords_data[0]);
+	return NULL;
+}
 
 static void evaluate(TextState* state, const char* text)
 {
@@ -202,7 +204,7 @@ static void evaluate(TextState* state, const char* text)
 		i += 1;
 	}
 
-	StateModifier func = keywords[command];
+	StateModifier func = find_modifier(command);
 	if (func) {
 		func(text + strlen(command), state);
 	} else {
