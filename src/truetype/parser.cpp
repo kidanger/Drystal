@@ -197,7 +197,7 @@ static void evaluate(TextState* state, const char* text)
 
 	char command[32] = {0};
 	int i = 0;
-	while (text[i] && text[i] != '|' && (i == 0 || text[i - 1] != ':')) {
+	while (i < 32 && text[i] && text[i] != '|' && (i == 0 || text[i - 1] != ':')) {
 		command[i] = text[i];
 		i += 1;
 	}
