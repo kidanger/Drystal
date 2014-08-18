@@ -153,7 +153,9 @@ postfxs.blur = function(backsurface, power)
 	backsurface_blur:draw_from()
 	drystal.draw_image(0, 0, w, h, 0, 0, old.w, old.h)
 
-	oldfrom:draw_from()
+	if oldfrom then
+		oldfrom:draw_from()
+	end
 end
 
 add_postfx('vignette', [[
