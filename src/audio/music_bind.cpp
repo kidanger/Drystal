@@ -108,7 +108,8 @@ int mlua_play_music(lua_State *L)
 	assert(L);
 
 	Music* music = pop_music(L, 1);
-	music->play();
+	bool loop = lua_toboolean(L, 2);
+	music->play(loop);
 	return 0;
 }
 

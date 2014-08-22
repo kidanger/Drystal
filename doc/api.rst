@@ -1127,9 +1127,9 @@ Audio
 
 .. lua:class:: Music
 
-   .. lua:method:: play()
+   .. lua:method:: play([loop=false: bool])
 
-      Play the music (from the beginning).
+      Play the music (from the beginning). If ``loop`` is true, the music will loop forever.
 
    .. lua:method:: stop()
 

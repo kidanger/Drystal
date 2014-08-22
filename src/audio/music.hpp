@@ -42,21 +42,18 @@ private:
 	int samplesrate;
 	unsigned int buffersize;
 	bool ended;
+	bool loop;
 
 	Music(MusicCallback* clb, ALenum format, int rate);
+	void stream();
 
 public:
 	int ref;
 
-	void play();
-	void stream();
+	void play(bool loop);
+	void update();
 	void stop();
 	void free();
-
-	bool is_ended() const
-	{
-		return ended;
-	}
 
 	static Music* load(MusicCallback* callback, int samplesrate = DEFAULT_SAMPLES_RATE, int num_channels = 1);
 	static Music* load_from_file(const char* filename);

@@ -32,13 +32,14 @@ Music::Music(MusicCallback* clb, ALenum format, int rate) :
 	samplesrate(rate),
 	buffersize(rate * 0.4),
 	ended(false),
+	loop(false),
 	ref(0)
 {
 	alGenBuffers(STREAM_NUM_BUFFERS, alBuffers);
 	audio_check_error();
 }
 
-void Music::play()
+void Music::play(bool loop)
 {
 	if (source != NULL)
 		return;
@@ -67,6 +68,7 @@ void Music::play()
 	source->currentMusic = this;
 	source->used = true;
 	source->desiredVolume = 1;
+	this->loop = loop;
 }
 
 
@@ -87,10 +89,11 @@ void Music::free()
 	if (source) {
 		stop();
 	}
-	alDeleteBuffers(2, alBuffers);
+	alDeleteBuffers(STREAM_NUM_BUFFERS, alBuffers);
 	delete callback;
 	delete this;
 }
+
 void Music::stream()
 {
 	Source* source = this->source;
@@ -109,7 +112,15 @@ void Music::stream()
 		audio_check_error();
 
 		if (len < buffersize) {
-			ended = true;
+			if (loop) {
+				callback->rewind();
+				// fill the rest of the buffer
+				unsigned int rest = callback->feed_buffer(buff + len, buffersize - len);
+				alBufferData(buffer, format, buff, (len + rest) * sizeof(ALushort), samplesrate);
+				audio_check_error();
+			} else {
+				ended = true;
+			}
 		}
 
 		alSourceQueueBuffers(source->alSource, 1, &buffer);
@@ -181,3 +192,14 @@ Music* Music::load_from_file(const char* filename)
 
 	return load(callback, callback->info.sample_rate, callback->info.channels);
 }
+
+void Music::update()
+{
+	if (source && ended) {
+		stop();
+	}
+	if (source && !ended) {
+		stream();
+	}
+}
+

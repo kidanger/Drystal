@@ -91,9 +91,7 @@ void update_audio(_unused_ float dt)
 		}
 		if (source.used && source.isMusic) { // still playing music
 			Music* music = source.currentMusic;
-			if (!music->is_ended()) {
-				music->stream();
-			}
+			music->update();
 		}
 		if (!source.used) {
 			// if the source is not playing anymore,
