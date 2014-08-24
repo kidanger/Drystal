@@ -364,6 +364,7 @@ void Display::set_point_size(float size)
 void Display::set_line_width(float width)
 {
 	assert(width >= 0);
+	current_buffer->check_empty();
 	glLineWidth(width);
 }
 
