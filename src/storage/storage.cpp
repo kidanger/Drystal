@@ -145,36 +145,35 @@ void store(const char *key, const char *value)
 		return;
 	}
 	file = fopen(".storage", "r");
-	if (!file) {
-		goto finish;
-	}
+	if (file) {
+		fseek(file, 0L, SEEK_END);
+		filesize = ftell(file);
+		fseek(file, 0L, SEEK_SET);
 
-	fseek(file, 0L, SEEK_END);
-	filesize = ftell(file);
-	fseek(file, 0L, SEEK_SET);
+		if (filesize > 0) {
+			// If there is something in the file, we mmap it and decode it to create a table
+			int r;
+			char *data = (char *) mmap(0, filesize, PROT_READ, MAP_PRIVATE, fileno(file), 0);
+			if (data == MAP_FAILED) {
+				goto finish;
+			}
 
-	if (filesize > 0) {
-		// If there is something in the file, we mmap it and decode it to create a table
-		int r;
-		char *data = (char *) mmap(0, filesize, PROT_READ, MAP_PRIVATE, fileno(file), 0);
-		if (data == MAP_FAILED) {
-			goto finish;
+			lua_pushcfunction(L, json_decode);
+			lua_pushstring(L, data);
+			CALL(1, 1);
+
+			r = munmap(data, filesize);
+			if (r < 0) {
+				lua_pop(L, 1);
+				goto finish;
+			}
 		}
-
-		lua_pushcfunction(L, json_decode);
-		lua_pushstring(L, data);
-		CALL(1, 1);
-
-		r = munmap(data, filesize);
-		if (r < 0) {
-			lua_pop(L, 1);
-			goto finish;
-		}
+		fclose(file);
 	} else {
 		lua_newtable(L);
 	}
 
-	file = freopen(".storage", "w", file);
+	file = fopen(".storage", "w");
 	if (!file) {
 		goto finish;
 	}
