@@ -222,6 +222,9 @@ int Display::create_window(int w, int h)
 	draw_on(screen);
 
 	default_shader = create_default_shader();
+	if (!default_shader) {
+		return -1;
+	}
 	use_default_shader();
 	default_buffer.allocate();
 
