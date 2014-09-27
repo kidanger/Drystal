@@ -24,7 +24,6 @@
 #include "livecoding.h"
 #endif
 #else
-#include <string>
 #include <emscripten.h>
 #include <sys/stat.h>
 #include <miniz.h>
