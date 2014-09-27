@@ -646,7 +646,7 @@ Shader * Display::create_default_shader()
 	char* error;
 	Shader* shader = new_shader(strvert, strfragcolor, strfragtex, &error);
 	if (!shader) {
-		log_error("Failed to compile default shader: %s", error);
+		log_error("Failed to compile default shader:\n%s", error);
 		delete[] error;
 	}
 	return shader;
