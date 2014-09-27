@@ -187,7 +187,7 @@ int mlua_load_surface(lua_State* L)
 	Engine &engine = get_engine();
 	const char * filename = luaL_checkstring(L, 1);
 	r = engine.display.load_surface(filename, &surface);
-	assert_lua_error(L, r != -E2BIG, "load_surface: surface size must be width > 0 and width <= 2048, height > 0 and height <= 2048");
+	assert_lua_error(L, r != -E2BIG, "load_surface: surface size must be width > 0 and <= 2048, height > 0 and <= 2048");
 	if (r < 0) {
 		return luaL_fileresult(L, 0, filename);
 	}
