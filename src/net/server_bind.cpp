@@ -21,8 +21,7 @@
 #include "socket.hpp"
 #include "server.hpp"
 #include "server_bind.hpp"
-
-IMPLEMENT_PUSHPOP(Socket, socket)
+#include "socket_bind.hpp"
 
 static Server server;
 

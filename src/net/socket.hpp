@@ -16,8 +16,6 @@
  */
 #pragma once
 
-#include <string>
-
 #ifndef EMSCRIPTEN
 extern "C" {
 #include "websocket.h"
@@ -35,8 +33,8 @@ private:
 #ifndef EMSCRIPTEN
 	ws_ctx_t* wsctx;
 #endif
-	std::string address;
-	std::string output;
+	const char *address;
+	char *output;
 public:
 	int ref;
 

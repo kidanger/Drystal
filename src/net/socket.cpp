@@ -18,7 +18,7 @@
 #include <sys/time.h>
 #include <cstdio>
 #include <cstring>
-#include <string>
+#include <cstdlib>
 #include <unistd.h>
 #include <cerrno>
 #include <fcntl.h>
@@ -31,6 +31,7 @@
 #include "macro.hpp"
 #include "socket.hpp"
 #include "log.hpp"
+#include "util.h"
 
 log_category("net");
 
@@ -41,7 +42,7 @@ Socket::Socket(int fd, const char* address, bool is_websocket):
 	wsctx(NULL),
 #endif
 	address(address),
-	output(),
+	output(NULL),
 	ref(0)
 {
 	if (is_websocket) {
@@ -88,10 +89,18 @@ Socket* Socket::connect(const char* hostname, int port)
 
 void Socket::send(const char* msg, _unused_ int len, bool* error)
 {
+	char *t;
+
 	assert(error);
 	assert(msg);
 
-	output += msg;
+	t = strnappend(output, msg, strlen(msg));
+	if (!t) {
+		return;
+	}
+
+	free(output);
+	output = t;
 
 	flush(error);
 }
@@ -100,7 +109,7 @@ void Socket::flush(bool* error)
 {
 	assert(error);
 
-	int totallen = output.length();
+	int totallen = strlen(output);
 	if (totallen == 0 || !readyToSend()) {
 		return;
 	}
@@ -108,12 +117,12 @@ void Socket::flush(bool* error)
 	int n;
 #ifndef EMSCRIPTEN
 	if (wsctx) {
-		n = ws_send(wsctx, output.c_str(), totallen);
+		n = ws_send(wsctx, output, totallen);
 	} else {
-		n = ::send(fd, output.c_str(), totallen, 0);
+		n = ::send(fd, output, totallen, 0);
 	}
 #else
-	n = ::send(fd, output.c_str(), totallen, 0);
+	n = ::send(fd, output, totallen, 0);
 #endif
 
 	if (n < 0) {
@@ -128,7 +137,7 @@ void Socket::flush(bool* error)
 			fd = -1;
 		}
 	} else {
-		output.erase(0, n);
+		memmove(output, &output[n], strlen(output) - n);
 	}
 }
 
@@ -207,7 +216,7 @@ bool Socket::readyToSend()
 
 const char* Socket::getAddress() const
 {
-	return address.c_str();
+	return address;
 }
 
 void Socket::setTable(int ref)

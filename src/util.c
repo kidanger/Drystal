@@ -25,6 +25,38 @@
 #include "util.h"
 #include "macro.hpp"
 
+char *strnappend(const char *s, const char *suffix, size_t l)
+{
+	size_t s_l;
+	char *new_s;
+
+	if (!s && !suffix) {
+		return strdup("");
+	}
+
+	if (!suffix) {
+		return strdup(s);
+	}
+
+	if (!s) {
+		return strdup(suffix);
+	}
+
+	s_l = strlen(s);
+
+	new_s = calloc(s_l + l + 1, sizeof(char));
+	if (!new_s) {
+		return NULL;
+	}
+
+	memcpy(new_s, s, s_l);
+	memcpy(new_s + s_l, suffix, l);
+	new_s[s_l + l] = 0;
+
+	return new_s;
+}
+
+
 char *strjoin(const char *s, ...)
 {
 	va_list ap;
