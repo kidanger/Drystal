@@ -20,18 +20,17 @@
 
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
-#include <string>
+
+#include "util.h"
 
 char *fetch(const char *key)
 {
 	assert(key);
 
-	std::string js;
-	js = "if (localStorage!==undefined) {localStorage['";
-	js += key;
-	js += "']||''} else {''}";
+	char *js;
+	js = strjoin("if (localStorage!==undefined) {localStorage['", key, "']||''} else {''}", NULL);
 
-	char *value = emscripten_run_script_string(js.c_str());
+	char *value = emscripten_run_script_string(js);
 	return value;
 }
 
@@ -40,14 +39,11 @@ void store(const char *key, const char *value)
 	assert(key);
 	assert(value);
 
-	std::string js;
-	js = "localStorage['";
-	js += key;
-	js += "'] = '";
-	js += value;
-	js += "';";
+	char *js;
 
-	emscripten_run_script(js.c_str());
+	js = strjoin("localStorage['", key, "'] = '", value, "';", NULL);
+
+	emscripten_run_script(js);
 }
 
 #else

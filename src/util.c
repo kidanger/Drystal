@@ -20,9 +20,51 @@
 #include <time.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <stdarg.h>
 
 #include "util.h"
 #include "macro.hpp"
+
+char *strjoin(const char *s, ...)
+{
+	va_list ap;
+	size_t l;
+	char *join, *p;
+
+	va_start(ap, s);
+	for (;;) {
+		const char *t;
+
+		t = va_arg(ap, const char *);
+		if (!t) {
+			break;
+		}
+
+		l += strlen(t);
+	}
+	va_end(ap);
+
+	join = calloc(l + 1, sizeof(char));
+	if (!join) {
+		return NULL;
+	}
+
+	va_start(ap, s);
+	p = stpcpy(join, s);
+	for (;;) {
+		const char *t;
+
+		t = va_arg(ap, const char *);
+		if (!t) {
+			break;
+		}
+
+		p = stpcpy(p, t);
+	}
+	va_end(ap);
+
+	return join;
+}
 
 void msleep(unsigned long milisec)
 {
