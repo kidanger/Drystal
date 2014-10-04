@@ -34,6 +34,7 @@ EMSCRIPTEN_ROOT_PATH = '/usr/lib/emscripten'
 EMSCRIPTEN_CMAKE_DEFINES = ['CMAKE_TOOLCHAIN_FILE=../cmake/Emscripten.cmake',
                             'EMSCRIPTEN_ROOT_PATH=' + EMSCRIPTEN_ROOT_PATH,
                             'EMSCRIPTEN=1',
+                            'BUILD_LIVECODING=NO',
                             'CMAKE_BUILD_TYPE=Release']
 
 LIB_PATH_RELEASE = join(BUILD_NATIVE_RELEASE, 'external')
