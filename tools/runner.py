@@ -196,9 +196,11 @@ def clean(directory):
     return True
 
 
-def cmake_update(build, definitions=[]):
+def cmake_update(build, definitions=[], force_clean=False):
     generator = HAS_NINJA and 'Ninja' or 'Unix Makefiles'
     builder = HAS_NINJA and 'ninja' or 'make'
+    if force_clean:
+        clean(build)
     if not os.path.exists(build):
         os.mkdir(build)
         defs = ['-D' + d for d in definitions]
