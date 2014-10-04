@@ -149,6 +149,9 @@ endif()
 if(BUILD_NET AND NOT EMSCRIPTEN)
 	target_link_libraries(${DRYSTAL_OUT} websocket)
 endif()
+if(BUILD_LIVECODING)
+	target_link_libraries(${DRYSTAL_OUT} pthread)
+endif()
 
 install(TARGETS ${DRYSTAL_OUT} DESTINATION /usr/bin)
 
