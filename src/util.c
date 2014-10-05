@@ -60,7 +60,7 @@ char *strnappend(const char *s, const char *suffix, size_t l)
 char *strjoin(const char *s, ...)
 {
 	va_list ap;
-	size_t l;
+	size_t l = 0;
 	char *join, *p;
 
 	va_start(ap, s);
