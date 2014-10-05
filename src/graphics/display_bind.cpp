@@ -138,6 +138,10 @@ int mlua_resize(lua_State* L)
 
 	int w = luaL_checkint(L, 1);
 	int h = luaL_checkint(L, 2);
+
+	assert_lua_error(L, w > 0, "resize: width must be > 0");
+	assert_lua_error(L, h > 0, "resize: height must be > 0");
+
 	Engine &engine = get_engine();
 	engine.display.resize(w, h);
 
