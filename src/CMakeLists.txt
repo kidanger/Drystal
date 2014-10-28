@@ -58,9 +58,6 @@ endif()
 include(GenerateLuaFiles)
 
 set(DRYSTAL_OUT drystal)
-if(EMSCRIPTEN)
-    set(DRYSTAL_OUT drystal.js)
-endif()
 
 set(DRYSTAL_FLAGS " ")
 set(DRYSTAL_CXX_FLAGS " ")
