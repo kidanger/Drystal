@@ -72,7 +72,7 @@ static const char* getGLError(GLenum error)
 #endif
 
 
-Display::Display(bool server_mode) :
+Display::Display() :
 	default_buffer(false),
 	sdl_window(NULL),
 	screen(NULL),
@@ -93,10 +93,6 @@ Display::Display(bool server_mode) :
 	debug_mode(false)
 {
 	int r;
-	if (server_mode) { // fix those hacks!
-		available = true;
-		return;
-	}
 	r = SDL_InitSubSystem(SDL_INIT_VIDEO);
 	if (r != 0) {
 		log_error("Cannot initialize SDL video subsystem");

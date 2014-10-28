@@ -83,7 +83,7 @@ private:
 	Shader* create_default_shader();
 
 public:
-	Display(bool server_mode);
+	Display();
 	~Display();
 
 	void set_title(const char *title) const;

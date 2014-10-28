@@ -53,8 +53,7 @@ static Engine *engine;
 #define AT(something)
 #endif
 
-Engine::Engine(const char* filename, unsigned int target_fps, bool server_mode) :
-	server_mode(server_mode),
+Engine::Engine(const char* filename, unsigned int target_fps) :
 	target_ms_per_frame(1000 / target_fps),
 	run(true),
 	loaded(false),
@@ -66,7 +65,7 @@ Engine::Engine(const char* filename, unsigned int target_fps, bool server_mode) 
 	stats(),
 #endif
 #ifdef BUILD_GRAPHICS
-	display(server_mode),
+	display(),
 #endif
 	lua(filename)
 {
@@ -177,20 +176,18 @@ void Engine::update()
 		lua.call_update(dt);
 	AT(game);
 
-	if (!server_mode) {
-		if (draw_activated)
-			lua.call_draw();
+	if (draw_activated)
+		lua.call_draw();
 
 #ifdef BUILD_ENABLE_STATS
-		if (stats_activated)
-			stats.draw();
+	if (stats_activated)
+		stats.draw();
 #endif
 
 #ifdef BUILD_GRAPHICS
-		display.flip();
-		AT(display);
+	display.flip();
+	AT(display);
 #endif
-	}
 
 #ifdef BUILD_ENABLE_STATS
 	if (stats_activated) {

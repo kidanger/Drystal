@@ -29,7 +29,6 @@
 class Engine
 {
 private:
-	bool server_mode;
 	unsigned long target_ms_per_frame;
 	bool run;
 	bool loaded;
@@ -48,7 +47,7 @@ public:
 #endif
 	LuaFunctions lua;
 
-	Engine(const char* filename, unsigned int target_fps, bool server_mode);
+	Engine(const char* filename, unsigned int target_fps);
 	~Engine();
 
 	void load();

@@ -270,9 +270,6 @@ void LuaFunctions::register_modules()
 #ifdef BUILD_EVENT
 	REGISTER_MODULE(event, L);
 #endif
-#ifdef BUILD_NET
-	REGISTER_MODULE(net, L);
-#endif
 #ifdef BUILD_PARTICLE
 	REGISTER_MODULE(particle, L);
 #endif

@@ -99,7 +99,7 @@ int main(int argc, const char* argv[])
 		}
 	}
 
-	Engine e(filename, 60, false);
+	Engine e(filename, 60);
 	engine = &e;
 
 	emscripten_async_wget_data(zipname, (void*) zipname, on_zip_downloaded, on_zip_fail);
@@ -162,9 +162,6 @@ static void help(void)
 	printf("drystal [OPTIONS] <game.lua>\n\n"
 	       "OPTIONS\n"
 	       "    -h --help       Show this help message and exit\n"
-#ifdef BUILD_NET
-	       "    -s --server     Enable the server mode. It means the graphics and audio features will not be available and the window will not be created.\n"
-#endif
 #ifdef BUILD_LIVECODING
 	       "    -l --livecoding Enable the livecoding which will reload the lua code when modifications on the files are performed\n"
 #endif
@@ -176,16 +173,11 @@ int main(int argc, const char* argv[])
 #ifdef BUILD_LIVECODING
 	bool livecoding = false;
 #endif
-	bool server_mode = false;
 
 	for (int i = 1; i < argc; i++) {
 		if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")) {
 			help();
 			return 0;
-#ifdef BUILD_NET
-		} else if (!strcmp(argv[i], "--server") || !strcmp(argv[i], "-s")) {
-			server_mode = true;
-#endif
 #ifdef BUILD_LIVECODING
 		} else if (!strcmp(argv[i], "--livecoding") || !strcmp(argv[i], "-l")) {
 			livecoding = true;
@@ -195,7 +187,7 @@ int main(int argc, const char* argv[])
 		}
 	}
 
-	Engine e(filename, 60, server_mode);
+	Engine e(filename, 60);
 #ifdef BUILD_LIVECODING
 	engine = &e;
 	if (livecoding) {

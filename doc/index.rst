@@ -44,8 +44,6 @@ Some additional modules:
 - **Particle** systems to easily improve the game aspect
 - **Storage** to save/load games (even in browser)
 
-.. - **Network**: TCP/WebSocket communication
-
 
 Contribute
 ----------

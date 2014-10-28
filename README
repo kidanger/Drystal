@@ -41,10 +41,6 @@ REQUIREMENTS:
     - OpenAL
     - OpenGL
 
-    For the websocket layer:
-    - libresolv (from glibc)
-    - libcrypto (from OpenSSL)
-
     Build:
     - CMake
     - C++ compiler (clang, gcc,...)

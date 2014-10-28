@@ -81,17 +81,6 @@ endif()
 
 
 ###
-### websocket
-###
-if(NOT DEFINED EMSCRIPTEN AND BUILD_NET)
-    add_library(websocket STATIC websocket.c)
-    find_library(CRYPTO_LIBRARY NAMES crypto)
-    find_library(RESOLV_LIBRARY NAMES resolv)
-    target_link_libraries(websocket ${CRYPTO_LIBRARY})
-    target_link_libraries(websocket ${RESOLV_LIBRARY})
-endif()
-
-###
 ### STB
 ###
 if(BUILD_AUDIO)
