@@ -143,5 +143,5 @@ if(BUILD_LIVECODING)
 	target_link_libraries(${DRYSTAL_OUT} pthread)
 endif()
 
-install(TARGETS ${DRYSTAL_OUT} DESTINATION usr/bin)
+install(TARGETS ${DRYSTAL_OUT} DESTINATION bin)
 
