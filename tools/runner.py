@@ -379,8 +379,6 @@ def run_native(args):
 
     if filename:  # other main file
         arguments.append(filename)
-    if args.server:
-        arguments.append("--server")
     if args.live:
         arguments.append("--livecoding")
 
@@ -416,8 +414,6 @@ if __name__ == '__main__':
     parser_native.set_defaults(func=run_native)
     parser_native.add_argument('-l', '--live', help='live coding (reload code \
                             when it has been modified)',
-                            action='store_true', default=False)
-    parser_native.add_argument('-s', '--server', help='launch drystal in server mode',
                             action='store_true', default=False)
     parser_native.add_argument('-r', '--release', help='compile in release mode',
                             action='store_true', default=False)

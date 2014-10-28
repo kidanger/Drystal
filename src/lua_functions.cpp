@@ -41,9 +41,6 @@
 #ifdef BUILD_AUDIO
 #include "audio/api.hpp"
 #endif
-#ifdef BUILD_NET
-#include "net/api.hpp"
-#endif
 #ifdef BUILD_WEB
 #include "web/api.hpp"
 #endif

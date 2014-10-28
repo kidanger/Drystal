@@ -21,8 +21,6 @@ It is free and open-source.
 The engine is compiled to Javascript thanks to Emscripten_.
 Games can be ran on Linux or on any platform with a recent web browser.
 
-.. and WebSockets if network is used in game.
-
 You can find a game made with Drystal `here <http://kidanger.github.io/Chronored>`_. It has been made in 48h during a Ludum Dare.
 
 

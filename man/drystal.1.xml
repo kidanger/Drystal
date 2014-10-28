@@ -76,18 +76,6 @@ along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
 
     <variablelist>
       <varlistentry>
-        <term><option>--server</option></term>
-        <term><option>-s</option></term>
-
-        <listitem><para>Enable the server mode. It means the
-        graphics and audio features will not be available and the window
-        will not be created.</para>
-        </listitem>
-      </varlistentry>
-    </variablelist>
-
-    <variablelist>
-      <varlistentry>
         <term><option>--livecoding</option></term>
         <term><option>-l</option></term>
 
