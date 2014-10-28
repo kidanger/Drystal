@@ -1,5 +1,3 @@
-tags
-.vim_syntax
 build-*/
 /web
 *.pyc
