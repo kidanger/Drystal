@@ -16,13 +16,12 @@ configs = {
 'STORAGE': ['UTILS'],
 'AUDIO': [],
 'FONT': ['GRAPHICS'],
-'NET': ['UTILS'],
 'WEB': [],
 'PARTICLE': ['GRAPHICS'],
 'PHYSICS': [],
 }
 configs_names = ['UTILS', 'GRAPHICS', 'EVENT', 'STORAGE', 'AUDIO',
-        'FONT', 'NET', 'WEB', 'PARTICLE', 'PHYSICS']
+        'FONT', 'WEB', 'PARTICLE', 'PHYSICS']
 
 def get_index_of(v):
     for i, c in enumerate(configs_names):
