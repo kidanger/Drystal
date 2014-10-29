@@ -271,7 +271,7 @@ int mlua_get_max_force_friction_joint(lua_State* L)
 	return 1;
 }
 
-int mlua_free_joint(_unused_ lua_State* L)
+int mlua_free_joint(lua_State* L)
 {
 	log_debug();
 	Joint* joint = pop_joint(L, 1);
