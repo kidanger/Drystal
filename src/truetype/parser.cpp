@@ -20,7 +20,7 @@
 #include <cassert>
 
 #include "parser.hpp"
-#include "macro.hpp"
+#include "macro.h"
 #include "log.hpp"
 
 log_category("font");

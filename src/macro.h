@@ -16,6 +16,10 @@
  */
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
 #define BEGIN_DISABLE_WARNINGS \
 	_Pragma("GCC diagnostic push")
@@ -64,3 +68,8 @@
 		__typeof__ (b) _b = (b); \
 		_a > _b ? _a : _b; \
 	})
+
+#ifdef __cplusplus
+}
+#endif
+

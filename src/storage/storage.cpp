@@ -53,7 +53,7 @@ void store(const char *key, const char *value)
 #include <sys/mman.h>
 
 #include "lua_util.h"
-#include "macro.hpp"
+#include "macro.h"
 
 extern "C"
 {

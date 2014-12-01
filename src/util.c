@@ -25,7 +25,7 @@
 #include <errno.h>
 
 #include "util.h"
-#include "macro.hpp"
+#include "macro.h"
 
 int mkdir_p(const char *path)
 {

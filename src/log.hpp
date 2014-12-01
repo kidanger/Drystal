@@ -18,7 +18,7 @@
 
 #include <cstdio>
 
-#include "macro.hpp"
+#include "macro.h"
 
 /*
  * Before using the logging API you must call log_category() at the beginning

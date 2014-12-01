@@ -2,7 +2,7 @@
 #include <cstring>
 #include <lua.hpp>
 
-#include "macro.hpp"
+#include "macro.h"
 
 BEGIN_DISABLE_WARNINGS;
 DISABLE_WARNING_EFFCPP;

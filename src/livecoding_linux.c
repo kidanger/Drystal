@@ -30,7 +30,7 @@
 #include <libgen.h>
 
 #include "livecoding.h"
-#include "macro.hpp"
+#include "macro.h"
 #include "util.h"
 
 #define EVENT_BUFFER_LEN (20 * (sizeof(struct inotify_event) + FILENAME_MAX))

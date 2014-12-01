@@ -35,7 +35,7 @@
 #ifdef BUILD_EVENT
 #include "event/event.hpp"
 #endif
-#include "macro.hpp"
+#include "macro.h"
 #include "util.h"
 
 #ifdef EMSCRIPTEN

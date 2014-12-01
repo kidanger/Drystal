@@ -28,7 +28,7 @@
 #include <stb_truetype.h>
 
 #include "engine.hpp"
-#include "macro.hpp"
+#include "macro.h"
 #include "font.hpp"
 #include "parser.hpp"
 

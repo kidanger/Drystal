@@ -24,7 +24,7 @@
 #include <map>
 #include <lua.hpp>
 
-#include "macro.hpp"
+#include "macro.h"
 #include "engine.hpp"
 #include "lua_util.h"
 #include "event.hpp"

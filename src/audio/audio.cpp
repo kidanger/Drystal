@@ -18,7 +18,7 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 
-#include "macro.hpp"
+#include "macro.h"
 #include "music.hpp"
 #include "sound.hpp"
 #include "audio.hpp"
