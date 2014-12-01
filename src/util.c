@@ -17,13 +17,38 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include <time.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <stdarg.h>
+#include <errno.h>
 
 #include "util.h"
 #include "macro.hpp"
+
+int mkdir_p(const char *path)
+{
+	char *p;
+	char t[strlen(path) + 1];
+
+	assert(path);
+
+	strcpy(t, path);
+	for (p = strchr(t, '/'); p && *p; p = strchr(p + 1, '/')) {
+		int r;
+
+		*p = 0;
+
+		r = mkdir(t, 0777);
+		if (r < 0 && errno != EEXIST)
+			return -errno;
+
+		*p = '/';
+	}
+
+	return 0;
+}
 
 char *strjoin(const char *s, ...)
 {

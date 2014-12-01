@@ -27,6 +27,8 @@
 #include <emscripten.h>
 #include <sys/stat.h>
 #include <miniz.h>
+
+#include "util.h"
 #endif
 
 #include "engine.hpp"
@@ -37,16 +39,6 @@ log_category("main");
 #ifdef EMSCRIPTEN
 static Engine* engine = NULL;
 
-static void mkpath(const char* path)
-{
-	char filepath[strlen(path) + 1];
-	strcpy(filepath, path);
-	for (char* p = strchr(filepath + 1, '/'); p; p = strchr(p + 1, '/')) {
-		*p = '\0';
-		mkdir(filepath, 0777);
-		*p = '/';
-	}
-}
 static void on_zip_downloaded(void* userdata, void* buffer, int size)
 {
 	mz_zip_archive za;
@@ -64,7 +56,11 @@ static void on_zip_downloaded(void* userdata, void* buffer, int size)
 		const char* filename = file_stat.m_filename;
 
 		if (!mz_zip_reader_is_file_a_directory(&za, i)) {
-			mkpath(filename);
+			r = mkdir_p(filename);
+			if (r < 0) {
+				log_error("Cannot unzip game files: %s", strerror(-r));
+				break;
+			}
 			mz_zip_reader_extract_to_file(&za, i, filename, 0);
 		}
 	}

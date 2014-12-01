@@ -26,6 +26,7 @@ extern "C" {
 #define XREALLOC(array, nmemb, need) \
 	xrealloc((void **) &(array), &(nmemb), need, sizeof((array)[0]), 32)
 
+int mkdir_p(const char *path);
 char *strjoin(const char *s, ...);
 void msleep(unsigned long milisec);
 bool is_directory(const char *directory);
