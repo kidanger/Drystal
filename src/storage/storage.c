@@ -14,9 +14,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <cassert>
+#include <assert.h>
 
-#include "storage.hpp"
+#include "storage.h"
 
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
@@ -47,19 +47,16 @@ void store(const char *key, const char *value)
 }
 
 #else
-#include <cstdio>
-#include <cstring>
-#include <lua.hpp>
+#include <stdio.h>
+#include <string.h>
+#include <lua.h>
 #include <sys/mman.h>
 
 #include "lua_util.h"
 #include "macro.h"
 
-extern "C"
-{
-	extern int json_encode(lua_State * L);
-	extern int json_decode(lua_State * L);
-}
+extern int json_encode(lua_State * L);
+extern int json_decode(lua_State * L);
 
 char *fetch(const char *key)
 {
@@ -84,7 +81,7 @@ char *fetch(const char *key)
 	filesize = ftell(file);
 	fseek(file, 0L, SEEK_SET);
 
-	data = (char*) mmap(0, filesize, PROT_READ, MAP_PRIVATE, fileno(file), 0);
+	data = mmap(0, filesize, PROT_READ, MAP_PRIVATE, fileno(file), 0);
 	if (data == MAP_FAILED) {
 		goto fail;
 	}
@@ -149,7 +146,7 @@ void store(const char *key, const char *value)
 		if (filesize > 0) {
 			// If there is something in the file, we mmap it and decode it to create a table
 			int r;
-			char *data = (char *) mmap(0, filesize, PROT_READ, MAP_PRIVATE, fileno(file), 0);
+			char *data = mmap(0, filesize, PROT_READ, MAP_PRIVATE, fileno(file), 0);
 			if (data == MAP_FAILED) {
 				goto finish;
 			}

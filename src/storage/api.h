@@ -14,12 +14,17 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "module.h"
-#include "storage_bind.hpp"
-#include "api.hpp"
+#pragma once
 
-BEGIN_MODULE(storage)
-	DECLARE_FUNCTION(store)
-	DECLARE_FUNCTION(fetch)
-END_MODULE()
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "module.h"
+
+DECLARE_MODULE(storage)
+
+#ifdef __cplusplus
+}
+#endif
 

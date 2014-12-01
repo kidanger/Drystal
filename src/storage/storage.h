@@ -16,7 +16,14 @@
  */
 #pragma once
 
-struct lua_State;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-int mlua_store(lua_State* L);
-int mlua_fetch(lua_State* L);
+char* fetch(const char* key);
+void store(const char* key, const char* value);
+
+#ifdef __cplusplus
+}
+#endif
+

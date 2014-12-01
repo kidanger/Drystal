@@ -45,7 +45,7 @@
 #include "web/api.hpp"
 #endif
 #ifdef BUILD_STORAGE
-#include "storage/api.hpp"
+#include "storage/api.h"
 #endif
 #ifdef BUILD_GRAPHICS
 #include "graphics/api.hpp"

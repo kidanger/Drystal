@@ -14,20 +14,18 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <cassert>
-#include <lua.hpp>
+#include <assert.h>
+#include <lua.h>
 #ifndef EMSCRIPTEN
-#include <cstdlib>
+#include <stdlib.h>
 #endif
 
 #include "lua_util.h"
-#include "storage_bind.hpp"
-#include "storage.hpp"
+#include "storage_bind.h"
+#include "storage.h"
 
-extern "C" {
-	extern int json_encode(lua_State* L);
-	extern int json_decode(lua_State* L);
-}
+extern int json_encode(lua_State* L);
+extern int json_decode(lua_State* L);
 
 int mlua_store(lua_State* L)
 {
