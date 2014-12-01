@@ -81,7 +81,7 @@ static void loop()
 	}
 }
 
-int main(int argc, const char* argv[])
+int main(int argc, char* argv[])
 {
 	const char* filename = "main.lua";
 	const char* zipname = "game.zip";
@@ -163,7 +163,7 @@ static void help(void)
 #endif
 	      );
 }
-int main(int argc, const char* argv[])
+int main(int argc, char* argv[])
 {
 	const char* filename = "main.lua";
 #ifdef BUILD_LIVECODING
