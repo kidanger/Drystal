@@ -25,7 +25,7 @@
 #include "log.hpp"
 #include "lua_functions.hpp"
 #include "luafiles.hpp"
-#include "module.hpp"
+#include "module.h"
 #ifdef BUILD_EVENT
 #include "event/api.hpp"
 #endif

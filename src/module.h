@@ -16,7 +16,11 @@
  */
 #pragma once
 
-#include <lua.hpp>
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <lua.h>
 
 #define PUSH_FUNC(name, func) \
 	lua_pushcfunction(L, mlua_##func); \
@@ -69,4 +73,8 @@
 
 #define DECLARE_CONSTANT(constant) \
 	DECLARE_CONSTANT_WITH_NAME(constant, #constant)
+
+#ifdef __cplusplus
+}
+#endif
 

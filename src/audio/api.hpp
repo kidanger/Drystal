@@ -16,7 +16,7 @@
  */
 #pragma once
 
-#include "module.hpp"
+#include "module.h"
 
 DECLARE_MODULE(audio)
 

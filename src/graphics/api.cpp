@@ -16,7 +16,7 @@
  */
 #include <cstring>
 
-#include "module.hpp"
+#include "module.h"
 #include "engine.hpp"
 #include "display_bind.hpp"
 #include "camera_bind.hpp"

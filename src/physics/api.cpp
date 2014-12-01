@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "module.hpp"
+#include "module.h"
 #include "world_bind.hpp"
 #include "joint_bind.hpp"
 #include "shape_bind.hpp"
