@@ -14,10 +14,10 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <cassert>
-#include <lua.hpp>
+#include <assert.h>
+#include <lua.h>
 
-#include "lua_util.hpp"
+#include "lua_util.h"
 
 int traceback(lua_State *L)
 {

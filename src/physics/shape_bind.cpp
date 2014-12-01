@@ -13,7 +13,7 @@ END_DISABLE_WARNINGS;
 #include "shape_bind.hpp"
 #include "world_bind.hpp"
 #include "log.hpp"
-#include "lua_util.hpp"
+#include "lua_util.h"
 
 log_category("shape");
 

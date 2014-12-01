@@ -20,7 +20,7 @@
 
 #include <lua.hpp>
 
-#include "lua_util.hpp"
+#include "lua_util.h"
 #include "engine.hpp"
 #include "log.hpp"
 #include "lua_functions.hpp"

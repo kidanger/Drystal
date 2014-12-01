@@ -20,7 +20,7 @@
 
 #include "system.hpp"
 #include "system_bind.hpp"
-#include "lua_util.hpp"
+#include "lua_util.h"
 
 IMPLEMENT_PUSHPOP(System, system)
 

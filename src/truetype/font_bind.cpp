@@ -19,7 +19,7 @@
 
 #include "font.hpp"
 #include "font_bind.hpp"
-#include "lua_util.hpp"
+#include "lua_util.h"
 
 IMPLEMENT_PUSHPOP(Font, font)
 

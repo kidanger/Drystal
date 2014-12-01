@@ -18,7 +18,7 @@
 #include <lua.hpp>
 
 #include "audio_bind.hpp"
-#include "lua_util.hpp"
+#include "lua_util.h"
 #include "audio.hpp"
 
 int mlua_set_sound_volume(lua_State *L)

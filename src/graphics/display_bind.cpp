@@ -21,7 +21,7 @@
 
 #include "engine.hpp"
 #include "display_bind.hpp"
-#include "lua_util.hpp"
+#include "lua_util.h"
 #include "log.hpp"
 
 log_category("graphics");

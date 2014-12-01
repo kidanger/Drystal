@@ -16,7 +16,7 @@
  */
 #pragma once
 
-#include "lua_util.hpp"
+#include "lua_util.h"
 
 struct lua_State;
 class Buffer;

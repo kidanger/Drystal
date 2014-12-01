@@ -20,7 +20,7 @@
 #include "log.hpp"
 #include "sound_bind.hpp"
 #include "sound.hpp"
-#include "lua_util.hpp"
+#include "lua_util.h"
 
 log_category("sound");
 

@@ -25,7 +25,7 @@ DISABLE_WARNING_STRICT_ALIASING;
 #include <Box2D/Box2D.h>
 END_DISABLE_WARNINGS;
 
-#include "lua_util.hpp"
+#include "lua_util.h"
 #include "log.hpp"
 #include "world_bind.hpp"
 #include "body_bind.hpp"

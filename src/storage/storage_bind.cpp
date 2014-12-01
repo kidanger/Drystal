@@ -20,7 +20,7 @@
 #include <cstdlib>
 #endif
 
-#include "lua_util.hpp"
+#include "lua_util.h"
 #include "storage_bind.hpp"
 #include "storage.hpp"
 

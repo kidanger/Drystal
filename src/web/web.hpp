@@ -20,3 +20,4 @@
 char *run_js(const char* script);
 void wget(const char* url, const char* filename);
 #endif
+

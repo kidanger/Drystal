@@ -20,7 +20,7 @@
 #include "log.hpp"
 #include "music_bind.hpp"
 #include "music.hpp"
-#include "lua_util.hpp"
+#include "lua_util.h"
 
 log_category("music");
 

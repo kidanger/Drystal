@@ -16,8 +16,13 @@
  */
 #pragma once
 
-#include <cassert>
-#include <lua.hpp>
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <assert.h>
+#include <lua.h>
+#include <lauxlib.h>
 
 int traceback(lua_State *L);
 
@@ -35,7 +40,7 @@ int traceback(lua_State *L);
 		if (name->ref) { \
 			lua_rawgeti(L, -1, name->ref); \
 		} else { \
-			T **p = static_cast<T **>(lua_newuserdata(L, sizeof(T **))); \
+			T **p = (T **) lua_newuserdata(L, sizeof(T **)); \
 			assert(p); \
 			*p = name; \
 			\
@@ -61,7 +66,7 @@ int traceback(lua_State *L);
 	{ \
 		assert(L); \
 		if (!lua_istable(L, index)) { \
-			T **p = static_cast<T **>(lua_touserdata(L, index)); \
+			T **p = (T **) lua_touserdata(L, index); \
 			if (p == NULL) luaL_argerror(L, index, #name" expected"); \
 			assert(p); \
 			return *p; \
@@ -101,4 +106,8 @@ int traceback(lua_State *L);
 #define assert_lua_error(L, x, msg) \
 	if (!(x)) \
 		luaL_error(L, msg)
+
+#ifdef __cplusplus
+}
+#endif
 
