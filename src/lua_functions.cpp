@@ -51,7 +51,7 @@
 #include "graphics/api.hpp"
 #endif
 #ifdef BUILD_UTILS
-#include "utils/api.hpp"
+#include "utils/api.h"
 #endif
 
 log_category("lua");

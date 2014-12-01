@@ -15,13 +15,11 @@
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "module.h"
-#include "api.hpp"
+#include "api.h"
 
-extern "C" {
-	extern int json_encode(lua_State* L);
-	extern int json_decode(lua_State* L);
-	extern void lua_cjson_init();
-}
+extern int json_encode(lua_State* L);
+extern int json_decode(lua_State* L);
+extern void lua_cjson_init();
 
 BEGIN_MODULE(utils)
     lua_cjson_init();
