@@ -14,15 +14,16 @@ if(BUILD_GRAPHICS)
 	list(APPEND LUAFILES_LIST "graphics/postfx.lua" "graphics/draw.lua" "graphics/sprite.lua" "graphics/colors.lua")
 endif()
 
-set(LUAFILES_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/luafiles.cpp)
+set(LUAFILES_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/luafiles.c)
 
-# generate luafiles.cpp
+# generate luafiles.c
 file(WRITE ${LUAFILES_OUTPUT} "\
-#include <cstdio>
-#include <cstring>
-#include <lua.hpp>
+#include <stdio.h>
+#include <string.h>
+#include <lua.h>
+#include <lauxlib.h>
 
-#include \"luafiles.hpp\"
+#include \"luafiles.h\"
 
 int load_luafiles(lua_State* L)
 {
