@@ -14,11 +14,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <cassert>
-#include <lua.hpp>
+#include <assert.h>
+#include <lua.h>
+#include <lauxlib.h>
 
-#include "engine.hpp"
-#include "buffer_bind.hpp"
+#include "display.h"
+#include "buffer_bind.h"
 #include "log.h"
 
 log_category("buffer");
@@ -29,13 +30,12 @@ int mlua_new_buffer(lua_State* L)
 {
 	assert(L);
 
-	Engine &engine = get_engine();
 	Buffer* buffer;
 	if (lua_gettop(L) == 1) {
 		lua_Number size = luaL_checknumber(L, 1);
-		buffer = engine.display.new_buffer(size);
+		buffer = display_new_buffer(size);
 	} else {
-		buffer = engine.display.new_buffer(); // let Display choose a size
+		buffer = display_new_auto_buffer(); // let Display choose a size
 	}
 	assert(buffer);
 	push_buffer(L, buffer);
@@ -46,21 +46,17 @@ int mlua_use_buffer(lua_State* L)
 {
 	assert(L);
 
-	Engine &engine = get_engine();
 	Buffer* buffer = pop_buffer(L, 1);
-	if (buffer->was_freed()) {
+	if (buffer_was_freed(buffer)) {
 		return luaL_error(L, "cannot use() a freed buffer");
 	}
-	engine.display.use_buffer(buffer);
+	display_use_buffer(buffer);
 	return 0;
 }
 
 int mlua_use_default_buffer(_unused_ lua_State* L)
 {
-	assert(L);
-
-	Engine &engine = get_engine();
-	engine.display.use_default_buffer();
+	display_use_default_buffer();
 	return 0;
 }
 
@@ -68,14 +64,13 @@ int mlua_draw_buffer(lua_State* L)
 {
 	assert(L);
 
-	Engine &engine = get_engine();
 	Buffer* buffer = pop_buffer(L, 1);
 	lua_Number dx = 0, dy = 0;
 	if (lua_gettop(L) >= 2)
 		dx = luaL_checknumber(L, 2);
 	if (lua_gettop(L) >= 3)
 		dy = luaL_checknumber(L, 3);
-	engine.display.draw_buffer(buffer, dx, dy);
+	display_draw_buffer(buffer, dx, dy);
 	return 0;
 }
 
@@ -84,10 +79,10 @@ int mlua_reset_buffer(lua_State* L)
 	assert(L);
 
 	Buffer* buffer = pop_buffer(L, 1);
-	if (buffer->was_freed()) {
+	if (buffer_was_freed(buffer)) {
 		return luaL_error(L, "cannot reset() a freed buffer");
 	}
-	buffer->reset();
+	buffer_reset(buffer);
 	return 0;
 }
 
@@ -96,10 +91,10 @@ int mlua_upload_and_free_buffer(lua_State* L)
 	assert(L);
 
 	Buffer* buffer = pop_buffer(L, 1);
-	if (buffer->was_freed()) {
+	if (buffer_was_freed(buffer)) {
 		return luaL_error(L, "cannot upload_and_free() a freed buffer");
 	}
-	buffer->upload_and_free();
+	buffer_upload_and_free(buffer);
 	return 0;
 }
 
@@ -109,7 +104,7 @@ int mlua_free_buffer(lua_State* L)
 
 	log_debug("");
 	Buffer* buffer = pop_buffer(L, 1);
-	delete buffer;
+	buffer_free(buffer);
 	return 0;
 }
 

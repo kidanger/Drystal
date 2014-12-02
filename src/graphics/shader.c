@@ -14,11 +14,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <cstring>
-#include <cassert>
+#include <string.h>
+#include <assert.h>
 
 #include "log.h"
-#include "shader.hpp"
+#include "shader.h"
+#include "util.h"
 
 log_category("shader");
 
@@ -34,7 +35,7 @@ const char* SHADER_PREFIX = SHADER_STRING
                                 precision mediump float; \n
                                 HASH(#)endif \n
                             );
-const size_t SHADER_PREFIX_LEN = strlen(SHADER_PREFIX);
+const size_t SHADER_PREFIX_LEN = sizeof(SHADER_PREFIX);
 
 const char* DEFAULT_VERTEX_SHADER = SHADER_STRING
                                     (
@@ -91,52 +92,63 @@ const char* DEFAULT_FRAGMENT_SHADER_TEX = SHADER_STRING
 }
         );
 
-Shader::Shader(GLuint prog_color, GLuint prog_tex, GLuint vert, GLuint frag_color, GLuint frag_tex) :
-	prog_color(prog_color),
-	prog_tex(prog_tex),
-	vert(vert),
-	frag_color(frag_color),
-	frag_tex(frag_tex),
-	ref(0)
+Shader *shader_new(GLuint prog_color, GLuint prog_tex, GLuint vert, GLuint frag_color, GLuint frag_tex)
 {
-	vars[COLOR].dxLocation = glGetUniformLocation(prog_color, "cameraDx");
-	vars[COLOR].dyLocation = glGetUniformLocation(prog_color, "cameraDy");
-	vars[COLOR].zoomLocation = glGetUniformLocation(prog_color, "cameraZoom");
-	vars[COLOR].rotationMatrixLocation = glGetUniformLocation(prog_color, "rotationMatrix");
-	vars[COLOR].destinationSizeLocation = glGetUniformLocation(prog_color, "destinationSize");
+	Shader *s = new(Shader, 1);
+	if (!s)
+		return NULL;
 
-	vars[TEX].dxLocation = glGetUniformLocation(prog_tex, "cameraDx");
-	vars[TEX].dyLocation = glGetUniformLocation(prog_tex, "cameraDy");
-	vars[TEX].zoomLocation = glGetUniformLocation(prog_tex, "cameraZoom");
-	vars[TEX].rotationMatrixLocation = glGetUniformLocation(prog_tex, "rotationMatrix");
-	vars[TEX].destinationSizeLocation = glGetUniformLocation(prog_tex, "destinationSize");
+	s->prog_color = prog_color;
+	s->prog_tex = prog_tex;
+	s->vert = vert;
+	s->frag_color = frag_color;
+	s->frag_tex = frag_tex;
+	s->ref = 0;
+
+	s->vars[COLOR].dxLocation = glGetUniformLocation(prog_color, "cameraDx");
+	s->vars[COLOR].dyLocation = glGetUniformLocation(prog_color, "cameraDy");
+	s->vars[COLOR].zoomLocation = glGetUniformLocation(prog_color, "cameraZoom");
+	s->vars[COLOR].rotationMatrixLocation = glGetUniformLocation(prog_color, "rotationMatrix");
+	s->vars[COLOR].destinationSizeLocation = glGetUniformLocation(prog_color, "destinationSize");
+
+	s->vars[TEX].dxLocation = glGetUniformLocation(prog_tex, "cameraDx");
+	s->vars[TEX].dyLocation = glGetUniformLocation(prog_tex, "cameraDy");
+	s->vars[TEX].zoomLocation = glGetUniformLocation(prog_tex, "cameraZoom");
+	s->vars[TEX].rotationMatrixLocation = glGetUniformLocation(prog_tex, "rotationMatrix");
+	s->vars[TEX].destinationSizeLocation = glGetUniformLocation(prog_tex, "destinationSize");
+
+	return s;
 }
 
-Shader::~Shader()
+void shader_free(Shader *s)
 {
-	glDeleteShader(vert);
-	glDeleteShader(frag_color);
-	glDeleteShader(frag_tex);
-	glDeleteProgram(prog_color);
-	glDeleteProgram(prog_tex);
+	if (!s)
+		return;
+
+	glDeleteShader(s->vert);
+	glDeleteShader(s->frag_color);
+	glDeleteShader(s->frag_tex);
+	glDeleteProgram(s->prog_color);
+	glDeleteProgram(s->prog_tex);
 }
 
-void Shader::feed(const char* name, float value)
+void shader_feed(Shader *s, const char* name, float value)
 {
+	assert(s);
 	assert(name);
 
 	GLint prog;
 	glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
 
-	GLint locColor = glGetUniformLocation(prog_color, name);
-	GLint locTex = glGetUniformLocation(prog_tex, name);
+	GLint locColor = glGetUniformLocation(s->prog_color, name);
+	GLint locTex = glGetUniformLocation(s->prog_tex, name);
 
 	if (locColor >= 0) {
-		glUseProgram(prog_color);
+		glUseProgram(s->prog_color);
 		glUniform1f(locColor, value);
 	}
 	if (locTex >= 0) {
-		glUseProgram(prog_tex);
+		glUseProgram(s->prog_tex);
 		glUniform1f(locTex, value);
 	}
 

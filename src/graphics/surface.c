@@ -14,34 +14,59 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <cassert>
-#include <cstring>
-#include <cmath>
-#include <cerrno>
+#include <assert.h>
+#include <string.h>
+#include <math.h>
+#include <errno.h>
 #include "stb_image.h"
 
-#include "surface.hpp"
+#include "surface.h"
 #include "log.h"
+#include "util.h"
 
 log_category("graphics");
 
-Surface::Surface(unsigned int w, unsigned int h, unsigned int texw, unsigned int texh, unsigned char *pixels, Surface *current_from, Surface *current_on) :
-	w(w),
-	h(h),
-	texw(texw),
-	texh(texh),
-	filter(LINEAR),
-	has_fbo(false),
-	has_mipmap(false),
-	npot(false),
-	ref(0),
-	tex(0),
-	fbo(0)
+static void surface_create_fbo(Surface *s)
 {
-	glGenTextures(1, &tex);
-	glBindTexture(GL_TEXTURE_2D, tex);
+	assert(s);
+	assert(!s->has_fbo);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texw, texh, 0,
+	glGenFramebuffers(1, &(s->fbo));
+	glBindFramebuffer(GL_FRAMEBUFFER, s->fbo);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+	                       GL_TEXTURE_2D, s->tex, 0);
+	assert(s->fbo);
+
+#ifndef NDEBUG
+	GLenum status;
+	status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	assert(status == GL_FRAMEBUFFER_COMPLETE);
+#endif
+
+	s->has_fbo = true;
+}
+
+Surface *surface_new(unsigned int w, unsigned int h, unsigned int texw, unsigned int texh, unsigned char *pixels, Surface *current_from, Surface *current_on)
+{
+	Surface *s = new(Surface, 1);
+	if (!s)
+		return NULL;
+	s->w = w;
+	s->h = h;
+	s->texw = texw;
+	s->texh = texh;
+	s->filter = LINEAR;
+	s->has_fbo = false;
+	s->has_mipmap = false;
+	s->npot = false;
+	s->ref = 0;
+	s->tex = 0;
+	s->fbo = 0;
+
+	glGenTextures(1, &(s->tex));
+	glBindTexture(GL_TEXTURE_2D, s->tex);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, s->texw, s->texh, 0,
 	             GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, LINEAR);
@@ -52,7 +77,7 @@ Surface::Surface(unsigned int w, unsigned int h, unsigned int texw, unsigned int
 
 	if (!pixels) {
 		// we'll need a FBO anyway
-		create_fbo();
+		surface_create_fbo(s);
 		// We do not need to bind the fbo since it is done in create_fbo
 
 		// clear the surface
@@ -60,81 +85,74 @@ Surface::Surface(unsigned int w, unsigned int h, unsigned int texw, unsigned int
 		glClear(GL_COLOR_BUFFER_BIT);
 		glBindFramebuffer(GL_FRAMEBUFFER, current_on ? current_on->fbo : 0);
 	}
+
+	return s;
 }
 
-Surface::~Surface()
+void surface_free(Surface *s)
 {
-	glDeleteTextures(1, &tex);
-	if (has_fbo) {
-		glDeleteFramebuffers(1, &fbo);
+	if (!s)
+		return;
+
+	glDeleteTextures(1, &(s->tex));
+	if (s->has_fbo) {
+		glDeleteFramebuffers(1, &(s->fbo));
 	}
+	free(s);
 }
 
-void Surface::create_fbo()
+void surface_draw_on(Surface *s)
 {
-	assert(!has_fbo);
+	assert(s);
 
-	glGenFramebuffers(1, &fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-	                       GL_TEXTURE_2D, tex, 0);
-	assert(fbo != 0);
-
-#ifndef NDEBUG
-	GLenum status;
-	status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	assert(status == GL_FRAMEBUFFER_COMPLETE);
-#endif
-
-	has_fbo = true;
-}
-
-void Surface::draw_on()
-{
-	has_mipmap = false;
-	if (!has_fbo) {
-		create_fbo();
+	s->has_mipmap = false;
+	if (!s->has_fbo) {
+		surface_create_fbo(s);
 		// We do not need to bind the fbo since it is done in create_fbo
 	} else {
-		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, s->fbo);
 	}
 }
 
-void Surface::draw_from()
+void surface_draw_from(Surface *s)
 {
-	glBindTexture(GL_TEXTURE_2D, tex);
+	assert(s);
 
-	if (!has_mipmap && filter >= BILINEAR && !npot) {
+	glBindTexture(GL_TEXTURE_2D, s->tex);
+
+	if (!s->has_mipmap && s->filter >= BILINEAR && !s->npot) {
 		glGenerateMipmap(GL_TEXTURE_2D);
-		has_mipmap = true;
+		s->has_mipmap = true;
 	}
 }
 
-void Surface::set_filter(FilterMode new_filter, Surface *current_surface)
+void surface_set_filter(Surface *s, FilterMode new_filter, Surface *current_surface)
 {
-	if (filter == new_filter) {
+	assert(s);
+
+	if (s->filter == new_filter) {
 		return;
 	}
 
-	filter = new_filter;
+	s->filter = new_filter;
 
-	glBindTexture(GL_TEXTURE_2D, tex);
+	glBindTexture(GL_TEXTURE_2D, s->tex);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter > LINEAR ? LINEAR : filter);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->filter);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->filter > LINEAR ? LINEAR : s->filter);
 
-	if (!has_mipmap && filter >= BILINEAR && !npot) {
+	if (!s->has_mipmap && s->filter >= BILINEAR && !s->npot) {
 		glGenerateMipmap(GL_TEXTURE_2D);
-		has_mipmap = true;
+		s->has_mipmap = true;
 	}
 
-	if (this != current_surface) {
+	if (s != current_surface) {
 		glBindTexture(GL_TEXTURE_2D, current_surface ? current_surface->tex : 0);
 	}
 }
 
 #define RGBA_SIZE 4
-int Surface::load(const char *filename, Surface **surface, Surface *current_surface)
+int surface_load(const char *filename, Surface **surface, Surface *current_surface)
 {
 	assert(filename);
 	assert(surface);
@@ -154,23 +172,25 @@ int Surface::load(const char *filename, Surface **surface, Surface *current_surf
 	int poth = pow(2, ceil(log(h) / log(2)));
 
 	if (potw != w || poth != h) {
-		unsigned char *pixels = new unsigned char[potw * poth * RGBA_SIZE];
+		int y;
+		int x;
+		unsigned char *pixels = new(unsigned char, potw * poth * RGBA_SIZE);
 		if (!pixels) {
 			stbi_image_free(data);
 			return -ENOMEM;
 		}
 		memset(pixels, 0, potw * poth * RGBA_SIZE);
-		for (int y = 0; y < h; y++) {
-			for (int x = 0; x < w; x++) {
+		for (y = 0; y < h; y++) {
+			for (x = 0; x < w; x++) {
 				int is = (x + y * w) * RGBA_SIZE;
 				int id = (x + y * potw) * RGBA_SIZE;
 				memcpy(pixels + id, data + is, RGBA_SIZE);
 			}
 		}
-		tmp = new Surface(w, h, potw, poth, pixels, current_surface, NULL);
-		delete[] pixels;
+		tmp = surface_new(w, h, potw, poth, pixels, current_surface, NULL);
+		free(pixels);
 	} else {
-		tmp = new Surface(w, h, w, h, data, current_surface, NULL);
+		tmp = surface_new(w, h, w, h, data, current_surface, NULL);
 	}
 
 	stbi_image_free(data);

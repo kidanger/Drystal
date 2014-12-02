@@ -22,6 +22,9 @@ extern "C" {
 
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
+
+#define new(t, n) malloc(sizeof(t) * n)
 
 #define XREALLOC(array, nmemb, need) \
 	xrealloc((void **) &(array), &(nmemb), need, sizeof((array)[0]), 32)

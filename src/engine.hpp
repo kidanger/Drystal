@@ -17,9 +17,6 @@
 #pragma once
 
 #ifdef __cplusplus
-#ifdef BUILD_GRAPHICS
-#include "graphics/display.hpp"
-#endif
 #ifdef BUILD_ENABLE_STATS
 #include "stats.hpp"
 #endif
@@ -40,10 +37,6 @@ private:
 #endif
 
 public:
-#ifdef BUILD_GRAPHICS
-	Display display;
-#endif
-
 	Engine(const char* filename, unsigned int target_fps);
 	~Engine();
 

@@ -27,11 +27,10 @@
 
 #include <stb_truetype.h>
 
-#include "engine.hpp"
+#include "graphics/display.h"
 #include "macro.h"
 #include "font.hpp"
 #include "parser.hpp"
-
 
 // TODO: fixme
 unsigned char file_content[1 << 20];
@@ -41,8 +40,6 @@ unsigned char pixels_colored[512 * 512 * 4];
 Font* Font::load(const char* filename, float size, int first_char, int num_chars)
 {
 	assert(filename);
-
-	Engine& engine = get_engine();
 
 	FILE* file = fopen(filename, "rb");
 	if (!file)
@@ -73,8 +70,8 @@ Font* Font::load(const char* filename, float size, int first_char, int num_chars
 		pixels_colored[i * 4 + 3] = pixels[i];
 	}
 
-	font->surface = engine.display.create_surface(w, h, w, h, pixels_colored);
-	engine.display.set_filter(font->surface, NEAREST);
+	font->surface = display_create_surface(w, h, w, h, pixels_colored);
+	display_set_filter(font->surface, NEAREST);
 	font->ref = 0;
 
 	return font;
@@ -82,14 +79,13 @@ Font* Font::load(const char* filename, float size, int first_char, int num_chars
 
 Font::~Font()
 {
-	Engine& engine = get_engine();
-	engine.display.free_surface(surface);
+	display_free_surface(surface);
 	delete[] char_data;
 }
 
-static inline void draw_quad(Engine& engine, const stbtt_aligned_quad& q)
+static inline void draw_quad(const stbtt_aligned_quad& q)
 {
-	engine.display.draw_quad(
+	display_draw_quad(
 	    // texture coordinates
 	    q.s0, q.t0,
 	    q.s1, q.t0,
@@ -102,10 +98,10 @@ static inline void draw_quad(Engine& engine, const stbtt_aligned_quad& q)
 	    q.x0, q.y1
 	);
 }
-static inline void draw_quad_fancy(Engine& engine, const stbtt_aligned_quad& q,
+static inline void draw_quad_fancy(const stbtt_aligned_quad& q,
                                    float italic = 0.0, float dx = 0.0, float dy = 0.0)
 {
-	engine.display.draw_quad(
+	display_draw_quad(
 	    // texture coordinates
 	    q.s0, q.t0,
 	    q.s1, q.t0,
@@ -128,9 +124,8 @@ void Font::draw_plain(const char* text, float x, float y)
 	int end = start + num_chars;
 	y += font_size * 3 / 4;
 
-	Engine& engine = get_engine();
-	Surface* old_surface = engine.display.get_draw_from();
-	engine.display.draw_from(surface);
+	Surface* old_surface = display_get_draw_from();
+	display_draw_from(surface);
 	while (*text) {
 		if (*text == '\n') {
 			x = initialx;
@@ -138,12 +133,12 @@ void Font::draw_plain(const char* text, float x, float y)
 		} else if (*text >= start && *text < end) {
 			stbtt_aligned_quad q;
 			stbtt_GetBakedQuad(char_data, *text - start, &x, &y, &q, 1.0f);
-			draw_quad(engine, q);
+			draw_quad(q);
 		}
 		++text;
 	}
 	if (old_surface)
-		engine.display.draw_from(old_surface);
+		display_draw_from(old_surface);
 }
 
 void Font::draw(const char* text, float x, float y, Alignment align)
@@ -155,14 +150,13 @@ void Font::draw(const char* text, float x, float y, Alignment align)
 	int end = start + num_chars;
 	y += font_size * 3 / 4;
 
-	Engine& engine = get_engine();
-	Surface* old_surface = engine.display.get_draw_from();
-	engine.display.draw_from(surface);
+	Surface* old_surface = display_get_draw_from();
+	display_draw_from(surface);
 
 	const char* textend = text;
 	int r, g, b, a;
-	engine.display.get_color(&r, &g, &b);
-	engine.display.get_alpha(&a);
+	display_get_color(&r, &g, &b);
+	display_get_alpha(&a);
 
 	TextState* state = push_parser();
 	if (!state) {
@@ -173,8 +167,8 @@ void Font::draw(const char* text, float x, float y, Alignment align)
 	state->b = b;
 	state->alpha = a;
 	while (parse(&state, text, textend)) {
-		engine.display.set_color(state->r, state->g, state->b);
-		engine.display.set_alpha(state->alpha);
+		display_set_color(state->r, state->g, state->b);
+		display_set_alpha(state->alpha);
 
 		float line_width;
 		float line_height;
@@ -205,33 +199,33 @@ void Font::draw(const char* text, float x, float y, Alignment align)
 				stbtt_aligned_quad q;
 				stbtt_GetBakedQuad(char_data, chr - start, &x, &y, &q, state->size);
 				if (state->shadow) {
-					engine.display.set_color(0, 0, 0);
-					draw_quad_fancy(engine, q, italic, state->shadow_x, state->shadow_y);
-					engine.display.set_color(state->r, state->g, state->b);
+					display_set_color(0, 0, 0);
+					draw_quad_fancy(q, italic, state->shadow_x, state->shadow_y);
+					display_set_color(state->r, state->g, state->b);
 				}
 				if (state->outlined) {
-					engine.display.set_color(state->outr, state->outg, state->outb);
+					display_set_color(state->outr, state->outg, state->outb);
 					float f = font_size * 0.04;
-					draw_quad_fancy(engine, q, italic,       -1 * f,        0 * f);
-					draw_quad_fancy(engine, q, italic,        1 * f,        0 * f);
-					draw_quad_fancy(engine, q, italic,        0 * f,       -1 * f);
-					draw_quad_fancy(engine, q, italic,        0 * f,        1 * f);
-					draw_quad_fancy(engine, q, italic,  M_SQRT1_2 * f,  M_SQRT1_2 * f);
-					draw_quad_fancy(engine, q, italic, -M_SQRT1_2 * f,  M_SQRT1_2 * f);
-					draw_quad_fancy(engine, q, italic, -M_SQRT1_2 * f, -M_SQRT1_2 * f);
-					draw_quad_fancy(engine, q, italic,  M_SQRT1_2 * f, -M_SQRT1_2 * f);
-					engine.display.set_color(state->r, state->g, state->b);
+					draw_quad_fancy(q, italic,       -1 * f,        0 * f);
+					draw_quad_fancy(q, italic,        1 * f,        0 * f);
+					draw_quad_fancy(q, italic,        0 * f,       -1 * f);
+					draw_quad_fancy(q, italic,        0 * f,        1 * f);
+					draw_quad_fancy(q, italic,  M_SQRT1_2 * f,  M_SQRT1_2 * f);
+					draw_quad_fancy(q, italic, -M_SQRT1_2 * f,  M_SQRT1_2 * f);
+					draw_quad_fancy(q, italic, -M_SQRT1_2 * f, -M_SQRT1_2 * f);
+					draw_quad_fancy(q, italic,  M_SQRT1_2 * f, -M_SQRT1_2 * f);
+					display_set_color(state->r, state->g, state->b);
 				}
-				draw_quad_fancy(engine, q, italic);
+				draw_quad_fancy(q, italic);
 			}
 			text++;
 		}
 	}
 	pop_parser();
-	engine.display.set_color(r, g, b);
-	engine.display.set_alpha(a);
+	display_set_color(r, g, b);
+	display_set_alpha(a);
 	if (old_surface)
-		engine.display.draw_from(old_surface);
+		display_draw_from(old_surface);
 }
 
 void Font::get_textsize_plain(const char* text, float* w, float* h)

@@ -14,15 +14,18 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <cstring>
+#include <string.h>
+#include <lua.h>
+#include <lauxlib.h>
 
 #include "module.h"
-#include "engine.hpp"
-#include "display_bind.hpp"
-#include "camera_bind.hpp"
-#include "shader_bind.hpp"
-#include "buffer_bind.hpp"
-#include "api.hpp"
+#include "display_bind.h"
+#include "display.h"
+#include "buffer.h"
+#include "camera_bind.h"
+#include "shader_bind.h"
+#include "buffer_bind.h"
+#include "api.h"
 
 BEGIN_MODULE(graphics)
 	DECLARE_FUNCTION(show_cursor)
@@ -79,7 +82,7 @@ BEGIN_MODULE(graphics)
 
 	{
 		// make sure we don't free the screen until the next resize
-		push_surface(L, get_engine().display.get_screen());
+		push_surface(L, display_get_screen());
 		lua_setfield(L, LUA_REGISTRYINDEX, "screen");
 	}
 	// blend modes
@@ -111,22 +114,21 @@ END_MODULE()
 
 int graphics_index(lua_State* L)
 {
-	Engine &engine = get_engine();
 	const char * name = luaL_checkstring(L, 2);
 	if (!strcmp(name, "screen")) {
-		Surface* surf = engine.display.get_screen();
+		Surface* surf = display_get_screen();
 		if (surf) {
 			push_surface(L, surf);
 			return 1;
 		}
 	} else if (!strcmp(name, "current_draw_on")) {
-		Surface* surf = engine.display.get_draw_on();
+		Surface* surf = display_get_draw_on();
 		if (surf) {
 			push_surface(L, surf);
 			return 1;
 		}
 	} else if (!strcmp(name, "current_draw_from")) {
-		Surface* surf = engine.display.get_draw_from();
+		Surface* surf = display_get_draw_from();
 		if (surf) {
 			push_surface(L, surf);
 			return 1;

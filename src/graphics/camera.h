@@ -4,7 +4,7 @@
  * Drystal is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- * (at your option); any later version.
+ * (at your option) any later version.
  *
  * Drystal is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,9 +16,18 @@
  */
 #pragma once
 
-struct lua_State;
+typedef struct Camera Camera;
 
-int mlua_camera__newindex(lua_State* L);
-int mlua_camera__index(lua_State* L);
-int mlua_camera_reset(lua_State*);
+struct Camera {
+	float dx;
+	float dy;
+	float zoom;
+	float angle;
+	float matrix[4];
+};
+
+Camera *camera_new();
+
+void camera_update_matrix(Camera *c, int width, int height);
+void camera_reset(Camera *c);
 

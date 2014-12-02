@@ -52,7 +52,7 @@
 #include "storage/api.h"
 #endif
 #ifdef BUILD_GRAPHICS
-#include "graphics/api.hpp"
+#include "graphics/api.h"
 #endif
 #ifdef BUILD_UTILS
 #include "utils/api.h"

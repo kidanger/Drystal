@@ -16,10 +16,10 @@
  */
 #pragma once
 
-#include "lua_util.h"
+#include <lua.h>
 
-struct lua_State;
-class Surface;
+#include "lua_util.h"
+#include "surface.h"
 
 DECLARE_PUSHPOP(Surface, surface)
 
@@ -43,7 +43,7 @@ int mlua_draw_on_surface(lua_State* L);
 int mlua_draw_from_surface(lua_State* L);
 int mlua_set_filter_surface(lua_State* L);
 
-int mlua_draw_background(lua_State*);
+int mlua_draw_background(lua_State *L);
 int mlua_draw_point(lua_State* L);
 int mlua_draw_point_tex(lua_State* L);
 int mlua_draw_line(lua_State* L);

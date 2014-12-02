@@ -26,6 +26,7 @@
 
 #include "macro.h"
 #include "engine.hpp"
+#include "graphics/display.h"
 #include "lua_util.h"
 #include "event.hpp"
 #include "log.h"
@@ -278,7 +279,7 @@ static void handle_event(const SDL_Event& event)
 			} else if (event.key.keysym.sym == SDLK_F3) {
 				dlua_reload_code();
 			} else if (event.key.keysym.sym == SDLK_F4) {
-				engine->display.toggle_debug_mode();
+				display_toggle_debug_mode();
 			} else if (event.key.keysym.sym == SDLK_F10) {
 				engine->toggle_stats();
 			} else {

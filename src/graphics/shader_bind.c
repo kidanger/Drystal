@@ -14,13 +14,15 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <cstring>
-#include <cassert>
-#include <lua.hpp>
+#include <string.h>
+#include <assert.h>
+#include <lua.h>
+#include <lauxlib.h>
+#include <stdlib.h>
 
-#include "engine.hpp"
-#include "shader_bind.hpp"
-#include "shader.hpp"
+#include "display.h"
+#include "shader_bind.h"
+#include "shader.h"
 #include "log.h"
 
 log_category("shader");
@@ -31,7 +33,6 @@ int mlua_new_shader(lua_State* L)
 {
 	assert(L);
 
-	Engine &engine = get_engine();
 	const char *vert = NULL, *frag_color = NULL, *frag_tex = NULL;
 	// strings can be nil
 	if (lua_gettop(L) >= 1) { // one argument, it's the vertex shader
@@ -44,14 +45,14 @@ int mlua_new_shader(lua_State* L)
 		frag_tex = lua_tostring(L, 3);
 	}
 	char* error;
-	Shader* shader = engine.display.new_shader(vert, frag_color, frag_tex, &error);
+	Shader* shader = display_new_shader(vert, frag_color, frag_tex, &error);
 	if (shader) {
 		push_shader(L, shader);
 		return 1;
 	} else {
 		lua_pushnil(L);
 		lua_pushstring(L, error);
-		delete[] error;
+		free(error);
 		return 2;
 	}
 }
@@ -60,18 +61,14 @@ int mlua_use_shader(lua_State* L)
 {
 	assert(L);
 
-	Engine &engine = get_engine();
 	Shader* shader = pop_shader(L, -1);
-	engine.display.use_shader(shader);
+	display_use_shader(shader);
 	return 0;
 }
 
 int mlua_use_default_shader(_unused_ lua_State* L)
 {
-	assert(L);
-
-	Engine &engine = get_engine();
-	engine.display.use_default_shader();
+	display_use_default_shader();
 	return 0;
 }
 
@@ -82,7 +79,7 @@ int mlua_feed_shader(lua_State* L)
 	Shader* shader = pop_shader(L, 1);
 	const char* name = lua_tostring(L, 2);
 	lua_Number value = luaL_checknumber(L, 3);
-	shader->feed(name, value);
+	shader_feed(shader, name, value);
 	return 0;
 }
 
@@ -91,9 +88,8 @@ int mlua_free_shader(lua_State* L)
 	assert(L);
 
 	log_debug("");
-	Engine &engine = get_engine();
 	Shader* shader = pop_shader(L, 1);
-	engine.display.free_shader(shader);
+	display_free_shader(shader);
 	return 0;
 }
 

@@ -16,7 +16,12 @@
  */
 #pragma once
 
-#include <cassert>
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <assert.h>
+#include <stdbool.h>
 
 #ifndef EMSCRIPTEN
 #include <SDL2/SDL_opengles2.h>
@@ -24,31 +29,17 @@
 #include <SDL/SDL_opengl.h>
 #endif
 
+typedef struct Surface Surface;
+
 enum FilterMode {
 	NEAREST = GL_NEAREST,
 	LINEAR = GL_LINEAR,
 	BILINEAR = GL_LINEAR_MIPMAP_NEAREST,
 	TRILINEAR = GL_LINEAR_MIPMAP_LINEAR,
 };
+typedef enum FilterMode FilterMode;
 
-class Surface
-{
-public:
-	Surface(unsigned int w, unsigned int h, unsigned int texw, unsigned int texh, unsigned char *pixels, Surface *current_from, Surface *current_on);
-	~Surface();
-	void draw_on();
-	void draw_from();
-	void set_filter(FilterMode filter, Surface *current_surface);
-	inline void get_size(unsigned int *w, unsigned int *h) const
-	{
-		assert(w);
-		assert(h);
-		*w = this->w;
-		*h = this->h;
-	}
-
-	static int load(const char* filename, Surface **surface, Surface *current_surface);
-
+struct Surface {
 	unsigned int w;
 	unsigned int h;
 	unsigned int texw;
@@ -59,10 +50,27 @@ public:
 	bool npot;
 	int ref;
 
-private:
 	GLuint tex;
 	GLuint fbo;
-
-	void create_fbo();
 };
+
+Surface *surface_new(unsigned int w, unsigned int h, unsigned int texw, unsigned int texh, unsigned char *pixels, Surface *current_from, Surface *current_on);
+void surface_free(Surface *s);
+void surface_draw_on(Surface *s);
+void surface_draw_from(Surface *s);
+void surface_set_filter(Surface *s, FilterMode filter, Surface *current_surface);
+
+static inline void surface_get_size(const Surface *s, unsigned int *w, unsigned int *h)
+{
+	assert(w);
+	assert(h);
+	*w = s->w;
+	*h = s->h;
+}
+
+int surface_load(const char* filename, Surface **surface, Surface *current_surface);
+
+#ifdef __cplusplus
+}
+#endif
 

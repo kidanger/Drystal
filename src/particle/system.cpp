@@ -17,9 +17,9 @@
 
 #include <cassert>
 
+#include "graphics/display.h"
 #include "system.hpp"
 #include "particle.hpp"
-#include "engine.hpp"
 
 System::System(int x, int y) :
 	particles(NULL),
@@ -66,8 +66,6 @@ void System::stop()
 
 void System::draw(float dx, float dy)
 {
-	Engine& engine = get_engine();
-
 	for (int i = used - 1; i >= 0; i--) {
 		Particle* p = &particles[i];
 
@@ -106,9 +104,9 @@ void System::draw(float dx, float dy)
 		}
 
 
-		engine.display.set_color(r, g, b);
-		engine.display.set_point_size(_size);
-		engine.display.draw_point(dx + p->x, dy + p->y);
+		display_set_color(r, g, b);
+		display_set_point_size(_size);
+		display_draw_point(dx + p->x, dy + p->y);
 	}
 }
 

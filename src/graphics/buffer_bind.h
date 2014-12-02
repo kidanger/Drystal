@@ -16,10 +16,10 @@
  */
 #pragma once
 
-#include "lua_util.h"
+#include <lua.h>
 
-struct lua_State;
-class Buffer;
+#include "lua_util.h"
+#include "buffer.h"
 
 DECLARE_PUSHPOP(Buffer, buffer)
 

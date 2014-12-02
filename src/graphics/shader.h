@@ -16,6 +16,10 @@
  */
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define GL_GLEXT_PROTOTYPES
 #ifndef EMSCRIPTEN
 #include <SDL2/SDL_opengles2.h>
@@ -23,21 +27,24 @@
 #include <SDL/SDL_opengl.h>
 #endif
 
+typedef struct Shader Shader;
+
 extern const char* SHADER_PREFIX;
 extern const size_t SHADER_PREFIX_LEN;
 extern const char* DEFAULT_VERTEX_SHADER;
 extern const char* DEFAULT_FRAGMENT_SHADER_COLOR;
 extern const char* DEFAULT_FRAGMENT_SHADER_TEX;
 
-const GLuint ATTR_POSITION_INDEX = 0; // WebGL wants 0 as an attribute, so here it is
-const GLuint ATTR_COLOR_INDEX = 1;
-const GLuint ATTR_TEXCOORD_INDEX = 2;
-const GLuint ATTR_POINTSIZE_INDEX = 3;
+#define ATTR_POSITION_INDEX 0 // WebGL wants 0 as an attribute, so here it is
+#define ATTR_COLOR_INDEX 1
+#define ATTR_TEXCOORD_INDEX 2
+#define ATTR_POINTSIZE_INDEX 3
 
 enum VarLocationIndex {
 	COLOR,
 	TEX,
 };
+typedef enum VarLocationIndex VarLocationIndex;
 
 struct Shader {
 	GLuint prog_color;
@@ -55,9 +62,13 @@ struct Shader {
 	} vars[2];
 	int ref;
 
-	Shader(GLuint prog_color, GLuint prog_tex, GLuint vert, GLuint frag_color, GLuint frag_tex);
-	~Shader();
-
-	void feed(const char* name, float value);
 };
+Shader *shader_new(GLuint prog_color, GLuint prog_tex, GLuint vert, GLuint frag_color, GLuint frag_tex);
+void shader_free(Shader *s);
+
+void shader_feed(Shader *s, const char* name, float value);
+
+#ifdef __cplusplus
+}
+#endif
 

@@ -35,6 +35,9 @@
 #ifdef BUILD_EVENT
 #include "event/event.hpp"
 #endif
+#ifdef BUILD_GRAPHICS
+#include "graphics/display.h"
+#endif
 #include "macro.h"
 #include "util.h"
 
@@ -62,21 +65,20 @@ Engine::Engine(const char* filename, unsigned int target_fps) :
 	last_update(get_now()),
 	update_activated(true),
 	draw_activated(true),
-	stats_activated(false),
+	stats_activated(false)
 #ifdef BUILD_ENABLE_STATS
 	stats(),
-#endif
-#ifdef BUILD_GRAPHICS
-	display()
 #endif
 {
 	engine = this;
 	dlua_init(filename);
+#ifdef BUILD_GRAPHICS
+	display_init();
+#endif
 #if defined(BUILD_EVENT) || defined(BUILD_FONT) || defined(BUILD_GRAPHICS)
 	int err = SDL_Init(0);
 	if (err) {
 		log_error("Cannot initialize SDL");
-		return;
 	}
 #endif
 #ifdef BUILD_EVENT
@@ -105,7 +107,7 @@ Engine::~Engine()
 void Engine::load()
 {
 #ifdef BUILD_GRAPHICS
-	if (!display.is_available()) {
+	if (!display_is_available()) {
 		log_error("Cannot run the engine, display is not available");
 		return;
 	}
@@ -187,7 +189,7 @@ void Engine::update()
 #endif
 
 #ifdef BUILD_GRAPHICS
-	display.flip();
+	display_flip();
 	AT(display);
 #endif
 
