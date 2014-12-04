@@ -56,7 +56,7 @@ static void on_zip_downloaded(void* userdata, void* buffer, int size)
 		const char* filename = file_stat.m_filename;
 
 		if (!mz_zip_reader_is_file_a_directory(&za, i)) {
-			r = mkdir_p(filename);
+			int r = mkdir_p(filename);
 			if (r < 0) {
 				log_error("Cannot unzip game files: %s", strerror(-r));
 				break;
