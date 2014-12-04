@@ -801,10 +801,11 @@ Particle System
 ..    .. lua:method:: set_max_initial_velocity(max: float)
 ..    .. lua:method:: get_max_initial_velocity() -> float
 
-.. lua:function:: new_system() -> System
+.. lua:function:: new_system(x, y) -> System
 
-Creates a new particle system.
-By default, attributes are initialized with random values. Make sure to call appropriate setters to obtain the desired particle effect.
+Creates a new particle system at given position.
+
+.. warning:: By default, attributes are initialized with random values. Make sure to call appropriate setters to obtain the desired particle effect.
 
 
 Physics
@@ -1016,13 +1017,13 @@ Learning how to use Box2D_ will help to hunder Drystal's physics module.
 
       Sets the mass center.
 
-   .. lua:method:: apply_force(x, y)
+   .. lua:method:: apply_force(x, y[, x, y])
 
-      Applies a force.
+      Applies a force (by default, x, y are the body's center).
 
    .. lua:method:: apply_linear_impulse(x, y)
 
-      Applies a linear impulse.
+      Applies a linear impulse (by default, x, y are the body's center).
 
    .. lua:method:: apply_angular_impulse(angle)
 
