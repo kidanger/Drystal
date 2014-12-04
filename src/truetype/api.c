@@ -14,35 +14,23 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
+#include "module.h"
+#include "font_bind.h"
+#include "font.h"
+#include "api.h"
 
-class Surface;
-struct stbtt_bakedchar;
+BEGIN_MODULE(truetype)
+	DECLARE_FUNCTION(load_font)
+	DECLARE_CONSTANT(ALIGN_LEFT)
+	DECLARE_CONSTANT(ALIGN_CENTER)
+	DECLARE_CONSTANT(ALIGN_RIGHT)
 
-enum Alignment {
-	ALIGN_LEFT = 1,
-	ALIGN_CENTER = 2,
-	ALIGN_RIGHT = 3
-};
-
-class Font
-{
-private:
-	Surface* surface;
-	float font_size;
-	int first_char;
-	int num_chars;
-	stbtt_bakedchar* char_data;
-
-public:
-	int ref;
-
-	~Font();
-	void draw(const char* text, float x, float y, Alignment align = ALIGN_LEFT);
-	void draw_plain(const char* text, float x, float y);
-	void get_textsize(const char* text, float* w, float* h, int nblines=-1);
-	void get_textsize_plain(const char* text, float* w, float* h);
-
-	static Font* load(const char* filename, float size, int first_char = 32, int num_chars = 96);
-};
+	BEGIN_CLASS(font)
+		ADD_METHOD(font, draw)
+		ADD_METHOD(font, draw_plain)
+		ADD_METHOD(font, sizeof)
+		ADD_METHOD(font, sizeof_plain)
+		ADD_GC(free_font)
+	REGISTER_CLASS(font, "Font")
+END_MODULE()
 

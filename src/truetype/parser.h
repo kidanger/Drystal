@@ -16,6 +16,11 @@
  */
 #pragma once
 
+#include <assert.h>
+#include <stdbool.h>
+
+typedef struct TextState TextState;
+
 struct TextState {
 	float size;
 	float italic;
@@ -33,43 +38,28 @@ struct TextState {
 	bool shadow;
 	float shadow_x;
 	float shadow_y;
-
-	TextState() :
-		size(1.0),
-		italic(0.0),
-		r(0),
-		g(0),
-		b(0),
-		alpha(255),
-		outlined(false),
-		outr(0),
-		outg(0),
-		outb(0),
-		shadow(false),
-		shadow_x(0),
-		shadow_y(0)
-	{
-	}
-
-	void reset()
-	{
-		size = 1.0;
-		italic = 0.0;
-		r = 0;
-		g = 0;
-		b = 0;
-		alpha = 255;
-		outlined = false;
-		outr = 0;
-		outg = 0;
-		outb = 0;
-		shadow = false;
-		shadow_x = 0;
-		shadow_y = 0;
-	}
 };
 
+static inline void textstate_reset(TextState *t)
+{
+	assert(t);
+
+	t->size = 1.0;
+	t->italic = 0.0;
+	t->r = 0;
+	t->g = 0;
+	t->b = 0;
+	t->alpha = 255;
+	t->outlined = false;
+	t->outr = 0;
+	t->outg = 0;
+	t->outb = 0;
+	t->shadow = false;
+	t->shadow_x = 0;
+	t->shadow_y = 0;
+}
+
 TextState* push_parser();
-bool parse(TextState** state, const char*& text, const char*& end);
+bool parse(TextState **state, const char **text, const char **end);
 void pop_parser();
 

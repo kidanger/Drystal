@@ -14,12 +14,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <cstdlib>
-#include <cstring>
-#include <cstdio>
-#include <cassert>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <assert.h>
 
-#include "parser.hpp"
+#include "parser.h"
 #include "macro.h"
 #include "log.h"
 
@@ -153,10 +153,10 @@ static void change_shadowy(const char* str, TextState* state)
 }
 
 typedef void(*StateModifier)(const char*, TextState*);
-struct Keyword {
+typedef struct Keyword {
 	const char* word;
 	StateModifier modifier;
-};
+} Keyword;
 
 static Keyword keywords[] = {
 	{"%:",        change_alpha},
@@ -224,24 +224,26 @@ static const char* next_token(const char* text)
 	return text;
 }
 
-bool parse(TextState** state, const char*& start, const char*& end)
+bool parse(TextState **state, const char **start, const char **end)
 {
 	assert(state);
+	assert(start);
+	assert(end);
 
 	*state = &g_states[g_indexparser][INDEX];
 
-	const char* next = next_token(start);
+	const char* next = next_token(*start);
 	if (*next == 0) {
-		end = next;
-	} else if (*start == END) {
+		*end = next;
+	} else if (*(*start) == END) {
 		if (INDEX > 0)
 			INDEX--;
-		start++;
-		end++;
+		(*start)++;
+		(*end)++;
 	} else if (*next == END) {
-		end = next_token(start);
-	} else if (*next == START && start < next) {
-		end = next;
+		*end = next_token(*start);
+	} else if (*next == START && *start < next) {
+		*end = next;
 	} else if (*next == START) {
 		if (INDEX < NB_STATES - 1)
 			INDEX++;
@@ -249,20 +251,20 @@ bool parse(TextState** state, const char*& start, const char*& end)
 			g_states[g_indexparser][INDEX] = g_states[g_indexparser][INDEX - 1];
 
 		do {
-			start = next + 1;
+			*start = next + 1;
 			next = next_token(next + 1);
 			if (*next == SEP) {
-				evaluate(&g_states[g_indexparser][INDEX], start);
+				evaluate(&g_states[g_indexparser][INDEX], *start);
 			}
 		} while (*next != END && *next != START && *next && *(next + 1));
-		end = next;
+		*end = next;
 
 		*state = &g_states[g_indexparser][INDEX];
 	} else {
 		// something went wrong, moving on
-		end++;
+		(*end)++;
 	}
-	return *start != '\0';
+	return **start != '\0';
 }
 
 TextState* push_parser()
@@ -272,7 +274,7 @@ TextState* push_parser()
 		return NULL;
 	}
 	INDEX = 0;
-	g_states[g_indexparser][INDEX].reset();
+	textstate_reset(&g_states[g_indexparser][INDEX]);
 	return &g_states[g_indexparser][INDEX];
 }
 

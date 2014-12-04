@@ -14,23 +14,19 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "module.h"
-#include "font_bind.hpp"
-#include "font.hpp"
-#include "api.hpp"
+#pragma once
 
-BEGIN_MODULE(truetype)
-	DECLARE_FUNCTION(load_font)
-	DECLARE_CONSTANT(ALIGN_LEFT)
-	DECLARE_CONSTANT(ALIGN_CENTER)
-	DECLARE_CONSTANT(ALIGN_RIGHT)
+#include <lua.h>
 
-	BEGIN_CLASS(font)
-		ADD_METHOD(font, draw)
-		ADD_METHOD(font, draw_plain)
-		ADD_METHOD(font, sizeof)
-		ADD_METHOD(font, sizeof_plain)
-		ADD_GC(free_font)
-	REGISTER_CLASS(font, "Font")
-END_MODULE()
+#include "lua_util.h"
+#include "font.h"
+
+DECLARE_PUSHPOP(Font, font)
+
+int mlua_draw_font(lua_State* L);
+int mlua_draw_plain_font(lua_State* L);
+int mlua_load_font(lua_State* L);
+int mlua_sizeof_font(lua_State* L);
+int mlua_sizeof_plain_font(lua_State* L);
+int mlua_free_font(lua_State* L);
 

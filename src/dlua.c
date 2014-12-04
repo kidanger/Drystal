@@ -37,7 +37,7 @@
 #include "physics/api.hpp"
 #endif
 #ifdef BUILD_FONT
-#include "truetype/api.hpp"
+#include "truetype/api.h"
 #endif
 #ifdef BUILD_PARTICLE
 #include "particle/api.hpp"
