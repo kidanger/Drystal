@@ -14,17 +14,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "module.h"
-#include "event_bind.hpp"
-#include "event.hpp"
-#include "api.hpp"
+#pragma once
 
-BEGIN_MODULE(event)
-	DECLARE_FUNCTION(set_relative_mode)
-	DECLARE_CONSTANT(BUTTON_LEFT)
-	DECLARE_CONSTANT(BUTTON_MIDDLE)
-	DECLARE_CONSTANT(BUTTON_RIGHT)
-	DECLARE_CONSTANT(WHEEL_UP)
-	DECLARE_CONSTANT(WHEEL_DOWN)
-END_MODULE()
+#include <lua.h>
+
+int mlua_set_relative_mode(lua_State* L);
 

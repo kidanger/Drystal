@@ -21,14 +21,14 @@
 #include <html5.h>
 #endif
 
-#include <map>
-#include <lua.hpp>
+#include <lua.h>
+#include <lauxlib.h>
 
 #include "macro.h"
 #include "engine.hpp"
 #include "graphics/display.h"
 #include "lua_util.h"
-#include "event.hpp"
+#include "event.h"
 #include "log.h"
 #include "dlua.h"
 
@@ -36,152 +36,165 @@ log_category("event");
 
 typedef Sint32 SDL_Keycode;
 
-static Engine* engine;
-static std::map<SDL_Keycode, const char*> keynames;
+static int keys_table_ref;
 
-/** from https://code.google.com/r/kyberneticist-webport/source/browse/project_files/web_exp/pas2c_build/emcc/patches/sdl_patch.c */
-static int initKeys()
+#define TRANSFORM(key) ((((key) >> 16) | (key)) & 0xffff)
+
+static void initialize_keys_mapping(void)
 {
-	keynames[SDLK_BACKSPACE] = "backspace";
-	keynames[SDLK_TAB] = "tab";
-	keynames[SDLK_CLEAR] = "clear";
-	keynames[SDLK_RETURN] = "return";
-	keynames[SDLK_PAUSE] = "pause";
-	keynames[SDLK_ESCAPE] = "escape";
-	keynames[SDLK_SPACE] = "space";
-	keynames[SDLK_EXCLAIM]  = "!";
-	keynames[SDLK_QUOTEDBL]  = "\"";
-	keynames[SDLK_HASH]  = "#";
-	keynames[SDLK_DOLLAR]  = "$";
-	keynames[SDLK_AMPERSAND]  = "&";
-	keynames[SDLK_QUOTE] = "'";
-	keynames[SDLK_LEFTPAREN] = "(";
-	keynames[SDLK_RIGHTPAREN] = ")";
-	keynames[SDLK_ASTERISK] = "*";
-	keynames[SDLK_PLUS] = "+";
-	keynames[SDLK_COMMA] = ",";
-	keynames[SDLK_MINUS] = "-";
-	keynames[SDLK_PERIOD] = ".";
-	keynames[SDLK_SLASH] = "/";
-	keynames[SDLK_0] = "0";
-	keynames[SDLK_1] = "1";
-	keynames[SDLK_2] = "2";
-	keynames[SDLK_3] = "3";
-	keynames[SDLK_4] = "4";
-	keynames[SDLK_5] = "5";
-	keynames[SDLK_6] = "6";
-	keynames[SDLK_7] = "7";
-	keynames[SDLK_8] = "8";
-	keynames[SDLK_9] = "9";
-	keynames[SDLK_COLON] = ":";
-	keynames[SDLK_SEMICOLON] = ";";
-	keynames[SDLK_LESS] = "<";
-	keynames[SDLK_EQUALS] = "=";
-	keynames[SDLK_GREATER] = ">";
-	keynames[SDLK_QUESTION] = "?";
-	keynames[SDLK_AT] = "@";
-	keynames[SDLK_LEFTBRACKET] = "[";
-	keynames[SDLK_BACKSLASH] = "\\";
-	keynames[SDLK_RIGHTBRACKET] = "]";
-	keynames[SDLK_CARET] = "^";
-	keynames[SDLK_UNDERSCORE] = "_";
-	keynames[SDLK_BACKQUOTE] = "`";
-	keynames[SDLK_a] = "a";
-	keynames[SDLK_b] = "b";
-	keynames[SDLK_c] = "c";
-	keynames[SDLK_d] = "d";
-	keynames[SDLK_e] = "e";
-	keynames[SDLK_f] = "f";
-	keynames[SDLK_g] = "g";
-	keynames[SDLK_h] = "h";
-	keynames[SDLK_i] = "i";
-	keynames[SDLK_j] = "j";
-	keynames[SDLK_k] = "k";
-	keynames[SDLK_l] = "l";
-	keynames[SDLK_m] = "m";
-	keynames[SDLK_n] = "n";
-	keynames[SDLK_o] = "o";
-	keynames[SDLK_p] = "p";
-	keynames[SDLK_q] = "q";
-	keynames[SDLK_r] = "r";
-	keynames[SDLK_s] = "s";
-	keynames[SDLK_t] = "t";
-	keynames[SDLK_u] = "u";
-	keynames[SDLK_v] = "v";
-	keynames[SDLK_w] = "w";
-	keynames[SDLK_x] = "x";
-	keynames[SDLK_y] = "y";
-	keynames[SDLK_z] = "z";
-	keynames[SDLK_DELETE] = "delete";
+	lua_State *L = dlua_get_lua_state();
 
-	keynames[SDLK_KP_0] = "[0]";
-	keynames[SDLK_KP_1] = "[1]";
-	keynames[SDLK_KP_2] = "[2]";
-	keynames[SDLK_KP_3] = "[3]";
-	keynames[SDLK_KP_4] = "[4]";
-	keynames[SDLK_KP_5] = "[5]";
-	keynames[SDLK_KP_6] = "[6]";
-	keynames[SDLK_KP_7] = "[7]";
-	keynames[SDLK_KP_8] = "[8]";
-	keynames[SDLK_KP_9] = "[9]";
-	keynames[SDLK_KP_PERIOD] = "[.]";
-	keynames[SDLK_KP_DIVIDE] = "[/]";
-	keynames[SDLK_KP_MULTIPLY] = "[*]";
-	keynames[SDLK_KP_MINUS] = "[-]";
-	keynames[SDLK_KP_PLUS] = "[+]";
-	keynames[SDLK_KP_ENTER] = "enter";
-	keynames[SDLK_KP_EQUALS] = "equals";
+	lua_createtable(L, 0, 118);
+#define ADD_KEY(key, keyname) \
+	lua_pushnumber(L, TRANSFORM(key)); \
+	lua_pushliteral(L, keyname); \
+	lua_settable(L, -3) \
 
-	keynames[SDLK_UP] = "up";
-	keynames[SDLK_DOWN] = "down";
-	keynames[SDLK_RIGHT] = "right";
-	keynames[SDLK_LEFT] = "left";
-	keynames[SDLK_DOWN] = "down";
-	keynames[SDLK_INSERT] = "insert";
-	keynames[SDLK_HOME] = "home";
-	keynames[SDLK_END] = "end";
-	keynames[SDLK_PAGEUP] = "page up";
-	keynames[SDLK_PAGEDOWN] = "page down";
+	/** from https://code.google.com/r/kyberneticist-webport/source/browse/project_files/web_exp/pas2c_build/emcc/patches/sdl_patch.c */
+	ADD_KEY(SDLK_BACKSPACE, "backspace");
+	ADD_KEY(SDLK_TAB, "tab");
+	ADD_KEY(SDLK_CLEAR, "clear");
+	ADD_KEY(SDLK_RETURN, "return");
+	ADD_KEY(SDLK_PAUSE, "pause");
+	ADD_KEY(SDLK_ESCAPE, "escape");
+	ADD_KEY(SDLK_SPACE, "space");
+	ADD_KEY(SDLK_EXCLAIM,  "!");
+	ADD_KEY(SDLK_QUOTEDBL, "\"");
+	ADD_KEY(SDLK_HASH, "#");
+	ADD_KEY(SDLK_DOLLAR, "$");
+	ADD_KEY(SDLK_AMPERSAND, "&");
+	ADD_KEY(SDLK_QUOTE, "'");
+	ADD_KEY(SDLK_LEFTPAREN, "(");
+	ADD_KEY(SDLK_RIGHTPAREN, ")");
+	ADD_KEY(SDLK_ASTERISK, "*");
+	ADD_KEY(SDLK_PLUS, "+");
+	ADD_KEY(SDLK_COMMA, ",");
+	ADD_KEY(SDLK_MINUS, "-");
+	ADD_KEY(SDLK_PERIOD, ".");
+	ADD_KEY(SDLK_SLASH, "/");
+	ADD_KEY(SDLK_0, "0");
+	ADD_KEY(SDLK_1, "1");
+	ADD_KEY(SDLK_2, "2");
+	ADD_KEY(SDLK_3, "3");
+	ADD_KEY(SDLK_4, "4");
+	ADD_KEY(SDLK_5, "5");
+	ADD_KEY(SDLK_6, "6");
+	ADD_KEY(SDLK_7, "7");
+	ADD_KEY(SDLK_8, "8");
+	ADD_KEY(SDLK_9, "9");
+	ADD_KEY(SDLK_COLON, ":");
+	ADD_KEY(SDLK_SEMICOLON, ";");
+	ADD_KEY(SDLK_LESS, "<");
+	ADD_KEY(SDLK_EQUALS, "=");
+	ADD_KEY(SDLK_GREATER, ">");
+	ADD_KEY(SDLK_QUESTION, "?");
+	ADD_KEY(SDLK_AT, "@");
+	ADD_KEY(SDLK_LEFTBRACKET, "[");
+	ADD_KEY(SDLK_BACKSLASH, "\\");
+	ADD_KEY(SDLK_RIGHTBRACKET, "]");
+	ADD_KEY(SDLK_CARET, "^");
+	ADD_KEY(SDLK_UNDERSCORE, "_");
+	ADD_KEY(SDLK_BACKQUOTE, "`");
+	ADD_KEY(SDLK_a, "a");
+	ADD_KEY(SDLK_b, "b");
+	ADD_KEY(SDLK_c, "c");
+	ADD_KEY(SDLK_d, "d");
+	ADD_KEY(SDLK_e, "e");
+	ADD_KEY(SDLK_f, "f");
+	ADD_KEY(SDLK_g, "g");
+	ADD_KEY(SDLK_h, "h");
+	ADD_KEY(SDLK_i, "i");
+	ADD_KEY(SDLK_j, "j");
+	ADD_KEY(SDLK_k, "k");
+	ADD_KEY(SDLK_l, "l");
+	ADD_KEY(SDLK_m, "m");
+	ADD_KEY(SDLK_n, "n");
+	ADD_KEY(SDLK_o, "o");
+	ADD_KEY(SDLK_p, "p");
+	ADD_KEY(SDLK_q, "q");
+	ADD_KEY(SDLK_r, "r");
+	ADD_KEY(SDLK_s, "s");
+	ADD_KEY(SDLK_t, "t");
+	ADD_KEY(SDLK_u, "u");
+	ADD_KEY(SDLK_v, "v");
+	ADD_KEY(SDLK_w, "w");
+	ADD_KEY(SDLK_x, "x");
+	ADD_KEY(SDLK_y, "y");
+	ADD_KEY(SDLK_z, "z");
+	ADD_KEY(SDLK_DELETE, "delete");
 
-	keynames[SDLK_F1] = "f1";
-	keynames[SDLK_F2] = "f2";
-	keynames[SDLK_F3] = "f3";
-	keynames[SDLK_F4] = "f4";
-	keynames[SDLK_F5] = "f5";
-	keynames[SDLK_F6] = "f6";
-	keynames[SDLK_F7] = "f7";
-	keynames[SDLK_F8] = "f8";
-	keynames[SDLK_F9] = "f9";
-	keynames[SDLK_F10] = "f10";
-	keynames[SDLK_F11] = "f11";
-	keynames[SDLK_F12] = "f12";
-	keynames[SDLK_F13] = "f13";
-	keynames[SDLK_F14] = "f14";
-	keynames[SDLK_F15] = "f15";
+	ADD_KEY(SDLK_KP_0, "[0]");
+	ADD_KEY(SDLK_KP_1, "[1]");
+	ADD_KEY(SDLK_KP_2, "[2]");
+	ADD_KEY(SDLK_KP_3, "[3]");
+	ADD_KEY(SDLK_KP_4, "[4]");
+	ADD_KEY(SDLK_KP_5, "[5]");
+	ADD_KEY(SDLK_KP_6, "[6]");
+	ADD_KEY(SDLK_KP_7, "[7]");
+	ADD_KEY(SDLK_KP_8, "[8]");
+	ADD_KEY(SDLK_KP_9, "[9]");
+	ADD_KEY(SDLK_KP_PERIOD, "[.]");
+	ADD_KEY(SDLK_KP_DIVIDE, "[/]");
+	ADD_KEY(SDLK_KP_MULTIPLY, "[*]");
+	ADD_KEY(SDLK_KP_MINUS, "[-]");
+	ADD_KEY(SDLK_KP_PLUS, "[+]");
+	ADD_KEY(SDLK_KP_ENTER, "enter");
+	ADD_KEY(SDLK_KP_EQUALS, "equals");
 
-	keynames[SDLK_CAPSLOCK] = "caps lock";
-	keynames[SDLK_RSHIFT] = "right shift";
-	keynames[SDLK_LSHIFT] = "left shift";
-	keynames[SDLK_RCTRL] = "right ctrl";
-	keynames[SDLK_LCTRL] = "left ctrl";
-	keynames[SDLK_RALT] = "right alt";
-	keynames[SDLK_LALT] = "left alt";
-	keynames[SDLK_RGUI] = "right meta";
-	keynames[SDLK_LGUI] = "left meta";
-	keynames[SDLK_MODE] = "alt gr";
-	return 0;
+	ADD_KEY(SDLK_UP, "up");
+	ADD_KEY(SDLK_DOWN, "down");
+	ADD_KEY(SDLK_RIGHT, "right");
+	ADD_KEY(SDLK_LEFT, "left");
+	ADD_KEY(SDLK_DOWN, "down");
+	ADD_KEY(SDLK_INSERT, "insert");
+	ADD_KEY(SDLK_HOME, "home");
+	ADD_KEY(SDLK_END, "end");
+	ADD_KEY(SDLK_PAGEUP, "page up");
+	ADD_KEY(SDLK_PAGEDOWN, "page down");
+
+	ADD_KEY(SDLK_F1, "f1");
+	ADD_KEY(SDLK_F2, "f2");
+	ADD_KEY(SDLK_F3, "f3");
+	ADD_KEY(SDLK_F4, "f4");
+	ADD_KEY(SDLK_F5, "f5");
+	ADD_KEY(SDLK_F6, "f6");
+	ADD_KEY(SDLK_F7, "f7");
+	ADD_KEY(SDLK_F8, "f8");
+	ADD_KEY(SDLK_F9, "f9");
+	ADD_KEY(SDLK_F10, "f10");
+	ADD_KEY(SDLK_F11, "f11");
+	ADD_KEY(SDLK_F12, "f12");
+	ADD_KEY(SDLK_F13, "f13");
+	ADD_KEY(SDLK_F14, "f14");
+	ADD_KEY(SDLK_F15, "f15");
+
+	ADD_KEY(SDLK_CAPSLOCK, "caps lock");
+	ADD_KEY(SDLK_RSHIFT, "right shift");
+	ADD_KEY(SDLK_LSHIFT, "left shift");
+	ADD_KEY(SDLK_RCTRL, "right ctrl");
+	ADD_KEY(SDLK_LCTRL, "left ctrl");
+	ADD_KEY(SDLK_RALT, "right alt");
+	ADD_KEY(SDLK_LALT, "left alt");
+	ADD_KEY(SDLK_RGUI, "right meta");
+	ADD_KEY(SDLK_LGUI, "left meta");
+	ADD_KEY(SDLK_MODE, "alt gr");
+#undef ADD_KEY
+	keys_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 }
-static _unused_ int unused = initKeys();
 
-static const char * mySDL_GetKeyName(SDL_Keycode key)
+static void push_keyname(lua_State *L, SDL_Keycode key)
 {
-	const char *keyname;
+	assert(L);
 
-	keyname = keynames[key];
-	if (keyname == NULL) {
-		keyname = "unknown key";
+	lua_rawgeti(L, LUA_REGISTRYINDEX, keys_table_ref);
+	lua_pushnumber(L, TRANSFORM(key));
+	lua_rawget(L, -2);
+	if (lua_isstring(L, -1)) {
+		lua_remove(L, lua_gettop(L) - 1);
+	} else {
+		lua_pop(L, 2);
+		lua_pushliteral(L, "unknown key");
 	}
-	return keyname;
 }
 
 static void call_mouse_motion(int mx, int my, int dx, int dy)
@@ -218,24 +231,20 @@ static void call_mouse_release(int mx, int my, Button button)
 	}
 }
 
-static void call_key_press(const char* key_string)
+static void call_key_press(SDL_Keycode key)
 {
-	assert(key_string);
-
 	if (dlua_get_function("key_press")) {
 		lua_State* L = dlua_get_lua_state();
-		lua_pushstring(L, key_string);
+		push_keyname(L, key);
 		CALL(1, 0);
 	}
 }
 
-static void call_key_release(const char* key_string)
+static void call_key_release(SDL_Keycode key)
 {
-	assert(key_string);
-
 	if (dlua_get_function("key_release")) {
 		lua_State* L = dlua_get_lua_state();
-		lua_pushstring(L, key_string);
+		push_keyname(L, key);
 		CALL(1, 0);
 	}
 }
@@ -261,29 +270,29 @@ static void call_resize_event(int w, int h)
 	}
 }
 
-static void handle_event(const SDL_Event& event)
+static void handle_event(SDL_Event event)
 {
 	Button button;
 	switch (event.type) {
 		case SDL_QUIT:
-			engine->stop();
+			engine_stop();
 			break;
 		case SDL_KEYUP:
-			call_key_release(mySDL_GetKeyName(event.key.keysym.sym));
+			call_key_release(event.key.keysym.sym);
 			break;
 		case SDL_KEYDOWN:
 			if (event.key.keysym.sym == SDLK_F1) {
-				engine->toggle_update();
+				engine_toggle_update();
 			} else if (event.key.keysym.sym == SDLK_F2) {
-				engine->toggle_draw();
+				engine_toggle_draw();
 			} else if (event.key.keysym.sym == SDLK_F3) {
 				dlua_reload_code();
 			} else if (event.key.keysym.sym == SDLK_F4) {
 				display_toggle_debug_mode();
 			} else if (event.key.keysym.sym == SDLK_F10) {
-				engine->toggle_stats();
+				engine_toggle_stats();
 			} else {
-				call_key_press(mySDL_GetKeyName(event.key.keysym.sym));
+				call_key_press(event.key.keysym.sym);
 			}
 			break;
 		case SDL_TEXTINPUT:
@@ -294,7 +303,7 @@ static void handle_event(const SDL_Event& event)
 			                  event.motion.xrel, event.motion.yrel);
 			break;
 		case SDL_MOUSEBUTTONDOWN:
-			button = static_cast<Button>(event.button.button);
+			button = (Button) event.button.button;
 			if (button != BUTTON_LEFT && button != BUTTON_RIGHT && button != BUTTON_MIDDLE) {
 				// On SDL1 the mouse wheel up/down will be assigned to BUTTON_X1/X2 as well,
 				// so to be consistant on native and web build we must consider them as wheel up/down only
@@ -304,7 +313,7 @@ static void handle_event(const SDL_Event& event)
 			call_mouse_press(event.button.x, event.button.y, button);
 			break;
 		case SDL_MOUSEBUTTONUP:
-			button = static_cast<Button>(event.button.button);
+			button = (Button) event.button.button;
 			if (button != BUTTON_LEFT && button != BUTTON_RIGHT && button != BUTTON_MIDDLE) {
 				break;
 			}
@@ -374,14 +383,17 @@ void event_init(void)
 	emscripten_set_click_callback(NULL, NULL, true, em_click_callback);
 #endif
 	SDL_StartTextInput();
-	engine = &get_engine();
+
+	initialize_keys_mapping();
 }
 
 void event_destroy(void)
 {
+	lua_State* L = dlua_get_lua_state();
 #ifndef EMSCRIPTEN
 	SDL_QuitSubSystem(SDL_INIT_EVENTS);
 #endif
+	luaL_unref(L, LUA_REGISTRYINDEX, keys_table_ref);
 }
 
 void event_set_relative_mode(bool relative)

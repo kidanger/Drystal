@@ -14,18 +14,39 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <cassert>
-#include <lua.hpp>
+#pragma once
 
-#include "event.hpp"
-#include "event_bind.hpp"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-int mlua_set_relative_mode(lua_State* L)
-{
-	assert(L);
+#include <stdbool.h>
 
-	bool relative = lua_toboolean(L, 1);
-	event_set_relative_mode(relative);
-	return 0;
+#ifndef EMSCRIPTEN
+#include <SDL2/SDL.h>
+#else
+#include <SDL/SDL.h>
+#endif
+
+enum Button {
+	BUTTON_LEFT        = SDL_BUTTON_LEFT,
+	BUTTON_MIDDLE      = SDL_BUTTON_MIDDLE,
+	BUTTON_RIGHT       = SDL_BUTTON_RIGHT,
+	BUTTON_EXTRA_LEFT  = SDL_BUTTON_X1,
+	BUTTON_EXTRA_RIGHT = SDL_BUTTON_X2,
+	// There is no more WHEEL_UP constant in SDL2 so we create ours
+	WHEEL_UP = 4,
+	WHEEL_DOWN = 5,
+};
+typedef enum Button Button;
+
+void event_update();
+void event_destroy();
+void event_init();
+
+void event_set_relative_mode(bool relative);
+
+#ifdef __cplusplus
 }
+#endif
 

@@ -60,7 +60,11 @@ public:
 Engine &get_engine();
 extern "C" {
 #endif
+// only for C transition
 void engine_stop(void);
+void engine_toggle_update(void);
+void engine_toggle_draw(void);
+void engine_toggle_stats(void);
 #ifdef __cplusplus
 }
 #endif

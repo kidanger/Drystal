@@ -14,28 +14,17 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
+#include "module.h"
+#include "event_bind.h"
+#include "event.h"
+#include "api.h"
 
-#ifndef EMSCRIPTEN
-#include <SDL2/SDL.h>
-#else
-#include <SDL/SDL.h>
-#endif
-
-enum Button {
-	BUTTON_LEFT        = SDL_BUTTON_LEFT,
-	BUTTON_MIDDLE      = SDL_BUTTON_MIDDLE,
-	BUTTON_RIGHT       = SDL_BUTTON_RIGHT,
-	BUTTON_EXTRA_LEFT  = SDL_BUTTON_X1,
-	BUTTON_EXTRA_RIGHT = SDL_BUTTON_X2,
-	// There is no more WHEEL_UP constant in SDL2 so we create ours
-	WHEEL_UP = 4,
-	WHEEL_DOWN = 5,
-};
-
-void event_update();
-void event_destroy();
-void event_init();
-
-void event_set_relative_mode(bool relative);
+BEGIN_MODULE(event)
+	DECLARE_FUNCTION(set_relative_mode)
+	DECLARE_CONSTANT(BUTTON_LEFT)
+	DECLARE_CONSTANT(BUTTON_MIDDLE)
+	DECLARE_CONSTANT(BUTTON_RIGHT)
+	DECLARE_CONSTANT(WHEEL_UP)
+	DECLARE_CONSTANT(WHEEL_DOWN)
+END_MODULE()
 

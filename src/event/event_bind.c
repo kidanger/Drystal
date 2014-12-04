@@ -14,9 +14,18 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
+#include <assert.h>
+#include <lua.h>
 
-struct lua_State;
+#include "event.h"
+#include "event_bind.h"
 
-int mlua_set_relative_mode(lua_State* L);
+int mlua_set_relative_mode(lua_State* L)
+{
+	assert(L);
+
+	bool relative = lua_toboolean(L, 1);
+	event_set_relative_mode(relative);
+	return 0;
+}
 

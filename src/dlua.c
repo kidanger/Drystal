@@ -31,7 +31,7 @@
 #include "luafiles.h"
 #include "module.h"
 #ifdef BUILD_EVENT
-#include "event/api.hpp"
+#include "event/api.h"
 #endif
 #ifdef BUILD_PHYSICS
 #include "physics/api.hpp"

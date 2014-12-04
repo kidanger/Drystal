@@ -33,7 +33,7 @@
 #include "audio/audio.hpp"
 #endif
 #ifdef BUILD_EVENT
-#include "event/event.hpp"
+#include "event/event.h"
 #endif
 #ifdef BUILD_GRAPHICS
 #include "graphics/display.h"
@@ -228,8 +228,22 @@ Engine &get_engine()
 	return *engine;
 }
 
-extern "C" void engine_stop(void) {
+extern "C" {
+void engine_stop(void) {
 	Engine &e = get_engine();
 	e.stop();
+}
+void engine_toggle_update(void) {
+	Engine &e = get_engine();
+	e.toggle_update();
+}
+void engine_toggle_draw(void) {
+	Engine &e = get_engine();
+	e.toggle_draw();
+}
+void engine_toggle_stats(void) {
+	Engine &e = get_engine();
+	e.toggle_stats();
+}
 }
 
