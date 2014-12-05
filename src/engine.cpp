@@ -42,6 +42,8 @@
 #include "emscripten.h"
 #endif
 
+#include "dlua.h"
+
 log_category("engine");
 
 // needed for get_engine
@@ -65,11 +67,11 @@ Engine::Engine(const char* filename, unsigned int target_fps) :
 	stats(),
 #endif
 #ifdef BUILD_GRAPHICS
-	display(),
+	display()
 #endif
-	lua(filename)
 {
 	engine = this;
+	dlua_init(filename);
 #if defined(BUILD_EVENT) || defined(BUILD_FONT) || defined(BUILD_GRAPHICS)
 	int err = SDL_Init(0);
 	if (err) {
@@ -84,7 +86,7 @@ Engine::Engine(const char* filename, unsigned int target_fps) :
 
 Engine::~Engine()
 {
-	lua.free();
+	dlua_free();
 #ifdef BUILD_AUDIO
 	destroy_audio();
 #endif
@@ -109,10 +111,10 @@ void Engine::load()
 	}
 #endif
 
-	bool successful_load = lua.load_code();
+	bool successful_load = dlua_load_code();
 	if (run)
 		// run can be disabled before init being called
-		successful_load = successful_load && lua.call_init();
+		successful_load = successful_load && dlua_call_init();
 	run = run && successful_load;
 	loaded = true;
 }
@@ -149,8 +151,8 @@ long unsigned Engine::get_now()
 void Engine::update()
 {
 #ifdef BUILD_LIVECODING
-	if (lua.is_need_to_reload()) {
-		lua.reload_code();
+	if (dlua_is_need_to_reload()) {
+		dlua_reload_code();
 	}
 #endif
 
@@ -173,11 +175,11 @@ void Engine::update()
 #endif
 
 	if (update_activated)
-		lua.call_update(dt);
+		dlua_call_update(dt);
 	AT(game);
 
 	if (draw_activated)
-		lua.call_draw();
+		dlua_call_draw();
 
 #ifdef BUILD_ENABLE_STATS
 	if (stats_activated)
@@ -198,7 +200,7 @@ void Engine::update()
 
 void Engine::stop()
 {
-	lua.call_atexit();
+	dlua_call_atexit();
 	run = false;
 #ifdef EMSCRIPTEN
 	emscripten_cancel_main_loop();
@@ -222,5 +224,10 @@ void Engine::toggle_update()
 Engine &get_engine()
 {
 	return *engine;
+}
+
+extern "C" void engine_stop(void) {
+	Engine &e = get_engine();
+	e.stop();
 }
 

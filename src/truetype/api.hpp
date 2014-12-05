@@ -16,7 +16,15 @@
  */
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "module.h"
 
 DECLARE_MODULE(truetype)
+
+#ifdef __cplusplus
+}
+#endif
 

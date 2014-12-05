@@ -16,8 +16,10 @@
  */
 #include <lua.hpp>
 #include <cassert>
+#ifdef EMSCRIPTEN
+#include <cstdlib>
+#endif
 
-#include "engine.hpp"
 #include "web.hpp"
 #include "web_bind.hpp"
 

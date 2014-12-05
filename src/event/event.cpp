@@ -29,6 +29,7 @@
 #include "lua_util.h"
 #include "event.hpp"
 #include "log.h"
+#include "dlua.h"
 
 log_category("event");
 
@@ -184,8 +185,8 @@ static const char * mySDL_GetKeyName(SDL_Keycode key)
 
 static void call_mouse_motion(int mx, int my, int dx, int dy)
 {
-	if (engine->lua.get_function("mouse_motion")) {
-		lua_State* L = engine->lua.L;
+	if (dlua_get_function("mouse_motion")) {
+		lua_State* L = dlua_get_lua_state();
 		lua_pushnumber(L, mx);
 		lua_pushnumber(L, my);
 		lua_pushnumber(L, dx);
@@ -196,8 +197,8 @@ static void call_mouse_motion(int mx, int my, int dx, int dy)
 
 static void call_mouse_press(int mx, int my, Button button)
 {
-	if (engine->lua.get_function("mouse_press")) {
-		lua_State* L = engine->lua.L;
+	if (dlua_get_function("mouse_press")) {
+		lua_State* L = dlua_get_lua_state();
 		lua_pushnumber(L, mx);
 		lua_pushnumber(L, my);
 		lua_pushnumber(L, button);
@@ -207,8 +208,8 @@ static void call_mouse_press(int mx, int my, Button button)
 
 static void call_mouse_release(int mx, int my, Button button)
 {
-	if (engine->lua.get_function("mouse_release")) {
-		lua_State* L = engine->lua.L;
+	if (dlua_get_function("mouse_release")) {
+		lua_State* L = dlua_get_lua_state();
 		lua_pushnumber(L, mx);
 		lua_pushnumber(L, my);
 		lua_pushnumber(L, button);
@@ -220,8 +221,8 @@ static void call_key_press(const char* key_string)
 {
 	assert(key_string);
 
-	if (engine->lua.get_function("key_press")) {
-		lua_State* L = engine->lua.L;
+	if (dlua_get_function("key_press")) {
+		lua_State* L = dlua_get_lua_state();
 		lua_pushstring(L, key_string);
 		CALL(1, 0);
 	}
@@ -231,8 +232,8 @@ static void call_key_release(const char* key_string)
 {
 	assert(key_string);
 
-	if (engine->lua.get_function("key_release")) {
-		lua_State* L = engine->lua.L;
+	if (dlua_get_function("key_release")) {
+		lua_State* L = dlua_get_lua_state();
 		lua_pushstring(L, key_string);
 		CALL(1, 0);
 	}
@@ -242,8 +243,8 @@ static void call_key_text(const char* string)
 {
 	assert(string);
 
-	if (engine->lua.get_function("key_text")) {
-		lua_State* L = engine->lua.L;
+	if (dlua_get_function("key_text")) {
+		lua_State* L = dlua_get_lua_state();
 		lua_pushstring(L, string);
 		CALL(1, 0);
 	}
@@ -251,8 +252,8 @@ static void call_key_text(const char* string)
 
 static void call_resize_event(int w, int h)
 {
-	if (engine->lua.get_function("resize_event")) {
-		lua_State* L = engine->lua.L;
+	if (dlua_get_function("resize_event")) {
+		lua_State* L = dlua_get_lua_state();
 		lua_pushnumber(L, w);
 		lua_pushnumber(L, h);
 		CALL(2, 0);
@@ -275,7 +276,7 @@ static void handle_event(const SDL_Event& event)
 			} else if (event.key.keysym.sym == SDLK_F2) {
 				engine->toggle_draw();
 			} else if (event.key.keysym.sym == SDLK_F3) {
-				engine->lua.reload_code();
+				dlua_reload_code();
 			} else if (event.key.keysym.sym == SDLK_F4) {
 				engine->display.toggle_debug_mode();
 			} else if (event.key.keysym.sym == SDLK_F10) {

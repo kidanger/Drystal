@@ -19,9 +19,12 @@
 #include <cstdio>
 #ifndef EMSCRIPTEN
 #ifdef BUILD_LIVECODING
+#include <cassert>
 #include <libgen.h>// dirname()
 #include <cstdlib>
+
 #include "livecoding.h"
+#include "dlua.h"
 #endif
 #else
 #include <emscripten.h>
@@ -109,9 +112,7 @@ static Engine* engine = NULL;
 
 static void reload(void)
 {
-	assert(engine);
-
-	engine->lua.set_need_to_reload();
+	dlua_set_need_to_reload();
 }
 
 static int start_livecoding(const char *filename)

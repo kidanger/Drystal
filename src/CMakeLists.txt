@@ -1,7 +1,7 @@
 include_directories(.)
 set(SOURCES
 	engine.cpp
-	lua_functions.cpp
+	dlua.c
 	lua_util.c
 	main.cpp
 	util.c
@@ -87,10 +87,9 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX OR CMAKE_COMPILER_IS_GN
 endif()
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX)
 	set(DRYSTAL_CXX_FLAGS "${DRYSTAL_CXX_FLAGS} -Weffc++")
-	if(NOT DEFINED EMSCRIPTEN AND BUILD_LIVECODING)
-		# C++11 Needed by lua_functions for std::atomic<bool> for livecoding
-		set(DRYSTAL_CXX_FLAGS "${DRYSTAL_CXX_FLAGS} -std=c++11")
-	endif()
+endif()
+if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANGC)
+	set(DRYSTAL_C_FLAGS "${DRYSTAL_C_FLAGS} -std=gnu99")
 endif()
 
 add_executable(${DRYSTAL_OUT} ${SOURCES})

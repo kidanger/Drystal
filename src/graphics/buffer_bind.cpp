@@ -19,7 +19,6 @@
 
 #include "engine.hpp"
 #include "buffer_bind.hpp"
-#include "lua_functions.hpp"
 #include "log.h"
 
 log_category("buffer");

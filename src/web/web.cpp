@@ -20,7 +20,7 @@
 #endif
 
 #include "web.hpp"
-#include "engine.hpp"
+#include "dlua.h"
 #include "lua_util.h"
 
 #ifdef EMSCRIPTEN
@@ -34,9 +34,8 @@ static void onsuccess(const char* filename)
 {
 	assert(filename);
 
-	Engine& engine = get_engine();
-	if (engine.lua.get_function("on_wget_success")) {
-		lua_State* L = engine.lua.L;
+	if (dlua_get_function("on_wget_success")) {
+		lua_State* L = dlua_get_lua_state();
 		lua_pushstring(L, filename);
 		CALL(1, 0);
 	}
@@ -46,9 +45,8 @@ static void onerror(const char* filename)
 {
 	assert(filename);
 
-	Engine& engine = get_engine();
-	if (engine.lua.get_function("on_wget_error")) {
-		lua_State* L = engine.lua.L;
+	if (dlua_get_function("on_wget_error")) {
+		lua_State* L = dlua_get_lua_state();
 		lua_pushstring(L, filename);
 		CALL(1, 0);
 	}

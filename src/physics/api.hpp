@@ -16,7 +16,15 @@
  */
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "module.h"
 
 DECLARE_MODULE(physics)
+
+#ifdef __cplusplus
+}
+#endif
 

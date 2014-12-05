@@ -16,15 +16,13 @@
  */
 #pragma once
 
-#include <lua.hpp>
-
+#ifdef __cplusplus
 #ifdef BUILD_GRAPHICS
 #include "graphics/display.hpp"
 #endif
 #ifdef BUILD_ENABLE_STATS
 #include "stats.hpp"
 #endif
-#include "lua_functions.hpp"
 
 class Engine
 {
@@ -45,7 +43,6 @@ public:
 #ifdef BUILD_GRAPHICS
 	Display display;
 #endif
-	LuaFunctions lua;
 
 	Engine(const char* filename, unsigned int target_fps);
 	~Engine();
@@ -68,3 +65,10 @@ public:
 };
 
 Engine &get_engine();
+extern "C" {
+#endif
+void engine_stop(void);
+#ifdef __cplusplus
+}
+#endif
+

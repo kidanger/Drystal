@@ -14,16 +14,20 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <cstring>
-#include <cmath>
-#include <cassert>
+#include <string.h>
+#include <math.h>
+#include <assert.h>
+#include <stdbool.h>
 
-#include <lua.hpp>
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
 
 #include "lua_util.h"
 #include "engine.hpp"
+#include "util.h"
 #include "log.h"
-#include "lua_functions.hpp"
+#include "dlua.h"
 #include "luafiles.h"
 #include "module.h"
 #ifdef BUILD_EVENT
@@ -58,22 +62,37 @@ log_category("lua");
 
 static int luaopen_drystal(lua_State*); // defined at the end of this file
 
-LuaFunctions::LuaFunctions(const char *_filename) :
-	L(luaL_newstate()),
-	drystal_table_ref(LUA_NOREF),
-	filename(_filename),
+struct DrystalLua {
+	lua_State* L;
+	int drystal_table_ref;
+	const char* filename;
 #ifdef BUILD_LIVECODING
-	need_to_reload(false),
+	bool need_to_reload;
 #endif
-	library_loaded(false)
+	bool library_loaded;
+} dlua;
+
+void dlua_init(const char *filename)
 {
-	luaL_openlibs(L);
+	dlua.L = luaL_newstate();
+	dlua.drystal_table_ref = LUA_NOREF;
+	dlua.filename = filename;
+#ifdef BUILD_LIVECODING
+	dlua.need_to_reload = false;
+#endif
+	dlua.library_loaded = false;
+	luaL_openlibs(dlua.L);
 }
 
-void LuaFunctions::free()
+void dlua_free(void)
 {
-	luaL_unref(L, LUA_REGISTRYINDEX, drystal_table_ref);
-	lua_close(L);
+	luaL_unref(dlua.L, LUA_REGISTRYINDEX, dlua.drystal_table_ref);
+	lua_close(dlua.L);
+}
+
+lua_State *dlua_get_lua_state(void)
+{
+	return dlua.L;
 }
 
 /**
@@ -81,11 +100,13 @@ void LuaFunctions::free()
  * Return true if found and keep the function in the lua stack
  * Otherwise, return false (stack is cleaned as needed).
  */
-bool LuaFunctions::get_function(const char* name) const
+bool dlua_get_function(const char* name)
 {
+	lua_State *L = dlua.L;
+
 	assert(name);
 
-	lua_rawgeti(L, LUA_REGISTRYINDEX, drystal_table_ref);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, dlua.drystal_table_ref);
 	lua_pushstring(L, name);
 	lua_rawget(L, -2);
 	if (lua_isfunction(L, -1)) {
@@ -96,8 +117,10 @@ bool LuaFunctions::get_function(const char* name) const
 	return false;
 }
 
-void LuaFunctions::remove_userpackages() const
+static void remove_userpackages(void)
 {
+	lua_State *L = dlua.L;
+
 	assert(lua_gettop(L) == 0);
 	log_info("Removing old packages: ");
 	const char* kept[] = {
@@ -119,7 +142,9 @@ void LuaFunctions::remove_userpackages() const
 	while (lua_next(L, -2)) {
 		bool remove = true;
 		const char* name = lua_tostring(L, -2);
-		for (unsigned long i = 0; i < sizeof(kept) / sizeof(const char*) && remove; i++) {
+		unsigned long i;
+
+		for (i = 0; i < sizeof(kept) / sizeof(const char*) && remove; i++) {
 			remove = remove && strcmp(name, kept[i]);
 		}
 		if (remove) {
@@ -133,11 +158,44 @@ void LuaFunctions::remove_userpackages() const
 	assert(lua_gettop(L) == 0);
 }
 
-bool LuaFunctions::load_code()
+static void register_modules(void)
 {
+#ifdef BUILD_AUDIO
+	REGISTER_MODULE(audio, dlua.L);
+#endif
+#ifdef BUILD_EVENT
+	REGISTER_MODULE(event, dlua.L);
+#endif
+#ifdef BUILD_PARTICLE
+	REGISTER_MODULE(particle, dlua.L);
+#endif
+#ifdef BUILD_PHYSICS
+	REGISTER_MODULE(physics, dlua.L);
+#endif
+#ifdef BUILD_STORAGE
+	REGISTER_MODULE(storage, dlua.L);
+#endif
+#ifdef BUILD_FONT
+	REGISTER_MODULE(truetype, dlua.L);
+#endif
+#ifdef BUILD_WEB
+	REGISTER_MODULE(web, dlua.L);
+#endif
+#ifdef BUILD_GRAPHICS
+	REGISTER_MODULE(graphics, dlua.L);
+#endif
+#ifdef BUILD_UTILS
+	REGISTER_MODULE(utils, dlua.L);
+#endif
+}
+
+bool dlua_load_code(void)
+{
+	lua_State *L = dlua.L;
+
 	assert(lua_gettop(L) == 0);
 	lua_pushcfunction(L, traceback); // used by lua_pcall
-	if (!library_loaded) {
+	if (!dlua.library_loaded) {
 		// add drystal lib
 		luaL_requiref(L, "drystal", luaopen_drystal, 0 /* not as global */);
 		register_modules();
@@ -148,10 +206,10 @@ bool LuaFunctions::load_code()
 			lua_pop(L, 2);
 			return false;
 		}
-		library_loaded = true;
+		dlua.library_loaded = true;
 	}
 
-	if (luaL_loadfile(L, filename) || lua_pcall(L, 0, 0, -2)) {
+	if (luaL_loadfile(L, dlua.filename) || lua_pcall(L, 0, 0, -2)) {
 		log_error("Cannot run script: %s", lua_tostring(L, -1));
 		lua_pop(L, 2);
 		return false;
@@ -163,95 +221,92 @@ bool LuaFunctions::load_code()
 }
 
 #ifdef BUILD_LIVECODING
-void LuaFunctions::set_need_to_reload()
+void dlua_set_need_to_reload()
 {
-	need_to_reload = true;
+	dlua.need_to_reload = true;
 }
 
-std::atomic<bool>& LuaFunctions::is_need_to_reload()
+bool dlua_is_need_to_reload()
 {
-	return need_to_reload;
+	return dlua.need_to_reload;
 }
 #endif
 
-bool LuaFunctions::reload_code()
+bool dlua_reload_code(void)
 {
-	if (get_function("prereload")) {
+	lua_State *L = dlua.L;
+	if (dlua_get_function("prereload")) {
 		CALL(0, 0);
 	}
 	remove_userpackages();
 
 	log_info("Reloading code...");
-	bool ok = load_code() && call_init();
+	bool ok = dlua_load_code() && dlua_call_init();
 	if (ok) {
-		if (get_function("postreload")) {
+		if (dlua_get_function("postreload")) {
 			CALL(0, 0);
 		}
 	}
 
 #ifdef BUILD_LIVECODING
-	need_to_reload = false;
+	dlua.need_to_reload = false;
 #endif
 
 	return ok;
 }
 
-bool LuaFunctions::call_init() const
+bool dlua_call_init(void)
 {
-	if (get_function("init")) {
+	if (dlua_get_function("init")) {
+		lua_State *L = dlua.L;
 		CALL(0, 0);
 	}
 	return true;
 }
 
-void LuaFunctions::call_update(float dt) const
+void dlua_call_update(float dt)
 {
-	if (get_function("update")) {
+	if (dlua_get_function("update")) {
+		lua_State *L = dlua.L;
 		lua_pushnumber(L, dt);
 		CALL(1, 0);
 	}
 }
 
-void LuaFunctions::call_draw() const
+void dlua_call_draw(void)
 {
-	if (get_function("draw")) {
+	if (dlua_get_function("draw")) {
+		lua_State *L = dlua.L;
 		CALL(0, 0);
 	}
 }
 
-void LuaFunctions::call_atexit() const
+void dlua_call_atexit(void)
 {
-	if (get_function("atexit")) {
+	if (dlua_get_function("atexit")) {
+		lua_State *L = dlua.L;
 		CALL(0, 0);
 	}
 }
 
-static int mlua_stop(lua_State*)
+static int mlua_stop(_unused_ lua_State *L)
 {
-	Engine &engine = get_engine();
-	engine.stop();
+	engine_stop();
 	return 0;
 }
 
-static int mlua_reload(lua_State*)
+static int mlua_reload(_unused_ lua_State *L)
 {
-	Engine &engine = get_engine();
-	engine.lua.reload_code();
+	dlua_reload_code();
 	return 0;
 }
 
-#ifdef BUILD_GRAPHICS
-static int mlua_drystal_index(lua_State* L)
-#else
-static int mlua_drystal_index(_unused_ lua_State* L)
-#endif
+static int mlua_drystal_index(_unused_ lua_State *L)
 {
 #ifdef BUILD_GRAPHICS
 	int r;
 
-	assert(L);
-
-	r = graphics_index(L);
+	r = graphics_index(dlua.L);
 	if (r > 0) {
 		return r;
 	}
@@ -259,42 +314,9 @@ static int mlua_drystal_index(_unused_ lua_State* L)
 	return 0;
 }
 
-void LuaFunctions::register_modules()
-{
-#ifdef BUILD_AUDIO
-	REGISTER_MODULE(audio, L);
-#endif
-#ifdef BUILD_EVENT
-	REGISTER_MODULE(event, L);
-#endif
-#ifdef BUILD_PARTICLE
-	REGISTER_MODULE(particle, L);
-#endif
-#ifdef BUILD_PHYSICS
-	REGISTER_MODULE(physics, L);
-#endif
-#ifdef BUILD_STORAGE
-	REGISTER_MODULE(storage, L);
-#endif
-#ifdef BUILD_FONT
-	REGISTER_MODULE(truetype, L);
-#endif
-#ifdef BUILD_WEB
-	REGISTER_MODULE(web, L);
-#endif
-#ifdef BUILD_GRAPHICS
-	REGISTER_MODULE(graphics, L);
-#endif
-#ifdef BUILD_UTILS
-	REGISTER_MODULE(utils, L);
-#endif
-}
-
-int luaopen_drystal(lua_State* L)
+int luaopen_drystal(lua_State *L)
 {
 	assert(L);
-
-	Engine &engine = get_engine();
 
 	lua_newtable(L);
 	luaL_newmetatable(L, "__objects");
@@ -320,8 +342,9 @@ int luaopen_drystal(lua_State* L)
 	lua_setmetatable(L, -2);
 
 	lua_pushvalue(L, -1);
-	engine.lua.drystal_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+	dlua.drystal_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 
 	assert(lua_gettop(L) == 2);
 	return 1;
 }
+

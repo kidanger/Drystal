@@ -16,46 +16,34 @@
  */
 #pragma once
 
-#include <cassert>
-#ifdef BUILD_LIVECODING
-#include <atomic>
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-struct lua_State;
+#include <stdbool.h>
+#include <assert.h>
+#include <lua.h>
 
-class LuaFunctions
-{
-public:
-	lua_State* L;
-	int drystal_table_ref;
+void dlua_init(const char *filename);
 
-	LuaFunctions(const char *_filename);
+lua_State *dlua_get_lua_state(void);
 
-	bool load_code();
-	bool reload_code();
+bool dlua_load_code(void);
+bool dlua_reload_code(void);
 
-	bool call_init() const;
-	void call_update(float dt) const;
-	void call_draw() const;
-	void call_atexit() const;
+bool dlua_call_init(void);
+void dlua_call_update(float dt);
+void dlua_call_draw(void);
+void dlua_call_atexit(void);
 #ifdef BUILD_LIVECODING
-	std::atomic<bool>& is_need_to_reload();
-	void set_need_to_reload();
+bool dlua_is_need_to_reload();
+void dlua_set_need_to_reload();
 #endif
 
-	bool get_function(const char* name) const;
-	void free();
+bool dlua_get_function(const char* name);
+void dlua_free(void);
 
-private:
-	const char* filename;
-#ifdef BUILD_LIVECODING
-	std::atomic<bool> need_to_reload;
+#ifdef __cplusplus
+}
 #endif
-	bool library_loaded;
-
-	LuaFunctions(const LuaFunctions&);
-	LuaFunctions& operator=(const LuaFunctions&);
-	void remove_userpackages() const;
-	void register_modules();
-};
 

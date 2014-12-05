@@ -13,7 +13,7 @@ option(BUILD_STORAGE         "Enable storage module (needs BUILD_UTILS as depend
 option(BUILD_EVENT           "Enable event module (needs BUILD_GRAPHICS as dependency)" ON)
 option(BUILD_GRAPHICS        "Enable graphics module" ON)
 option(BUILD_UTILS           "Enable utils module" ON)
-option(BUILD_LIVECODING      "Enable livecoding (needs C++11 compiler, available only on Linux)" ON)
+option(BUILD_LIVECODING      "Enable livecoding (needs C11 compiler, available only on Linux)" ON)
 
 if(BUILD_FONT AND NOT BUILD_GRAPHICS)
 	message(FATAL_ERROR "Cannot enable BUILD_FONT: BUILD_GRAPHICS is needed as a dependency")
