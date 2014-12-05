@@ -32,7 +32,7 @@
 #endif
 
 #include "engine.hpp"
-#include "log.hpp"
+#include "log.h"
 
 log_category("main");
 

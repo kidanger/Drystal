@@ -20,7 +20,7 @@
 #define WAVLOADER_HEADER_ONLY
 #include <wavloader.c>
 
-#include "log.hpp"
+#include "log.h"
 #include "audio.hpp"
 #include "sound.hpp"
 

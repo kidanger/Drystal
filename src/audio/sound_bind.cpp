@@ -17,7 +17,7 @@
 #include <lua.hpp>
 
 #include "engine.hpp"
-#include "log.hpp"
+#include "log.h"
 #include "sound_bind.hpp"
 #include "sound.hpp"
 #include "lua_util.h"

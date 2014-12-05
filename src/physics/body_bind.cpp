@@ -10,7 +10,7 @@ DISABLE_WARNING_STRICT_ALIASING;
 END_DISABLE_WARNINGS;
 
 #include "lua_util.h"
-#include "log.hpp"
+#include "log.h"
 #include "world_bind.hpp"
 #include "body_bind.hpp"
 

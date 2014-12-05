@@ -28,7 +28,7 @@
 #include "engine.hpp"
 #include "lua_util.h"
 #include "event.hpp"
-#include "log.hpp"
+#include "log.h"
 
 log_category("event");
 

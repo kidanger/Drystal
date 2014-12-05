@@ -19,7 +19,7 @@
 #define STB_VORBIS_HEADER_ONLY
 #include <stb_vorbis.c>
 
-#include "log.hpp"
+#include "log.h"
 #include "audio.hpp"
 #include "music.hpp"
 

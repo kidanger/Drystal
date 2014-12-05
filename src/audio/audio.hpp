@@ -18,7 +18,7 @@
 
 #include <AL/al.h>
 
-#include "log.hpp"
+#include "log.h"
 
 #define DEFAULT_SAMPLES_RATE 44100
 

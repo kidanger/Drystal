@@ -17,7 +17,7 @@
 #include <cstring>
 #include <cassert>
 
-#include "log.hpp"
+#include "log.h"
 #include "shader.hpp"
 
 log_category("shader");

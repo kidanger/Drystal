@@ -25,7 +25,7 @@
 #endif
 
 #include "engine.hpp"
-#include "log.hpp"
+#include "log.h"
 #ifdef BUILD_ENABLE_STATS
 #include "stats.hpp"
 #endif

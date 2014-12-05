@@ -34,7 +34,7 @@
 #include "emscripten.h" // see show_cursor
 #endif
 
-#include "log.hpp"
+#include "log.h"
 #include "shader.hpp"
 
 log_category("display");

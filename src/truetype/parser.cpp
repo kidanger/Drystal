@@ -21,7 +21,7 @@
 
 #include "parser.hpp"
 #include "macro.h"
-#include "log.hpp"
+#include "log.h"
 
 log_category("font");
 

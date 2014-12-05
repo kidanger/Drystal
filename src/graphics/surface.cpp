@@ -21,7 +21,7 @@
 #include "stb_image.h"
 
 #include "surface.hpp"
-#include "log.hpp"
+#include "log.h"
 
 log_category("graphics");
 

@@ -16,7 +16,11 @@
  */
 #pragma once
 
-#include <cstdio>
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <stdio.h>
 
 #include "macro.h"
 
@@ -50,4 +54,8 @@
 
 #define log_error(msg, ...) \
 	log_message("ERR", msg, ##__VA_ARGS__)
+
+#ifdef __cplusplus
+}
+#endif
 

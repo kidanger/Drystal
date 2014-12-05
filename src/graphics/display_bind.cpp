@@ -22,7 +22,7 @@
 #include "engine.hpp"
 #include "display_bind.hpp"
 #include "lua_util.h"
-#include "log.hpp"
+#include "log.h"
 
 log_category("graphics");
 

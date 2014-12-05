@@ -21,7 +21,7 @@
 #include "engine.hpp"
 #include "shader_bind.hpp"
 #include "shader.hpp"
-#include "log.hpp"
+#include "log.h"
 
 log_category("shader");
 

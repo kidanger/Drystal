@@ -22,7 +22,7 @@
 
 #include "lua_util.h"
 #include "engine.hpp"
-#include "log.hpp"
+#include "log.h"
 #include "lua_functions.hpp"
 #include "luafiles.h"
 #include "module.h"
