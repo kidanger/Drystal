@@ -15,15 +15,14 @@
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
 #ifdef EMSCRIPTEN
+#include <assert.h>
 #include <string.h>
 #include <emscripten.h>
-#endif
 
-#include "web.hpp"
+#include "web.h"
 #include "dlua.h"
 #include "lua_util.h"
 
-#ifdef EMSCRIPTEN
 char *run_js(const char* script)
 {
 	char *ret = emscripten_run_script_string(script);

@@ -14,45 +14,19 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <lua.hpp>
-#include <cassert>
+#include <stdbool.h>
+
+#include "module.h"
+#include "web_bind.h"
+#include "api.h"
+
+BEGIN_MODULE(web)
 #ifdef EMSCRIPTEN
-#include <cstdlib>
-#endif
-
-#include "web.hpp"
-#include "web_bind.hpp"
-
-int mlua_run_js(lua_State* L)
-{
-	assert(L);
-
-#ifdef EMSCRIPTEN
-	const char* script = luaL_checkstring(L, 1);
-	char *ret = run_js(script);
-	if (!ret) {
-		lua_pushnil(L);
-		return 1;
-	}
-	lua_pushstring(L, ret);
-	free(ret);
-	return 1;
+	DECLARE_BOOLEAN(is_web, true)
 #else
-	return luaL_error(L, "run_js isn't available in native build");
+	DECLARE_BOOLEAN(is_web, false)
 #endif
-}
-
-int mlua_wget(lua_State *L)
-{
-	assert(L);
-
-#ifdef EMSCRIPTEN
-	const char *url = luaL_checkstring(L, 1);
-	const char *filename = luaL_checkstring(L, 2);
-	wget(url, filename);
-	return 0;
-#else
-	return luaL_error(L, "wget isn't available in native build");
-#endif
-}
+	DECLARE_FUNCTION(wget)
+	DECLARE_FUNCTION(run_js)
+END_MODULE()
 

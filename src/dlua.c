@@ -46,7 +46,7 @@
 #include "audio/api.hpp"
 #endif
 #ifdef BUILD_WEB
-#include "web/api.hpp"
+#include "web/api.h"
 #endif
 #ifdef BUILD_STORAGE
 #include "storage/api.h"
