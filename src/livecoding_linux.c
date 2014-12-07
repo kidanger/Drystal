@@ -161,25 +161,32 @@ int livecoding_watch_directory_recursively(const char *path)
 	if (!dir) {
 		return -errno;
 	}
+
 	r = livecoding_watch_directory(path);
 	if (r < 0) {
 		return r;
 	}
+
 	while ((entry = readdir(dir))) {
-		char new_path[PATH_MAX];
+		char *new_path;
 		const char *d_name = entry->d_name;
+
 		if (!(entry->d_type & DT_DIR)) {
 			continue;
 		}
+
 		if (startswith(d_name, ".")) {
 			continue;
 		}
 
-		r = snprintf(new_path, PATH_MAX, "%s/%s", path, d_name);
-		if (r < 0) {
+		new_path = strjoin(path, "/", d_name, NULL);
+		if (!new_path) {
 			continue;
 		}
+
 		livecoding_watch_directory_recursively(new_path);
+
+		free(new_path);
 	}
 	closedir(dir);
 
