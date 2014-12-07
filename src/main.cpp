@@ -25,6 +25,7 @@
 
 #include "livecoding.h"
 #include "dlua.h"
+#include "macro.h"
 #endif
 #else
 #include <emscripten.h>
@@ -110,7 +111,7 @@ int main(int argc, char* argv[])
 #ifdef BUILD_LIVECODING
 static Engine* engine = NULL;
 
-static void reload(void)
+static void reload(_unused_ void *arg)
 {
 	dlua_set_need_to_reload();
 }
@@ -129,7 +130,7 @@ static int start_livecoding(const char *filename)
 	}
 
 	watched_directory = dirname(filename_dup);
-	r = livecoding_init(reload);
+	r = livecoding_init(reload, NULL);
 	if (r < 0) {
 		log_error("Cannot initialize livecoding: %s", strerror(-r));
 		free(filename_dup);
