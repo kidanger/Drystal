@@ -47,6 +47,8 @@ static void (*reload_callback)(void *arg) = NULL;
 
 static bool is_valid_filename(char *filename)
 {
+	assert(filename);
+
 	// Ignore backup files
 	if (endswith(filename, ".swp") || endswith(filename, "~")) {
 		return false;
@@ -108,9 +110,11 @@ static int handle_events(void)
 	if (r <= 0) {
 		return r;
 	}
+
 	if (r < (ssize_t) sizeof(struct inotify_event)) {
 		return -EIO;
 	}
+
 	i = 0;
 	while (i < r) {
 		BEGIN_DISABLE_WARNINGS;
@@ -200,6 +204,7 @@ int livecoding_init(void (*callback)(void *arg), void *arg)
 	int fildes[2];
 
 	assert(fd < 0);
+	assert(callback);
 
 	fd = inotify_init();
 	if (fd < 0) {
@@ -275,6 +280,7 @@ int livecoding_stop(void)
 		assert(wds[i] >= 0);
 		close(wds[i]);
 	}
+
 	free(wds);
 	close(fd);
 	close(wakeup_read_fd);
