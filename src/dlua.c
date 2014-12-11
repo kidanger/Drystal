@@ -65,11 +65,11 @@ static int luaopen_drystal(lua_State*); // defined at the end of this file
 struct DrystalLua {
 	lua_State* L;
 	int drystal_table_ref;
-	const char* filename;
+	bool library_loaded;
 #ifdef BUILD_LIVECODING
 	bool need_to_reload;
 #endif
-	bool library_loaded;
+	const char* filename;
 } dlua;
 
 void dlua_init(const char *filename)
