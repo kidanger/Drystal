@@ -35,12 +35,12 @@ struct MusicCallback {
 struct Music {
 	Source* source;
 	ALuint alBuffers[STREAM_NUM_BUFFERS];
+	bool ended;
+	bool loop;
 	MusicCallback* callback;
 	ALenum format;
 	int samplesrate;
 	unsigned int buffersize;
-	bool ended;
-	bool loop;
 	int ref;
 };
 
