@@ -40,7 +40,7 @@
 #include "truetype/api.h"
 #endif
 #ifdef BUILD_PARTICLE
-#include "particle/api.hpp"
+#include "particle/api.h"
 #endif
 #ifdef BUILD_AUDIO
 #include "audio/api.h"

@@ -15,11 +15,12 @@
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cmath>
-#include <lua.hpp>
+#include <math.h>
+#include <lua.h>
+#include <lauxlib.h>
 
-#include "system.hpp"
-#include "system_bind.hpp"
+#include "system.h"
+#include "system_bind.h"
 #include "lua_util.h"
 
 IMPLEMENT_PUSHPOP(System, system)
@@ -34,7 +35,7 @@ int mlua_new_system(lua_State* L)
 	x = luaL_checknumber(L, 1);
 	y = luaL_checknumber(L, 2);
 
-	System* system = new System(x, y);
+	System* system = system_new(x, y);
 
 	system->min_direction = 0;
 	system->max_direction = M_PI * 2;
@@ -153,7 +154,7 @@ int mlua_update_system(lua_State* L)
 
 	System* system = pop_system(L, 1);
 	lua_Number dt = luaL_checknumber(L, 2);
-	system->update(dt);
+	system_update(system, dt);
 	return 0;
 }
 
@@ -162,7 +163,7 @@ int mlua_update_system(lua_State* L)
 	{ \
 		assert(L); \
 		System* system = pop_system(L, 1);\
-		system->action(); \
+		system_##action(system); \
 		return 0; \
 	}
 
@@ -182,7 +183,7 @@ int mlua_draw_system(lua_State* L)
 		dx = luaL_checknumber(L, 2);
 		dy = luaL_checknumber(L, 3);
 	}
-	system->draw(dx, dy);
+	system_draw(system, dx, dy);
 	return 0;
 }
 
@@ -217,7 +218,7 @@ int mlua_add_size_system(lua_State* L)
 	if (lua_gettop(L) > 3) {
 		max = luaL_checknumber(L, 4);
 	}
-	system->add_size(at_lifetime, min, max);
+	system_add_size(system, at_lifetime, min, max);
 	return 0;
 }
 
@@ -231,7 +232,7 @@ int mlua_add_color_system(lua_State* L)
 		lua_Number r = luaL_checknumber(L, 3);
 		lua_Number g = luaL_checknumber(L, 4);
 		lua_Number b = luaL_checknumber(L, 5);
-		system->add_color(at_lifetime, r, r, g, g, b, b);
+		system_add_color(system, at_lifetime, r, r, g, g, b, b);
 	} else {
 		lua_Number minr = luaL_checknumber(L, 3);
 		lua_Number maxr = luaL_checknumber(L, 4);
@@ -239,7 +240,7 @@ int mlua_add_color_system(lua_State* L)
 		lua_Number maxg = luaL_checknumber(L, 6);
 		lua_Number minb = luaL_checknumber(L, 7);
 		lua_Number maxb = luaL_checknumber(L, 8);
-		system->add_color(at_lifetime, minr, maxr, ming, maxg, minb, maxb);
+		system_add_color(system, at_lifetime, minr, maxr, ming, maxg, minb, maxb);
 	}
 	return 0;
 }
@@ -249,7 +250,7 @@ int mlua_free_system(lua_State* L)
 	assert(L);
 
 	System* system = pop_system(L, 1);
-	delete system;
+	system_free(system);
 	return 0;
 }
 

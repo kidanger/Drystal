@@ -16,7 +16,13 @@
  */
 #pragma once
 
-#include <cstdlib> // random
+#include <stdlib.h> // random
+
+typedef struct Color Color;
+typedef struct Size Size;
+typedef struct System System;
+
+#include "particle.h"
 
 #define RAND(a, b) (((float) rand()/RAND_MAX) * ((b) - (a)) + (a))
 
@@ -34,15 +40,8 @@ struct Size {
 	float min, max;
 };
 
-class Particle;
-class System
-{
-private:
-	System(const System&);
-	System& operator=(const System&);
-
+struct System {
 	Particle* particles;
-public:
 
 	int cur_size;
 	Size sizes[MAX_SIZES];
@@ -68,17 +67,17 @@ public:
 	float emit_counter;
 
 	int ref;
-
-	System(int x, int y);
-	~System();
-
-	void start();
-	void pause();
-	void stop();
-	void draw(float dx, float dy);
-	void emit();
-	void update(float dt);
-	void add_size(float at, float min, float max);
-	void add_color(float at, float min_r, float max_r, float min_g, float max_g, float min_b, float max_b);
 };
+
+System *system_new(int x, int y);
+void system_free(System *s);
+
+void system_start(System *s);
+void system_pause(System *s);
+void system_stop(System *s);
+void system_draw(System *s, float dx, float dy);
+void system_emit(System *s);
+void system_update(System *s, float dt);
+void system_add_size(System *s, float at, float min, float max);
+void system_add_color(System *s, float at, float min_r, float max_r, float min_g, float max_g, float min_b, float max_b);
 

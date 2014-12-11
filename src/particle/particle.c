@@ -15,24 +15,29 @@
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cmath>
+#include <math.h>
+#include <assert.h>
 
-#include "particle.hpp"
+#include "particle.h"
+#include "system.h"
 
-void Particle::update(System& sys, float dt)
+void particle_update(Particle *p, System *s, float dt)
 {
-	life -= dt;
+	assert(p);
+	assert(s);
 
-	vel += accel * dt;
-	x += vel * cos(dir_angle) * dt;
-	y += vel * sin(dir_angle) * dt;
+	p->life -= dt;
 
-	float liferatio = 1 - life / lifetime;
-	if (liferatio > sys.sizes[size_state + 1].at && size_state < sys.cur_size) {
-		size_state += 1;
+	p->vel += p->accel * dt;
+	p->x += p->vel * cos(p->dir_angle) * dt;
+	p->y += p->vel * sin(p->dir_angle) * dt;
+
+	float liferatio = 1 - p->life / p->lifetime;
+	if (liferatio > s->sizes[p->size_state + 1].at && p->size_state < s->cur_size) {
+		p->size_state += 1;
 	}
-	if (liferatio > sys.colors[color_state + 1].at && color_state < sys.cur_color) {
-		color_state += 1;
+	if (liferatio > s->colors[p->color_state + 1].at && p->color_state < s->cur_color) {
+		p->color_state += 1;
 	}
 }
 

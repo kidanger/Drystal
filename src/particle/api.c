@@ -15,8 +15,8 @@
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "module.h"
-#include "system_bind.hpp"
-#include "api.hpp"
+#include "system_bind.h"
+#include "api.h"
 
 BEGIN_MODULE(particle)
 	DECLARE_FUNCTION(new_system)

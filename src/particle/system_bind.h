@@ -16,10 +16,10 @@
  */
 #pragma once
 
-#include "lua_util.h"
+#include <lua.h>
 
-struct lua_State;
-class System;
+#include "lua_util.h"
+#include "system.h"
 
 DECLARE_PUSHPOP(System, system)
 

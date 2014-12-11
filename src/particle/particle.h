@@ -16,11 +16,13 @@
  */
 #pragma once
 
-#include "system.hpp"
+#include <stdbool.h>
 
-class Particle
-{
-public:
+typedef struct Particle Particle;
+
+#include "system.h"
+
+struct Particle {
 	bool dead;
 
 	float x, y;
@@ -37,7 +39,7 @@ public:
 	float rseed;
 	float gseed;
 	float bseed;
-
-	void update(System& sys, float dt);
 };
+
+void particle_update(Particle *p, System *sys, float dt);
 
