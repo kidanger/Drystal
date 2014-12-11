@@ -26,9 +26,6 @@
 
 #include "engine.hpp"
 #include "log.h"
-#ifdef BUILD_ENABLE_STATS
-#include "stats.hpp"
-#endif
 #ifdef BUILD_AUDIO
 #include "audio/audio.h"
 #endif
@@ -52,23 +49,13 @@ log_category("engine");
 // needed for get_engine
 static Engine *engine;
 
-#ifdef BUILD_ENABLE_STATS
-#define AT(something) stats.set_##something(get_now());
-#else
-#define AT(something)
-#endif
-
 Engine::Engine(const char* filename, unsigned int target_fps) :
 	target_ms_per_frame(1000 / target_fps),
 	run(true),
 	loaded(false),
 	last_update(get_now()),
 	update_activated(true),
-	draw_activated(true),
-	stats_activated(false)
-#ifdef BUILD_ENABLE_STATS
-	stats(),
-#endif
+	draw_activated(true)
 {
 	engine = this;
 	dlua_init(filename);
@@ -158,10 +145,8 @@ void Engine::update()
 	}
 #endif
 
-	AT(start)
 #ifdef BUILD_EVENT
 	event_update();
-	AT(event)
 #endif
 
 	// check if an event provocked a stop
@@ -173,30 +158,16 @@ void Engine::update()
 
 #ifdef BUILD_AUDIO
 	update_audio(dt);
-	AT(audio)
 #endif
 
 	if (update_activated)
 		dlua_call_update(dt);
-	AT(game);
 
 	if (draw_activated)
 		dlua_call_draw();
 
-#ifdef BUILD_ENABLE_STATS
-	if (stats_activated)
-		stats.draw();
-#endif
-
 #ifdef BUILD_GRAPHICS
 	display_flip();
-	AT(display);
-#endif
-
-#ifdef BUILD_ENABLE_STATS
-	if (stats_activated) {
-		stats.compute(get_now(), dt);
-	}
 #endif
 }
 
@@ -212,10 +183,6 @@ void Engine::stop()
 void Engine::toggle_draw()
 {
 	draw_activated = !draw_activated;
-}
-void Engine::toggle_stats()
-{
-	stats_activated = !stats_activated;
 }
 
 void Engine::toggle_update()
@@ -240,10 +207,6 @@ void engine_toggle_update(void) {
 void engine_toggle_draw(void) {
 	Engine &e = get_engine();
 	e.toggle_draw();
-}
-void engine_toggle_stats(void) {
-	Engine &e = get_engine();
-	e.toggle_stats();
 }
 }
 

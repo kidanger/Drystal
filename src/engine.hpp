@@ -17,9 +17,6 @@
 #pragma once
 
 #ifdef __cplusplus
-#ifdef BUILD_ENABLE_STATS
-#include "stats.hpp"
-#endif
 
 class Engine
 {
@@ -31,10 +28,6 @@ private:
 
 	bool update_activated;
 	bool draw_activated;
-	bool stats_activated;
-#ifdef BUILD_ENABLE_STATS
-	Stats stats;
-#endif
 
 public:
 	Engine(const char* filename, unsigned int target_fps);
@@ -50,7 +43,6 @@ public:
 
 	void toggle_update();
 	void toggle_draw();
-	void toggle_stats();
 
 	void stop();
 
@@ -64,7 +56,6 @@ extern "C" {
 void engine_stop(void);
 void engine_toggle_update(void);
 void engine_toggle_draw(void);
-void engine_toggle_stats(void);
 #ifdef __cplusplus
 }
 #endif

@@ -289,8 +289,6 @@ static void handle_event(SDL_Event event)
 				dlua_reload_code();
 			} else if (event.key.keysym.sym == SDLK_F4) {
 				display_toggle_debug_mode();
-			} else if (event.key.keysym.sym == SDLK_F10) {
-				engine_toggle_stats();
 			} else {
 				call_key_press(event.key.keysym.sym);
 			}

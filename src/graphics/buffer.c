@@ -17,9 +17,6 @@
 #include <assert.h>
 
 #include "buffer.h"
-#ifdef BUILD_STATS
-#include "stats.h"
-#endif
 #include "display.h"
 #include "shader.h"
 #include "util.h"
@@ -343,9 +340,5 @@ void buffer_draw(Buffer *b, float dx, float dy)
 		glDisableVertexAttribArray(ATTR_POINTSIZE_INDEX);
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-#ifdef STATS
-	stats.add_flush(used);
-#endif
 }
 
