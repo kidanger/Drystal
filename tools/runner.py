@@ -77,7 +77,9 @@ def execute(args, fork=False, cwd=None, stdin=None, stdout=None):
         strcmd += ' > ' + stdout
         stdout = open(stdout, 'w')
     if cwd:
-        strcmd += ' from ' + cwd
+        strcmd = '[' + cwd + '] $ ' + strcmd
+    else:
+        strcmd = '$ ' + strcmd
 
     print(I + strcmd, N)
     if fork:
