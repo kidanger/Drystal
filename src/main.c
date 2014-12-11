@@ -14,14 +14,14 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <cstring>
-#include <cerrno>
-#include <cstdio>
+#include <string.h>
+#include <errno.h>
+#include <stdio.h>
 #ifndef EMSCRIPTEN
 #ifdef BUILD_LIVECODING
-#include <cassert>
+#include <assert.h>
 #include <libgen.h>// dirname()
-#include <cstdlib>
+#include <stdlib.h>
 
 #include "livecoding.h"
 #include "dlua.h"

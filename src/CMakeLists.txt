@@ -3,7 +3,7 @@ set(SOURCES
 	engine.c
 	dlua.c
 	lua_util.c
-	main.cpp
+	main.c
 	util.c
 )
 if(BUILD_EVENT)
