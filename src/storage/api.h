@@ -16,15 +16,7 @@
  */
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "module.h"
 
 DECLARE_MODULE(storage)
-
-#ifdef __cplusplus
-}
-#endif
 

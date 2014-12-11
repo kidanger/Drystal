@@ -16,10 +16,6 @@
  */
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define GL_GLEXT_PROTOTYPES
 #ifndef EMSCRIPTEN
 #include <SDL2/SDL_opengles2.h>
@@ -67,8 +63,4 @@ Shader *shader_new(GLuint prog_color, GLuint prog_tex, GLuint vert, GLuint frag_
 void shader_free(Shader *s);
 
 void shader_feed(Shader *s, const char* name, float value);
-
-#ifdef __cplusplus
-}
-#endif
 

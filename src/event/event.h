@@ -16,10 +16,6 @@
  */
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdbool.h>
 
 #ifndef EMSCRIPTEN
@@ -45,8 +41,4 @@ void event_destroy();
 void event_init();
 
 void event_set_relative_mode(bool relative);
-
-#ifdef __cplusplus
-}
-#endif
 

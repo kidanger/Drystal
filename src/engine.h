@@ -16,10 +16,6 @@
  */
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdbool.h>
 
 void engine_init(const char *filename, unsigned int target_fps);
@@ -31,8 +27,4 @@ bool engine_is_loaded(void);
 void engine_stop(void);
 void engine_toggle_update(void);
 void engine_toggle_draw(void);
-
-#ifdef __cplusplus
-}
-#endif
 

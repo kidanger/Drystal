@@ -16,15 +16,9 @@
  */
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 int livecoding_init(void (*callback)(void *arg), void *arg);
 int livecoding_watch_directory(const char *directory);
 int livecoding_watch_directory_recursively(const char *path);
 int livecoding_stop(void);
 int livecoding_start(void);
-#ifdef __cplusplus
-}
-#endif
 

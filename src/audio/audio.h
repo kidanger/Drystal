@@ -16,10 +16,6 @@
  */
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdbool.h>
 #include <AL/al.h>
 
@@ -65,8 +61,4 @@ float get_sound_volume();
 bool try_free_sound(Sound* sound);
 
 Source* get_free_source();
-
-#ifdef __cplusplus
-}
-#endif
 

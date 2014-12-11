@@ -16,10 +16,6 @@
  */
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define GL_GLEXT_PROTOTYPES
 #ifndef EMSCRIPTEN
 #include <SDL2/SDL_opengles2.h>
@@ -112,8 +108,4 @@ Buffer *display_get_current_buffer(void);
 void display_flip();
 bool display_is_available();
 bool display_is_debug();
-
-#ifdef __cplusplus
-}
-#endif
 

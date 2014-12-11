@@ -16,17 +16,9 @@
  */
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "module.h"
 
 DECLARE_MODULE(graphics)
 
 int graphics_index(lua_State* L);
-
-#ifdef __cplusplus
-}
-#endif
 

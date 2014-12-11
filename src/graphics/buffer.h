@@ -16,10 +16,6 @@
  */
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdbool.h>
 #include <stdlib.h>
 
@@ -131,8 +127,4 @@ static inline void buffer_use_camera(Buffer *b, Camera *c)
 
 	b->camera = c;
 }
-
-#ifdef __cplusplus
-}
-#endif
 

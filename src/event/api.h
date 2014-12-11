@@ -16,15 +16,7 @@
  */
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "module.h"
 
 DECLARE_MODULE(event)
-
-#ifdef __cplusplus
-}
-#endif
 

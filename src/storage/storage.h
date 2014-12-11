@@ -16,14 +16,6 @@
  */
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 char* fetch(const char* key);
 void store(const char* key, const char* value);
-
-#ifdef __cplusplus
-}
-#endif
 

@@ -16,10 +16,6 @@
  */
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <assert.h>
 #include <stdbool.h>
 
@@ -69,8 +65,4 @@ static inline void surface_get_size(const Surface *s, unsigned int *w, unsigned 
 }
 
 int surface_load(const char* filename, Surface **surface, Surface *current_surface);
-
-#ifdef __cplusplus
-}
-#endif
 
