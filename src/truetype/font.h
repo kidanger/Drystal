@@ -34,9 +34,8 @@ struct Font {
 	float font_size;
 	int first_char;
 	int num_chars;
-	stbtt_bakedchar* char_data;
-
 	int ref;
+	stbtt_bakedchar* char_data;
 };
 
 void font_free(Font *font);
