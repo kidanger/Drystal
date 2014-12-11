@@ -30,7 +30,7 @@
 #include "stats.hpp"
 #endif
 #ifdef BUILD_AUDIO
-#include "audio/audio.hpp"
+#include "audio/audio.h"
 #endif
 #ifdef BUILD_EVENT
 #include "event/event.h"

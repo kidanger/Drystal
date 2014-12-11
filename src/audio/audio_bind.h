@@ -16,29 +16,8 @@
  */
 #pragma once
 
-#include <AL/al.h>
+#include <lua.h>
 
-#include "audio.hpp"
+int mlua_set_sound_volume(lua_State *L);
+int mlua_set_music_volume(lua_State *L);
 
-class Sound
-{
-private:
-	ALuint alBuffer;
-	bool free_me;
-
-	Sound(ALushort* buffer, unsigned int length, int samplesrate, unsigned bits_per_sample, unsigned num_channels);
-
-public:
-	int ref;
-
-	void play(float volume = 1, float x = 0, float y = 0);
-	void free();
-
-	bool wants_to_be_free() const
-	{
-		return free_me;
-	}
-
-	static Sound* load_from_file(const char *filepath);
-	static Sound* load(unsigned int len, const float* buffer, int samplesrate = DEFAULT_SAMPLES_RATE);
-};

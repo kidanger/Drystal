@@ -14,12 +14,13 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <lua.hpp>
+#include <lua.h>
+#include <lauxlib.h>
 
-#include "engine.hpp"
 #include "log.h"
-#include "sound_bind.hpp"
-#include "sound.hpp"
+#include "sound_bind.h"
+#include "sound.h"
+#include "audio.h"
 #include "lua_util.h"
 
 log_category("sound");
@@ -32,7 +33,7 @@ int mlua_load_sound(lua_State *L)
 
 	if (lua_isstring(L, 1)) {
 		const char* filename = lua_tostring(L, 1);
-		Sound *chunk = Sound::load_from_file(filename);
+		Sound *chunk = sound_load_from_file(filename);
 		if (chunk) {
 			push_sound(L, chunk);
 			return 1;
@@ -80,7 +81,7 @@ int mlua_load_sound(lua_State *L)
 			}
 		}
 
-		Sound *chunk = Sound::load(len, buffer);
+		Sound *chunk = sound_load(len, buffer, DEFAULT_SAMPLES_RATE);
 		push_sound(L, chunk);
 		return 1;
 	}
@@ -102,7 +103,7 @@ int mlua_play_sound(lua_State *L)
 	if (!lua_isnone(L, 4))
 		y = luaL_checknumber(L, 4);
 
-	sound->play(volume, x, y);
+	sound_play(sound, volume, x, y);
 	return 0;
 }
 
@@ -112,7 +113,7 @@ int mlua_free_sound(lua_State *L)
 
 	log_debug("");
 	Sound* sound = pop_sound(L, 1);
-	sound->free();
+	sound_free(sound);
 	return 0;
 }
 

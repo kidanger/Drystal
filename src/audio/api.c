@@ -14,17 +14,28 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
+#include "module.h"
+#include "audio_bind.h"
+#include "music_bind.h"
+#include "sound_bind.h"
+#include "api.h"
 
-#include "lua_util.h"
+BEGIN_MODULE(audio)
+	DECLARE_FUNCTION(load_music)
+	DECLARE_FUNCTION(set_music_volume)
 
-struct lua_State;
-class Music;
+	DECLARE_FUNCTION(load_sound)
+	DECLARE_FUNCTION(set_sound_volume)
 
-DECLARE_PUSHPOP(Music, music)
+	BEGIN_CLASS(sound)
+		ADD_METHOD(sound, play)
+		ADD_GC(free_sound)
+	REGISTER_CLASS(sound, "Sound")
 
-int mlua_load_music(lua_State *L);
-int mlua_play_music(lua_State *L);
-int mlua_stop_music(lua_State* L);
-int mlua_free_music(lua_State *L);
+	BEGIN_CLASS(music)
+		ADD_METHOD(music, play)
+		ADD_METHOD(music, stop)
+		ADD_GC(free_music)
+	REGISTER_CLASS(music, "Music")
+END_MODULE()
 

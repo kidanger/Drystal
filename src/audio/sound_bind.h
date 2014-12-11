@@ -16,10 +16,10 @@
  */
 #pragma once
 
-#include "lua_util.h"
+#include <lua.h>
 
-class Sound;
-struct lua_State;
+#include "lua_util.h"
+#include "sound.h"
 
 DECLARE_PUSHPOP(Sound, sound)
 

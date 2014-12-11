@@ -16,14 +16,20 @@
  */
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <stdbool.h>
 #include <AL/al.h>
 
+typedef struct Source Source;
+
+#include "sound.h"
+#include "music.h"
 #include "log.h"
 
 #define DEFAULT_SAMPLES_RATE 44100
-
-class Sound;
-class Music;
 
 struct Source {
 	ALuint alSource;
@@ -59,4 +65,8 @@ float get_sound_volume();
 bool try_free_sound(Sound* sound);
 
 Source* get_free_source();
+
+#ifdef __cplusplus
+}
+#endif
 

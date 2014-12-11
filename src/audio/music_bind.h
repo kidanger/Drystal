@@ -14,34 +14,17 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <cassert>
-#include <lua.hpp>
+#pragma once
 
-#include "audio_bind.hpp"
+#include <lua.h>
+
+#include "music.h"
 #include "lua_util.h"
-#include "audio.hpp"
 
-int mlua_set_sound_volume(lua_State *L)
-{
-	assert(L);
+DECLARE_PUSHPOP(Music, music)
 
-	float volume = luaL_checknumber(L, 1);
-
-	assert_lua_error(L, volume >= 0 && volume <= 1, "set_sound_volume: must be >= 0 and <= 1");
-
-	set_sound_volume(volume);
-	return 0;
-}
-
-int mlua_set_music_volume(lua_State *L)
-{
-	assert(L);
-
-	float volume = luaL_checknumber(L, 1);
-
-	assert_lua_error(L, volume >= 0 && volume <= 1, "set_music_volume: must be >= 0 and <= 1");
-
-	set_music_volume(volume);
-	return 0;
-}
+int mlua_load_music(lua_State *L);
+int mlua_play_music(lua_State *L);
+int mlua_stop_music(lua_State *L);
+int mlua_free_music(lua_State *L);
 

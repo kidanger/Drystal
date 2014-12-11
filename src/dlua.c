@@ -43,7 +43,7 @@
 #include "particle/api.hpp"
 #endif
 #ifdef BUILD_AUDIO
-#include "audio/api.hpp"
+#include "audio/api.h"
 #endif
 #ifdef BUILD_WEB
 #include "web/api.h"

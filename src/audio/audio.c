@@ -14,14 +14,14 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <cstddef>
+#include <stddef.h>
 #include <AL/al.h>
 #include <AL/alc.h>
 
 #include "macro.h"
-#include "music.hpp"
-#include "sound.hpp"
-#include "audio.hpp"
+#include "music.h"
+#include "sound.h"
+#include "audio.h"
 
 log_category("audio");
 
@@ -77,26 +77,26 @@ void update_audio(_unused_ float dt)
 
 	ALint status;
 	for (int i = 0; i < NUM_SOURCES; i++) {
-		Source& source = sources[i];
-		if (!source.used)
+		Source *source = &sources[i];
+		if (!source->used)
 			continue;
-		alGetSourcei(source.alSource, AL_SOURCE_STATE, &status);
-		source.used = status == AL_PLAYING;
+		alGetSourcei(source->alSource, AL_SOURCE_STATE, &status);
+		source->used = status == AL_PLAYING;
 
-		if (!source.used && !source.isMusic) { // ended sound
-			Sound* sound = source.currentSound;
-			if (sound->wants_to_be_free()) {
-				sound->free();
+		if (!source->used && !source->isMusic) { // ended sound
+			Sound *sound = source->currentSound;
+			if (sound->free_me) {
+				sound_free(sound);
 			}
 		}
-		if (source.used && source.isMusic) { // still playing music
-			Music* music = source.currentMusic;
-			music->update();
+		if (source->used && source->isMusic) { // still playing music
+			Music *music = source->currentMusic;
+			music_update(music);
 		}
-		if (!source.used) {
+		if (!source->used) {
 			// if the source is not playing anymore,
 			// remove any buffer attached to it
-			alSourcei(source.alSource, AL_BUFFER, 0);
+			alSourcei(source->alSource, AL_BUFFER, 0);
 			audio_check_error();
 		}
 	}
@@ -150,9 +150,9 @@ void set_music_volume(float volume)
 
 	// update current playing musics
 	for (int i = 0; i < NUM_SOURCES; i++) {
-		Source& source = sources[i];
-		if (source.isMusic) {
-			alSourcef(source.alSource, AL_GAIN, source.desiredVolume * volume);
+		Source *source = &sources[i];
+		if (source->isMusic) {
+			alSourcef(source->alSource, AL_GAIN, source->desiredVolume * volume);
 			audio_check_error();
 		}
 	}
@@ -166,9 +166,9 @@ void set_sound_volume(float volume)
 
 	// update current playing sounds
 	for (int i = 0; i < NUM_SOURCES; i++) {
-		Source& source = sources[i];
-		if (!source.isMusic) {
-			alSourcef(source.alSource, AL_GAIN, source.desiredVolume * volume);
+		Source *source = &sources[i];
+		if (!source->isMusic) {
+			alSourcef(source->alSource, AL_GAIN, source->desiredVolume * volume);
 			audio_check_error();
 		}
 	}
@@ -189,16 +189,17 @@ bool try_free_sound(Sound* sound)
 	bool can_free = true;
 	// stop sources which used the sound
 	for (int i = 0; i < NUM_SOURCES; i++) {
-		Source& source = sources[i];
-		if (source.currentSound == sound) {
-			if (source.used) {
+		Source *source = &sources[i];
+		if (source->currentSound == sound) {
+			if (source->used) {
 				can_free = false;
 			} else {
-				alSourceStop(source.alSource);
-				alSourcei(source.alSource, AL_BUFFER, 0);
+				alSourceStop(source->alSource);
+				alSourcei(source->alSource, AL_BUFFER, 0);
 			}
 		}
 	}
 	audio_check_error();
 	return can_free;
 }
+

@@ -14,28 +14,22 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "module.h"
-#include "audio_bind.hpp"
-#include "music_bind.hpp"
-#include "sound_bind.hpp"
-#include "api.hpp"
+#pragma once
 
-BEGIN_MODULE(audio)
-	DECLARE_FUNCTION(load_music)
-	DECLARE_FUNCTION(set_music_volume)
+#include <stdbool.h>
+#include <AL/al.h>
 
-	DECLARE_FUNCTION(load_sound)
-	DECLARE_FUNCTION(set_sound_volume)
+typedef struct Sound Sound;
 
-	BEGIN_CLASS(sound)
-		ADD_METHOD(sound, play)
-		ADD_GC(free_sound)
-	REGISTER_CLASS(sound, "Sound")
+struct Sound {
+	ALuint alBuffer;
+	bool free_me;
+	int ref;
+};
 
-	BEGIN_CLASS(music)
-		ADD_METHOD(music, play)
-		ADD_METHOD(music, stop)
-		ADD_GC(free_music)
-	REGISTER_CLASS(music, "Music")
-END_MODULE()
+void sound_play(Sound *sound, float volume, float, float y);
+void sound_free(Sound *sound);
+
+Sound *sound_load_from_file(const char *filepath);
+Sound *sound_load(unsigned int len, const float* buffer, int samplesrate);
 

@@ -16,25 +16,23 @@
  */
 #pragma once
 
+#include <stdbool.h>
 #include <AL/al.h>
 
-#include "audio.hpp"
+typedef struct Music Music;
+typedef struct MusicCallback MusicCallback;
+
+#include "audio.h"
 
 #define STREAM_NUM_BUFFERS 3
 
-class MusicCallback
-{
-public:
-	virtual ~MusicCallback() {}
-	virtual unsigned int feed_buffer(unsigned short * buffer, unsigned int len) = 0;
-	virtual void rewind() = 0;
+struct MusicCallback {
+	unsigned int (*feed_buffer)(MusicCallback *mc, unsigned short *buffer, unsigned int len);
+	void (*rewind)(MusicCallback *mc);
+	void (*free)(MusicCallback *mc);
 };
 
-struct Source;
-
-class Music
-{
-private:
+struct Music {
 	Source* source;
 	ALuint alBuffers[STREAM_NUM_BUFFERS];
 	MusicCallback* callback;
@@ -43,19 +41,14 @@ private:
 	unsigned int buffersize;
 	bool ended;
 	bool loop;
-
-	Music(MusicCallback* clb, ALenum format, int rate);
-	void stream();
-
-public:
 	int ref;
-
-	void play(bool loop);
-	void update();
-	void stop();
-	void free();
-
-	static Music* load(MusicCallback* callback, int samplesrate = DEFAULT_SAMPLES_RATE, int num_channels = 1);
-	static Music* load_from_file(const char* filename);
 };
+
+void music_play(Music *m, bool loop);
+void music_update(Music *m);
+void music_stop(Music *m);
+void music_free(Music *m);
+
+Music *music_load(MusicCallback* callback, int samplesrate, int num_channels);
+Music *music_load_from_file(const char* filename);
 

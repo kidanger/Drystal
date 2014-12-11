@@ -14,26 +14,33 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <cassert>
-#include <cstdlib>
+#include <assert.h>
+#include <stdlib.h>
 
 #define WAVLOADER_HEADER_ONLY
 #include <wavloader.c>
 
 #include "log.h"
-#include "audio.hpp"
-#include "sound.hpp"
+#include "audio.h"
+#include "sound.h"
+#include "util.h"
 
 log_category("sound");
 
-Sound::Sound(ALushort* buffer, unsigned int length, int samplesrate, unsigned bits_per_sample, unsigned num_channels) :
-	alBuffer(0),
-	free_me(false),
-	ref(0)
+static Sound *sound_new(ALushort* buffer, unsigned int length, int samplesrate, unsigned bits_per_sample, unsigned num_channels)
 {
+	Sound *s;
 	ALenum format = AL_FORMAT_MONO8;
 
-	alGenBuffers(1, &alBuffer);
+	s = new(Sound, 1);
+	if (!s)
+		return NULL;
+
+	s->alBuffer = 0;
+	s->free_me = false;
+	s->ref = 0;
+
+	alGenBuffers(1, &s->alBuffer);
 
 	if (bits_per_sample == 8) {
 		if (num_channels == 1) {
@@ -48,78 +55,91 @@ Sound::Sound(ALushort* buffer, unsigned int length, int samplesrate, unsigned bi
 			format = AL_FORMAT_STEREO16;
 		}
 	}
-	alBufferData(alBuffer, format, buffer, length, samplesrate);
+	alBufferData(s->alBuffer, format, buffer, length, samplesrate);
 
 	audio_check_error();
+
+	return s;
 }
 
-Sound* Sound::load_from_file(const char *filepath)
+Sound *sound_load_from_file(const char *filepath)
 {
+	void *buffer = NULL;
+	struct wave_header wave_header;
+	int r;
+
 	assert(filepath);
+
 	if (!initialise_if_needed())
 		return NULL;
 
-	void* buffer = NULL;
-	struct wave_header wave_header;
-	int err = load_wav(filepath, &wave_header, &buffer);
-	if (err) {
+	r = load_wav(filepath, &wave_header, &buffer);
+	if (r < 0) {
 		return NULL;
 	}
 	if (wave_header.bits_per_sample != 8 && wave_header.bits_per_sample != 16) {
-		::free(buffer);
+		free(buffer);
 		return NULL;
 	}
 	if (wave_header.num_channels != 1 && wave_header.num_channels != 2) {
-		::free(buffer);
+		free(buffer);
 		return NULL;
 	}
 	if (wave_header.sample_rate != 44100) {
-		::free(buffer);
+		free(buffer);
 		return NULL;
 	}
 
-	Sound* sound = new Sound(static_cast<ALushort*>(buffer), wave_header.data_size,
+	Sound* sound = sound_new((ALushort *) buffer, wave_header.data_size,
 	                         wave_header.sample_rate, wave_header.bits_per_sample,
 	                         wave_header.num_channels);
-	::free(buffer);
+	free(buffer);
 	return sound;
 }
 
-Sound* Sound::load(unsigned int len, const float* buffer, int samplesrate)
+Sound* sound_load(unsigned int len, const float* buffer, int samplesrate)
 {
+	ALushort converted_buffer[len]; // 16bits per sample
+
 	assert(buffer);
+
 	if (!initialise_if_needed())
 		return NULL;
-	ALushort converted_buffer[len]; // 16bits per sample
+
 	for (unsigned int i = 0; i < len; i++) {
-		converted_buffer[i] = static_cast<ALushort>(buffer[i] * 65535 / 2 + 65535 / 2);
+		converted_buffer[i] = (ALushort)(buffer[i] * 65535 / 2 + 65535 / 2);
 	}
 
-	Sound* sound = new Sound(converted_buffer, len * sizeof(ALushort), samplesrate, 16, 1);
+	Sound* sound = sound_new(converted_buffer, len * sizeof(ALushort), samplesrate, 16, 1);
 	return sound;
 }
 
-void Sound::free()
+void sound_free(Sound *s)
 {
+	if (!s)
+		return;
+
 	// if there's no more source playing the sound, free it
-	if (try_free_sound(this)) {
-		alDeleteBuffers(1, &alBuffer);
+	if (try_free_sound(s)) {
+		alDeleteBuffers(1, &s->alBuffer);
 		audio_check_error();
-		delete this;
+		free(s);
 	} else {
 		// otherwise, just delay the deletion
-		free_me = true;
+		s->free_me = true;
 	}
 }
 
-void Sound::play(float volume, float x, float y)
+void sound_play(Sound *sound, float volume, float x, float y)
 {
+	assert(sound);
+
 	Source* source = get_free_source();
 	if (!source)
 		return;
 
 	audio_check_error();
-	alSourcei(source->alSource, AL_BUFFER, alBuffer);
+	alSourcei(source->alSource, AL_BUFFER, sound->alBuffer);
 	audio_check_error();
 	alSource3f(source->alSource, AL_POSITION, x, y, 0.);
 	audio_check_error();
@@ -129,7 +149,7 @@ void Sound::play(float volume, float x, float y)
 	audio_check_error();
 
 	source->isMusic = false;
-	source->currentSound = this;
+	source->currentSound = sound;
 	source->used = true;
 	source->desiredVolume = volume;
 }
