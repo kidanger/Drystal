@@ -31,11 +31,12 @@ struct TextState {
 	int alpha;
 
 	bool outlined;
+	bool shadow;
+
 	int outr;
 	int outg;
 	int outb;
 
-	bool shadow;
 	float shadow_x;
 	float shadow_y;
 };
