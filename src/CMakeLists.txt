@@ -1,6 +1,6 @@
 include_directories(.)
 set(SOURCES
-	engine.cpp
+	engine.c
 	dlua.c
 	lua_util.c
 	main.cpp

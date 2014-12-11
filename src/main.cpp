@@ -35,14 +35,12 @@
 #include "util.h"
 #endif
 
-#include "engine.hpp"
+#include "engine.h"
 #include "log.h"
 
 log_category("main");
 
 #ifdef EMSCRIPTEN
-static Engine* engine = NULL;
-
 static void on_zip_downloaded(void* userdata, void* buffer, int size)
 {
 	mz_zip_archive za;
@@ -69,19 +67,19 @@ static void on_zip_downloaded(void* userdata, void* buffer, int size)
 		}
 	}
 	mz_zip_reader_end(&za);
-	engine->load();
+	engine_load();
 }
 
 static void on_zip_fail(void* userdata)
 {
 	log_error("Unable to download %s", (char *) userdata);
-	engine->load(); // load anyway (as long as old method still work)
+	engine_load(); // load anyway (as long as old method still work)
 }
 
 static void loop()
 {
-	if (engine->is_loaded()) {
-		engine->update();
+	if (engine_is_loaded()) {
+		engine_update();
 	}
 }
 
@@ -99,8 +97,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	Engine e(filename, 60);
-	engine = &e;
+	engine_init(filename, 60);
 
 	emscripten_async_wget_data(zipname, (void*) zipname, on_zip_downloaded, on_zip_fail);
 	emscripten_set_main_loop(loop, 0, true);
@@ -109,8 +106,6 @@ int main(int argc, char* argv[])
 }
 #else
 #ifdef BUILD_LIVECODING
-static Engine* engine = NULL;
-
 static void reload(_unused_ void *arg)
 {
 	dlua_set_need_to_reload();
@@ -185,9 +180,8 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	Engine e(filename, 60);
+	engine_init(filename, 60);
 #ifdef BUILD_LIVECODING
-	engine = &e;
 	if (livecoding) {
 		int r = start_livecoding(filename);
 		if (r < 0) {
@@ -196,8 +190,8 @@ int main(int argc, char* argv[])
 	}
 #endif
 
-	e.load();
-	e.loop();
+	engine_load();
+	engine_loop();
 
 #ifdef BUILD_LIVECODING
 	if (livecoding) {

@@ -24,7 +24,7 @@
 #include <lauxlib.h>
 
 #include "lua_util.h"
-#include "engine.hpp"
+#include "engine.h"
 #include "util.h"
 #include "log.h"
 #include "dlua.h"

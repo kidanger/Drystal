@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <cstring>
+#include <stdbool.h>
 #include <sys/time.h>
 #if defined(BUILD_EVENT) || defined(BUILD_FONT) || defined(BUILD_GRAPHICS)
 #ifndef EMSCRIPTEN
@@ -24,7 +24,7 @@
 #endif
 #endif
 
-#include "engine.hpp"
+#include "engine.h"
 #include "log.h"
 #ifdef BUILD_AUDIO
 #include "audio/audio.h"
@@ -46,18 +46,33 @@
 
 log_category("engine");
 
-// needed for get_engine
-static Engine *engine;
+struct Engine {
+	unsigned long target_ms_per_frame;
+	bool run;
+	bool loaded;
+	long unsigned last_update;
 
-Engine::Engine(const char* filename, unsigned int target_fps) :
-	target_ms_per_frame(1000 / target_fps),
-	run(true),
-	loaded(false),
-	last_update(get_now()),
-	update_activated(true),
-	draw_activated(true)
+	bool update_activated;
+	bool draw_activated;
+} engine;
+
+static long unsigned get_now()
 {
-	engine = this;
+	// in microsecond
+	struct timeval stTimeVal;
+	gettimeofday(&stTimeVal, NULL);
+	return stTimeVal.tv_sec * USEC_PER_SEC + stTimeVal.tv_usec;
+}
+
+void engine_init(const char* filename, unsigned int target_fps)
+{
+	engine.target_ms_per_frame = 1000 / target_fps;
+	engine.run = true;
+	engine.loaded = false;
+	engine.last_update = get_now();
+	engine.update_activated = true;
+	engine.draw_activated = true;
+
 	dlua_init(filename);
 #ifdef BUILD_GRAPHICS
 	display_init();
@@ -73,7 +88,7 @@ Engine::Engine(const char* filename, unsigned int target_fps) :
 #endif
 }
 
-Engine::~Engine()
+void engine_free(void)
 {
 	dlua_free();
 #ifdef BUILD_AUDIO
@@ -87,11 +102,16 @@ Engine::~Engine()
 #endif
 }
 
+bool engine_is_loaded(void)
+{
+	return engine.loaded;
+}
+
 //
 // Load & loop
 //
 
-void Engine::load()
+void engine_load(void)
 {
 #ifdef BUILD_GRAPHICS
 	if (!display_is_available()) {
@@ -101,26 +121,26 @@ void Engine::load()
 #endif
 
 	bool successful_load = dlua_load_code();
-	if (run)
+	if (engine.run)
 		// run can be disabled before init being called
 		successful_load = successful_load && dlua_call_init();
-	run = run && successful_load;
-	loaded = true;
+	engine.run = engine.run && successful_load;
+	engine.loaded = true;
 }
 
-void Engine::loop()
+void engine_loop(void)
 {
 #ifndef EMSCRIPTEN
-	while (run) {
+	while (engine.run) {
 		unsigned long at_start = get_now();
 
 		// update everything (event, game, display)
-		update();
+		engine_update();
 
 		// wait few millis to stay at the targeted fps value
 		unsigned long ms_per_frame = (get_now() - at_start) / 1000;
-		if (ms_per_frame < target_ms_per_frame) {
-			unsigned long sleep_time = target_ms_per_frame - ms_per_frame;
+		if (ms_per_frame < engine.target_ms_per_frame) {
+			unsigned long sleep_time = engine.target_ms_per_frame - ms_per_frame;
 			if (sleep_time > 0) {
 				msleep(sleep_time);
 			}
@@ -129,15 +149,7 @@ void Engine::loop()
 #endif
 }
 
-long unsigned Engine::get_now()
-{
-	// in microsecond
-	struct timeval stTimeVal;
-	gettimeofday(&stTimeVal, NULL);
-	return stTimeVal.tv_sec * USEC_PER_SEC + stTimeVal.tv_usec;
-}
-
-void Engine::update()
+void engine_update(void)
 {
 #ifdef BUILD_LIVECODING
 	if (dlua_is_need_to_reload()) {
@@ -150,20 +162,20 @@ void Engine::update()
 #endif
 
 	// check if an event provocked a stop
-	if (!run)
+	if (!engine.run)
 		return;
 
-	float dt = (get_now() - last_update) / (float) USEC_PER_SEC;
-	last_update = get_now();
+	float dt = (get_now() - engine.last_update) / (float) USEC_PER_SEC;
+	engine.last_update = get_now();
 
 #ifdef BUILD_AUDIO
 	update_audio(dt);
 #endif
 
-	if (update_activated)
+	if (engine.update_activated)
 		dlua_call_update(dt);
 
-	if (draw_activated)
+	if (engine.draw_activated)
 		dlua_call_draw();
 
 #ifdef BUILD_GRAPHICS
@@ -171,42 +183,22 @@ void Engine::update()
 #endif
 }
 
-void Engine::stop()
+void engine_stop(void)
 {
 	dlua_call_atexit();
-	run = false;
+	engine.run = false;
 #ifdef EMSCRIPTEN
 	emscripten_cancel_main_loop();
 #endif
 }
 
-void Engine::toggle_draw()
+void engine_toggle_draw(void)
 {
-	draw_activated = !draw_activated;
+	engine.draw_activated = !engine.draw_activated;
 }
 
-void Engine::toggle_update()
+void engine_toggle_update(void)
 {
-	update_activated = !update_activated;
-}
-
-Engine &get_engine()
-{
-	return *engine;
-}
-
-extern "C" {
-void engine_stop(void) {
-	Engine &e = get_engine();
-	e.stop();
-}
-void engine_toggle_update(void) {
-	Engine &e = get_engine();
-	e.toggle_update();
-}
-void engine_toggle_draw(void) {
-	Engine &e = get_engine();
-	e.toggle_draw();
-}
+	engine.update_activated = !engine.update_activated;
 }
 

@@ -25,7 +25,7 @@
 #include <lauxlib.h>
 
 #include "macro.h"
-#include "engine.hpp"
+#include "engine.h"
 #include "graphics/display.h"
 #include "lua_util.h"
 #include "event.h"

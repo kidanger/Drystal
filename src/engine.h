@@ -17,45 +17,21 @@
 #pragma once
 
 #ifdef __cplusplus
-
-class Engine
-{
-private:
-	unsigned long target_ms_per_frame;
-	bool run;
-	bool loaded;
-	long unsigned last_update;
-
-	bool update_activated;
-	bool draw_activated;
-
-public:
-	Engine(const char* filename, unsigned int target_fps);
-	~Engine();
-
-	void load();
-	void loop();
-	void update();
-	bool is_loaded() const
-	{
-		return loaded;
-	}
-
-	void toggle_update();
-	void toggle_draw();
-
-	void stop();
-
-	static long unsigned get_now();
-};
-
-Engine &get_engine();
 extern "C" {
 #endif
-// only for C transition
+
+#include <stdbool.h>
+
+void engine_init(const char *filename, unsigned int target_fps);
+void engine_free(void);
+void engine_load(void);
+void engine_loop(void);
+void engine_update(void);
+bool engine_is_loaded(void);
 void engine_stop(void);
 void engine_toggle_update(void);
 void engine_toggle_draw(void);
+
 #ifdef __cplusplus
 }
 #endif
