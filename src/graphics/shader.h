@@ -25,11 +25,11 @@
 
 typedef struct Shader Shader;
 
-extern const char* SHADER_PREFIX;
-extern const size_t SHADER_PREFIX_LEN;
-extern const char* DEFAULT_VERTEX_SHADER;
-extern const char* DEFAULT_FRAGMENT_SHADER_COLOR;
-extern const char* DEFAULT_FRAGMENT_SHADER_TEX;
+const char* SHADER_PREFIX;
+const size_t SHADER_PREFIX_LEN;
+const char* DEFAULT_VERTEX_SHADER;
+const char* DEFAULT_FRAGMENT_SHADER_COLOR;
+const char* DEFAULT_FRAGMENT_SHADER_TEX;
 
 #define ATTR_POSITION_INDEX 0 // WebGL wants 0 as an attribute, so here it is
 #define ATTR_COLOR_INDEX 1
