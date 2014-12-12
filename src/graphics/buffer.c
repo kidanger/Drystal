@@ -64,24 +64,10 @@ static void buffer_partial_free(Buffer *b)
 Buffer *buffer_new(bool user_buffer, unsigned int size)
 {
 	Buffer *b = new(Buffer, 1);
-	if (!b)
-		return NULL;
-
 	b->type = UNDEFINED;
 	b->size = size;
 	b->positions = new(GLfloat, size * 2);
-	if (!b->positions) {
-		free(b);
-		return NULL;
-	}
-
 	b->colors = new(GLfloat, size * 4);
-	if (!b->colors) {
-		free(b->positions);
-		free(b);
-		return NULL;
-	}
-
 	b->tex_coords = NULL;
 	b->point_sizes = NULL;
 	b->current_position = 0;

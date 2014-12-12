@@ -33,8 +33,6 @@ static Sound *sound_new(ALushort* buffer, unsigned int length, int samplesrate, 
 	ALenum format = AL_FORMAT_MONO8;
 
 	s = new(Sound, 1);
-	if (!s)
-		return NULL;
 
 	s->alBuffer = 0;
 	s->free_me = false;

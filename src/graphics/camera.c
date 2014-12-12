@@ -23,9 +23,6 @@
 Camera *camera_new(void)
 {
 	Camera *c = new(Camera, 1);
-	if (!c)
-		return NULL;
-
 	c->dx = 0;
 	c->dy = 0;
 	c->zoom = 1;

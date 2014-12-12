@@ -27,8 +27,6 @@ System *system_new(int x, int y)
 	System *s;
 
 	s = new(System, 1);
-	if (!s)
-		return NULL;
 
 	s->particles = NULL;
 	s->cur_size = 0;
@@ -53,11 +51,6 @@ System *system_new(int x, int y)
 	s->ref = 0;
 
 	s->particles = new(Particle, s->size);
-	if (!s->particles) {
-		free(s);
-		return NULL;
-	}
-
 	for (int i = 0; i < s->size; i++)
 		s->particles[i].dead = true;
 

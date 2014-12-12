@@ -33,8 +33,6 @@ static Music *music_new(MusicCallback* clb, ALenum format, int rate)
 	assert(clb);
 
 	m = new(Music, 1);
-	if (!m)
-		return NULL;
 
 	m->source = NULL;
 	m->callback = clb;
@@ -222,8 +220,6 @@ static VorbisMusicCallback *vmc_new(stb_vorbis *stream)
 	assert(stream);
 
 	vmc = new(VorbisMusicCallback, 1);
-	if (!vmc)
-		return NULL;
 
 	vmc->stream = stream;
 	vmc->info = stb_vorbis_get_info(stream);
@@ -247,8 +243,6 @@ Music* music_load_from_file(const char* filename)
 	}
 
 	VorbisMusicCallback *callback = vmc_new(stream);
-	if (!callback)
-		return NULL;
 
 	return music_load((MusicCallback*) callback, callback->info.sample_rate, callback->info.channels);
 }

@@ -95,8 +95,6 @@ const char* DEFAULT_FRAGMENT_SHADER_TEX = SHADER_STRING
 Shader *shader_new(GLuint prog_color, GLuint prog_tex, GLuint vert, GLuint frag_color, GLuint frag_tex)
 {
 	Shader *s = new(Shader, 1);
-	if (!s)
-		return NULL;
 
 	s->prog_color = prog_color;
 	s->prog_tex = prog_tex;

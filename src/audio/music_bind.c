@@ -94,8 +94,6 @@ static LuaMusicCallback *lmc_new(lua_State *L)
 	LuaMusicCallback *lmc;
 
 	lmc = new(LuaMusicCallback, 1);
-	if (!lmc)
-		return NULL;
 
 	lmc->L = L;
 	lua_pushvalue(L, 1);

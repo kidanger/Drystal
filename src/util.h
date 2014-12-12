@@ -24,12 +24,16 @@ extern "C" {
 #include <string.h>
 #include <stdlib.h>
 
-#define new(t, n) malloc(sizeof(t) * (n))
+#include "macro.h"
+
+#define new(t, n) xmalloc(sizeof(t) * (n))
 #define newa(t, n) alloca(sizeof(t) * (n))
 
 #define XREALLOC(array, nmemb, need) \
 	xrealloc((void **) &(array), &(nmemb), need, sizeof((array)[0]), 32)
 
+_malloc_ void *xmalloc(size_t size);
+_malloc_ void *xcalloc(size_t nmemb, size_t size);
 int mkdir_p(const char *path);
 char *strjoin(const char *s, ...);
 void msleep(unsigned long milisec);

@@ -26,6 +26,22 @@
 
 #include "util.h"
 #include "macro.h"
+#include "log.h"
+
+log_category("util");
+
+void *xmalloc(size_t size)
+{
+	void *p;
+
+	p = malloc(size);
+	if (!p) {
+		log_error("Out of memory. Aborting.");
+		exit(EXIT_FAILURE);
+	}
+
+	return p;
+}
 
 int mkdir_p(const char *path)
 {
@@ -69,10 +85,7 @@ char *strjoin(const char *s, ...)
 	}
 	va_end(ap);
 
-	join = calloc(l + 1, sizeof(char));
-	if (!join) {
-		return NULL;
-	}
+	join = new(char, l + 1);
 
 	va_start(ap, s);
 	p = stpcpy(join, s);
@@ -162,8 +175,10 @@ void *xrealloc(void **p, size_t *nmemb, size_t need, size_t size, unsigned min_n
 		return NULL;
 
 	q = realloc(*p, new_totalsize);
-	if (!q)
-		return NULL;
+	if (!q) {
+		log_error("Out of memory. Aborting.");
+		exit(EXIT_FAILURE);
+	}
 
 	*p = q;
 	*nmemb = new_nmemb;

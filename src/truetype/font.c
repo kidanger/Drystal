@@ -52,16 +52,10 @@ Font* font_load(const char* filename, float size, int first_char, int num_chars)
 	int w = 512;
 	int h = 512;
 	Font* font = new(Font, 1);
-	if (!font)
-		return NULL;
 
 	font->first_char = first_char;
 	font->num_chars = num_chars;
 	font->char_data = new(stbtt_bakedchar, num_chars);
-	if (!font->char_data) {
-		free(font);
-		return NULL;
-	}
 	font->font_size = size;
 
 	size_t read = fread(file_content, 1, 1 << 20, file);

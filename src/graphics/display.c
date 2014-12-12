@@ -144,9 +144,6 @@ static int display_create_window(int w, int h)
 	SDL_GetWindowSize(display.sdl_window, &w, &h);
 
 	display.screen = display_new_surface(w, h, true);
-	if (!display.screen) {
-		return -ENOMEM;
-	}
 	display_draw_on(display.screen);
 
 	display.default_shader = display_create_default_shader();
@@ -175,17 +172,7 @@ void display_init()
 	int r;
 
 	display.default_buffer = buffer_new(false, BUFFER_DEFAULT_SIZE);
-	if (!display.default_buffer) {
-		log_error("Cannot instanciate default buffer");
-		return;
-	}
-
 	display.camera = camera_new();
-	if (!display.camera) {
-		log_error("Cannot instanciate default camera");
-		return;
-	}
-
 	display.sdl_window = NULL;
 	display.screen = NULL;
 	display.default_shader = NULL;
@@ -601,9 +588,6 @@ Surface *display_new_surface(int w, int h, bool force_npot)
 	}
 
 	Surface *surface = display_create_surface(w, h, potw, poth, NULL);
-	if (!surface) {
-		return NULL;
-	}
 	if (force_npot) {
 		surface->npot = true;
 	}
@@ -914,9 +898,6 @@ void display_free_shader(Shader *shader)
 Buffer *display_new_buffer(unsigned int size)
 {
 	Buffer* buffer = buffer_new(true, size);
-	if (!buffer)
-		return NULL;
-
 	buffer_allocate(buffer);
 	buffer_use_camera(buffer, display.camera);
 
