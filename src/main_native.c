@@ -128,6 +128,8 @@ int main(int argc, char* argv[])
 	}
 #endif
 
+	engine_free();
+
 	return 0;
 }
 

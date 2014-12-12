@@ -97,6 +97,9 @@ void engine_free(void)
 #ifdef BUILD_EVENT
 	event_destroy();
 #endif
+#ifdef BUILD_GRAPHICS
+	display_free();
+#endif
 #if defined(BUILD_EVENT) || defined(BUILD_FONT) || defined(BUILD_GRAPHICS)
 	SDL_Quit();
 #endif

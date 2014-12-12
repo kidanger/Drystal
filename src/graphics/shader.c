@@ -130,6 +130,8 @@ void shader_free(Shader *s)
 	glDeleteShader(s->frag_tex);
 	glDeleteProgram(s->prog_color);
 	glDeleteProgram(s->prog_tex);
+
+	free(s);
 }
 
 void shader_feed(Shader *s, const char* name, float value)

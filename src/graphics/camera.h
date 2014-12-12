@@ -27,6 +27,7 @@ struct Camera {
 };
 
 Camera *camera_new();
+void camera_free(Camera *c);
 
 void camera_update_matrix(Camera *c, int width, int height);
 void camera_reset(Camera *c);

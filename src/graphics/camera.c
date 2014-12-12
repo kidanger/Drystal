@@ -38,6 +38,14 @@ Camera *camera_new(void)
 	return c;
 }
 
+void camera_free(Camera *c)
+{
+	if (!c)
+		return;
+
+	free(c);
+}
+
 void camera_update_matrix(Camera *c, int width, int height)
 {
 	float ratio;

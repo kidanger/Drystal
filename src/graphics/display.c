@@ -226,6 +226,12 @@ void display_free()
 	display_free_shader(display.default_shader);
 	display.default_shader = NULL;
 
+	buffer_free(display.default_buffer);
+	display.default_buffer = NULL;
+
+	camera_free(display.camera);
+	display.camera = NULL;
+
 	if (display.sdl_window) {
 		SDL_DestroyWindow(display.sdl_window);
 	}
