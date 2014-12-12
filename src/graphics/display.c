@@ -649,10 +649,10 @@ void display_draw_point_tex(float xi, float yi, float xd, float yd)
 void display_draw_line(float x1, float y1, float x2, float y2)
 {
 	Buffer *current_buffer = display.current_buffer;
-	int r = display.r;
-	int g = display.g;
-	int b = display.b;
-	int alpha = display.alpha;
+	float r = display.r;
+	float g = display.g;
+	float b = display.b;
+	float alpha = display.alpha;
 	int i;
 
 	buffer_check_type(current_buffer, LINE_BUFFER);
@@ -668,10 +668,10 @@ void display_draw_line(float x1, float y1, float x2, float y2)
 void display_draw_triangle(float x1, float y1, float x2, float y2, float x3, float y3)
 {
 	Buffer *current_buffer = display.current_buffer;
-	int r = display.r;
-	int g = display.g;
-	int b = display.b;
-	int alpha = display.alpha;
+	float r = display.r;
+	float g = display.g;
+	float b = display.b;
+	float alpha = display.alpha;
 	int i;
 
 	if (display.debug_mode) {
@@ -696,10 +696,10 @@ void display_draw_surface(float xi1, float yi1, float xi2, float yi2, float xi3,
                           float xo1, float yo1, float xo2, float yo2, float xo3, float yo3)
 {
 	Buffer *current_buffer = display.current_buffer;
-	int r = display.r;
-	int g = display.g;
-	int b = display.b;
-	int alpha = display.alpha;
+	float r = display.r;
+	float g = display.g;
+	float b = display.b;
+	float alpha = display.alpha;
 	int i;
 	float xxi1, xxi2, xxi3;
 	float yyi1, yyi2, yyi3;
