@@ -22,7 +22,6 @@
 #endif
 
 #include <lua.h>
-#include <lauxlib.h>
 
 #include "macro.h"
 #include "engine.h"
@@ -387,11 +386,9 @@ void event_init(void)
 
 void event_destroy(void)
 {
-	lua_State* L = dlua_get_lua_state();
 #ifndef EMSCRIPTEN
 	SDL_QuitSubSystem(SDL_INIT_EVENTS);
 #endif
-	luaL_unref(L, LUA_REGISTRYINDEX, keys_table_ref);
 }
 
 void event_set_relative_mode(bool relative)
