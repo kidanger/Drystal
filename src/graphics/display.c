@@ -388,6 +388,8 @@ void display_flip()
 	float h = display.screen->h;
 	display.debug_mode = false;
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glClearColor(0., 0., 0., 1.);
+	glClear(GL_COLOR_BUFFER_BIT);
 	display_draw_quad(0, 0, w, 0, w, h, 0, h,
 	                  0, h, w, h, w, 0, 0, 0); // y reversed
 	buffer_check_empty(display.current_buffer);
