@@ -85,7 +85,7 @@ void music_play(Music *m, bool loop)
 
 	m->ended = false;
 	m->loop = loop;
-	source->isMusic = true;
+	source->type = SOURCE_MUSIC;
 	source->currentMusic = m;
 	source->used = true;
 	source->desiredVolume = 1;

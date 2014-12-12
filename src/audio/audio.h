@@ -20,6 +20,10 @@
 #include <AL/al.h>
 
 typedef struct Source Source;
+typedef enum SourceType {
+	SOURCE_MUSIC,
+	SOURCE_SOUND
+} SourceType;
 
 #include "sound.h"
 #include "music.h"
@@ -30,13 +34,13 @@ typedef struct Source Source;
 struct Source {
 	ALuint alSource;
 	bool used;
-	bool isMusic;
+	bool paused;
 	union {
 		Sound* currentSound;
 		Music* currentMusic;
 	};
+	SourceType type;
 	float desiredVolume;
-	bool paused;
 };
 
 #ifdef DODEBUG

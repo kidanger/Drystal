@@ -146,7 +146,7 @@ void sound_play(Sound *sound, float volume, float x, float y)
 	alSourcePlay(source->alSource);
 	audio_check_error();
 
-	source->isMusic = false;
+	source->type = SOURCE_SOUND;
 	source->currentSound = sound;
 	source->used = true;
 	source->desiredVolume = volume;

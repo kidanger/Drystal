@@ -83,13 +83,13 @@ void update_audio(_unused_ float dt)
 		alGetSourcei(source->alSource, AL_SOURCE_STATE, &status);
 		source->used = status == AL_PLAYING || status == AL_PAUSED;
 
-		if (!source->used && !source->isMusic) { // ended sound
+		if (!source->used && source->type == SOURCE_SOUND) { // ended sound
 			Sound *sound = source->currentSound;
 			if (sound->free_me) {
 				sound_free(sound);
 			}
 		}
-		if (status == AL_PLAYING && source->isMusic) { // still playing music
+		if (status == AL_PLAYING && source->type == SOURCE_MUSIC) { // still playing music
 			Music *music = source->currentMusic;
 			music_update(music);
 		}
@@ -151,7 +151,7 @@ void set_music_volume(float volume)
 	// update current playing musics
 	for (int i = 0; i < NUM_SOURCES; i++) {
 		Source *source = &sources[i];
-		if (source->isMusic) {
+		if (source->type == SOURCE_MUSIC) {
 			alSourcef(source->alSource, AL_GAIN, source->desiredVolume * volume);
 			audio_check_error();
 		}
@@ -167,7 +167,7 @@ void set_sound_volume(float volume)
 	// update current playing sounds
 	for (int i = 0; i < NUM_SOURCES; i++) {
 		Source *source = &sources[i];
-		if (!source->isMusic) {
+		if (source->type == SOURCE_SOUND) {
 			alSourcef(source->alSource, AL_GAIN, source->desiredVolume * volume);
 			audio_check_error();
 		}
