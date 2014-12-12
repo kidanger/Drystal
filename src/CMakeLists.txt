@@ -3,9 +3,13 @@ set(SOURCES
 	engine.c
 	dlua.c
 	lua_util.c
-	main.c
 	util.c
 )
+if(EMSCRIPTEN)
+	list(APPEND SOURCES main_emscripten.c)
+else()
+	list(APPEND SOURCES main_native.c)
+endif()
 if(BUILD_EVENT)
 	add_definitions(-DBUILD_EVENT)
 	aux_source_directory(event SOURCES)
