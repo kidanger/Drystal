@@ -47,6 +47,7 @@ struct Music {
 void music_play(Music *m, bool loop);
 void music_update(Music *m);
 void music_stop(Music *m);
+void music_pause(Music *m);
 void music_free(Music *m);
 
 Music *music_load(MusicCallback* callback, int samplesrate, int num_channels);

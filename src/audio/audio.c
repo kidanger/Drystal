@@ -81,7 +81,7 @@ void update_audio(_unused_ float dt)
 		if (!source->used)
 			continue;
 		alGetSourcei(source->alSource, AL_SOURCE_STATE, &status);
-		source->used = status == AL_PLAYING;
+		source->used = status == AL_PLAYING || status == AL_PAUSED;
 
 		if (!source->used && !source->isMusic) { // ended sound
 			Sound *sound = source->currentSound;
@@ -89,7 +89,7 @@ void update_audio(_unused_ float dt)
 				sound_free(sound);
 			}
 		}
-		if (source->used && source->isMusic) { // still playing music
+		if (status == AL_PLAYING && source->isMusic) { // still playing music
 			Music *music = source->currentMusic;
 			music_update(music);
 		}

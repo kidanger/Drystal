@@ -148,6 +148,16 @@ int mlua_stop_music(lua_State* L)
 	return 0;
 }
 
+int mlua_pause_music(lua_State* L)
+{
+	assert(L);
+
+	Music* music = pop_music(L, 1);
+	music_pause(music);
+	return 0;
+}
+
+
 int mlua_free_music(lua_State *L)
 {
 	assert(L);

@@ -57,8 +57,13 @@ void music_play(Music *m, bool loop)
 
 	assert(m);
 
-	if (m->source)
+	if (m->source) {
+		if (m->source->paused) {
+			m->source->paused = false;
+			alSourcePlay(m->source->alSource);
+		}
 		return;
+	}
 
 	source = get_free_source();
 	if (!source)
@@ -87,6 +92,17 @@ void music_play(Music *m, bool loop)
 	m->source = source;
 }
 
+void music_pause(Music *m)
+{
+	assert(m);
+
+	if (!m->source)
+		return;
+
+	alSourcePause(m->source->alSource);
+	audio_check_error();
+	m->source->paused= true;
+}
 
 void music_stop(Music *m)
 {

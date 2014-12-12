@@ -26,5 +26,6 @@ DECLARE_PUSHPOP(Music, music)
 int mlua_load_music(lua_State *L);
 int mlua_play_music(lua_State *L);
 int mlua_stop_music(lua_State *L);
+int mlua_pause_music(lua_State *L);
 int mlua_free_music(lua_State *L);
 

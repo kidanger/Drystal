@@ -36,6 +36,7 @@ struct Source {
 		Music* currentMusic;
 	};
 	float desiredVolume;
+	bool paused;
 };
 
 #ifdef DODEBUG
