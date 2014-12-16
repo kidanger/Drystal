@@ -96,14 +96,17 @@ int mlua_play_sound(lua_State *L)
 	float volume = 1;
 	float x = 0;
 	float y = 0;
+	float pitch = 1.0;
 	if (!lua_isnone(L, 2))
 		volume = luaL_checknumber(L, 2);
 	if (!lua_isnone(L, 3))
 		x = luaL_checknumber(L, 3);
 	if (!lua_isnone(L, 4))
 		y = luaL_checknumber(L, 4);
+	if (!lua_isnone(L, 5))
+		pitch = luaL_checknumber(L, 5);
 
-	sound_play(sound, volume, x, y);
+	sound_play(sound, volume, x, y, pitch);
 	return 0;
 }
 

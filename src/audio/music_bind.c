@@ -129,6 +129,19 @@ int mlua_load_music(lua_State *L)
 	return 1;
 }
 
+int mlua_set_pitch_music(lua_State *L)
+{
+	assert(L);
+
+	Music* music = pop_music(L, 1);
+	float pitch = luaL_checknumber(L, 2);
+
+	assert_lua_error(L, pitch >= 0.0f, "set_pitch: pitch must be positive");
+
+	music_set_pitch(music, pitch);
+	return 0;
+}
+
 int mlua_play_music(lua_State *L)
 {
 	assert(L);

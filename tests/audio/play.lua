@@ -13,12 +13,19 @@ end
 
 local music = assert(drystal.load_music("test.ogg"))
 
+local pitch = 1.0
 function drystal.key_press(key)
 	if key == 'a' then
 		drystal.stop()
 	elseif key == 'p' then
-		piou:play()
+		piou:play(1, 0, 0, pitch)
 		print('play sound')
+	elseif key == '[+]' then
+		pitch = pitch + 0.10
+		music:set_pitch(pitch)
+	elseif key == '[-]' then
+		pitch = pitch - 0.10
+		music:set_pitch(pitch)
 	elseif key == 'l' then
 		drystal.set_music_volume(0.3)
 	elseif key == 'z' then

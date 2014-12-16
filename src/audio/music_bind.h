@@ -28,4 +28,5 @@ int mlua_play_music(lua_State *L);
 int mlua_stop_music(lua_State *L);
 int mlua_pause_music(lua_State *L);
 int mlua_free_music(lua_State *L);
+int mlua_set_pitch_music(lua_State *L);
 

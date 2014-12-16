@@ -27,7 +27,7 @@ struct Sound {
 	int ref;
 };
 
-void sound_play(Sound *sound, float volume, float, float y);
+void sound_play(Sound *sound, float volume, float x, float y, float pitch);
 void sound_free(Sound *sound);
 
 Sound *sound_load_from_file(const char *filepath);

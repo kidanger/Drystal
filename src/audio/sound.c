@@ -128,7 +128,7 @@ void sound_free(Sound *s)
 	}
 }
 
-void sound_play(Sound *sound, float volume, float x, float y)
+void sound_play(Sound *sound, float volume, float x, float y, float pitch)
 {
 	assert(sound);
 
@@ -142,6 +142,8 @@ void sound_play(Sound *sound, float volume, float x, float y)
 	alSource3f(source->alSource, AL_POSITION, x, y, 0.);
 	audio_check_error();
 	alSourcef(source->alSource, AL_GAIN, volume * get_sound_volume());
+	audio_check_error();
+	alSourcef(source->alSource, AL_PITCH, pitch);
 	audio_check_error();
 	alSourcePlay(source->alSource);
 	audio_check_error();
