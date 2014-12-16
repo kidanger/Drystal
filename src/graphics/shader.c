@@ -35,7 +35,6 @@ const char* SHADER_PREFIX = SHADER_STRING
                                 precision mediump float; \n
                                 HASH(#)endif \n
                             );
-const size_t SHADER_PREFIX_LEN = sizeof(SHADER_PREFIX);
 
 const char* DEFAULT_VERTEX_SHADER = SHADER_STRING
                                     (

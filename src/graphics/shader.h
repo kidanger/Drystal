@@ -26,7 +26,6 @@
 typedef struct Shader Shader;
 
 const char* SHADER_PREFIX;
-const size_t SHADER_PREFIX_LEN;
 const char* DEFAULT_VERTEX_SHADER;
 const char* DEFAULT_FRAGMENT_SHADER_COLOR;
 const char* DEFAULT_FRAGMENT_SHADER_TEX;
