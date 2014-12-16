@@ -332,8 +332,14 @@ static void handle_event(SDL_Event event)
 		}
 		break;
 #ifndef EMSCRIPTEN
-		case SDL_WINDOWEVENT_RESIZED:
-			call_resize_event(event.window.data1, event.window.data2);
+		case SDL_WINDOWEVENT:
+			switch (event.window.event) {
+				case SDL_WINDOWEVENT_RESIZED:
+					call_resize_event(event.window.data1, event.window.data2);
+					break;
+				default:
+					break;
+			}
 			break;
 #else
 		case SDL_VIDEORESIZE:
