@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <string.h>
+#include <stdlib.h>
 #include <assert.h>
 
 #include "log.h"

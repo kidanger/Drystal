@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <string.h>
 #include <math.h>
 #include <assert.h>
 #include <stdbool.h>
@@ -145,7 +144,7 @@ static void remove_userpackages(void)
 		unsigned long i;
 
 		for (i = 0; i < sizeof(kept) / sizeof(const char*) && remove; i++) {
-			remove = remove && strcmp(name, kept[i]);
+			remove = remove && !streq(name, kept[i]);
 		}
 		if (remove) {
 			lua_pushnil(L);

@@ -1,5 +1,4 @@
 #include <cassert>
-#include <cstring>
 #include <lua.hpp>
 
 #include "macro.h"
@@ -14,6 +13,7 @@ END_DISABLE_WARNINGS;
 #include "world_bind.hpp"
 #include "log.h"
 #include "lua_util.h"
+#include "util.h"
 
 log_category("shape");
 
@@ -28,7 +28,7 @@ int mlua_new_shape(lua_State* L)
 	b2FixtureDef* fixtureDef = new b2FixtureDef;
 	fixtureDef->density = 1.0f;
 
-	if (!strcmp(type, "box")) {
+	if (streq(type, "box")) {
 		b2PolygonShape* polygon = new b2PolygonShape;
 		lua_Number w = luaL_checknumber(L, 2) / 2 / pixels_per_meter;
 		lua_Number h = luaL_checknumber(L, 3) / 2 / pixels_per_meter;
@@ -40,7 +40,7 @@ int mlua_new_shape(lua_State* L)
 		}
 		polygon->SetAsBox(w, h, b2Vec2(centerx + w, centery + h), 0);
 		fixtureDef->shape = polygon;
-	} else if (!strcmp(type, "circle")) {
+	} else if (streq(type, "circle")) {
 		b2CircleShape* circle = new b2CircleShape;
 		circle->m_radius = luaL_checknumber(L, 2) / pixels_per_meter;
 		if (lua_gettop(L) > 2) {
@@ -49,7 +49,7 @@ int mlua_new_shape(lua_State* L)
 			circle->m_p.Set(dx, dy);
 		}
 		fixtureDef->shape = circle;
-	} else if (!strcmp(type, "chain")) {
+	} else if (streq(type, "chain")) {
 		b2ChainShape* chain = new b2ChainShape;
 		int number = (lua_gettop(L) - 1) / 2;
 		b2Vec2* vecs = new b2Vec2[number];

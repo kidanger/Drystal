@@ -31,6 +31,7 @@ END_DISABLE_WARNINGS;
 #include "body_bind.hpp"
 #include "joint_bind.hpp"
 #include "shape_bind.hpp"
+#include "util.h"
 
 log_category("world");
 
@@ -517,25 +518,25 @@ int mlua_new_joint(lua_State* L)
 
 	const char * type = luaL_checkstring(L, 1);
 	int i = 2;
-	if (!strcmp(type, "mouse")) {
+	if (streq(type, "mouse")) {
 		b2MouseJointDef* def = new b2MouseJointDef;
 		def->bodyA = pop_body_secure(L, i++)->body;
 		def->bodyB = pop_body_secure(L, i++)->body;
 		def->maxForce = luaL_checknumber(L, i++);
 		def->target = def->bodyB->GetWorldCenter();
 		joint_def = def;
-	} else if (!strcmp(type, "distance")) {
+	} else if (streq(type, "distance")) {
 		b2DistanceJointDef* def = new b2DistanceJointDef;
 		b2Body* b1 = pop_body_secure(L, i++)->body;
 		b2Body* b2 = pop_body_secure(L, i++)->body;
 		def->Initialize(b1, b2, b1->GetWorldCenter(), b2->GetWorldCenter());
 		joint_def = def;
-	} else if (!strcmp(type, "rope")) {
+	} else if (streq(type, "rope")) {
 		b2RopeJointDef* def = new b2RopeJointDef;
 		def->bodyA = pop_body_secure(L, i++)->body;
 		def->bodyB = pop_body_secure(L, i++)->body;
 		joint_def = def;
-	} else if (!strcmp(type, "revolute")) {
+	} else if (streq(type, "revolute")) {
 		b2RevoluteJointDef* def = new b2RevoluteJointDef;
 		def->bodyA = pop_body_secure(L, i++)->body;
 		def->bodyB = pop_body_secure(L, i++)->body;
@@ -546,7 +547,7 @@ int mlua_new_joint(lua_State* L)
 		def->localAnchorA.Set(anchorAx, anchorAy);
 		def->localAnchorB.Set(anchorBx, anchorBy);
 		joint_def = def;
-	} else if (!strcmp(type, "prismatic")) {
+	} else if (streq(type, "prismatic")) {
 		b2PrismaticJointDef* def = new b2PrismaticJointDef;
 		def->bodyA = pop_body_secure(L, i++)->body;
 		def->bodyB = pop_body_secure(L, i++)->body;
@@ -561,7 +562,7 @@ int mlua_new_joint(lua_State* L)
 		def->localAxisA.Set(axisx, axisy);
 		def->localAxisA.Normalize();
 		joint_def = def;
-	} else if (!strcmp(type, "friction")) {
+	} else if (streq(type, "friction")) {
 		b2FrictionJointDef* def = new b2FrictionJointDef;
 		def->bodyA = pop_body_secure(L, i++)->body;
 		def->bodyB = pop_body_secure(L, i++)->body;
@@ -572,7 +573,7 @@ int mlua_new_joint(lua_State* L)
 		def->localAnchorA.Set(anchorAx, anchorAy);
 		def->localAnchorB.Set(anchorBx, anchorBy);
 		joint_def = def;
-	} else if (!strcmp(type, "gear")) {
+	} else if (streq(type, "gear")) {
 		b2GearJointDef* def = new b2GearJointDef;
 		def->bodyA = pop_body_secure(L, i++)->body;
 		def->bodyB = pop_body_secure(L, i++)->body;
@@ -605,19 +606,19 @@ int mlua_new_joint(lua_State* L)
 	joint->nextdestroy = NULL;
 	joint->getting_destroyed = false;
 
-	if (!strcmp(type, "mouse")) {
+	if (streq(type, "mouse")) {
 		push_mouse_joint(L, joint);
-	} else if (!strcmp(type, "distance")) {
+	} else if (streq(type, "distance")) {
 		push_distance_joint(L, joint);
-	} else if (!strcmp(type, "rope")) {
+	} else if (streq(type, "rope")) {
 		push_rope_joint(L, joint);
-	} else if (!strcmp(type, "revolute")) {
+	} else if (streq(type, "revolute")) {
 		push_revolute_joint(L, joint);
-	} else if (!strcmp(type, "prismatic")) {
+	} else if (streq(type, "prismatic")) {
 		push_prismatic_joint(L, joint);
-	} else if (!strcmp(type, "friction")) {
+	} else if (streq(type, "friction")) {
 		push_friction_joint(L, joint);
-	} else if (!strcmp(type, "gear")) {
+	} else if (streq(type, "gear")) {
 		push_gear_joint(L, joint);
 	}
 

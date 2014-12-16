@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <string.h>
 #include <lua.h>
 #include <lauxlib.h>
 
@@ -26,6 +25,7 @@
 #include "shader_bind.h"
 #include "buffer_bind.h"
 #include "api.h"
+#include "util.h"
 
 BEGIN_MODULE(graphics)
 	DECLARE_FUNCTION(show_cursor)
@@ -115,19 +115,19 @@ END_MODULE()
 int graphics_index(lua_State* L)
 {
 	const char * name = luaL_checkstring(L, 2);
-	if (!strcmp(name, "screen")) {
+	if (streq(name, "screen")) {
 		Surface* surf = display_get_screen();
 		if (surf) {
 			push_surface(L, surf);
 			return 1;
 		}
-	} else if (!strcmp(name, "current_draw_on")) {
+	} else if (streq(name, "current_draw_on")) {
 		Surface* surf = display_get_draw_on();
 		if (surf) {
 			push_surface(L, surf);
 			return 1;
 		}
-	} else if (!strcmp(name, "current_draw_from")) {
+	} else if (streq(name, "current_draw_from")) {
 		Surface* surf = display_get_draw_from();
 		if (surf) {
 			push_surface(L, surf);

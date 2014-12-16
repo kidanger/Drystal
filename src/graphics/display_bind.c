@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <string.h>
 #include <assert.h>
 #include <errno.h>
 #include <lua.h>
@@ -25,6 +24,7 @@
 #include "display_bind.h"
 #include "lua_util.h"
 #include "log.h"
+#include "util.h"
 
 log_category("graphics");
 
@@ -163,9 +163,9 @@ int mlua_surface_class_index(lua_State* L)
 
 	Surface* surface = pop_surface(L, 1);
 	const char* index = luaL_checkstring(L, 2);
-	if (strcmp(index, "w") == 0) {
+	if (streq(index, "w")) {
 		lua_pushnumber(L, surface->w);
-	} else if (strcmp(index, "h") == 0) {
+	} else if (streq(index, "h")) {
 		lua_pushnumber(L, surface->h);
 	} else {
 		lua_getmetatable(L, 1);

@@ -49,6 +49,12 @@ static inline bool startswith(const char *s, const char *prefix)
 
 	return false;
 }
+
+static inline bool streq(const char *a, const char *b)
+{
+	return strcmp(a, b) == 0;
+}
+
 #ifdef __cplusplus
 }
 #endif

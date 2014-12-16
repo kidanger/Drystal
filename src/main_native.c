@@ -29,6 +29,7 @@
 
 #include "engine.h"
 #include "log.h"
+#include "util.h"
 
 log_category("main");
 
@@ -97,11 +98,11 @@ int main(int argc, char* argv[])
 #endif
 
 	for (int i = 1; i < argc; i++) {
-		if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")) {
+		if (streq(argv[i], "--help") || streq(argv[i], "-h")) {
 			help();
 			return 0;
 #ifdef BUILD_LIVECODING
-		} else if (!strcmp(argv[i], "--livecoding") || !strcmp(argv[i], "-l")) {
+		} else if (streq(argv[i], "--livecoding") || streq(argv[i], "-l")) {
 			livecoding = true;
 #endif
 		} else {

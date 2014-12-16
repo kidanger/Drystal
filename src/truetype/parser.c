@@ -22,6 +22,7 @@
 #include "parser.h"
 #include "macro.h"
 #include "log.h"
+#include "util.h"
 
 log_category("font");
 
@@ -184,7 +185,7 @@ static StateModifier find_modifier(const char *word)
 	unsigned int i = 0;
 
 	while (keywords[i].word) {
-		if (strcmp(keywords[i].word, word) == 0) {
+		if (streq(keywords[i].word, word)) {
 			return keywords[i].modifier;
 		}
 		i++;
