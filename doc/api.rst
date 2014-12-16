@@ -1130,7 +1130,15 @@ Audio
 
    .. lua:method:: play([loop=false: bool])
 
-      Play the music (from the beginning). If ``loop`` is true, the music will loop forever.
+      Plays the music (from the beginning). If ``loop`` is true, the music will loop forever.
+
+   .. lua:method:: set_pitch(pitch: float)
+
+      Sets the pitch of the music. ``pitch`` must be >= 0.
+
+   .. lua:method:: pause()
+
+      Pauses the music.
 
    .. lua:method:: stop()
 
@@ -1147,13 +1155,14 @@ Audio
 
 .. lua:class:: Sound
 
-   .. lua:method:: play([volume=1[, x=0[, y=0]]])
+   .. lua:method:: play([volume=1[, x=0[, y=0[, pitch=1]]])
 
-      Plays the sound at given volume and position.
+      Plays the sound at given volume, position and pitch.
 
       :param: volume float between 0 and 1
       :param: x float between -1 and 1 (-1 is full left, 1 is full right)
       :param: y float between -1 and 1
+      :param: pitch float greater than or equal to 0
 
 .. lua:function:: load_sound(filename: str) -> Sound | (nil, error)
 
