@@ -33,8 +33,6 @@
 
 log_category("event");
 
-typedef Sint32 SDL_Keycode;
-
 static int keys_table_ref;
 
 #define TRANSFORM(key) ((((key) >> 16) | (key)) & 0xffff)
