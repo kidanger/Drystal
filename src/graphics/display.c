@@ -821,20 +821,20 @@ Shader * display_new_shader(const char* strvert, const char* strfragcolor, const
 
 	prog_color = glCreateProgram();
 	assert(prog_color);
-	glBindAttribLocation(prog_color, ATTR_POSITION_INDEX, "position");
-	glBindAttribLocation(prog_color, ATTR_COLOR_INDEX, "color");
-	glBindAttribLocation(prog_color, ATTR_TEXCOORD_INDEX, "texCoord");
-	glBindAttribLocation(prog_color, ATTR_POINTSIZE_INDEX, "pointSize");
+	glBindAttribLocation(prog_color, ATTR_LOCATION_POSITION, "position");
+	glBindAttribLocation(prog_color, ATTR_LOCATION_COLOR, "color");
+	glBindAttribLocation(prog_color, ATTR_LOCATION_TEXCOORD, "texCoord");
+	glBindAttribLocation(prog_color, ATTR_LOCATION_POINTSIZE, "pointSize");
 	glAttachShader(prog_color, vert);
 	glAttachShader(prog_color, frag_color);
 	glLinkProgram(prog_color);
 
 	prog_tex = glCreateProgram();
 	assert(prog_tex);
-	glBindAttribLocation(prog_tex, ATTR_POSITION_INDEX, "position");
-	glBindAttribLocation(prog_tex, ATTR_COLOR_INDEX, "color");
-	glBindAttribLocation(prog_tex, ATTR_TEXCOORD_INDEX, "texCoord");
-	glBindAttribLocation(prog_tex, ATTR_POINTSIZE_INDEX, "pointSize");
+	glBindAttribLocation(prog_tex, ATTR_LOCATION_POSITION, "position");
+	glBindAttribLocation(prog_tex, ATTR_LOCATION_COLOR, "color");
+	glBindAttribLocation(prog_tex, ATTR_LOCATION_TEXCOORD, "texCoord");
+	glBindAttribLocation(prog_tex, ATTR_LOCATION_POINTSIZE, "pointSize");
 	glAttachShader(prog_tex, vert);
 	glAttachShader(prog_tex, frag_tex);
 	glLinkProgram(prog_tex);

@@ -97,8 +97,8 @@ void buffer_allocate(Buffer *b)
 	glGenBuffers(4, b->buffers);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glEnableVertexAttribArray(ATTR_POSITION_INDEX);
-	glEnableVertexAttribArray(ATTR_COLOR_INDEX);
+	glEnableVertexAttribArray(ATTR_LOCATION_POSITION);
+	glEnableVertexAttribArray(ATTR_LOCATION_COLOR);
 	b->type = UNDEFINED;
 }
 
@@ -286,19 +286,19 @@ void buffer_draw(Buffer *b, float dx, float dy)
 		buffer_upload(b, GL_DYNAMIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, b->buffers[0]);
-	glVertexAttribPointer(ATTR_POSITION_INDEX, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+	glVertexAttribPointer(ATTR_LOCATION_POSITION, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 	glBindBuffer(GL_ARRAY_BUFFER, b->buffers[1]);
-	glVertexAttribPointer(ATTR_COLOR_INDEX, 4, GL_FLOAT, GL_FALSE, 0, NULL);
+	glVertexAttribPointer(ATTR_LOCATION_COLOR, 4, GL_FLOAT, GL_FALSE, 0, NULL);
 
 	if (b->has_texture) {
 		glBindBuffer(GL_ARRAY_BUFFER, b->buffers[2]);
-		glEnableVertexAttribArray(ATTR_TEXCOORD_INDEX);
-		glVertexAttribPointer(ATTR_TEXCOORD_INDEX, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+		glEnableVertexAttribArray(ATTR_LOCATION_TEXCOORD);
+		glVertexAttribPointer(ATTR_LOCATION_TEXCOORD, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 	}
 	if (b->type == POINT_BUFFER) {
 		glBindBuffer(GL_ARRAY_BUFFER, b->buffers[3]);
-		glEnableVertexAttribArray(ATTR_POINTSIZE_INDEX);
-		glVertexAttribPointer(ATTR_POINTSIZE_INDEX, 1, GL_FLOAT, GL_FALSE, 0, NULL);
+		glEnableVertexAttribArray(ATTR_LOCATION_POINTSIZE);
+		glVertexAttribPointer(ATTR_LOCATION_POINTSIZE, 1, GL_FLOAT, GL_FALSE, 0, NULL);
 	}
 
 	dx -= b->camera->dx;
@@ -320,10 +320,10 @@ void buffer_draw(Buffer *b, float dx, float dy)
 	glDrawArrays(draw_type, 0, used);
 
 	if (b->has_texture) {
-		glDisableVertexAttribArray(ATTR_TEXCOORD_INDEX);
+		glDisableVertexAttribArray(ATTR_LOCATION_TEXCOORD);
 	}
 	if (b->type == POINT_BUFFER) {
-		glDisableVertexAttribArray(ATTR_POINTSIZE_INDEX);
+		glDisableVertexAttribArray(ATTR_LOCATION_POINTSIZE);
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
