@@ -76,7 +76,7 @@ Font* font_load(const char* filename, float size, int first_char, int num_chars)
 	}
 
 	font->surface = display_create_surface(w, h, w, h, pixels_colored);
-	display_set_filter(font->surface, NEAREST);
+	display_set_filter(font->surface, FILTER_NEAREST);
 	font->ref = 0;
 
 	return font;

@@ -37,8 +37,8 @@ const char* DEFAULT_FRAGMENT_SHADER_TEX;
 #define ATTR_POINTSIZE_INDEX 3
 
 enum VarLocationIndex {
-	COLOR,
-	TEX,
+	VAR_LOCATION_COLOR,
+	VAR_LOCATION_TEX,
 };
 typedef enum VarLocationIndex VarLocationIndex;
 

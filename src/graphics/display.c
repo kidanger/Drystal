@@ -153,7 +153,7 @@ static int display_create_window(int w, int h)
 	display_use_default_shader();
 	buffer_allocate(display.default_buffer);
 
-	display_set_blend_mode(DEFAULT);
+	display_set_blend_mode(BLEND_DEFAULT);
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
@@ -467,15 +467,15 @@ void display_set_blend_mode(BlendMode mode)
 	buffer_check_empty(display.current_buffer);
 
 	switch (mode) {
-		case ALPHA:
+		case BLEND_ALPHA:
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
 			break;
-		case MULT:
+		case BLEND_MULT:
 			glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
 			break;
-		case ADD:
+		case BLEND_ADD:
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 			glBlendEquation(GL_FUNC_ADD);
 			break;

@@ -275,10 +275,10 @@ void buffer_draw(Buffer *b, float dx, float dy)
 	VarLocationIndex locationIndex;
 	if (b->has_texture) {
 		prog = b->shader->prog_tex;
-		locationIndex = TEX;
+		locationIndex = VAR_LOCATION_TEX;
 	} else {
 		prog = b->shader->prog_color;
-		locationIndex = COLOR;
+		locationIndex = VAR_LOCATION_COLOR;
 	}
 	glUseProgram(prog);
 

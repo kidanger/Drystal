@@ -103,17 +103,17 @@ Shader *shader_new(GLuint prog_color, GLuint prog_tex, GLuint vert, GLuint frag_
 	s->frag_tex = frag_tex;
 	s->ref = 0;
 
-	s->vars[COLOR].dxLocation = glGetUniformLocation(prog_color, "cameraDx");
-	s->vars[COLOR].dyLocation = glGetUniformLocation(prog_color, "cameraDy");
-	s->vars[COLOR].zoomLocation = glGetUniformLocation(prog_color, "cameraZoom");
-	s->vars[COLOR].rotationMatrixLocation = glGetUniformLocation(prog_color, "rotationMatrix");
-	s->vars[COLOR].destinationSizeLocation = glGetUniformLocation(prog_color, "destinationSize");
+	s->vars[VAR_LOCATION_COLOR].dxLocation = glGetUniformLocation(prog_color, "cameraDx");
+	s->vars[VAR_LOCATION_COLOR].dyLocation = glGetUniformLocation(prog_color, "cameraDy");
+	s->vars[VAR_LOCATION_COLOR].zoomLocation = glGetUniformLocation(prog_color, "cameraZoom");
+	s->vars[VAR_LOCATION_COLOR].rotationMatrixLocation = glGetUniformLocation(prog_color, "rotationMatrix");
+	s->vars[VAR_LOCATION_COLOR].destinationSizeLocation = glGetUniformLocation(prog_color, "destinationSize");
 
-	s->vars[TEX].dxLocation = glGetUniformLocation(prog_tex, "cameraDx");
-	s->vars[TEX].dyLocation = glGetUniformLocation(prog_tex, "cameraDy");
-	s->vars[TEX].zoomLocation = glGetUniformLocation(prog_tex, "cameraZoom");
-	s->vars[TEX].rotationMatrixLocation = glGetUniformLocation(prog_tex, "rotationMatrix");
-	s->vars[TEX].destinationSizeLocation = glGetUniformLocation(prog_tex, "destinationSize");
+	s->vars[VAR_LOCATION_TEX].dxLocation = glGetUniformLocation(prog_tex, "cameraDx");
+	s->vars[VAR_LOCATION_TEX].dyLocation = glGetUniformLocation(prog_tex, "cameraDy");
+	s->vars[VAR_LOCATION_TEX].zoomLocation = glGetUniformLocation(prog_tex, "cameraZoom");
+	s->vars[VAR_LOCATION_TEX].rotationMatrixLocation = glGetUniformLocation(prog_tex, "rotationMatrix");
+	s->vars[VAR_LOCATION_TEX].destinationSizeLocation = glGetUniformLocation(prog_tex, "destinationSize");
 
 	return s;
 }

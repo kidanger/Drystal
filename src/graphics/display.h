@@ -34,10 +34,10 @@ typedef struct SDL_Surface SDL_Surface;
 typedef struct SDL_Window SDL_Window;
 
 enum BlendMode {
-	DEFAULT = 0,
-	ALPHA = 0,
-	ADD,
-	MULT,
+	BLEND_DEFAULT = 0,
+	BLEND_ALPHA = 0,
+	BLEND_ADD,
+	BLEND_MULT,
 };
 typedef enum BlendMode BlendMode;
 
