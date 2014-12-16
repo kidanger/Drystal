@@ -28,16 +28,13 @@
 #include "macro.h"
 #include "log.h"
 
-log_category("util");
-
 void *xmalloc(size_t size)
 {
 	void *p;
 
 	p = malloc(size);
 	if (!p) {
-		log_error("Out of memory. Aborting.");
-		exit(EXIT_FAILURE);
+		log_oom_and_exit();
 	}
 
 	return p;
@@ -176,8 +173,7 @@ void *xrealloc(void **p, size_t *nmemb, size_t need, size_t size, unsigned min_n
 
 	q = realloc(*p, new_totalsize);
 	if (!q) {
-		log_error("Out of memory. Aborting.");
-		exit(EXIT_FAILURE);
+		log_oom_and_exit();
 	}
 
 	*p = q;
