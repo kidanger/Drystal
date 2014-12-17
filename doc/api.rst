@@ -1136,6 +1136,10 @@ Audio
 
       Sets the pitch of the music. ``pitch`` must be >= 0.
 
+   .. lua:method:: set_volume(volume: float)
+
+      Sets the volume of the music. ``volume`` must be >= 0.
+
    .. lua:method:: pause()
 
       Pauses the music.

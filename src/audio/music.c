@@ -43,6 +43,7 @@ static Music *music_new(MusicCallback* clb, ALenum format, int rate)
 	m->loop = false;
 	m->ref = 0;
 	m->pitch = 1.0;
+	m->volume = 1.0;
 	alGenBuffers(STREAM_NUM_BUFFERS, m->alBuffers);
 	audio_check_error();
 
@@ -79,7 +80,7 @@ void music_play(Music *m, bool loop)
 
 	alSourceQueueBuffers(source->alSource, STREAM_NUM_BUFFERS, m->alBuffers);
 	audio_check_error();
-	alSourcef(source->alSource, AL_GAIN, get_music_volume());
+	alSourcef(source->alSource, AL_GAIN, m->volume * get_music_volume());
 	audio_check_error();
 	alSourcef(source->alSource, AL_PITCH, m->pitch);
 	audio_check_error();
@@ -119,6 +120,19 @@ void music_stop(Music *m)
 	m->callback->rewind(m->callback);
 	m->source->used = false;
 	m->source = NULL;
+}
+
+void music_set_volume(Music *m, float volume)
+{
+	assert(m);
+
+	m->volume = volume;
+
+	if (!m->source)
+		return;
+
+	alSourcef(m->source->alSource, AL_GAIN, volume * get_music_volume());
+	audio_check_error();
 }
 
 void music_set_pitch(Music *m, float pitch)

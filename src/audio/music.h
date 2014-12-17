@@ -43,6 +43,7 @@ struct Music {
 	unsigned int buffersize;
 	int ref;
 	float pitch;
+	float volume;
 };
 
 void music_play(Music *m, bool loop);
@@ -51,6 +52,7 @@ void music_stop(Music *m);
 void music_pause(Music *m);
 void music_free(Music *m);
 void music_set_pitch(Music *m, float pitch);
+void music_set_volume(Music *m, float volume);
 
 Music *music_load(MusicCallback* callback, int samplesrate, int num_channels);
 Music *music_load_from_file(const char* filename);
