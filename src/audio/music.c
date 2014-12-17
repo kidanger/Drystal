@@ -67,7 +67,7 @@ void music_play(Music *m, bool loop)
 		return;
 	}
 
-	source = get_free_source();
+	source = audio_get_free_source();
 	if (!source)
 		return;
 
@@ -80,7 +80,7 @@ void music_play(Music *m, bool loop)
 
 	alSourceQueueBuffers(source->alSource, STREAM_NUM_BUFFERS, m->alBuffers);
 	audio_check_error();
-	alSourcef(source->alSource, AL_GAIN, m->volume * get_music_volume());
+	alSourcef(source->alSource, AL_GAIN, m->volume * audio_get_music_volume());
 	audio_check_error();
 	alSourcef(source->alSource, AL_PITCH, m->pitch);
 	audio_check_error();
@@ -131,7 +131,7 @@ void music_set_volume(Music *m, float volume)
 	if (!m->source)
 		return;
 
-	alSourcef(m->source->alSource, AL_GAIN, volume * get_music_volume());
+	alSourcef(m->source->alSource, AL_GAIN, volume * audio_get_music_volume());
 	audio_check_error();
 }
 
@@ -211,7 +211,7 @@ Music* music_load(MusicCallback* callback, int samplesrate, int num_channels)
 	assert(callback);
 	assert(num_channels == 1 || num_channels == 2);
 
-	if (!initialise_if_needed())
+	if (!audio_init_if_needed())
 		return NULL;
 
 	return music_new(callback, num_channels == 2 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16 , samplesrate);
@@ -280,7 +280,7 @@ Music* music_load_from_file(const char* filename)
 {
 	assert(filename);
 
-	if (!initialise_if_needed())
+	if (!audio_init_if_needed())
 		return NULL;
 
 	stb_vorbis* stream = stb_vorbis_open_filename(filename, NULL, NULL);

@@ -35,42 +35,40 @@ static float globalMusicVolume = 1.;
 
 Source sources[NUM_SOURCES];
 
-static bool init_audio()
+static void audio_init(void)
 {
 	device = alcOpenDevice(NULL);
 	if (!device) {
 		log_error("Cannot open device");
-		return false;
+		return;
 	}
 
 	context = alcCreateContext(device, NULL);
 	if (!context) {
 		log_error("Cannot create context");
-		return false;
+		return;
 	}
 
 	if (!alcMakeContextCurrent(context)) {
 		log_error("Cannot make context");
-		return false;
+		return;
 	}
 
 	for (unsigned i = 0; i < NUM_SOURCES; i++)
 		alGenSources(1, &sources[i].alSource);
 
 	initialized = true;
-	return true;
 }
 
-bool initialise_if_needed()
+bool audio_init_if_needed()
 {
 	if (!initialized)
-		init_audio();
-	if (!initialized)
-		return false;
-	return true;
+		audio_init();
+
+	return initialized;
 }
 
-void update_audio(_unused_ float dt)
+void audio_update(_unused_ float dt)
 {
 	if (!initialized)
 		return;
@@ -102,7 +100,7 @@ void update_audio(_unused_ float dt)
 	}
 }
 
-void destroy_audio()
+void audio_free(void)
 {
 	if (initialized) {
 		for (unsigned i = 0; i < NUM_SOURCES; i++)
@@ -114,7 +112,7 @@ void destroy_audio()
 	}
 }
 
-Source* get_free_source()
+Source* audio_get_free_source(void)
 {
 	for (unsigned i = 0; i < NUM_SOURCES; i++) {
 		if (!sources[i].used) {
@@ -125,7 +123,7 @@ Source* get_free_source()
 	return NULL;
 }
 
-void set_music_volume(float volume)
+void audio_set_music_volume(float volume)
 {
 	globalMusicVolume = volume;
 	if (!initialized)
@@ -141,7 +139,7 @@ void set_music_volume(float volume)
 	}
 }
 
-void set_sound_volume(float volume)
+void audio_set_sound_volume(float volume)
 {
 	globalSoundVolume = volume;
 	if (!initialized)
@@ -157,17 +155,17 @@ void set_sound_volume(float volume)
 	}
 }
 
-float get_music_volume()
+float audio_get_music_volume()
 {
 	return globalMusicVolume;
 }
 
-float get_sound_volume()
+float audio_get_sound_volume()
 {
 	return globalSoundVolume;
 }
 
-bool try_free_sound(Sound* sound)
+bool audio_try_free_sound(Sound* sound)
 {
 	bool can_free = true;
 	// stop sources which used the sound

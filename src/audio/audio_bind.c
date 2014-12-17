@@ -30,7 +30,7 @@ int mlua_set_sound_volume(lua_State *L)
 
 	assert_lua_error(L, volume >= 0 && volume <= 1, "set_sound_volume: must be >= 0 and <= 1");
 
-	set_sound_volume(volume);
+	audio_set_sound_volume(volume);
 	return 0;
 }
 
@@ -42,7 +42,7 @@ int mlua_set_music_volume(lua_State *L)
 
 	assert_lua_error(L, volume >= 0 && volume <= 1, "set_music_volume: must be >= 0 and <= 1");
 
-	set_music_volume(volume);
+	audio_set_music_volume(volume);
 	return 0;
 }
 

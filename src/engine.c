@@ -92,7 +92,7 @@ void engine_free(void)
 {
 	dlua_free();
 #ifdef BUILD_AUDIO
-	destroy_audio();
+	audio_free();
 #endif
 #ifdef BUILD_EVENT
 	event_destroy();
@@ -172,7 +172,7 @@ void engine_update(void)
 	engine.last_update = get_now();
 
 #ifdef BUILD_AUDIO
-	update_audio(dt);
+	audio_update(dt);
 #endif
 
 	if (engine.update_activated)

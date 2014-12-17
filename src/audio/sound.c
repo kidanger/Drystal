@@ -68,7 +68,7 @@ Sound *sound_load_from_file(const char *filepath)
 
 	assert(filepath);
 
-	if (!initialise_if_needed())
+	if (!audio_init_if_needed())
 		return NULL;
 
 	r = load_wav(filepath, &wave_header, &buffer);
@@ -101,7 +101,7 @@ Sound* sound_load(unsigned int len, const float* buffer, int samplesrate)
 
 	assert(buffer);
 
-	if (!initialise_if_needed())
+	if (!audio_init_if_needed())
 		return NULL;
 
 	for (unsigned int i = 0; i < len; i++) {
@@ -118,7 +118,7 @@ void sound_free(Sound *s)
 		return;
 
 	// if there's no more source playing the sound, free it
-	if (try_free_sound(s)) {
+	if (audio_try_free_sound(s)) {
 		alDeleteBuffers(1, &s->alBuffer);
 		audio_check_error();
 		free(s);
@@ -132,7 +132,7 @@ void sound_play(Sound *sound, float volume, float x, float y, float pitch)
 {
 	assert(sound);
 
-	Source* source = get_free_source();
+	Source* source = audio_get_free_source();
 	if (!source)
 		return;
 
@@ -141,7 +141,7 @@ void sound_play(Sound *sound, float volume, float x, float y, float pitch)
 	audio_check_error();
 	alSource3f(source->alSource, AL_POSITION, x, y, 0.);
 	audio_check_error();
-	alSourcef(source->alSource, AL_GAIN, volume * get_sound_volume());
+	alSourcef(source->alSource, AL_GAIN, volume * audio_get_sound_volume());
 	audio_check_error();
 	alSourcef(source->alSource, AL_PITCH, pitch);
 	audio_check_error();

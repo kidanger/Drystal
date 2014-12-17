@@ -54,15 +54,15 @@ struct Source {
 #define audio_check_error()
 #endif
 
-bool initialise_if_needed();
-void update_audio(float dt);
-void destroy_audio();
+bool audio_init_if_needed(void);
+void audio_update(float dt);
+void audio_free(void);
 
-void set_music_volume(float volume);
-void set_sound_volume(float volume);
-float get_music_volume();
-float get_sound_volume();
-bool try_free_sound(Sound* sound);
+void audio_set_music_volume(float volume);
+void audio_set_sound_volume(float volume);
+float audio_get_music_volume(void);
+float audio_get_sound_volume(void);
+bool audio_try_free_sound(Sound* sound);
 
-Source* get_free_source();
+Source* audio_get_free_source(void);
 
