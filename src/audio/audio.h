@@ -44,11 +44,10 @@ struct Source {
 };
 
 #ifdef DODEBUG
-const char* getAlError(ALint error);
 #define audio_check_error() do { \
 		ALint error; \
 		while ((error = alGetError()) != AL_NO_ERROR) { \
-			log_debug("[ALerr] %s", getAlError(error)); \
+			log_debug("[ALerr] %s", alGetString(error)); \
 		} \
 	} while (false)
 #else

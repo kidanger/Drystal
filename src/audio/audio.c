@@ -125,23 +125,6 @@ Source* get_free_source()
 	return NULL;
 }
 
-#ifdef DODEBUG
-const char* getAlError(ALint error)
-{
-#define casereturn(x) case x: return #x
-	switch (error) {
-			casereturn(AL_INVALID_NAME);
-			casereturn(AL_INVALID_ENUM);
-			casereturn(AL_INVALID_VALUE);
-			casereturn(AL_INVALID_OPERATION);
-			casereturn(AL_OUT_OF_MEMORY);
-		default:
-			casereturn(AL_NO_ERROR);
-	}
-#undef casereturn
-}
-#endif
-
 void set_music_volume(float volume)
 {
 	globalMusicVolume = volume;
