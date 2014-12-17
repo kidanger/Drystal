@@ -36,7 +36,7 @@ static void on_zip_downloaded(void* userdata, void* buffer, int size)
 		return;
 	}
 
-	for (int i = 0; i < mz_zip_reader_get_num_files(&za); i++) {
+	for (mz_uint i = 0; i < mz_zip_reader_get_num_files(&za); i++) {
 		mz_zip_archive_file_stat file_stat;
 		if (!mz_zip_reader_file_stat(&za, i, &file_stat)) {
 			log_error("Cannot unzip game files");

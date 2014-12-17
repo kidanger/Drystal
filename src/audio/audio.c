@@ -54,7 +54,7 @@ static bool init_audio()
 		return false;
 	}
 
-	for (int i = 0; i < NUM_SOURCES; i++)
+	for (unsigned i = 0; i < NUM_SOURCES; i++)
 		alGenSources(1, &sources[i].alSource);
 
 	initialized = true;
@@ -76,7 +76,7 @@ void update_audio(_unused_ float dt)
 		return;
 
 	ALint status;
-	for (int i = 0; i < NUM_SOURCES; i++) {
+	for (unsigned i = 0; i < NUM_SOURCES; i++) {
 		Source *source = &sources[i];
 		if (!source->used)
 			continue;
@@ -105,7 +105,7 @@ void update_audio(_unused_ float dt)
 void destroy_audio()
 {
 	if (initialized) {
-		for (int i = 0; i < NUM_SOURCES; i++)
+		for (unsigned i = 0; i < NUM_SOURCES; i++)
 			alDeleteSources(1, &sources[i].alSource);
 
 		alcMakeContextCurrent(NULL);
@@ -116,7 +116,7 @@ void destroy_audio()
 
 Source* get_free_source()
 {
-	for (int i = 0; i < NUM_SOURCES; i++) {
+	for (unsigned i = 0; i < NUM_SOURCES; i++) {
 		if (!sources[i].used) {
 			return &sources[i];
 		}
@@ -149,7 +149,7 @@ void set_music_volume(float volume)
 		return;
 
 	// update current playing musics
-	for (int i = 0; i < NUM_SOURCES; i++) {
+	for (unsigned i = 0; i < NUM_SOURCES; i++) {
 		Source *source = &sources[i];
 		if (source->type == SOURCE_MUSIC) {
 			alSourcef(source->alSource, AL_GAIN, source->desiredVolume * volume);
@@ -165,7 +165,7 @@ void set_sound_volume(float volume)
 		return;
 
 	// update current playing sounds
-	for (int i = 0; i < NUM_SOURCES; i++) {
+	for (unsigned i = 0; i < NUM_SOURCES; i++) {
 		Source *source = &sources[i];
 		if (source->type == SOURCE_SOUND) {
 			alSourcef(source->alSource, AL_GAIN, source->desiredVolume * volume);
@@ -188,7 +188,7 @@ bool try_free_sound(Sound* sound)
 {
 	bool can_free = true;
 	// stop sources which used the sound
-	for (int i = 0; i < NUM_SOURCES; i++) {
+	for (unsigned i = 0; i < NUM_SOURCES; i++) {
 		Source *source = &sources[i];
 		if (source->currentSound == sound) {
 			if (source->used) {
