@@ -139,10 +139,10 @@ void music_set_pitch(Music *m, float pitch)
 {
 	assert(m);
 
+	m->pitch = pitch;
+
 	if (!m->source)
 		return;
-
-	m->pitch = pitch;
 
 	alSourcef(m->source->alSource, AL_PITCH, pitch);
 	audio_check_error();
