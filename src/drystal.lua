@@ -43,3 +43,24 @@ function math.inside(o, x, y)
 	and x < xo + o.w and y < yo + o.h
 end
 
+drystal.Timer = {
+	time=0,
+	update=function(self, dt)
+		if self.finished then return end
+		self.time = self.time + dt
+		if self.time >= self.duration then
+			if self.callback then
+				self.callback()
+			end
+			self.finished = true
+		end
+	end,
+}
+drystal.Timer.__index = drystal.Timer
+function drystal.new_timer(duration, callback)
+	return setmetatable({
+		duration=duration,
+		callback=callback,
+	}, drystal.Timer)
+end
+
