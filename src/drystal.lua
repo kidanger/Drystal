@@ -25,3 +25,21 @@ function math.clamp(v, min, max)
 	return math.min(math.max(v, min), max)
 end
 
+function math.aabb(o1, o2)
+	local x1 = o1.x
+	local y1 = o1.y
+	local x2 = o2.x
+	local y2 = o2.y
+	return x2 <= x1 + o1.w
+	and x2 + o2.w >= x1
+	and y2 <= y1 + o1.h
+	and y2 + o2.h >= y1
+end
+
+function math.inside(o, x, y)
+	local xo = o.x
+	local yo = o.y
+	return x >= xo and y >= yo
+	and x < xo + o.w and y < yo + o.h
+end
+
