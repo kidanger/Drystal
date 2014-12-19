@@ -222,12 +222,14 @@ def run_target(build, target):
         sys.exit(1)
 
 
-def prepare_native(release=False,enable_coverage=False):
+def prepare_native(release=False, enable_coverage=False, disabled_modules=None):
+    disabled_modules = disabled_modules or []
     directory = ''
     build_type = ''
     lib_path = ''
     bin_path = ''
     coverage = ''
+    disabled_modules_prefixed = []
     if release:
         directory = BUILD_NATIVE_RELEASE
         build_type = 'Release'
@@ -244,7 +246,10 @@ def prepare_native(release=False,enable_coverage=False):
     else:
         coverage = 'OFF'
 
-    cmake_update(directory, ['CMAKE_BUILD_TYPE=' + build_type, 'BUILD_ENABLE_COVERAGE='+coverage] + NATIVE_CMAKE_DEFINES)
+    for d in disabled_modules:
+        disabled_modules_prefixed += ['BUILD_' + d.upper() + '=OFF']
+
+    cmake_update(directory, ['CMAKE_BUILD_TYPE=' + build_type, 'BUILD_ENABLE_COVERAGE='+coverage] + NATIVE_CMAKE_DEFINES + disabled_modules_prefixed)
     if enable_coverage:
         run_target(directory, 'coverage-reset')
 
@@ -377,7 +382,7 @@ def get_gdb_args(program, pid=None, arguments=None):
 
 def run_native(args):
     wd, filename = os.path.split(args.PATH)
-    program, arguments = prepare_native(args.release, False)
+    program, arguments = prepare_native(args.release, False, args.disable_modules)
 
     if filename:  # other main file
         arguments.append(filename)
@@ -419,6 +424,8 @@ if __name__ == '__main__':
                             action='store_true', default=False)
     parser_native.add_argument('-r', '--release', help='compile in release mode',
                             action='store_true', default=False)
+    parser_native.add_argument('-D', '--disable-modules', help='disable modules',
+                            nargs='+', choices=['font', 'graphics', 'web', 'utils', 'storage', 'physics', 'particle', 'audio', 'event'])
     group = parser_native.add_mutually_exclusive_group()
     group.add_argument('-d', '--debug', help='debug with gdb',
                     action='store_true', default=False)
@@ -452,3 +459,4 @@ if __name__ == '__main__':
         args.func(args)
     else:
         parser.print_usage()
+
