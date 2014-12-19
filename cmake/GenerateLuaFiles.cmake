@@ -17,7 +17,7 @@ endif()
 set(LUAFILES_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/luafiles.c)
 
 # generate luafiles.c
-file(WRITE ${LUAFILES_OUTPUT} "\
+file(WRITE ${LUAFILES_OUTPUT} "
 #include <stdio.h>
 #include <string.h>
 #include <lua.h>

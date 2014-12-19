@@ -63,23 +63,22 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX OR CMAKE_COMPILER_IS_GN
 	if(CMAKE_BUILD_TYPE MATCHES DEBUG)
 		set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} -ftrapv")
 	endif()
-	set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} \
--fvisibility=hidden \
--Wall \
--Wextra \
--Wundef \
--Wunreachable-code \
--Wwrite-strings \
--Wcast-align \
--Wundef \
--Wformat=2 \
--Wformat-security \
--Wformat-nonliteral \
--Wpointer-arith \
--Wmissing-include-dirs \
--Wmissing-declarations \
--Wredundant-decls \
--Wcast-qual")
+	set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} -fvisibility=hidden")
+	set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} -Wall")
+	set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} -Wextra")
+	set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} -Wundef")
+	set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} -Wunreachable-code")
+	set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} -Wwrite-strings")
+	set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} -Wcast-align")
+	set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} -Wundef")
+	set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} -Wformat=2")
+	set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} -Wformat-security")
+	set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} -Wformat-nonliteral")
+	set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} -Wpointer-arith")
+	set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} -Wmissing-include-dirs")
+	set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} -Wmissing-declarations")
+	set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} -Wredundant-decls")
+	set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} -Wcast-qual")
 	set(DRYSTAL_DEBUG_FLAGS "${DRYSTAL_DEBUG_FLAGS} -Werror")
 	if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_GNUCC)
 		set(DRYSTAL_FLAGS "${DRYSTAL_FLAGS} -Wlogical-op")
