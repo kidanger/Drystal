@@ -324,14 +324,11 @@ int luaopen_drystal(lua_State *L)
 	lua_setmetatable(L, -2);
 	lua_setfield(L, LUA_REGISTRYINDEX, "objects");
 
-#define EXPOSE_FUNCTION(name) {#name, mlua_##name}
 	static const luaL_Reg lib[] = {
-		EXPOSE_FUNCTION(stop),
-		EXPOSE_FUNCTION(reload),
-
+		{"stop", mlua_stop},
+		{"reload", mlua_reload},
 		{NULL, NULL}
 	};
-#undef EXPOSE_FUNCTION
 
 	luaL_newlib(L, lib);
 
