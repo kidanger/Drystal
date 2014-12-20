@@ -45,6 +45,7 @@ end
 function drystal.mouse_motion(xx, yy)
 	x = xx
 	y = yy
+	music:set_pitch(3.5 * y / h + 0.5)
 end
 
 function drystal.key_press(k)
