@@ -28,9 +28,11 @@ function drystal.key_press(key)
 	elseif key == '[+]' then
 		pitch = pitch + 0.10
 		music:set_pitch(pitch)
+		print('pitch: ', pitch)
 	elseif key == '[-]' then
 		pitch = pitch - 0.10
 		music:set_pitch(pitch)
+		print('pitch: ', pitch)
 	elseif key == 't' then
 		music:set_volume(0.5)
 	elseif key == 'l' then
@@ -40,7 +42,9 @@ function drystal.key_press(key)
 		sound_volume = sound_volume - 0.3
 		drystal.set_sound_volume(sound_volume)
 	elseif key == 'i' then
-		music:play()
+		music:play(false, function()
+			print "music ended"
+		end)
 		print('play music')
 	elseif key == 'o' then
 		music:pause()

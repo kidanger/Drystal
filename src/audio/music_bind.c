@@ -161,7 +161,13 @@ int mlua_play_music(lua_State *L)
 
 	Music* music = pop_music(L, 1);
 	bool loop = lua_toboolean(L, 2);
-	music_play(music, loop);
+	int onend = LUA_NOREF;
+	if (lua_gettop(L) >= 3) {
+		luaL_checktype(L, 3, LUA_TFUNCTION);
+		lua_pushvalue(L, 3);
+		onend = luaL_ref(L, LUA_REGISTRYINDEX);
+	}
+	music_play(music, loop, onend);
 	return 0;
 }
 

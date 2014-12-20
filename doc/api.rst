@@ -1128,9 +1128,10 @@ Audio
 
 .. lua:class:: Music
 
-   .. lua:method:: play([loop=false: bool])
+   .. lua:method:: play([loop=false: bool[, onend_callback: function]])
 
       Plays the music (from the beginning). If ``loop`` is true, the music will loop forever.
+      ``onend_callback`` is called when the music finishes (and is not called by :stop()).
 
    .. lua:method:: set_pitch(pitch: float)
 

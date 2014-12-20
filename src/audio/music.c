@@ -23,6 +23,8 @@
 #include "audio.h"
 #include "music.h"
 #include "util.h"
+#include "dlua.h"
+#include "lua_util.h"
 
 log_category("music");
 
@@ -42,6 +44,7 @@ static Music *music_new(MusicCallback* clb, ALenum format, int rate)
 	m->ended = false;
 	m->loop = false;
 	m->ref = 0;
+	m->onend_clb = 0;
 	m->pitch = 1.0;
 	m->volume = 1.0;
 	alGenBuffers(STREAM_NUM_BUFFERS, m->alBuffers);
@@ -50,7 +53,7 @@ static Music *music_new(MusicCallback* clb, ALenum format, int rate)
 	return m;
 }
 
-void music_play(Music *m, bool loop)
+void music_play(Music *m, bool loop, int onend_clb)
 {
 	ALushort *buff;
 	unsigned int len;
@@ -58,6 +61,9 @@ void music_play(Music *m, bool loop)
 	Source *source;
 
 	assert(m);
+	if (m->onend_clb)
+		luaL_unref(dlua_get_lua_state(), LUA_REGISTRYINDEX, m->onend_clb);
+	m->onend_clb = onend_clb;
 
 	if (m->source) {
 		if (m->source->paused) {
@@ -298,10 +304,17 @@ void music_update(Music *m)
 	assert(m);
 
 	if (m->source) {
-		if (m->ended)
+		if (m->ended) {
 			music_stop(m);
-		else
+			if (m->onend_clb) {
+				lua_State* L = dlua_get_lua_state();
+				lua_rawgeti(L, LUA_REGISTRYINDEX, m->onend_clb);
+				CALL(0, 0);
+			}
+		}
+		else {
 			music_stream(m);
+		}
 	}
 }
 

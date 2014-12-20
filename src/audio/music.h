@@ -42,11 +42,12 @@ struct Music {
 	int samplesrate;
 	unsigned int buffersize;
 	int ref;
+	int onend_clb;
 	float pitch;
 	float volume;
 };
 
-void music_play(Music *m, bool loop);
+void music_play(Music *m, bool loop, int onend_clb);
 void music_update(Music *m);
 void music_stop(Music *m);
 void music_pause(Music *m);
