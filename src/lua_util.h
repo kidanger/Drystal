@@ -21,8 +21,11 @@ extern "C" {
 #endif
 
 #include <assert.h>
+#include <stdlib.h>
 #include <lua.h>
 #include <lauxlib.h>
+
+#include "engine.h"
 
 int traceback(lua_State *L);
 
@@ -97,7 +100,8 @@ int traceback(lua_State *L);
 		lua_pushcfunction(L, traceback); \
 		lua_insert(L, base);  \
 		if (lua_pcall(L, num_args, num_ret, base)) { \
-			luaL_error(L, "%s:%d %s(): %s", __FILE__, __LINE__, __func__, lua_tostring(L, -1)); \
+			engine_free(); \
+			exit(EXIT_FAILURE); \
 		} \
 		lua_remove(L, base); \
 	}
