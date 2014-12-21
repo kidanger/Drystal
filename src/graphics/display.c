@@ -123,8 +123,8 @@ static Shader *display_create_default_shader()
 
 static int display_create_window(int w, int h)
 {
-	w = w > 0 ? w : 1;
-	h = h > 0 ? h : 1;
+	assert(w > 0);
+	assert(h > 0);
 
 #ifndef EMSCRIPTEN
 	display.sdl_window = SDL_CreateWindow("Drystal",
