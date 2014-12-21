@@ -54,6 +54,7 @@ void store(const char *key, const char *value)
 
 #include "lua_util.h"
 #include "macro.h"
+#include "log.h"
 
 extern int json_encode(lua_State * L);
 extern int json_decode(lua_State * L);
@@ -69,9 +70,9 @@ char *fetch(const char *key)
 	assert(key);
 
 	L = luaL_newstate();
-	if (!L) {
-		return NULL;
-	}
+	if (!L)
+		log_oom_and_exit();
+
 	file = fopen(".storage", "r");
 	if (!file) {
 		goto fail;
@@ -98,7 +99,10 @@ char *fetch(const char *key)
 		lua_pop(L, 2);
 		goto fail;
 	}
+
 	value = strdup(luaL_checkstring(L, -1));
+	if (!value)
+		log_oom_and_exit();
 
 	// pop the table and the string
 	lua_pop(L, 2);
@@ -134,9 +138,9 @@ void store(const char *key, const char *value)
 	assert(value);
 
 	L = luaL_newstate();
-	if (!L) {
-		return;
-	}
+	if (!L)
+		log_oom_and_exit();
+
 	file = fopen(".storage", "r");
 	if (file) {
 		fseek(file, 0L, SEEK_END);
