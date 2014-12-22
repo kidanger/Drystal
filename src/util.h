@@ -35,7 +35,7 @@ extern "C" {
 _malloc_ void *xmalloc(size_t size);
 _malloc_ void *xcalloc(size_t nmemb, size_t size);
 int mkdir_p(const char *path);
-char *strjoin(const char *s, ...);
+_sentinel_ char *strjoin(const char *s, ...);
 void msleep(unsigned long milisec);
 bool is_directory(const char *directory);
 void *xrealloc(void **p, size_t *new_nmemb, size_t need, size_t size, unsigned min_nmemb);

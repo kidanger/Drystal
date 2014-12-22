@@ -57,6 +57,7 @@ extern "C" {
 #endif
 
 #define _malloc_ __attribute__ ((malloc))
+#define _sentinel_ __attribute__ ((sentinel))
 #define _unused_ __attribute__ ((unused))
 #define _alignas_(x) __attribute__((aligned(__alignof(x))))
 
