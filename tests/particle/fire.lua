@@ -18,6 +18,8 @@ sys1:set_direction(- math.pi / 2 - math.pi/12, -math.pi/2 + math.pi/12)
 sys1:set_initial_velocity(100)
 sys1:set_initial_acceleration(0)
 sys1:set_emission_rate(100)
+tex = drystal.load_surface('tex.png')
+sys1:set_texture(tex)
 
 function drystal.init()
 	drystal.resize(600, 600)

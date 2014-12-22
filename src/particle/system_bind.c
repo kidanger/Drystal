@@ -22,6 +22,7 @@
 #include "system.h"
 #include "system_bind.h"
 #include "lua_util.h"
+#include "graphics/display_bind.h" // pop_surface
 
 IMPLEMENT_PUSHPOP(System, system)
 
@@ -242,6 +243,14 @@ int mlua_add_color_system(lua_State* L)
 		lua_Number maxb = luaL_checknumber(L, 8);
 		system_add_color(system, at_lifetime, minr, maxr, ming, maxg, minb, maxb);
 	}
+	return 0;
+}
+
+int mlua_set_texture_system(lua_State* L)
+{
+	System* system = pop_system(L, 1);
+	Surface* surface = pop_surface(L, 2);
+	system_set_texture(system, surface);
 	return 0;
 }
 

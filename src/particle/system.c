@@ -31,6 +31,7 @@ System *system_new(int x, int y)
 	s->particles = NULL;
 	s->cur_size = 0;
 	s->cur_color = 0;
+	s->texture = NULL;
 	s->running = false;
 	s->size = 256;
 	s->used = 0;
@@ -95,6 +96,12 @@ void system_draw(System *s, float dx, float dy)
 {
 	assert(s);
 
+	Surface* old_surface = NULL;
+	if (s->texture) {
+		old_surface = display_get_draw_from();
+		display_draw_from(s->texture);
+	}
+
 	for (int i = s->used - 1; i >= 0; i--) {
 		Particle* p = &s->particles[i];
 
@@ -133,8 +140,14 @@ void system_draw(System *s, float dx, float dy)
 		}
 
 		display_set_color(r, g, b);
-		display_draw_point(dx + p->x, dy + p->y, _size);
+		if (s->texture)
+			display_draw_point_tex(dx + p->x, dy + p->y, _size);
+		else
+			display_draw_point(dx + p->x, dy + p->y, _size);
 	}
+
+	if (old_surface)
+		display_draw_from(old_surface);
 }
 
 void system_emit(System *s)
@@ -221,3 +234,7 @@ void system_add_color(System *s, float at, float min_r, float max_r, float min_g
 	s->cur_color += 1;
 }
 
+void system_set_texture(System* s, Surface* tex)
+{
+	s->texture = tex;
+}

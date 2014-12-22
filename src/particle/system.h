@@ -22,6 +22,7 @@ typedef struct Color Color;
 typedef struct Size Size;
 typedef struct System System;
 
+#include "graphics/surface.h"
 #include "particle.h"
 
 #define RAND(a, b) (((float) rand()/RAND_MAX) * ((b) - (a)) + (a))
@@ -49,6 +50,7 @@ struct System {
 	int cur_color;
 	Color colors[MAX_COLORS];
 
+	Surface* texture;
 	bool running;
 
 	int size;
@@ -80,4 +82,5 @@ void system_emit(System *s);
 void system_update(System *s, float dt);
 void system_add_size(System *s, float at, float min, float max);
 void system_add_color(System *s, float at, float min_r, float max_r, float min_g, float max_g, float min_b, float max_b);
+void system_set_texture(System* s, Surface* tex);
 
