@@ -36,7 +36,7 @@ int mlua_store(lua_State* L)
 	lua_pushcfunction(L, json_encode);
 	lua_pushvalue(L, 2);
 
-	CALL(1, 1); // table in param, returns json
+	call_lua_function(L, 1, 1); // table in param, returns json
 
 	const char* value = luaL_checkstring(L, -1);
 
@@ -58,7 +58,7 @@ int mlua_fetch(lua_State* L)
 
 	lua_pushcfunction(L, json_decode);
 	lua_pushstring(L, value);
-	CALL(1, 1);
+	call_lua_function(L, 1, 1);
 
 #ifndef EMSCRIPTEN
 	free(value);

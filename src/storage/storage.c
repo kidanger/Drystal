@@ -90,7 +90,7 @@ char *fetch(const char *key)
 	// decode the data from the file to a lua table
 	lua_pushcfunction(L, json_decode);
 	lua_pushstring(L, data);
-	CALL(1, 1);
+	call_lua_function(L, 1, 1);
 
 	// get the value associated with the key
 	lua_pushstring(L, key);
@@ -157,7 +157,7 @@ void store(const char *key, const char *value)
 
 			lua_pushcfunction(L, json_decode);
 			lua_pushstring(L, data);
-			CALL(1, 1);
+			call_lua_function(L, 1, 1);
 
 			r = munmap(data, filesize);
 			if (r < 0) {
@@ -182,7 +182,7 @@ void store(const char *key, const char *value)
 	// encode the table in json
 	lua_pushcfunction(L, json_encode);
 	lua_pushvalue(L, 1);
-	CALL(1, 1);
+	call_lua_function(L, 1, 1);
 
 	// store this in the file
 	if (lua_isnil(L, -1)) {

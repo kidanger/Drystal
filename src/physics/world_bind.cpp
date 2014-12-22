@@ -238,7 +238,7 @@ void CustomListener::BeginContact(b2Contact* contact)
 	lua_pushnumber(L, manifold.normal.x);
 	lua_pushnumber(L, manifold.normal.y);
 
-	CALL(6, 0);
+	call_lua_function(L, 6, 0);
 }
 
 void CustomListener::EndContact(b2Contact* contact)
@@ -249,7 +249,7 @@ void CustomListener::EndContact(b2Contact* contact)
 	lua_rawgeti(L, LUA_REGISTRYINDEX, end_contact);
 	pushBodies(contact);
 
-	CALL(2, 0);
+	call_lua_function(L, 2, 0);
 }
 
 void CustomListener::PreSolve(b2Contact* contact, const b2Manifold*)
@@ -267,7 +267,7 @@ void CustomListener::PreSolve(b2Contact* contact, const b2Manifold*)
 	lua_pushnumber(L, manifold.normal.x);
 	lua_pushnumber(L, manifold.normal.y);
 
-	CALL(6, 1);
+	call_lua_function(L, 6, 1);
 	bool enabled = lua_toboolean(L, -1);
 	contact->SetEnabled(enabled);
 }
@@ -280,7 +280,7 @@ void CustomListener::PostSolve(b2Contact* contact, const b2ContactImpulse*)
 	lua_rawgeti(L, LUA_REGISTRYINDEX, postsolve);
 	pushBodies(contact);
 
-	CALL(2, 0);
+	call_lua_function(L, 2, 0);
 }
 
 int mlua_on_collision(lua_State* L)

@@ -18,7 +18,9 @@
 #include <lua.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
+#include "engine.h"
 #include "lua_util.h"
 #include "util.h"
 
@@ -132,5 +134,27 @@ int traceback(lua_State *L)
 	}
 
 	return 1;
+}
+
+
+void call_lua_function(lua_State *L, int num_args, int num_ret)
+{
+	assert(L);
+	assert(num_args >= 0);
+	assert(num_ret >= 0);
+
+#ifdef EMSCRIPTEN
+	lua_call(L, num_args, num_ret);
+#else
+	/* from lua/src/lua.c */
+	int base = lua_gettop(L) - num_args;
+	lua_pushcfunction(L, traceback);
+	lua_insert(L, base);
+	if (lua_pcall(L, num_args, num_ret, base)) {
+		engine_free();
+		exit(EXIT_FAILURE);
+	}
+	lua_remove(L, base);
+#endif
 }
 

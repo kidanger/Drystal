@@ -235,7 +235,7 @@ bool dlua_reload_code(void)
 {
 	lua_State *L = dlua.L;
 	if (dlua_get_function("prereload")) {
-		CALL(0, 0);
+		call_lua_function(L, 0, 0);
 	}
 	remove_userpackages();
 
@@ -243,7 +243,7 @@ bool dlua_reload_code(void)
 	bool ok = dlua_load_code() && dlua_call_init();
 	if (ok) {
 		if (dlua_get_function("postreload")) {
-			CALL(0, 0);
+			call_lua_function(L, 0, 0);
 		}
 	}
 
@@ -257,8 +257,7 @@ bool dlua_reload_code(void)
 bool dlua_call_init(void)
 {
 	if (dlua_get_function("init")) {
-		lua_State *L = dlua.L;
-		CALL(0, 0);
+		call_lua_function(dlua.L, 0, 0);
 	}
 	return true;
 }
@@ -268,23 +267,21 @@ void dlua_call_update(float dt)
 	if (dlua_get_function("update")) {
 		lua_State *L = dlua.L;
 		lua_pushnumber(L, dt);
-		CALL(1, 0);
+		call_lua_function(L, 1, 0);
 	}
 }
 
 void dlua_call_draw(void)
 {
 	if (dlua_get_function("draw")) {
-		lua_State *L = dlua.L;
-		CALL(0, 0);
+		call_lua_function(dlua.L, 0, 0);
 	}
 }
 
 void dlua_call_atexit(void)
 {
 	if (dlua_get_function("atexit")) {
-		lua_State *L = dlua.L;
-		CALL(0, 0);
+		call_lua_function(dlua.L, 0, 0);
 	}
 }
 

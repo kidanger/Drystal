@@ -202,7 +202,7 @@ static void call_mouse_motion(int mx, int my, int dx, int dy)
 		lua_pushnumber(L, my);
 		lua_pushnumber(L, dx);
 		lua_pushnumber(L, dy);
-		CALL(4, 0);
+		call_lua_function(L, 4, 0);
 	}
 }
 
@@ -213,7 +213,7 @@ static void call_mouse_press(int mx, int my, Button button)
 		lua_pushnumber(L, mx);
 		lua_pushnumber(L, my);
 		lua_pushnumber(L, button);
-		CALL(3, 0);
+		call_lua_function(L, 3, 0);
 	}
 }
 
@@ -224,7 +224,7 @@ static void call_mouse_release(int mx, int my, Button button)
 		lua_pushnumber(L, mx);
 		lua_pushnumber(L, my);
 		lua_pushnumber(L, button);
-		CALL(3, 0);
+		call_lua_function(L, 3, 0);
 	}
 }
 
@@ -233,7 +233,7 @@ static void call_key_press(SDL_Keycode key)
 	if (dlua_get_function("key_press")) {
 		lua_State* L = dlua_get_lua_state();
 		push_keyname(L, key);
-		CALL(1, 0);
+		call_lua_function(L, 1, 0);
 	}
 }
 
@@ -242,7 +242,7 @@ static void call_key_release(SDL_Keycode key)
 	if (dlua_get_function("key_release")) {
 		lua_State* L = dlua_get_lua_state();
 		push_keyname(L, key);
-		CALL(1, 0);
+		call_lua_function(L, 1, 0);
 	}
 }
 
@@ -253,7 +253,7 @@ static void call_key_text(const char* string)
 	if (dlua_get_function("key_text")) {
 		lua_State* L = dlua_get_lua_state();
 		lua_pushstring(L, string);
-		CALL(1, 0);
+		call_lua_function(L, 1, 0);
 	}
 }
 
@@ -263,7 +263,7 @@ static void call_resize_event(int w, int h)
 		lua_State* L = dlua_get_lua_state();
 		lua_pushnumber(L, w);
 		lua_pushnumber(L, h);
-		CALL(2, 0);
+		call_lua_function(L, 2, 0);
 	}
 }
 

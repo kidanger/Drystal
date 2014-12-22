@@ -309,7 +309,7 @@ void music_update(Music *m)
 			if (m->onend_clb) {
 				lua_State* L = dlua_get_lua_state();
 				lua_rawgeti(L, LUA_REGISTRYINDEX, m->onend_clb);
-				CALL(0, 0);
+				call_lua_function(L, 0, 0);
 			}
 		}
 		else {

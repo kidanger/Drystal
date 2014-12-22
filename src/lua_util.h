@@ -21,13 +21,11 @@ extern "C" {
 #endif
 
 #include <assert.h>
-#include <stdlib.h>
 #include <lua.h>
 #include <lauxlib.h>
 
-#include "engine.h"
-
 int traceback(lua_State *L);
+void call_lua_function(lua_State *L, int num_args, int num_ret);
 
 #define DECLARE_PUSH(T, name) \
 	void push_ ## name(lua_State *L, T *name);
@@ -88,24 +86,6 @@ int traceback(lua_State *L);
 #define IMPLEMENT_PUSHPOP(T, name) \
 	IMPLEMENT_PUSH(T, name) \
 	IMPLEMENT_POP(T, name)
-
-#ifdef EMSCRIPTEN
-#define CALL(num_args, num_ret) \
-	lua_call(L, num_args, num_ret);
-#else
-#define CALL(num_args, num_ret) \
-	{\
-		/* from lua/src/lua.c */ \
-		int base = lua_gettop(L) - num_args; \
-		lua_pushcfunction(L, traceback); \
-		lua_insert(L, base);  \
-		if (lua_pcall(L, num_args, num_ret, base)) { \
-			engine_free(); \
-			exit(EXIT_FAILURE); \
-		} \
-		lua_remove(L, base); \
-	}
-#endif
 
 #define assert_lua_error(L, x, msg) \
 	if (!(x)) \
