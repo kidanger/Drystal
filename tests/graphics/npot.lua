@@ -15,6 +15,8 @@ function drystal.draw()
 	drystal.draw_sprite(sprite, 0, 0)
 end
 
-function drystal.key_press()
-	drystal.stop()
+function drystal.key_press(k)
+	if k == 'a' then
+		drystal.stop()
+	end
 end

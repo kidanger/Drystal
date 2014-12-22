@@ -91,6 +91,24 @@ const char* DEFAULT_FRAGMENT_SHADER_TEX = SHADER_STRING
 }
         );
 
+const char* DEFAULT_FRAGMENT_SHADER_TEXPOINT = SHADER_STRING
+        (
+            uniform sampler2D tex;
+
+            varying vec4 fColor;
+            varying vec2 fTexCoord;
+
+            void main()
+{
+	vec4 color;
+	vec2 pos = vec2(gl_PointCoord.x, 1. - gl_PointCoord.y);
+	vec4 texval = texture2D(tex, pos);
+	color.rgb = mix(texval.rgb, fColor.rgb, vec3(1.) - fColor.rgb);
+	color.a = texval.a * fColor.a;
+	gl_FragColor = color;
+}
+        );
+
 Shader *shader_new(GLuint prog_color, GLuint prog_tex, GLuint vert, GLuint frag_color, GLuint frag_tex)
 {
 	Shader *s = new(Shader, 1);

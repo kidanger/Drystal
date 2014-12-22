@@ -92,8 +92,6 @@ struct Display {
 
 	Camera *camera;
 
-	float point_size;
-
 	int original_width;
 	int original_height;
 
@@ -184,7 +182,6 @@ void display_init()
 	display.g = 1;
 	display.b = 1;
 	display.alpha = 1;
-	display.point_size = 1;
 	display.original_width = 0;
 	display.original_height = 0;
 	display.available = false;
@@ -245,13 +242,6 @@ void display_get_alpha(int *a)
 	assert(a);
 
 	*a = display.alpha * 255;
-}
-
-void display_get_point_size(float *size)
-{
-	assert(size);
-
-	*size = display.point_size;
 }
 
 Buffer *display_get_current_buffer(void)
@@ -449,12 +439,6 @@ void display_set_alpha(int a)
 	display.alpha = a / 255.;
 }
 
-void display_set_point_size(float size)
-{
-	assert(size >= 0);
-	display.point_size = size;
-}
-
 void display_set_line_width(float width)
 {
 	assert(width >= 0);
@@ -619,7 +603,7 @@ void display_free_surface(Surface* surface)
  * Primitive drawing
  */
 
-void display_draw_point(float x, float y)
+void display_draw_point(float x, float y, float size)
 {
 	Buffer *current_buffer = display.current_buffer;
 
@@ -628,23 +612,21 @@ void display_draw_point(float x, float y)
 	buffer_check_not_full(current_buffer);
 
 	buffer_push_vertex(current_buffer, x, y);
-	buffer_push_point_size(current_buffer, display.point_size);
+	buffer_push_point_size(current_buffer, size);
 	buffer_push_color(current_buffer, display.r, display.g, display.b, display.alpha);
 }
-void display_draw_point_tex(float xi, float yi, float xd, float yd)
+void display_draw_point_tex(float x, float y, float size)
 {
+	assert(display.current_from);
 	Buffer *current_buffer = display.current_buffer;
-	float xxi, yyi;
-
-	display_convert_texcoords(xi, yi, &xxi, &yyi);
 
 	buffer_check_type(current_buffer, POINT_BUFFER);
 	buffer_check_use_texture(current_buffer);
 	buffer_check_not_full(current_buffer);
 
-	buffer_push_vertex(current_buffer, xd, yd);
-	buffer_push_tex_coord(current_buffer, xxi, yyi);
-	buffer_push_point_size(current_buffer, display.point_size);
+	buffer_push_vertex(current_buffer, x, y);
+	buffer_push_tex_coord(current_buffer, 0, 0); // useless for textured points
+	buffer_push_point_size(current_buffer, size);
 	buffer_push_color(current_buffer, display.r, display.g, display.b, display.alpha);
 }
 

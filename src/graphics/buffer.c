@@ -20,6 +20,9 @@
 #include "display.h"
 #include "shader.h"
 #include "util.h"
+#include "log.h"
+
+log_category("buffer");
 
 static void buffer_upload(Buffer *b, int method)
 {
@@ -264,20 +267,35 @@ void buffer_draw(Buffer *b, float dx, float dy)
 		return;
 	}
 
+	Shader* shader = b->shader;
+	if (b->type == POINT_BUFFER && b->has_texture) {
+		static Shader* point_shader = NULL;
+		if (!point_shader) {
+			char* err;
+			point_shader = display_new_shader(DEFAULT_VERTEX_SHADER, 0,
+											  DEFAULT_FRAGMENT_SHADER_TEXPOINT, &err);
+			if (!point_shader) {
+				log_error("Failed to compile point shader:\n%s", err);
+				free(err);
+			}
+		}
+		shader = point_shader;
+	}
+
 	assert(b->current_color == b->current_position);
 	assert(!b->has_texture || b->current_color == b->current_tex_coord);
 	assert(b->type != POINT_BUFFER || b->current_color == b->current_point_size);
 	assert(b->type != UNDEFINED);
-	assert(b->shader);
+	assert(shader);
 	assert(b->camera);
 
 	GLint prog;
 	VarLocationIndex locationIndex;
 	if (b->has_texture) {
-		prog = b->shader->prog_tex;
+		prog = shader->prog_tex;
 		locationIndex = VAR_LOCATION_TEX;
 	} else {
-		prog = b->shader->prog_color;
+		prog = shader->prog_color;
 		locationIndex = VAR_LOCATION_COLOR;
 	}
 	glUseProgram(prog);
@@ -303,11 +321,11 @@ void buffer_draw(Buffer *b, float dx, float dy)
 
 	dx -= b->camera->dx;
 	dy -= b->camera->dy;
-	glUniform1f(b->shader->vars[locationIndex].dxLocation, dx);
-	glUniform1f(b->shader->vars[locationIndex].dyLocation, dy);
-	glUniform1f(b->shader->vars[locationIndex].zoomLocation, b->camera->zoom);
-	glUniformMatrix2fv(b->shader->vars[locationIndex].rotationMatrixLocation, 1, GL_FALSE, b->camera->matrix);
-	glUniform2f(b->shader->vars[locationIndex].destinationSizeLocation, b->draw_on->texw, b->draw_on->texh);
+	glUniform1f(shader->vars[locationIndex].dxLocation, dx);
+	glUniform1f(shader->vars[locationIndex].dyLocation, dy);
+	glUniform1f(shader->vars[locationIndex].zoomLocation, b->camera->zoom);
+	glUniformMatrix2fv(shader->vars[locationIndex].rotationMatrixLocation, 1, GL_FALSE, b->camera->matrix);
+	glUniform2f(shader->vars[locationIndex].destinationSizeLocation, b->draw_on->texw, b->draw_on->texh);
 
 	GLint draw_type;
 	if (b->type == POINT_BUFFER) {

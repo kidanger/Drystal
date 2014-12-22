@@ -1,12 +1,10 @@
 local drystal = require 'drystal'
 
-local spritesheet = assert(drystal.fromjson(io.open('image.json'):read('*all')))
-
 local mx, my = 0, 0
 
 function drystal.init()
 	drystal.resize(600, 400)
-	image = drystal.load_surface(spritesheet.meta.image)
+	image = drystal.load_surface('tex.png')
 	image:draw_from()
 end
 
@@ -22,22 +20,13 @@ function drystal.draw()
 	for y = 0, 400, 8 do
 		for x = 0, 600, 8 do
 			local r = math.sin((x + y + time*1000)/100)/2+0.5
-			drystal.set_point_size(8)
 			drystal.set_color(r*255, 0, 0)
-			drystal.draw_point(x, y)
+			drystal.draw_point(x, y, 8)
 		end
 	end
 
-	drystal.set_point_size(32)
 	drystal.set_color(drystal.colors.lime)
-	drystal.draw_point(mx, my)
-
-	drystal.set_point_size(16)
-	local sprite = spritesheet.frames['character.png'].frame
-	drystal.draw_point_tex(sprite.x+sprite.w/2, sprite.y+sprite.h/2, mx, my)
-
-	drystal.set_line_width(5)
-	drystal.draw_line(0, 0, mx, my)
+	drystal.draw_point_tex(mx-8, my-8, 15)
 end
 
 function drystal.mouse_motion(x, y)

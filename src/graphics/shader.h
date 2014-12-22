@@ -30,6 +30,8 @@ const char* DEFAULT_VERTEX_SHADER;
 const char* DEFAULT_FRAGMENT_SHADER_COLOR;
 const char* DEFAULT_FRAGMENT_SHADER_TEX;
 
+const char* DEFAULT_FRAGMENT_SHADER_TEXPOINT;
+
 typedef enum AttrLocationIndex {
 	// WebGL wants 0 as an attribute, so here it is
 	ATTR_LOCATION_POSITION = 0,

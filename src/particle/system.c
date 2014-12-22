@@ -133,8 +133,7 @@ void system_draw(System *s, float dx, float dy)
 		}
 
 		display_set_color(r, g, b);
-		display_set_point_size(_size);
-		display_draw_point(dx + p->x, dy + p->y);
+		display_draw_point(dx + p->x, dy + p->y, _size);
 	}
 }
 

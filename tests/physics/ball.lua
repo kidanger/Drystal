@@ -226,9 +226,9 @@ function drystal.draw()
 		local yy = y1 + math.sin(angle) * 200
 		local _, points = drystal.raycast(x1, y1, xx, yy, 'all')
 		for _, p in ipairs(points) do
-			drystal.set_point_size(10)
 			drystal.set_color(drystal.colors.darkgreen)
-			drystal.draw_point(unpack(p))
+			local x, y = unpack(p)
+			drystal.draw_point(x, y, 10)
 		end
 		local body, cx, cy = drystal.raycast(x1, y1, xx, yy, 'closest')
 		if body then

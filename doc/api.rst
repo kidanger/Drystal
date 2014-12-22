@@ -256,10 +256,6 @@ Drawing primitives
 
    Sets the current line width used by :ref:`draw_line <draw_line>`.
 
-.. lua:function:: set_point_size(size float)
-
-   Sets the current point size used by :ref:`draw_point <draw_point>`.
-
 .. lua:function:: draw_background()
 
    Clears the current `draw_on` surface.
@@ -267,11 +263,14 @@ Drawing primitives
 .. note:: In the following function, ``x``, ``y``, ``w`` (width) and ``h`` (height) are floats. Angle are expressed in radians. ``x`` and ``y`` are screen coordinates.
 
 .. _draw_point:
-.. lua:function:: draw_point(x, y)
+.. lua:function:: draw_point(x, y, size)
 
-   Draws a point at the given coordinate.
+   Draws a point at the given coordinate and with given size.
 
-.. .. lua:function:: draw_point_tex()
+.. .. lua:function:: draw_point_tex(x, y, size)
+
+   Draws a textured point at the given coordinate and with given size.
+   The point will be textured with the entire surface bound to `current draw from`.
 
 .. _draw_line:
 .. lua:function:: draw_line(x1, y1, x2, y2)

@@ -63,18 +63,6 @@ int mlua_set_alpha(lua_State* L)
 	return 0;
 }
 
-int mlua_set_point_size(lua_State* L)
-{
-	assert(L);
-
-	lua_Number point_size = luaL_checknumber(L, 1);
-
-	assert_lua_error(L, point_size >= 0, "set_point_size: must be >= 0");
-
-	display_set_point_size(point_size);
-	return 0;
-}
-
 int mlua_set_line_width(lua_State* L)
 {
 	assert(L);
@@ -277,7 +265,8 @@ int mlua_draw_point(lua_State* L)
 
 	lua_Number x = luaL_checknumber(L, 1);
 	lua_Number y = luaL_checknumber(L, 2);
-	display_draw_point(x, y);
+	lua_Number size = luaL_checknumber(L, 3);
+	display_draw_point(x, y, size);
 	return 0;
 }
 
@@ -290,16 +279,15 @@ int mlua_draw_point_tex(lua_State* L)
 		BufferType type = buffer->type;
 		if (display_is_debug() && (type == UNDEFINED || type == LINE_BUFFER)) {
 		} else if (type != UNDEFINED && (type != POINT_BUFFER || !buffer->has_texture))
-			return luaL_error(L, "the current buffer cannot contain points");
+			return luaL_error(L, "the current buffer cannot contain textured points");
 		if (buffer_is_full(buffer))
 			return luaL_error(L, "the current buffer is full");
 	}
 
-	lua_Number xi = luaL_checknumber(L, 1);
-	lua_Number yi = luaL_checknumber(L, 2);
-	lua_Number xd = luaL_checknumber(L, 3);
-	lua_Number yd = luaL_checknumber(L, 4);
-	display_draw_point_tex(xi, yi, xd, yd);
+	lua_Number x = luaL_checknumber(L, 1);
+	lua_Number y = luaL_checknumber(L, 2);
+	lua_Number size = luaL_checknumber(L, 3);
+	display_draw_point_tex(x, y, size);
 	return 0;
 }
 
