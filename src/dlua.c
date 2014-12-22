@@ -201,7 +201,6 @@ bool dlua_load_code(void)
 		lua_pop(L, 1);  /* remove lib */
 
 		if (!load_luafiles(L)) {
-			log_error("Cannot run script: %s", lua_tostring(L, -1));
 			lua_pop(L, 2);
 			return false;
 		}
@@ -209,7 +208,6 @@ bool dlua_load_code(void)
 	}
 
 	if (luaL_loadfile(L, dlua.filename) || lua_pcall(L, 0, 0, -2)) {
-		log_error("Cannot run script: %s", lua_tostring(L, -1));
 		lua_pop(L, 2);
 		return false;
 	}
