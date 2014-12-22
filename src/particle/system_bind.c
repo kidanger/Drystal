@@ -159,6 +159,15 @@ int mlua_update_system(lua_State* L)
 	return 0;
 }
 
+int mlua_emit_system(lua_State* L)
+{
+	System* system = pop_system(L, 1);
+	int n = luaL_optint(L, 2, 1);
+	while (n--)
+		system_emit(system);
+	return 0;
+}
+
 #define ACTION(action) \
 	int mlua_##action##_system(lua_State* L) \
 	{ \
@@ -168,7 +177,6 @@ int mlua_update_system(lua_State* L)
 		return 0; \
 	}
 
-ACTION(emit)
 ACTION(start)
 ACTION(pause)
 ACTION(stop)

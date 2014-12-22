@@ -684,9 +684,9 @@ Particle System
 
       Pauses emitting over time.
 
-   .. lua:method:: emit()
+   .. lua:method:: emit([amount=1: int])
 
-      Emits one particle. This function is useful when the system is paused and you want a fixed number of particle emission at one particular frame. You still need to call *update* so the particles get updated.
+      Emits ``n`` particle(s). This function is useful when the system is paused and you want a fixed number of particle emission at one particular frame. You still need to call *update* so the particles get updated.
 
    .. lua:method:: stop()
 
@@ -725,6 +725,10 @@ Particle System
    .. lua:method:: add_color(at_lifetime, minr, maxr, ming, maxg, minb, maxg)
 
       Adds a random color at a desired particle's lifetime.
+
+   .. lua:method:: set_texture(tex: Surface)
+
+      Sets the texture of the particles. By default, the system doesn't have texture, particles will be represented by colored squares.
 
    .. lua:method:: set_position(x: float, y: float)
 
