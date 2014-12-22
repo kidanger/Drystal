@@ -57,21 +57,21 @@ static int start_livecoding(const char *filename)
 	if (r < 0) {
 		log_error("Cannot initialize livecoding: %s", strerror(-r));
 		free(filename_dup);
-		return -r;
+		return r;
 	}
 
 	r = livecoding_watch_directory_recursively(watched_directory);
 	if (r < 0) {
 		log_error("Cannot watch %s for livecoding: %s", watched_directory, strerror(-r));
 		free(filename_dup);
-		return -r;
+		return r;
 	}
 
 	r = livecoding_start();
 	if (r < 0) {
 		log_error("Cannot start livecoding: %s", strerror(-r));
 		free(filename_dup);
-		return -r;
+		return r;
 	}
 	free(filename_dup);
 
