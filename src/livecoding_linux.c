@@ -99,14 +99,17 @@ static void handle_event(struct inotify_event *ievent)
 
 static int handle_events(void)
 {
-	uint8_t buffer[EVENT_BUFFER_LEN] _alignas_(struct inotify_event);
+	union {
+		struct inotify_event ev;
+		uint8_t raw[EVENT_BUFFER_LEN];
+	} buffer;
 	struct inotify_event *ievent;
 	ssize_t r;
 	ssize_t i;
 	size_t event_size;
 	int count = 0;
 
-	r = read(fd, buffer, EVENT_BUFFER_LEN);
+	r = read(fd, buffer.raw, EVENT_BUFFER_LEN);
 	if (r <= 0) {
 		return r;
 	}
@@ -117,11 +120,7 @@ static int handle_events(void)
 
 	i = 0;
 	while (i < r) {
-		BEGIN_DISABLE_WARNINGS;
-		DISABLE_WARNING_CAST_ALIGN;
-		// We fixed the alignement so, this is a false positive warning
-		ievent = (struct inotify_event *) &buffer[i];
-		END_DISABLE_WARNINGS;
+		ievent = (struct inotify_event *)(&buffer.ev + i);
 		event_size = offsetof(struct inotify_event, name) + ievent->len;
 		i += event_size;
 		handle_event(ievent);
