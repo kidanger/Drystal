@@ -121,7 +121,7 @@ static void remove_userpackages(void)
 	lua_State *L = dlua.L;
 
 	assert(lua_gettop(L) == 0);
-	log_info("Removing old packages: ");
+	log_debug("Removing old packages: ");
 	const char* kept[] = {
 		"_G",
 		LUA_COLIBNAME,
@@ -148,7 +148,7 @@ static void remove_userpackages(void)
 		}
 		if (remove) {
 			lua_pushnil(L);
-			log_info("    Removed %s", name);
+			log_debug("    Removed %s", name);
 			lua_setfield(L, -4, name);
 		}
 		lua_pop(L, 1);
