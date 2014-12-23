@@ -1129,7 +1129,14 @@ Learning how to use Box2D_ will help to hunder Drystal's physics module.
 Audio
 -----
 
+   The audio module allows you to play short sounds with the :lua:class:`Sound` class and stream ambiance music
+   with the :lua:class:`Music` class.
+
+   For each class you can either load the audio data from a file or generate it with a callback function.
+
 .. lua:class:: Music
+
+   Musics are for large audio files, mainly for ambiance musics during the game.
 
    .. lua:method:: play([loop=false: bool[, onend_callback: function]])
 
@@ -1159,9 +1166,19 @@ Audio
    .. warning:: Only the Ogg_ format is available.
 
 .. lua:function:: load_music(callback: function[, samplesrate=44100: int]) -> Music | (nil, error)
+
+   Loads a music according to a callback function generating the music.
+
 .. lua:function:: set_music_volume(volume: float [0-1])
 
+   Sets the global music volume.
+
 .. lua:class:: Sound
+
+   Sounds are for short audio files like special effects (e.g. a jump, a shot fired or an explosion).
+
+   They are loaded directly into memory. So if you want to play longer audio files it is recommended to use :lua:class:`Music` objects
+   which stream the music instead of playing it directly.
 
    .. lua:method:: play([volume=1[, x=0[, y=0[, pitch=1]]])
 
@@ -1178,8 +1195,13 @@ Audio
    If you want to use positional audio, it has to be mono audio.
 
 .. lua:function:: load_sound(callback: function, numsamples: int) -> Sound | (nil, error)
+
+   Loads a sound according to a callback function generating the sound.
+
 .. lua:function:: load_sound(data: table) -> Sound | (nil, error)
 .. lua:function:: set_sound_volume(volume: float [0-1])
+
+   Sets the global sound volume.
 
 Storage
 -------
