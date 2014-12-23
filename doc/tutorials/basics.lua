@@ -27,9 +27,9 @@ function drystal.draw()
 	drystal.set_alpha(255)
 	drystal.set_color(0, 10, 0)
 	drystal.draw_background()
-	
+
 	-- draw the board
-	drystal.set_color(255, 255, 255)
+	drystal.set_color(drystal.colors.white)
 	-- horizontal lines
 	drystal.draw_line(W * .05, H * 1 / 3, W * .95, H * 1 / 3)
 	drystal.draw_line(W * .05, H * 2 / 3, W * .95, H * 2 / 3)
@@ -59,7 +59,7 @@ function drystal.draw()
 	if ended then
 		-- fade the screen
 		drystal.set_alpha(150)
-		drystal.set_color(0, 0, 0)
+		drystal.set_color(drystal.colors.black)
 		drystal.draw_rect(0, 0, W, H)
 
 		local text
@@ -72,7 +72,7 @@ function drystal.draw()
 		end
 		local _, htext = font:sizeof(text)
 		drystal.set_alpha(255)
-		drystal.set_color(255, 255, 255)
+		drystal.set_color(drystal.colors.white)
 		font:draw(text, W / 2, H / 2 - htext / 2, drystal.ALIGN_CENTER)
 
 		smallfont:draw('Click to restart', W / 2, H * .7, drystal.ALIGN_CENTER)
