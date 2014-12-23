@@ -76,7 +76,12 @@ Callbacks
 Event
 -----
 
+   The event module allows you to know when the mouse is moved, a key or a button is pressed or released, or
+   when the screen is resized.
+
 .. lua:function:: set_relative_mode(relative: boolean)
+
+   Sets the relative mode.
 
    Relative mode is when the mouse is hidden and can't leave the window/canvas.
 
@@ -89,21 +94,21 @@ To receive events, you have to defined some of the following functions.
 
    Called when the mouse is moved. ``dx`` and ``dy`` are difference betweend the current position and the last one.
 
-.. _mouse-press:
 .. lua:function:: mouse_press(x, y, button: int)
 
    Called when a button (or mouse wheel) is pressed.
 
-   :param: button is one of ``drystal.BUTTON_LEFT``, ``drystal.BUTTON_RIGHT``, ``drystal.BUTTON_MIDDLE``,
+   :param int x: X coordinate of the mouse when the button was pressed
+   :param int y: Y coordinate of the mouse when the button was pressed
+   :param int button: is one of ``drystal.BUTTON_LEFT``, ``drystal.BUTTON_RIGHT``, ``drystal.BUTTON_MIDDLE``,
            ``drystal.WHEEL_UP`` or ``drystal.WHEEL_DOWN``.
 
 .. lua:function:: mouse_release(x, y, button)
 
    Called when a button (or mouse wheel) is released.
 
-   :param: button is the same as in :ref:`mouse_press <mouse-press>`.
+   :param: button is the same as in :lua:func:`mouse_press`.
 
-.. _key-press:
 .. lua:function:: key_press(key)
 
    Called when a key is pressed.
@@ -111,7 +116,7 @@ To receive events, you have to defined some of the following functions.
 
 .. lua:function:: key_release(key)
 
-   Same as :ref:`key_press <key-press>` but when a key is released.
+   Same as :lua:func:`key_press` but when a key is released.
 
 .. lua:function:: key_text(unicode_key)
 
