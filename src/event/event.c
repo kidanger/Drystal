@@ -257,16 +257,6 @@ static void call_key_text(const char* string)
 	}
 }
 
-static void call_resize_event(int w, int h)
-{
-	if (dlua_get_function("resize_event")) {
-		lua_State* L = dlua_get_lua_state();
-		lua_pushnumber(L, w);
-		lua_pushnumber(L, h);
-		call_lua_function(L, 2, 0);
-	}
-}
-
 static void handle_event(SDL_Event event)
 {
 	Button button;
@@ -329,21 +319,6 @@ static void handle_event(SDL_Event event)
 			call_mouse_release(x, y, button);
 		}
 		break;
-#ifndef EMSCRIPTEN
-		case SDL_WINDOWEVENT:
-			switch (event.window.event) {
-				case SDL_WINDOWEVENT_RESIZED:
-					call_resize_event(event.window.data1, event.window.data2);
-					break;
-				default:
-					break;
-			}
-			break;
-#else
-		case SDL_VIDEORESIZE:
-			call_resize_event(event.resize.w, event.resize.h);
-			break;
-#endif
 		default:
 			break;
 	}
@@ -360,7 +335,15 @@ void event_update()
 #ifdef EMSCRIPTEN
 static EM_BOOL em_ui_callback(int eventType, const EmscriptenUiEvent *uiEvent, void *userData)
 {
-	call_resize_event(uiEvent->windowInnerWidth, uiEvent->windowInnerHeight);
+	int w = uiEvent->windowInnerWidth;
+	int h = uiEvent->windowInnerHeight;
+
+	if (dlua_get_function("page_resize")) {
+		lua_State* L = dlua_get_lua_state();
+		lua_pushnumber(L, w);
+		lua_pushnumber(L, h);
+		call_lua_function(L, 2, 0);
+	}
 	return false;
 }
 static EM_BOOL em_click_callback(int eventType, const EmscriptenMouseEvent *keyEvent, void *userData)
