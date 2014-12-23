@@ -391,7 +391,7 @@ The camera can be used the modify position and size of the following draws.
 Buffer
 ^^^^^^
 
-A buffer can **only contain one type of shape** (point, line, triangle, textured triangle).
+A buffer can **only contain one type of shape** (point, textured point, line, triangle, textured triangle).
 
 
 .. lua:class:: Buffer
@@ -872,12 +872,12 @@ Learning how to use Box2D_ will help to hunder Drystal's physics module.
 
    Returns a table with all bodies contained inside the area defined by ``x1``, ``y1``, ``x2`` and ``y2``.
 
-.. lua:function:: new_shape('box', width, height, x, y) -> Shape
+.. lua:function:: new_shape('box', width, height[, x=0, y=0]) -> Shape
 
    Creates a *box* shape.
    The box is centered on x,y which means you have to add an offset of width/2,height/2 during your draws.
 
-.. lua:function:: new_shape('circle', radius, x, y) -> Shape
+.. lua:function:: new_shape('circle', radius[, x=0, y=0]) -> Shape
 
    Creates a *circle* shape.
 
@@ -907,7 +907,7 @@ Learning how to use Box2D_ will help to hunder Drystal's physics module.
 
 .. lua:function:: new_joint('gear', body1, body2, joint1, joint2, ratio, [, collide_connected]) -> GearJoint
 
-   Creates a gear joint. ``joint1`` and ``joint2`` must be either revolute joints or a prismatic joints.
+   Creates a gear joint. ``joint1`` and ``joint2`` must be either revolute joints or prismatic joints.
 
 .. lua:function:: new_joint('prismatic', body1, body2, anchor1x, anchor1y, anchor2x, anchor2y, axisx, axisy[, collide_connected]) -> PrismaticJoint
 
@@ -1124,6 +1124,7 @@ Learning how to use Box2D_ will help to hunder Drystal's physics module.
 
       Destroys the joint.
 
+
 Audio
 -----
 
@@ -1200,6 +1201,7 @@ Audio
 .. lua:function:: set_sound_volume(volume: float [0-1])
 
    Sets the global sound volume.
+
 
 Storage
 -------
