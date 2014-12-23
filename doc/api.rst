@@ -1143,7 +1143,7 @@ Audio
 
    .. lua:method:: set_pitch(pitch: float)
 
-      Sets the pitch of the music. ``pitch`` must be >= 0.
+      Sets the pitch of the music. ``pitch`` must be > 0.
 
    .. lua:method:: set_volume(volume: float)
 
@@ -1185,7 +1185,7 @@ Audio
       :param float volume: between 0 and 1
       :param float x: between -1 and 1 (-1 is full left, 1 is full right)
       :param float y: between -1 and 1
-      :param float pitch: greater than or equal to 0
+      :param float pitch: greater than 0
 
 .. lua:function:: load_sound(filename: str) -> Sound | (nil, error)
 

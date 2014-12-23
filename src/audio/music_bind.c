@@ -136,7 +136,7 @@ int mlua_set_pitch_music(lua_State *L)
 	Music* music = pop_music(L, 1);
 	float pitch = luaL_checknumber(L, 2);
 
-	assert_lua_error(L, pitch >= 0.0f, "set_pitch: pitch must be positive");
+	assert_lua_error(L, pitch > 0.0f, "set_pitch: pitch must be strictly positive");
 
 	music_set_pitch(music, pitch);
 	return 0;
