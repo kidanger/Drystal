@@ -1241,6 +1241,27 @@ Web
    .. warning:: :lua:func:`drystal.run_js` is not available on the desktop and will throw an error if it is used on the desktop.
 
 
+Timer
+-----
+
+.. lua:class:: Timer
+
+   .. lua:method:: update(dt: float)
+
+      Updates the timer. ``dt`` is the time elapsed expressed in second, as in :lua:func:`drystal.update`.
+      If the timer finishes, :lua:data:`finished` is set to `true`. If ``callback`` is not :lua:`nil`, it is called.
+
+   .. lua:data:: finished: boolean
+
+      Indicates if the timer is finished or not.
+
+.. lua:function:: new_timer(duration: float[, callback]) -> Timer
+
+   Creates a new timer with specified duration and callback.
+
+.. warning:: *You* have to update the timer, otherwise it won't finish and the callback won't be called.
+
+
 Utils
 -----
 
@@ -1261,3 +1282,4 @@ Utils
 .. _Box2D: http://box2d.org/
 .. _JSON: http://json.org/
 .. _InnerWindow: http://www.w3schools.com/jsref/prop_win_innerheight.asp
+

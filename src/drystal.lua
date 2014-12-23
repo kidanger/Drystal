@@ -49,10 +49,10 @@ drystal.Timer = {
 		if self.finished then return end
 		self.time = self.time + dt
 		if self.time >= self.duration then
+			self.finished = true
 			if self.callback then
 				self.callback()
 			end
-			self.finished = true
 		end
 	end,
 }
