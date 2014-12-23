@@ -7,10 +7,10 @@ drystal.resize(W, H)
 local font = assert(drystal.load_font('arial.ttf', 40))
 local smallfont = assert(drystal.load_font('arial.ttf', 24))
 local spritesheet = drystal.load_surface('spritesheet.png')
-spritesheet:set_filter(drystal.NEAREST)
+spritesheet:set_filter(drystal.BILINEAR)
 local sprites = {
-	{ x=0, y=0, w=32, h=32 }, -- X
-	{ x=32, y=0, w=32, h=32 }, -- O
+	{ x=0, y=0, w=128, h=128 }, -- X
+	{ x=128, y=0, w=128, h=128 }, -- O
 }
 
 -- game info
