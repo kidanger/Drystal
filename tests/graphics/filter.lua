@@ -7,29 +7,12 @@ drystal.resize(600, 400)
 image:draw_from()
 
 local spritesrc = spritesheet.frames['character.png'].frame
-local sprite = drystal.new_sprite {
-	x=300,
-	y=180,
-	source=spritesrc,
-	angle=math.pi/3,
-}
-local sprite2 = drystal.new_sprite {
-	x=220,
-	y=180,
-	w=spritesrc.w*2,
-	h=spritesrc.h*2,
-	source=spritesrc,
-	angle=math.pi/2,
-}
-local sprite3 = drystal.new_sprite {
-	x=350,
-	y=180,
-	w=spritesrc.w/2,
-	h=spritesrc.h/2,
-	source=spritesrc,
-	angle=math.pi/2,
-}
-
+local sprite = drystal.new_sprite(spritesrc, 300, 180)
+sprite.angle = math.pi/3
+local sprite2 = drystal.new_sprite(spritesrc, 220, 180, spritesrc.w*2, spritesrc.h*2)
+sprite2.angle = math.pi/2
+local sprite3 = drystal.new_sprite(spritesrc, 350, 180, spritesrc.w*2, spritesrc.h*2)
+sprite3.angle = math.pi/2
 
 function drystal.draw()
 	drystal.draw_background()

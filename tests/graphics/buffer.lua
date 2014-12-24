@@ -3,12 +3,12 @@ local drystal = require "drystal"
 -- test sizes
 buffer = drystal.new_buffer(6)
 buffer:use()
-drystal.draw_point(1,1)
-drystal.draw_point(1,1)
-drystal.draw_point(1,1)
-drystal.draw_point(1,1)
-drystal.draw_point(1,1)
-drystal.draw_point(1,1)
+drystal.draw_point(1,1,4)
+drystal.draw_point(1,1,4)
+drystal.draw_point(1,1,4)
+drystal.draw_point(1,1,4)
+drystal.draw_point(1,1,4)
+drystal.draw_point(1,1,4)
 
 buffer = assert(drystal.new_buffer(4))
 buffer:use()
