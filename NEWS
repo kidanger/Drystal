@@ -1,6 +1,6 @@
 Drystal 1.1
 ===========
-December ?? 2014
+December 24th 2014
 
 Version Classy Sea
 
@@ -58,6 +58,7 @@ General:
     improved error reporting (stackback trace)
     more errors are thrown when the API is misused
     proper exit when out of memory
+    new demos repository: https://github.com/kidanger/drystal-demos.git
 
 
 Drystal 1.0
