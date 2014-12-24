@@ -24,6 +24,8 @@ file(WRITE ${LUAFILES_OUTPUT} "
 #include <lauxlib.h>
 
 #include \"luafiles.h\"
+#include \"log.h\"
+log_category(\"luafiles\");
 
 int load_luafiles(lua_State* L)
 {
@@ -41,7 +43,11 @@ foreach (luacode ${LUAFILES_LIST})
     {
         const char* file = \"${luacode_short}\";
         const char* code = \"${FILE_CONTENT}\";
-        if (luaL_loadbuffer(L, code, strlen(code), file) || lua_pcall(L, 0, 0, -2)) {
+        if (luaL_loadbuffer(L, code, strlen(code), file)) {
+            log_error(\"%s\", lua_tostring(L, -1));
+            return 0;
+        }
+        if (lua_pcall(L, 0, 0, -2)) {
             return 0;
         }
     }

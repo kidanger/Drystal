@@ -207,7 +207,12 @@ bool dlua_load_code(void)
 		dlua.library_loaded = true;
 	}
 
-	if (luaL_loadfile(L, dlua.filename) || lua_pcall(L, 0, 0, -2)) {
+	if (luaL_loadfile(L, dlua.filename)) {
+		log_error("%s", lua_tostring(L, -1));
+		lua_pop(L, 2);
+		return false;
+	}
+	if (lua_pcall(L, 0, 0, -2)) {
 		lua_pop(L, 2);
 		return false;
 	}
