@@ -1,0 +1,79 @@
+Drystal 1.1
+===========
+December ?? 2014
+
+Version Classy Sea
+
+Graphics:
+    added drystal.colors
+    Postfx:
+        removed 'dither'
+        renamed 'red' to 'multiply'
+        add 'pixelate'
+        power of 'distortion' is now a parameter
+    new_sprite is now easier to use
+    removed set_point_size, draw_point now takes a size parameter
+    implemented draw_point_tex, which can be used to draw small images with low overhead
+    renamed create_postfx to add_postfx
+    removed use_buffer, added use_default_buffer; same for shader
+
+Physics:
+    renamed physic to physics (for example, update_physic has been renamed update_physics)
+    added pixels_per_meter ratio, this simplifies body position and size manipulation
+    added get_center_position
+    added GearJoint, FrictionJoint
+    added any/all/closest/farthest methods for raycast, so you don't have to define your own callback
+    bodies and joints can be destroyed during physics update
+    if a body is destroyed, its joints are destroyed too
+
+Audio:
+    implemented music looping
+    added onended callback for music
+    added pause and set_volume for music
+    added pitch manipulation for musics and sounds
+
+Particle:
+    added set_texture, to replace colored squares by images
+    added a quantity parameter for 'emit'
+
+Event:
+    added constants (BUTTON_LEFT, BUTTON_RIGHT, BUTTON_MIDDLE, WHEEL_UP and WHEEL_DOWN)
+        which are assigned to 1, 2, 3, 4 and 5 so both methods are valid
+    replace resize_event by page_resize
+        it is only available for web builds and is mainly used to update the fullscreen mode
+
+Truetype:
+    added constants (ALIGN_LEFT, ALIGN_CENTER and ALIGN_RIGHT)
+        which are assigned to 1, 2 and 3
+    enhanced rendering quality by using the NEAREST filter
+
+Net:
+    module entirely removed (too instable and very few use cases)
+
+General:
+    added table.print, math.distance, math.clamp, math.aabb, math.inside
+        these are general purpose functions
+    added drystal.new_timer
+    added man pages
+    improved error reporting (stackback trace)
+    more errors are thrown when the API is misused
+    proper exit when out of memory
+
+
+Drystal 1.0
+===========
+August 3rd 2014
+
+Initial release
+
+Main features:
+    Surface loading, basic (line, triangle) and advanced (circle, polygon) drawing,
+    Shader support and built-in post processing effect pipeline,
+    Music streaming,
+    Sound loading and playing (with positional audio features),
+    Text drawing using truetype fonts with a simple syntax for text effects,
+    Box2D physic engine included,
+    Livecoding for desktop version,
+    Browser interaction (download content, execute Javascript scripts) for web version,
+    Mouse and keyboard events, with relative mode feature,
+    And more, particle system, storage, etc.
