@@ -234,6 +234,33 @@ bool dlua_is_need_to_reload()
 }
 #endif
 
+void dlua_foreach(const char* type, void(*callback)(void* data, void* callback_arg), void* callback_arg)
+{
+	assert(type);
+	assert(callback);
+
+	lua_State *L = dlua.L;
+	lua_getfield(L, LUA_REGISTRYINDEX, "objects");
+	lua_pushnil(L);
+	while (lua_next(L, -2)) {
+		if (lua_istable(L, -1)) {
+			lua_getfield(L, -1, "__self");
+			lua_replace(L, -2);
+		}
+
+		lua_getfield(L, -1, "__type");
+		const char* t = lua_tostring(L, -1);
+		lua_pop(L, 1);
+		if (streq(type, t)) {
+			void* data = * (void**) lua_touserdata(L, -1);
+			callback(data, callback_arg);
+		}
+
+		lua_pop(L, 1);
+	}
+	lua_pop(L, 1);
+}
+
 bool dlua_reload_code(void)
 {
 	lua_State *L = dlua.L;

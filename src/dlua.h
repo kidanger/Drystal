@@ -39,6 +39,7 @@ void dlua_call_atexit(void);
 bool dlua_is_need_to_reload();
 void dlua_set_need_to_reload();
 #endif
+void dlua_foreach(const char* type, void(*callback)(void* data, void* callback_arg), void* callback_arg);
 
 bool dlua_get_function(const char* name);
 void dlua_free(void);
