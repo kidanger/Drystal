@@ -45,7 +45,7 @@ static void initialize_keys_mapping(void)
 #define ADD_KEY(key, keyname) \
 	lua_pushnumber(L, TRANSFORM(key)); \
 	lua_pushliteral(L, keyname); \
-	lua_settable(L, -3) \
+	lua_settable(L, -3)
 
 	/** from https://code.google.com/r/kyberneticist-webport/source/browse/project_files/web_exp/pas2c_build/emcc/patches/sdl_patch.c */
 	ADD_KEY(SDLK_BACKSPACE, "backspace");
