@@ -56,6 +56,9 @@ struct Engine {
 	bool draw_activated;
 #ifdef BUILD_LIVECODING
 	bool wait_next_reload;
+#define QUEUES_SIZE 32
+	char* surfaces_to_reload[QUEUES_SIZE];
+	char* sounds_to_reload[QUEUES_SIZE];
 #endif
 } engine;
 
@@ -66,6 +69,10 @@ static long unsigned get_now()
 	gettimeofday(&stTimeVal, NULL);
 	return stTimeVal.tv_sec * USEC_PER_SEC + stTimeVal.tv_usec;
 }
+
+#ifdef BUILD_LIVECODING
+static void engine_reload_queues(void);
+#endif
 
 void engine_init(const char* filename, unsigned int target_fps)
 {
@@ -170,6 +177,7 @@ void engine_update(void)
 	if (engine.wait_next_reload) {
 		return;
 	}
+	engine_reload_queues();
 #endif
 
 #ifdef BUILD_EVENT
@@ -221,6 +229,118 @@ void engine_toggle_update(void)
 void engine_wait_next_reload(void)
 {
 	engine.wait_next_reload = true;
+}
+
+static void reload_surface(void* data, _unused_ void* arg)
+{
+	Surface* s = data;
+	Surface* new_surface;
+
+	if (!s->filename)
+		return;
+
+	bool found = false;
+	for (int i = 0; i < QUEUES_SIZE; i++) {
+		if (engine.surfaces_to_reload[i] && endswith(s->filename, engine.surfaces_to_reload[i])) {
+			free(engine.surfaces_to_reload[i]);
+			engine.surfaces_to_reload[i] = NULL;
+			found = true;
+		}
+	}
+	if (!found)
+		return;
+
+	if (display_load_surface(s->filename, &new_surface))
+		return;
+
+	SWAP(unsigned int, s->w, new_surface->w);
+	SWAP(unsigned int, s->h, new_surface->h);
+	SWAP(unsigned int, s->texw, new_surface->texw);
+	SWAP(unsigned int, s->texh, new_surface->texh);
+	SWAP(bool, s->has_fbo, new_surface->has_fbo);
+	SWAP(bool, s->has_mipmap, new_surface->has_mipmap);
+	SWAP(bool, s->npot, new_surface->npot);
+	SWAP(GLuint, s->tex, new_surface->tex);
+	SWAP(GLuint, s->fbo, new_surface->fbo);
+	display_free_surface(new_surface);
+
+	if (display_get_draw_from() == s) {
+		surface_draw_from(s);
+	}
+	log_debug("%s reloaded", s->filename);
+}
+
+static void reload_sound(void* data, _unused_ void* arg)
+{
+	Sound* s = data;
+	Sound* new_sound;
+
+	if (!s->filename)
+		return;
+
+	bool found = false;
+	for (int i = 0; i < QUEUES_SIZE; i++) {
+		if (engine.sounds_to_reload[i] && endswith(s->filename, engine.sounds_to_reload[i])) {
+			free(engine.sounds_to_reload[i]);
+			engine.sounds_to_reload[i] = NULL;
+			found = true;
+		}
+	}
+	if (!found)
+		return;
+
+	if (!(new_sound = sound_load_from_file(s->filename)))
+		return;
+
+	SWAP(ALuint, s->alBuffer, new_sound->alBuffer);
+	SWAP(bool, s->free_me, new_sound->free_me);
+	sound_free(new_sound);
+
+	log_debug("%s reloaded", s->filename);
+}
+
+static void engine_reload_queues(void)
+{
+	{
+		bool try = false;
+		for (int i = 0; i < QUEUES_SIZE; i++) {
+			if (engine.surfaces_to_reload[i])
+				try = true;
+		}
+		if (try) {
+			dlua_foreach("surface", reload_surface, NULL);
+		}
+	}
+	{
+		bool try = false;
+		for (int i = 0; i < QUEUES_SIZE; i++) {
+			if (engine.sounds_to_reload[i])
+				try = true;
+		}
+		if (try) {
+			dlua_foreach("sound", reload_sound, NULL);
+		}
+	}
+}
+
+void engine_add_surface_to_reloadqueue(const char* filename)
+{
+	for (int i = 0; i < QUEUES_SIZE; i++) {
+		if (!engine.surfaces_to_reload[i]) {
+			engine.surfaces_to_reload[i] = strdup(filename);
+			break;
+		}
+	}
+}
+
+void engine_add_sound_to_reloadqueue(const char* filename)
+{
+	for (int i = 0; i < QUEUES_SIZE; i++) {
+		if (!engine.sounds_to_reload[i]) {
+			engine.sounds_to_reload[i] = strdup(filename);
+			break;
+		}
+	}
 }
 #endif
 

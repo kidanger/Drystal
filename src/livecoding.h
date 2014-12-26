@@ -16,7 +16,7 @@
  */
 #pragma once
 
-int livecoding_init(void (*callback)(void *arg), void *arg);
+int livecoding_init(void (*callback)(void *arg, const char* filename), void *arg);
 int livecoding_watch_directory(const char *directory);
 int livecoding_watch_directory_recursively(const char *path);
 int livecoding_stop(void);

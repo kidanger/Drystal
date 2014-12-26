@@ -44,7 +44,7 @@ static size_t wds_nmemb = 0;
 static size_t wds_count = 0;
 static pthread_t watcher_tid;
 static void *callback_arg = NULL;
-static void (*reload_callback)(void *arg) = NULL;
+static void (*reload_callback)(void *arg, const char* filename) = NULL;
 
 static bool is_valid_filename(char *filename)
 {
@@ -84,7 +84,7 @@ static void handle_event(struct inotify_event *ievent)
 			if (!is_valid_filename(event_filename))
 				return;
 
-			reload_callback(callback_arg);
+			reload_callback(callback_arg, event_filename);
 			break;
 		case IN_CREATE:
 			// recursively watch new dirs
@@ -198,7 +198,7 @@ int livecoding_watch_directory_recursively(const char *path)
 	return 0;
 }
 
-int livecoding_init(void (*callback)(void *arg), void *arg)
+int livecoding_init(void (*callback)(void *arg, const char* filename), void *arg)
 {
 	int ret;
 	int fildes[2];

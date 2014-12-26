@@ -34,9 +34,15 @@
 log_category("main");
 
 #ifdef BUILD_LIVECODING
-static void reload(_unused_ void *arg)
+static void reload(_unused_ void *arg, const char* filename)
 {
-	dlua_set_need_to_reload();
+	if (endswith(filename, ".png")) {
+		engine_add_surface_to_reloadqueue(filename);
+	} else if (endswith(filename, ".wav")) {
+		engine_add_sound_to_reloadqueue(filename);
+	} else {
+		dlua_set_need_to_reload();
+	}
 }
 
 static int start_livecoding(const char *filename)
