@@ -133,7 +133,7 @@ int traceback(lua_State *L)
 		++level;
 	}
 
-	return 1;
+	return 0;
 }
 
 
