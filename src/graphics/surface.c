@@ -48,7 +48,7 @@ static void surface_create_fbo(Surface *s)
 	s->has_fbo = true;
 }
 
-Surface *surface_new(unsigned int w, unsigned int h, unsigned int texw, unsigned int texh, unsigned char *pixels, Surface *current_from, Surface *current_on)
+Surface *surface_new(unsigned int w, unsigned int h, unsigned int texw, unsigned int texh, void *pixels, Surface *current_from, Surface *current_on)
 {
 	Surface *s = new(Surface, 1);
 	s->w = w;
@@ -160,7 +160,7 @@ int surface_load(const char *filename, Surface **surface, Surface *current_surfa
 	int w, h;
 	int n;
 	Surface *tmp;
-	unsigned char *data = stbi_load(filename, &w, &h, &n, RGBA_SIZE);
+	stbi_uc *data = stbi_load(filename, &w, &h, &n, RGBA_SIZE);
 	if (!data)
 		return -ENOENT;
 	if (w <= 0 || w > 2048 || h <= 0 || h > 2048) {
@@ -174,7 +174,7 @@ int surface_load(const char *filename, Surface **surface, Surface *current_surfa
 	if (potw != w || poth != h) {
 		int y;
 		int x;
-		unsigned char *pixels = new(unsigned char, potw * poth * RGBA_SIZE);
+		GLubyte *pixels = new(GLubyte, potw * poth * RGBA_SIZE);
 		memset(pixels, 0, potw * poth * RGBA_SIZE);
 		for (y = 0; y < h; y++) {
 			for (x = 0; x < w; x++) {

@@ -50,7 +50,7 @@ struct Surface {
 	GLuint fbo;
 };
 
-Surface *surface_new(unsigned int w, unsigned int h, unsigned int texw, unsigned int texh, unsigned char *pixels, Surface *current_from, Surface *current_on);
+Surface *surface_new(unsigned int w, unsigned int h, unsigned int texw, unsigned int texh, void *pixels, Surface *current_from, Surface *current_on);
 void surface_free(Surface *s);
 void surface_draw_on(Surface *s);
 void surface_draw_from(Surface *s);
