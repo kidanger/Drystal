@@ -28,6 +28,7 @@
 #include <stddef.h>
 #include <poll.h>
 #include <libgen.h>
+#include <signal.h>
 
 #include "livecoding.h"
 #include "macro.h"
@@ -298,5 +299,10 @@ int livecoding_start(void)
 	}
 
 	return 0;
+}
+
+int livecoding_is_running(void)
+{
+	return pthread_kill(watcher_tid, 0) != ESRCH;
 }
 

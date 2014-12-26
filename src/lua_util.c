@@ -23,6 +23,7 @@
 #include "engine.h"
 #include "lua_util.h"
 #include "util.h"
+#include "livecoding.h"
 
 /* from lua/src/lauxlib.c */
 static int findfield(lua_State *L, int objidx, int level)
@@ -151,10 +152,18 @@ void call_lua_function(lua_State *L, int num_args, int num_ret)
 	lua_pushcfunction(L, traceback);
 	lua_insert(L, base);
 	if (lua_pcall(L, num_args, num_ret, base)) {
-		engine_free();
-		exit(EXIT_FAILURE);
+#ifdef BUILD_LIVECODING
+		if (livecoding_is_running()) {
+			engine_wait_next_reload();
+		} else
+#endif
+		{
+			engine_free();
+			exit(EXIT_FAILURE);
+		}
 	}
 	lua_remove(L, base);
+	assert(lua_gettop(L) == 0);
 #endif
 }
 

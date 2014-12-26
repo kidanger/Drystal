@@ -54,6 +54,9 @@ struct Engine {
 
 	bool update_activated;
 	bool draw_activated;
+#ifdef BUILD_LIVECODING
+	bool wait_next_reload;
+#endif
 } engine;
 
 static long unsigned get_now()
@@ -72,6 +75,9 @@ void engine_init(const char* filename, unsigned int target_fps)
 	engine.last_update = get_now();
 	engine.update_activated = true;
 	engine.draw_activated = true;
+#ifdef BUILD_LIVECODING
+	engine.wait_next_reload = false;
+#endif
 
 	dlua_init(filename);
 #ifdef BUILD_GRAPHICS
@@ -156,7 +162,11 @@ void engine_update(void)
 {
 #ifdef BUILD_LIVECODING
 	if (dlua_is_need_to_reload()) {
+		engine.wait_next_reload = false;
 		dlua_reload_code();
+	}
+	if (engine.wait_next_reload) {
+		return;
 	}
 #endif
 
@@ -204,4 +214,11 @@ void engine_toggle_update(void)
 {
 	engine.update_activated = !engine.update_activated;
 }
+
+#ifdef BUILD_LIVECODING
+void engine_wait_next_reload(void)
+{
+	engine.wait_next_reload = true;
+}
+#endif
 

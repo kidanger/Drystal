@@ -27,4 +27,7 @@ bool engine_is_loaded(void);
 void engine_stop(void);
 void engine_toggle_update(void);
 void engine_toggle_draw(void);
+#ifdef BUILD_LIVECODING
+void engine_wait_next_reload(void);
+#endif
 
