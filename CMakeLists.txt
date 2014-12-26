@@ -52,7 +52,7 @@ endif()
 include(Utils)
 
 if(BUILD_MANPAGES)
-	add_subdirectory(man)
+	add_subdirectory(doc/man)
 endif()
 add_subdirectory(external)
 
