@@ -243,8 +243,9 @@ bool dlua_reload_code(void)
 	remove_userpackages();
 
 	log_info("Reloading code...");
-	bool ok = dlua_load_code() && dlua_call_init();
+	bool ok = dlua_load_code();
 	if (ok) {
+		dlua_call_init();
 		if (dlua_get_function("postreload")) {
 			call_lua_function(L, 0, 0);
 		}
@@ -257,12 +258,11 @@ bool dlua_reload_code(void)
 	return ok;
 }
 
-bool dlua_call_init(void)
+void dlua_call_init(void)
 {
 	if (dlua_get_function("init")) {
 		call_lua_function(dlua.L, 0, 0);
 	}
-	return true;
 }
 
 void dlua_call_update(float dt)

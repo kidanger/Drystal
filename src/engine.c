@@ -130,9 +130,11 @@ void engine_load(void)
 #endif
 
 	bool successful_load = dlua_load_code();
-	if (engine.run)
+	if (engine.run) {
 		// run can be disabled before init being called
-		successful_load = successful_load && dlua_call_init();
+		if (successful_load)
+			dlua_call_init();
+	}
 	engine.run = engine.run && successful_load;
 	engine.loaded = true;
 }

@@ -31,7 +31,7 @@ lua_State *dlua_get_lua_state(void);
 bool dlua_load_code(void);
 bool dlua_reload_code(void);
 
-bool dlua_call_init(void);
+void dlua_call_init(void);
 void dlua_call_update(float dt);
 void dlua_call_draw(void);
 void dlua_call_atexit(void);
