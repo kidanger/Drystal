@@ -32,6 +32,12 @@ extern "C" {
 #define XREALLOC(array, nmemb, need) \
 	xrealloc((void **) &(array), &(nmemb), need, sizeof((array)[0]), 32)
 
+#define SWAP(type, a, b) { \
+		type _swaptmp = (a); \
+		(a) = (b); \
+		(b) = _swaptmp; \
+	}
+
 _malloc_ void *xmalloc(size_t size);
 _malloc_ void *xcalloc(size_t nmemb, size_t size);
 int mkdir_p(const char *path);
