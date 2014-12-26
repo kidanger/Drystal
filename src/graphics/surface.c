@@ -51,6 +51,7 @@ static void surface_create_fbo(Surface *s)
 Surface *surface_new(unsigned int w, unsigned int h, unsigned int texw, unsigned int texh, void *pixels, Surface *current_from, Surface *current_on)
 {
 	Surface *s = new(Surface, 1);
+	s->filename = NULL;
 	s->w = w;
 	s->h = h;
 	s->texw = texw;
@@ -94,6 +95,9 @@ void surface_free(Surface *s)
 	if (!s)
 		return;
 
+	if (s->filename) {
+		free(s->filename);
+	}
 	glDeleteTextures(1, &(s->tex));
 	if (s->has_fbo) {
 		glDeleteFramebuffers(1, &(s->fbo));
@@ -191,6 +195,7 @@ int surface_load(const char *filename, Surface **surface, Surface *current_surfa
 
 	stbi_image_free(data);
 
+	tmp->filename = strdup(filename);
 	*surface = tmp;
 
 	return 0;

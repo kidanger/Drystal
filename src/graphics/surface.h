@@ -36,6 +36,7 @@ enum FilterMode {
 typedef enum FilterMode FilterMode;
 
 struct Surface {
+	char* filename;
 	unsigned int w;
 	unsigned int h;
 	unsigned int texw;
