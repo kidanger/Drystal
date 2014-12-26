@@ -75,8 +75,8 @@ static void handle_event(struct inotify_event *ievent)
 		return;
 	}
 
-	switch (ievent->mask & (IN_MODIFY | IN_CREATE)) {
-		case IN_MODIFY:
+	switch (ievent->mask & (IN_CLOSE_WRITE | IN_CREATE)) {
+		case IN_CLOSE_WRITE:
 			// We don't treat directories modifications
 			if (ievent->mask & IN_ISDIR) {
 				return;
@@ -249,7 +249,7 @@ int livecoding_watch_directory(const char *directory)
 		return -EINVAL;
 	}
 
-	wd = inotify_add_watch(fd, directory, IN_MODIFY | IN_CREATE);
+	wd = inotify_add_watch(fd, directory, IN_CLOSE_WRITE | IN_CREATE);
 	if (wd < 0) {
 		return -errno;
 	}
