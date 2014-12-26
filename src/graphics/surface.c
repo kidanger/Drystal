@@ -18,6 +18,8 @@
 #include <string.h>
 #include <math.h>
 #include <errno.h>
+
+#define STBI_ONLY_PNG
 #include "stb_image.h"
 
 #include "surface.h"
