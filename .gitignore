@@ -2,6 +2,6 @@ build-*/
 /web
 *.pyc
 *.swp
-/doc/_build/
+/doc/site/_build/
 /tests/storage/.storage
 /tests/audio/test.ogg
