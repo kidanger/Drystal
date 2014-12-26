@@ -35,6 +35,7 @@ static Sound *sound_new(ALushort* buffer, unsigned int length, int samplesrate, 
 	s = new(Sound, 1);
 
 	s->alBuffer = 0;
+	s->filename = NULL;
 	s->free_me = false;
 	s->ref = 0;
 
@@ -92,6 +93,7 @@ Sound *sound_load_from_file(const char *filepath)
 	                         wave_header.sample_rate, wave_header.bits_per_sample,
 	                         wave_header.num_channels);
 	free(buffer);
+	sound->filename = strdup(filepath);
 	return sound;
 }
 
@@ -117,6 +119,8 @@ void sound_free(Sound *s)
 	if (!s)
 		return;
 
+	if (s->filename)
+		free(s->filename);
 	// if there's no more source playing the sound, free it
 	if (audio_try_free_sound(s)) {
 		alDeleteBuffers(1, &s->alBuffer);

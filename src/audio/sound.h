@@ -23,6 +23,7 @@ typedef struct Sound Sound;
 
 struct Sound {
 	ALuint alBuffer;
+	char* filename;
 	bool free_me;
 	int ref;
 };
