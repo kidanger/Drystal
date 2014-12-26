@@ -34,3 +34,19 @@ void check_opengl_oom(void)
 		log_oom_and_exit();
 }
 
+const char* getGLError(GLenum error)
+{
+#define casereturn(x) case x: return #x
+	switch (error) {
+			casereturn(GL_INVALID_ENUM);
+			casereturn(GL_INVALID_VALUE);
+			casereturn(GL_INVALID_OPERATION);
+			casereturn(GL_INVALID_FRAMEBUFFER_OPERATION);
+			casereturn(GL_OUT_OF_MEMORY);
+		default:
+		case GL_NO_ERROR:
+			return "";
+	}
+#undef casereturn
+}
+

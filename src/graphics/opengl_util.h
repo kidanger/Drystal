@@ -16,5 +16,35 @@
  */
 #pragma once
 
+#ifndef EMSCRIPTEN
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengles2.h>
+#else
+#include <SDL/SDL.h>
+#include <SDL/SDL_opengl.h>
+#endif
+
+#include <stdlib.h>
+
+#include "log.h"
+
 void check_opengl_oom(void);
+
+#ifdef DODEBUG
+const char* getGLError(GLenum error);
+
+#define GLDEBUG(x) \
+	x; \
+	{ \
+		GLenum e; \
+		while((e = glGetError()) != GL_NO_ERROR) \
+		{ \
+			log_debug("%s for call %s", getGLError(e), #x); \
+			exit(1); \
+		} \
+	}
+#else
+#define GLDEBUG(x) \
+	x;
+#endif
 

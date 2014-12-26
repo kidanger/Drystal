@@ -37,40 +37,9 @@
 #include "camera.h"
 #include "buffer.h"
 #include "util.h"
+#include "opengl_util.h"
 
 log_category("display");
-
-#ifdef DODEBUG
-static const char* getGLError(GLenum error)
-{
-#define casereturn(x) case x: return #x
-	switch (error) {
-			casereturn(GL_INVALID_ENUM);
-			casereturn(GL_INVALID_VALUE);
-			casereturn(GL_INVALID_OPERATION);
-			casereturn(GL_INVALID_FRAMEBUFFER_OPERATION);
-			casereturn(GL_OUT_OF_MEMORY);
-		default:
-		case GL_NO_ERROR:
-			return "";
-	}
-#undef casereturn
-}
-
-#define GLDEBUG(x) \
-	x; \
-	{ \
-		GLenum e; \
-		while((e=glGetError()) != GL_NO_ERROR) \
-		{ \
-			log_debug("%s for call %s", getGLError(e), #x); \
-			exit(1); \
-		} \
-	}
-#else
-#define GLDEBUG(x) \
-	x;
-#endif
 
 struct Display {
 	Buffer *default_buffer;
