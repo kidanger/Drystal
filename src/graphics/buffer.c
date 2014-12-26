@@ -21,6 +21,7 @@
 #include "shader.h"
 #include "util.h"
 #include "log.h"
+#include "opengl_util.h"
 
 log_category("buffer");
 
@@ -37,17 +38,21 @@ static void buffer_upload(Buffer *b, int method)
 
 	glBindBuffer(GL_ARRAY_BUFFER, b->buffers[0]);
 	glBufferData(GL_ARRAY_BUFFER, used * 2 * sizeof(GLfloat), b->positions, method);
+	check_opengl_oom();
 
 	glBindBuffer(GL_ARRAY_BUFFER, b->buffers[1]);
 	glBufferData(GL_ARRAY_BUFFER, used * 4 * sizeof(GLfloat), b->colors, method);
+	check_opengl_oom();
 
 	if (b->has_texture) {
 		glBindBuffer(GL_ARRAY_BUFFER, b->buffers[2]);
 		glBufferData(GL_ARRAY_BUFFER, used * 2 * sizeof(GLfloat), b->tex_coords, method);
+		check_opengl_oom();
 	}
 	if (b->type == POINT_BUFFER) {
 		glBindBuffer(GL_ARRAY_BUFFER, b->buffers[3]);
 		glBufferData(GL_ARRAY_BUFFER, used * sizeof(GLfloat), b->point_sizes, method);
+		check_opengl_oom();
 	}
 	b->uploaded = true;
 }
