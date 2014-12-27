@@ -33,6 +33,8 @@ BEGIN_MODULE(particle)
 		ADD_METHOD(system, set_running)
 		ADD_METHOD(system, add_size)
 		ADD_METHOD(system, add_color)
+		ADD_METHOD(system, clear_sizes)
+		ADD_METHOD(system, clear_colors)
 		ADD_METHOD(system, set_texture)
 
 		ADD_GETSET(system, position)

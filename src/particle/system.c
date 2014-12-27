@@ -234,6 +234,20 @@ void system_add_color(System *s, float at, float min_r, float max_r, float min_g
 	s->cur_color += 1;
 }
 
+void system_clear_sizes(System *s)
+{
+	assert(s);
+
+	s->cur_size = 0;
+}
+
+void system_clear_colors(System *s)
+{
+	assert(s);
+
+	s->cur_color = 0;
+}
+
 void system_set_texture(System* s, Surface* tex)
 {
 	s->texture = tex;

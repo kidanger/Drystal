@@ -34,6 +34,8 @@ int mlua_is_running_system(lua_State* L);
 int mlua_set_running_system(lua_State* L);
 int mlua_add_size_system(lua_State* L);
 int mlua_add_color_system(lua_State* L);
+int mlua_clear_sizes_system(lua_State* L);
+int mlua_clear_colors_system(lua_State* L);
 int mlua_set_texture_system(lua_State* L);
 int mlua_free_system(lua_State* L);
 

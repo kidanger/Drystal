@@ -254,6 +254,20 @@ int mlua_add_color_system(lua_State* L)
 	return 0;
 }
 
+int mlua_clear_sizes_system(lua_State* L)
+{
+	System* system = pop_system(L, 1);
+	system_clear_sizes(system);
+	return 0;
+}
+
+int mlua_clear_colors_system(lua_State* L)
+{
+	System* system = pop_system(L, 1);
+	system_clear_colors(system);
+	return 0;
+}
+
 int mlua_set_texture_system(lua_State* L)
 {
 	System* system = pop_system(L, 1);

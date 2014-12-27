@@ -1,16 +1,19 @@
 local drystal = require 'drystal'
 
 if not sys1 then -- for livecoding
-sys1 = drystal.new_system(100, 550)
-
-sys1:add_size(0, 15)
-sys1:add_size(.2, 7, 10)
-sys1:add_size(1, 5)
-
-sys1:add_color(0, 255, 0, 0)
-sys1:add_color(0.4, 255, 100, 75)
-sys1:add_color(1, 0, 0, 0)
+	sys1 = drystal.new_system(100, 550)
 end
+
+sys1:set_sizes {
+	[0]=20,
+	[.2]={7, 10},
+	[1]=5,
+}
+sys1:set_colors {
+	[0.05]=drystal.colors.red:darker(),
+	[0.4]={'orange', 'yellow'},
+	[0.9]='black',
+}
 
 sys1:set_lifetime(3)
 

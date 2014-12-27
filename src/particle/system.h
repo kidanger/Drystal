@@ -82,5 +82,7 @@ void system_emit(System *s);
 void system_update(System *s, float dt);
 void system_add_size(System *s, float at, float min, float max);
 void system_add_color(System *s, float at, float min_r, float max_r, float min_g, float max_g, float min_b, float max_b);
+void system_clear_sizes(System *s);
+void system_clear_colors(System *s);
 void system_set_texture(System* s, Surface* tex);
 

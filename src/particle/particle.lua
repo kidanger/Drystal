@@ -32,3 +32,54 @@ for k, v in pairs(funcs) do
 	System[k] = v
 end
 
+function System:set_sizes(sizes)
+	self:clear_sizes()
+	local s = {}
+	for at, value in pairs(sizes) do
+		table.insert(s, {at=at, value=value})
+	end
+	table.sort(s, function(a, b) return a.at < b.at end)
+	if s[1].at ~= 0 then
+		table.insert(s, 1, {at=0, value=s[1].value})
+	end
+	if s[#s].at ~= 1 then
+		table.insert(s, {at=1, value=s[#s].value})
+	end
+	for _, data in ipairs(s) do
+		if type(data.value) == 'table' then
+			self:add_size(data.at, unpack(data.value))
+		else
+			self:add_size(data.at, data.value)
+		end
+	end
+end
+
+function System:set_colors(colors)
+	self:clear_colors()
+	local c = {}
+	for at, value in pairs(colors) do
+		table.insert(c, {at=at, value=value})
+	end
+	table.sort(c, function(a, b) return a.at < b.at end)
+	if c[1].at ~= 0 then
+		table.insert(c, 1, {at=0, value=c[1].value})
+	end
+	if c[#c].at ~= 1 then
+		table.insert(c, {at=1, value=c[#c].value})
+	end
+	for _, data in ipairs(c) do
+		local c1, c2 = data.value, data.value
+		if type(data.value[1]) == 'table' or type(data.value[1]) == 'string' then
+			c1 = data.value[1]
+			c2 = data.value[2]
+		end
+		if type(c1) == 'string' then
+			c1 = drystal.colors[c1]
+		end
+		if type(c2) == 'string' then
+			c2 = drystal.colors[c2]
+		end
+		self:add_color(data.at, c1[1], c2[1], c1[2], c2[2], c1[3], c1[3])
+	end
+end
+
