@@ -28,6 +28,18 @@
 #include "macro.h"
 #include "log.h"
 
+char *xstrdup(const char *s)
+{
+	char *p;
+
+	p = strdup(s);
+	if (!p) {
+		log_oom_and_exit();
+	}
+
+	return p;
+}
+
 void *xmalloc(size_t size)
 {
 	void *p;

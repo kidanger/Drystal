@@ -53,10 +53,7 @@ static int start_livecoding(const char *filename)
 
 	assert(filename);
 
-	filename_dup = strdup(filename);
-	if (!filename_dup) {
-		return -ENOMEM;
-	}
+	filename_dup = xstrdup(filename);
 
 	watched_directory = dirname(filename_dup);
 	r = livecoding_init(reload, NULL);

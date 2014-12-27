@@ -195,7 +195,7 @@ int surface_load(const char *filename, Surface **surface, Surface *current_surfa
 
 	stbi_image_free(data);
 
-	tmp->filename = strdup(filename);
+	tmp->filename = xstrdup(filename);
 	*surface = tmp;
 
 	return 0;

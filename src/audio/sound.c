@@ -93,7 +93,7 @@ Sound *sound_load_from_file(const char *filepath)
 	                         wave_header.sample_rate, wave_header.bits_per_sample,
 	                         wave_header.num_channels);
 	free(buffer);
-	sound->filename = strdup(filepath);
+	sound->filename = xstrdup(filepath);
 	return sound;
 }
 

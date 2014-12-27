@@ -32,8 +32,6 @@ int mlua_run_js(lua_State* L)
 #ifdef EMSCRIPTEN
 	const char* script = luaL_checkstring(L, 1);
 	char *ret = run_js(script);
-	if (!ret)
-		log_oom_and_exit();
 	lua_pushstring(L, ret);
 	free(ret);
 	return 1;

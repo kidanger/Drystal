@@ -22,11 +22,12 @@
 #include "web.h"
 #include "dlua.h"
 #include "lua_util.h"
+#include "util.h"
 
 char *run_js(const char* script)
 {
 	char *ret = emscripten_run_script_string(script);
-	return strdup(ret);
+	return xstrdup(ret);
 }
 
 static void onsuccess(const char* filename)

@@ -17,11 +17,10 @@
 #include <assert.h>
 
 #include "storage.h"
+#include "util.h"
 
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
-
-#include "util.h"
 
 char *fetch(const char *key)
 {
@@ -48,7 +47,6 @@ void store(const char *key, const char *value)
 
 #else
 #include <stdio.h>
-#include <string.h>
 #include <lua.h>
 #include <sys/mman.h>
 
@@ -100,9 +98,7 @@ char *fetch(const char *key)
 		goto fail;
 	}
 
-	value = strdup(luaL_checkstring(L, -1));
-	if (!value)
-		log_oom_and_exit();
+	value = xstrdup(luaL_checkstring(L, -1));
 
 	// pop the table and the string
 	lua_pop(L, 2);

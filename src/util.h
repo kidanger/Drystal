@@ -40,6 +40,7 @@ extern "C" {
 
 _malloc_ void *xmalloc(size_t size);
 _malloc_ void *xcalloc(size_t nmemb, size_t size);
+char *xstrdup(const char *s);
 int mkdir_p(const char *path);
 _sentinel_ char *strjoin(const char *s, ...);
 void msleep(unsigned long milisec);

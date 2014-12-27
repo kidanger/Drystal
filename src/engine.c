@@ -327,7 +327,7 @@ void engine_add_surface_to_reloadqueue(const char* filename)
 {
 	for (int i = 0; i < QUEUES_SIZE; i++) {
 		if (!engine.surfaces_to_reload[i]) {
-			engine.surfaces_to_reload[i] = strdup(filename);
+			engine.surfaces_to_reload[i] = xstrdup(filename);
 			break;
 		}
 	}
@@ -337,7 +337,7 @@ void engine_add_sound_to_reloadqueue(const char* filename)
 {
 	for (int i = 0; i < QUEUES_SIZE; i++) {
 		if (!engine.sounds_to_reload[i]) {
-			engine.sounds_to_reload[i] = strdup(filename);
+			engine.sounds_to_reload[i] = xstrdup(filename);
 			break;
 		}
 	}
