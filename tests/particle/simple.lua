@@ -5,6 +5,7 @@ sys1:add_size(0, 6)
 sys1:add_size(1, 6)
 sys1:add_color(0, 0, 255, 0, 255, 0, 255)
 sys1:add_color(1, 0, 255, 0, 255, 0, 255)
+local running
 
 local scrolling = false
 local scrollx, scrolly = 0, 0
@@ -16,6 +17,7 @@ local systems = {
 function drystal.init()
 	drystal.resize(600, 600)
 	sys1:start()
+	running = true
 	for _, s in ipairs(systems) do
 		s:start()
 	end
@@ -76,7 +78,12 @@ end
 
 function drystal.key_press(k)
 	if k == 'space' then
-		sys1:set_running(not sys1:is_running())
+		if running then
+			sys1:pause()
+		else
+			sys1:start()
+		end
+		running = not running
 	elseif k == 'c' then
 		systems = {}
 	elseif k == 'a' then

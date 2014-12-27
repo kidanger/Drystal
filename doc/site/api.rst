@@ -697,15 +697,7 @@ Particle System
 
    .. lua:method:: update(dt: float)
 
-      Updates the system and emits some particles according to the emission rate if the system is running.
-
-   .. lua:method:: is_running() -> boolean
-
-      Returns ``true`` if the system is started.
-
-   .. lua:method:: set_running(run: boolean)
-
-      Starts or stops the system.
+      Updates the system and emits some particles according to the emission rate if the system is started.
 
    .. lua:method:: add_size(at_lifetime, size)
 

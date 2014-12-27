@@ -196,26 +196,6 @@ int mlua_draw_system(lua_State* L)
 	return 0;
 }
 
-int mlua_is_running_system(lua_State* L)
-{
-	assert(L);
-
-	System* system = pop_system(L, 1);
-	bool running = system->running;
-	lua_pushboolean(L, running);
-	return 1;
-}
-
-int mlua_set_running_system(lua_State* L)
-{
-	assert(L);
-
-	System* system = pop_system(L, 1);
-	bool running = lua_toboolean(L, 2);
-	system->running = running;
-	return 0;
-}
-
 int mlua_add_size_system(lua_State* L)
 {
 	assert(L);

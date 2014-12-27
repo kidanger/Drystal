@@ -29,8 +29,6 @@ BEGIN_MODULE(particle)
 
 		ADD_METHOD(system, draw)
 		ADD_METHOD(system, update)
-		ADD_METHOD(system, is_running)
-		ADD_METHOD(system, set_running)
 		ADD_METHOD(system, add_size)
 		ADD_METHOD(system, add_color)
 		ADD_METHOD(system, clear_sizes)

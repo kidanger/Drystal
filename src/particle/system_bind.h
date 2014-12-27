@@ -30,8 +30,6 @@ int mlua_set_offset_system(lua_State* L);
 int mlua_get_offset_system(lua_State* L);
 int mlua_update_system(lua_State* L);
 int mlua_draw_system(lua_State* L);
-int mlua_is_running_system(lua_State* L);
-int mlua_set_running_system(lua_State* L);
 int mlua_add_size_system(lua_State* L);
 int mlua_add_color_system(lua_State* L);
 int mlua_clear_sizes_system(lua_State* L);
