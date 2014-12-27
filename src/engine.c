@@ -248,15 +248,15 @@ static void reload_surface(void* data, _unused_ void* arg)
 	if (display_load_surface(s->filename, &new_surface))
 		return;
 
-	SWAP(unsigned int, s->w, new_surface->w);
-	SWAP(unsigned int, s->h, new_surface->h);
-	SWAP(unsigned int, s->texw, new_surface->texw);
-	SWAP(unsigned int, s->texh, new_surface->texh);
-	SWAP(bool, s->has_fbo, new_surface->has_fbo);
-	SWAP(bool, s->has_mipmap, new_surface->has_mipmap);
-	SWAP(bool, s->npot, new_surface->npot);
-	SWAP(GLuint, s->tex, new_surface->tex);
-	SWAP(GLuint, s->fbo, new_surface->fbo);
+	SWAP(s->w, new_surface->w);
+	SWAP(s->h, new_surface->h);
+	SWAP(s->texw, new_surface->texw);
+	SWAP(s->texh, new_surface->texh);
+	SWAP(s->has_fbo, new_surface->has_fbo);
+	SWAP(s->has_mipmap, new_surface->has_mipmap);
+	SWAP(s->npot, new_surface->npot);
+	SWAP(s->tex, new_surface->tex);
+	SWAP(s->fbo, new_surface->fbo);
 	display_free_surface(new_surface);
 
 	if (display_get_draw_from() == s) {
@@ -299,8 +299,8 @@ static void reload_sound(void* data, _unused_ void* arg)
 	if (!(new_sound = sound_load_from_file(s->filename)))
 		return;
 
-	SWAP(ALuint, s->alBuffer, new_sound->alBuffer);
-	SWAP(bool, s->free_me, new_sound->free_me);
+	SWAP(s->alBuffer, new_sound->alBuffer);
+	SWAP(s->free_me, new_sound->free_me);
 	sound_free(new_sound);
 
 	log_debug("%s reloaded", s->filename);

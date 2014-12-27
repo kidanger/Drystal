@@ -32,8 +32,8 @@ extern "C" {
 #define XREALLOC(array, nmemb, need) \
 	xrealloc((void **) &(array), &(nmemb), need, sizeof((array)[0]), 32)
 
-#define SWAP(type, a, b) { \
-		type _swaptmp = (a); \
+#define SWAP(a, b) { \
+		typeof(a) _swaptmp = (a); \
 		(a) = (b); \
 		(b) = _swaptmp; \
 	}
