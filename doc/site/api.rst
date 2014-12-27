@@ -9,6 +9,12 @@
 API Reference
 =============
 
+.. warning::
+
+   Drystal API is not stable yet. It is still changing and as it matures some parts are more and more reliable than
+   others. Unfortunately, it has not sufficient testing in real games, so the API is changing where we think a
+   change is worth an API break.
+
 .. contents::
    :local:
    :depth: 3
