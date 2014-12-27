@@ -22,10 +22,10 @@ BEGIN_MODULE(particle)
 	DECLARE_FUNCTION(new_system)
 
 	BEGIN_CLASS(system)
-		ADD_METHOD(system, start)
-		ADD_METHOD(system, pause)
 		ADD_METHOD(system, emit)
+		ADD_METHOD(system, start)
 		ADD_METHOD(system, stop)
+		ADD_METHOD(system, reset)
 
 		ADD_METHOD(system, draw)
 		ADD_METHOD(system, update)

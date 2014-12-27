@@ -178,8 +178,8 @@ int mlua_emit_system(lua_State* L)
 	}
 
 ACTION(start)
-ACTION(pause)
 ACTION(stop)
+ACTION(reset)
 
 int mlua_draw_system(lua_State* L)
 {

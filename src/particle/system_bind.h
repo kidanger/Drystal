@@ -57,8 +57,8 @@ __SYSTEM_GET_SET(emission_rate)
 	int mlua_##action##_system(lua_State* L);
 __ACTION(emit)
 __ACTION(start)
-__ACTION(pause)
 __ACTION(stop)
+__ACTION(reset)
 
 #undef __ACTION
 

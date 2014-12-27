@@ -79,7 +79,7 @@ end
 function drystal.key_press(k)
 	if k == 'space' then
 		if running then
-			sys1:pause()
+			sys1:stop()
 		else
 			sys1:start()
 		end

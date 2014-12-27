@@ -75,8 +75,8 @@ System *system_new(int x, int y);
 void system_free(System *s);
 
 void system_start(System *s);
-void system_pause(System *s);
 void system_stop(System *s);
+void system_reset(System *s);
 void system_draw(System *s, float dx, float dy);
 void system_emit(System *s);
 void system_update(System *s, float dt);

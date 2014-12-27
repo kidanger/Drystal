@@ -679,10 +679,6 @@ Particle System
 
       Starts emitting over time.
 
-   .. lua:method:: pause()
-
-      Pauses emitting over time.
-
    .. lua:method:: emit([amount=1: int])
 
       Emits ``n`` particle(s). This function is useful when the system is paused and you want a fixed number of particle emission at one particular frame. You still need to call *update* so the particles get updated.
@@ -690,6 +686,10 @@ Particle System
    .. lua:method:: stop()
 
       Stops emitting over time.
+
+   .. lua:method:: reset()
+
+      Removes all existing particles.
 
    .. lua:method:: draw([x=0: float[, y=0: float]))
 

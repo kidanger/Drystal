@@ -74,22 +74,20 @@ void system_start(System *s)
 	s->running = true;
 }
 
-void system_pause(System *s)
+void system_stop(System *s)
 {
 	assert(s);
 
 	s->running = false;
 }
 
-void system_stop(System *s)
+void system_reset(System *s)
 {
 	assert(s);
 
 	for (int i = 0; i < s->used; i++)
 		s->particles[i].dead = true;
-
 	s->used = 0;
-	s->running = false;
 }
 
 void system_draw(System *s, float dx, float dy)
