@@ -37,9 +37,13 @@ log_category("main");
 static void reload(_unused_ void *arg, const char* filename)
 {
 	if (endswith(filename, ".png")) {
+#ifdef BUILD_GRAPHICS
 		engine_add_surface_to_reloadqueue(filename);
+#endif
 	} else if (endswith(filename, ".wav")) {
+#ifdef BUILD_AUDIO
 		engine_add_sound_to_reloadqueue(filename);
+#endif
 	} else {
 		dlua_set_need_to_reload();
 	}

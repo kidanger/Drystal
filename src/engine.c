@@ -225,6 +225,7 @@ void engine_wait_next_reload(void)
 	engine.wait_next_reload = true;
 }
 
+#ifdef BUILD_GRAPHICS
 static void reload_surface(void* data, _unused_ void* arg)
 {
 	Surface* s = data;
@@ -264,6 +265,18 @@ static void reload_surface(void* data, _unused_ void* arg)
 	log_debug("%s reloaded", s->filename);
 }
 
+void engine_add_surface_to_reloadqueue(const char* filename)
+{
+	for (int i = 0; i < QUEUES_SIZE; i++) {
+		if (!engine.surfaces_to_reload[i]) {
+			engine.surfaces_to_reload[i] = xstrdup(filename);
+			break;
+		}
+	}
+}
+#endif
+
+#ifdef BUILD_AUDIO
 static void reload_sound(void* data, _unused_ void* arg)
 {
 	Sound* s = data;
@@ -293,8 +306,20 @@ static void reload_sound(void* data, _unused_ void* arg)
 	log_debug("%s reloaded", s->filename);
 }
 
+void engine_add_sound_to_reloadqueue(const char* filename)
+{
+	for (int i = 0; i < QUEUES_SIZE; i++) {
+		if (!engine.sounds_to_reload[i]) {
+			engine.sounds_to_reload[i] = xstrdup(filename);
+			break;
+		}
+	}
+}
+#endif
+
 static void engine_reload_queues(void)
 {
+#ifdef BUILD_GRAPHICS
 	{
 		bool try = false;
 		for (int i = 0; i < QUEUES_SIZE; i++) {
@@ -305,6 +330,8 @@ static void engine_reload_queues(void)
 			dlua_foreach("surface", reload_surface, NULL);
 		}
 	}
+#endif
+#ifdef BUILD_AUDIO
 	{
 		bool try = false;
 		for (int i = 0; i < QUEUES_SIZE; i++) {
@@ -315,26 +342,8 @@ static void engine_reload_queues(void)
 			dlua_foreach("sound", reload_sound, NULL);
 		}
 	}
+#endif
 }
 
-void engine_add_surface_to_reloadqueue(const char* filename)
-{
-	for (int i = 0; i < QUEUES_SIZE; i++) {
-		if (!engine.surfaces_to_reload[i]) {
-			engine.surfaces_to_reload[i] = xstrdup(filename);
-			break;
-		}
-	}
-}
-
-void engine_add_sound_to_reloadqueue(const char* filename)
-{
-	for (int i = 0; i < QUEUES_SIZE; i++) {
-		if (!engine.sounds_to_reload[i]) {
-			engine.sounds_to_reload[i] = xstrdup(filename);
-			break;
-		}
-	}
-}
 #endif
 

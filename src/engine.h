@@ -29,7 +29,11 @@ void engine_toggle_update(void);
 void engine_toggle_draw(void);
 #ifdef BUILD_LIVECODING
 void engine_wait_next_reload(void);
+#ifdef BUILD_GRAPHICS
 void engine_add_surface_to_reloadqueue(const char* filename);
+#endif
+#ifdef BUILD_AUDIO
 void engine_add_sound_to_reloadqueue(const char* filename);
+#endif
 #endif
 
