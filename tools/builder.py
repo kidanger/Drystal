@@ -12,7 +12,6 @@ prefix = 'BUILD_'
 configs = {
 'UTILS': [],
 'GRAPHICS': [],
-'EVENT': ['GRAPHICS'],
 'STORAGE': ['UTILS'],
 'AUDIO': [],
 'FONT': ['GRAPHICS'],
@@ -20,8 +19,7 @@ configs = {
 'PARTICLE': ['GRAPHICS'],
 'PHYSICS': [],
 }
-configs_names = ['UTILS', 'GRAPHICS', 'EVENT', 'STORAGE', 'AUDIO',
-        'FONT', 'WEB', 'PARTICLE', 'PHYSICS']
+configs_names = ['UTILS', 'GRAPHICS', 'STORAGE', 'AUDIO', 'FONT', 'WEB', 'PARTICLE', 'PHYSICS']
 
 def get_index_of(v):
     for i, c in enumerate(configs_names):

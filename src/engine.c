@@ -16,7 +16,7 @@
  */
 #include <stdbool.h>
 #include <sys/time.h>
-#if defined(BUILD_EVENT) || defined(BUILD_FONT) || defined(BUILD_GRAPHICS)
+#if defined(BUILD_FONT) || defined(BUILD_GRAPHICS)
 #ifndef EMSCRIPTEN
 #include <SDL2/SDL.h>
 #else
@@ -29,10 +29,8 @@
 #ifdef BUILD_AUDIO
 #include "audio/audio.h"
 #endif
-#ifdef BUILD_EVENT
-#include "event/event.h"
-#endif
 #ifdef BUILD_GRAPHICS
+#include "event/event.h"
 #include "graphics/display.h"
 #endif
 #include "macro.h"
@@ -87,16 +85,14 @@ void engine_init(const char* filename, unsigned int target_fps)
 #endif
 
 	dlua_init(filename);
-#ifdef BUILD_GRAPHICS
-	display_init();
-#endif
-#if defined(BUILD_EVENT) || defined(BUILD_FONT) || defined(BUILD_GRAPHICS)
+#if defined(BUILD_FONT) || defined(BUILD_GRAPHICS)
 	int err = SDL_Init(0);
 	if (err) {
 		log_error("Cannot initialize SDL");
 	}
 #endif
-#ifdef BUILD_EVENT
+#ifdef BUILD_GRAPHICS
+	display_init();
 	event_init();
 #endif
 }
@@ -107,13 +103,11 @@ void engine_free(void)
 #ifdef BUILD_AUDIO
 	audio_free();
 #endif
-#ifdef BUILD_EVENT
-	event_destroy();
-#endif
 #ifdef BUILD_GRAPHICS
+	event_destroy();
 	display_free();
 #endif
-#if defined(BUILD_EVENT) || defined(BUILD_FONT) || defined(BUILD_GRAPHICS)
+#if defined(BUILD_FONT) || defined(BUILD_GRAPHICS)
 	SDL_Quit();
 #endif
 }
@@ -180,7 +174,7 @@ void engine_update(void)
 	engine_reload_queues();
 #endif
 
-#ifdef BUILD_EVENT
+#ifdef BUILD_GRAPHICS
 	event_update();
 #endif
 

@@ -29,9 +29,6 @@
 #include "dlua.h"
 #include "luafiles.h"
 #include "module.h"
-#ifdef BUILD_EVENT
-#include "event/api.h"
-#endif
 #ifdef BUILD_PHYSICS
 #include "physics/api.hpp"
 #endif
@@ -51,6 +48,7 @@
 #include "storage/api.h"
 #endif
 #ifdef BUILD_GRAPHICS
+#include "event/api.h"
 #include "graphics/api.h"
 #endif
 #ifdef BUILD_UTILS
@@ -162,9 +160,6 @@ static void register_modules(void)
 #ifdef BUILD_AUDIO
 	REGISTER_MODULE(audio, dlua.L);
 #endif
-#ifdef BUILD_EVENT
-	REGISTER_MODULE(event, dlua.L);
-#endif
 #ifdef BUILD_PARTICLE
 	REGISTER_MODULE(particle, dlua.L);
 #endif
@@ -182,6 +177,7 @@ static void register_modules(void)
 #endif
 #ifdef BUILD_GRAPHICS
 	REGISTER_MODULE(graphics, dlua.L);
+	REGISTER_MODULE(event, dlua.L);
 #endif
 #ifdef BUILD_UTILS
 	REGISTER_MODULE(utils, dlua.L);
