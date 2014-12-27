@@ -155,6 +155,7 @@ void call_lua_function(lua_State *L, int num_args, int num_ret)
 #ifdef BUILD_LIVECODING
 		if (livecoding_is_running()) {
 			engine_wait_next_reload();
+			lua_pop(L, 1);
 		} else
 #endif
 		{
@@ -163,7 +164,6 @@ void call_lua_function(lua_State *L, int num_args, int num_ret)
 		}
 	}
 	lua_remove(L, base);
-	assert(lua_gettop(L) == 0);
 #endif
 }
 
