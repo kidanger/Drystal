@@ -42,7 +42,7 @@ extern "C" {
 
 #define BEGIN_CLASS(name) \
 	luaL_newmetatable(L, #name); \
-	lua_pushstring(L, #name); \
+	lua_pushliteral(L, #name); \
 	lua_setfield(L, -2, "__type");
 #define ADD_GC(func) \
 	PUSH_FUNC("__gc", func)

@@ -342,7 +342,7 @@ int luaopen_drystal(lua_State *L)
 
 	lua_newtable(L);
 	luaL_newmetatable(L, "__objects");
-	lua_pushstring(L, "v");
+	lua_pushliteral(L, "v");
 	lua_setfield(L, -2, "__mode");
 	lua_setmetatable(L, -2);
 	lua_setfield(L, LUA_REGISTRYINDEX, "objects");
