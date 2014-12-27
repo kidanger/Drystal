@@ -22,7 +22,7 @@
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
 
-char *fetch(const char *key)
+char *storage_fetch(const char *key)
 {
 	assert(key);
 
@@ -33,7 +33,7 @@ char *fetch(const char *key)
 	return value;
 }
 
-void store(const char *key, const char *value)
+void storage_store(const char *key, const char *value)
 {
 	assert(key);
 	assert(value);
@@ -57,7 +57,7 @@ void store(const char *key, const char *value)
 extern int json_encode(lua_State * L);
 extern int json_decode(lua_State * L);
 
-char *fetch(const char *key)
+char *storage_fetch(const char *key)
 {
 	long filesize = 0;
 	FILE *file = NULL;
@@ -123,7 +123,7 @@ fail:
 	return NULL;
 }
 
-void store(const char *key, const char *value)
+void storage_store(const char *key, const char *value)
 {
 	long filesize;
 	FILE *file = NULL;

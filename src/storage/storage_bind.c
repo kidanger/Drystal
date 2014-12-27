@@ -40,7 +40,7 @@ int mlua_store(lua_State* L)
 
 	const char* value = luaL_checkstring(L, -1);
 
-	store(key, value);
+	storage_store(key, value);
 	return 0;
 }
 
@@ -49,7 +49,7 @@ int mlua_fetch(lua_State* L)
 	assert(L);
 
 	const char* key = luaL_checkstring(L, 1);
-	char* value = fetch(key);
+	char* value = storage_fetch(key);
 
 	if (!value || !value[0]) {
 		lua_pushnil(L);
