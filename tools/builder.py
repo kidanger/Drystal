@@ -60,7 +60,10 @@ def get_defines_permutations():
 
 def run_web(args):
     defines_permutations = get_defines_permutations()
-    for d in defines_permutations:
+    nperm = str(len(defines_permutations))
+    print(I + 'Building '+ nperm + ' permutations...')
+    for i, d in enumerate(defines_permutations):
+        print(I + 'Permutation ' + str(i + 1) + '/' + nperm)
         cmake_update('build-web', EMSCRIPTEN_CMAKE_DEFINES + d, True)
 
 
