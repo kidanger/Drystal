@@ -912,6 +912,9 @@ Learning how to use Box2D_ will help to hunder Drystal's physics module.
    Creates a prismatic joint.
 
 
+Shape
+^^^^^
+
 .. lua:class:: Shape
 
    .. lua:method:: set_density(density: float)
@@ -941,6 +944,9 @@ Learning how to use Box2D_ will help to hunder Drystal's physics module.
    .. lua:method:: set_sensor(sensor: boolean)
 
       If ``sensor`` is ``true``, the shape will not collide but the ``on_collision`` callback will be called.
+
+Body
+^^^^
 
 .. lua:class:: Body
 
@@ -1044,6 +1050,9 @@ Learning how to use Box2D_ will help to hunder Drystal's physics module.
 
       .. warning:: Associated joints are destroyed too. Calling functions on those joints will throw an error, make sure to remove references (:lua:`my_joint = nil`).
 
+MouseJoint
+^^^^^^^^^^
+
 .. lua:class:: MouseJoint
 
    .. lua:method:: set_target(x, y)
@@ -1054,6 +1063,9 @@ Learning how to use Box2D_ will help to hunder Drystal's physics module.
 
       Destroys the joint.
 
+RopeJoint
+^^^^^^^^^
+
 .. lua:class:: RopeJoint
 
    .. lua:method:: set_max_length(max_length: float)
@@ -1063,6 +1075,9 @@ Learning how to use Box2D_ will help to hunder Drystal's physics module.
    .. lua:method:: destroy()
 
       Destroys the joint.
+
+DistanceJoint
+^^^^^^^^^^^^^
 
 .. lua:class:: DistanceJoint
 
@@ -1078,6 +1093,9 @@ Learning how to use Box2D_ will help to hunder Drystal's physics module.
 
       Destroys the joint.
 
+RevoluteJoint
+^^^^^^^^^^^^^
+
 .. lua:class:: RevoluteJoint
 
    .. lua:method:: set_angle_limits(min, max)
@@ -1091,6 +1109,9 @@ Learning how to use Box2D_ will help to hunder Drystal's physics module.
    .. lua:method:: destroy()
 
       Destroys the joint.
+
+PrismaticJoint
+^^^^^^^^^^^^^^
 
 .. lua:class:: PrismaticJoint
 
@@ -1131,6 +1152,9 @@ Audio
 
    For each class you can either load the audio data from a file or generate it with a callback function.
 
+Music
+^^^^^
+
 .. lua:class:: Music
 
    Musics are for large audio files, mainly for ambiance musics during the game.
@@ -1169,6 +1193,9 @@ Audio
 .. lua:function:: set_music_volume(volume: float [0-1])
 
    Sets the global music volume.
+
+Sound
+^^^^^
 
 .. lua:class:: Sound
 
