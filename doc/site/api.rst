@@ -96,7 +96,7 @@ To receive events, you have to defined some of the following functions.
 
 .. lua:function:: mouse_motion(x, y, dx, dy)
 
-   Called when the mouse is moved. ``dx`` and ``dy`` are difference betweend the current position and the last one.
+   Called when the mouse is moved. ``dx`` and ``dy`` are difference between the current position and the last one.
 
 .. lua:function:: mouse_press(x, y, button: int)
 
@@ -212,7 +212,7 @@ Surface
 
    .. lua:method:: draw_on() -> Surface
 
-      Use this surface as destinatin/backbuffer (draw method be redirected to this surface instead of screen) for futur draws.
+      Use this surface as destination/backbuffer (draw method be redirected to this surface instead of screen) for future draws.
 
       :return: the old surface which was used
 
@@ -808,7 +808,7 @@ Creates a new particle system at given position.
 Physics
 -------
 
-Learning how to use Box2D_ will help to hunder Drystal's physics module.
+Learning how to use Box2D_ will help to better understand Drystal's physics module.
 
 .. lua:function:: init_physics(gravity_x: float, gravity_y: float[, pixels_per_meter])
 
@@ -1230,7 +1230,7 @@ Storage
 
 In browser, this module uses Javascript's localStorage feature. In desktop, it uses files.
 
-Storage is a way to store data for futur executions.
+Storage is a way to store data for future executions.
 
 .. lua:function:: store(key: str, value: table)
 

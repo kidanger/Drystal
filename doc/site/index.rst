@@ -65,7 +65,7 @@ Drystal is licensed under LGPLv3 license.
 
 The external/ folder contains third-party libraries:
 
-- stb_vorbis.c, stb_image.c and truetype.c which are in the public domain
+- stb_vorbis.c, stb_image.c and stb_truetype.c which are in the public domain
 - lua/ which is under the MIT License
 - box2d/ which is under the zlib License
 - lua-cjson/ which is under the MIT License
