@@ -29,3 +29,9 @@ Lua libraries
 - `A tweening library <https://github.com/kikito/tween.lua>`_
 
 
+Moonscript
+^^^^^^^^^^
+
+`Moonscript <http://moonscript.org/>`_ is a language that compiles to Lua. It can be used to create games with Drystal.
+
+
