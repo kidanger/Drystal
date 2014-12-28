@@ -248,6 +248,7 @@ static void reload_surface(void* data, _unused_ void* arg)
 	if (display_load_surface(s->filename, &new_surface))
 		return;
 
+	FilterMode filter = s->filter;
 	SWAP(s->w, new_surface->w);
 	SWAP(s->h, new_surface->h);
 	SWAP(s->texw, new_surface->texw);
@@ -259,6 +260,7 @@ static void reload_surface(void* data, _unused_ void* arg)
 	SWAP(s->fbo, new_surface->fbo);
 	display_free_surface(new_surface);
 
+	display_set_filter(s, filter);
 	if (display_get_draw_from() == s) {
 		surface_draw_from(s);
 	}
