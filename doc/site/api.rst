@@ -553,9 +553,6 @@ Colors
 	  print('press d or l or m or a')
    end
 
-   function drystal.update(dt)
-   end
-
    function drystal.draw()
 	  drystal.set_color(color)
 	  drystal.draw_background()
