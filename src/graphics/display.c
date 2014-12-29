@@ -49,7 +49,7 @@ struct Display {
 	Shader *default_shader;
 	Shader *current_shader;
 
-	Surface *current;
+	Surface *current_on;
 	Surface *current_from;
 
 	Buffer *current_buffer;
@@ -144,7 +144,7 @@ void display_init()
 	display.screen = NULL;
 	display.default_shader = NULL;
 	display.current_shader = NULL;
-	display.current = NULL;
+	display.current_on = NULL;
 	display.current_from = NULL;
 	display.current_buffer = display.default_buffer;
 	display.r = 1;
@@ -355,7 +355,7 @@ void display_flip()
 	SDL_GL_SwapWindow(display.sdl_window);
 
 	// restore context
-	surface_draw_on(display.current);
+	surface_draw_on(display.current_on);
 	if (oldfrom)
 		display_draw_from(oldfrom);
 	display_use_buffer(oldbuffer);
@@ -452,7 +452,7 @@ void display_reset_camera()
 	buffer_check_empty(display.current_buffer);
 
 	camera_reset(display.camera);
-	camera_update_matrix(display.camera, display.current->w, display.current->h);
+	camera_update_matrix(display.camera, display.current_on->w, display.current_on->h);
 }
 
 void display_set_camera_position(float dx, float dy)
@@ -462,7 +462,7 @@ void display_set_camera_position(float dx, float dy)
 	display.camera->dx = dx;
 	display.camera->dy = dy;
 
-	camera_update_matrix(display.camera, display.current->w, display.current->h);
+	camera_update_matrix(display.camera, display.current_on->w, display.current_on->h);
 }
 
 void display_set_camera_angle(float angle)
@@ -470,7 +470,7 @@ void display_set_camera_angle(float angle)
 	buffer_check_empty(display.current_buffer);
 
 	display.camera->angle = angle;
-	camera_update_matrix(display.camera, display.current->w, display.current->h);
+	camera_update_matrix(display.camera, display.current_on->w, display.current_on->h);
 }
 
 void display_set_camera_zoom(float zoom)
@@ -482,7 +482,7 @@ void display_set_camera_zoom(float zoom)
 
 Surface *display_get_draw_on()
 {
-	return display.current;
+	return display.current_on;
 }
 
 Surface *display_get_draw_from()
@@ -503,17 +503,17 @@ void display_draw_from(Surface *surface)
 void display_draw_on(Surface *surface)
 {
 	assert(surface);
-	if (display.current != surface) {
+	if (display.current_on != surface) {
 		buffer_check_empty(display.current_buffer);
-		display.current = surface;
+		display.current_on = surface;
 		surface_draw_on(surface);
 
 		int w = surface->w;
 		int h = surface->h;
 		glViewport(0, 0, w, h);
 		camera_update_matrix(display.camera, w, h);
-		display.current_buffer->draw_on = display.current;
-		display.default_buffer->draw_on = display.current;
+		display.current_buffer->draw_on = display.current_on;
+		display.default_buffer->draw_on = display.current_on;
 	}
 }
 
@@ -522,7 +522,7 @@ void display_draw_on(Surface *surface)
  */
 Surface *display_create_surface(unsigned int w, unsigned int h, unsigned int texw, unsigned int texh, unsigned char* pixels)
 {
-	return surface_new(w, h, texw, texh, pixels, display.current_from, display.current);
+	return surface_new(w, h, texw, texh, pixels, display.current_from, display.current_on);
 }
 
 int display_load_surface(const char * filename, Surface **surface)
@@ -560,10 +560,10 @@ void display_free_surface(Surface* surface)
 		glBindTexture(GL_TEXTURE_2D, 0);
 		display.current_from = NULL;
 	}
-	if (surface == display.current) {
+	if (surface == display.current_on) {
 		buffer_check_empty(display.current_buffer);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		display.current = NULL;
+		display.current_on = NULL;
 	}
 	surface_free(surface);
 }
@@ -863,7 +863,7 @@ void display_use_buffer(Buffer* buffer)
 
 	display.current_buffer = buffer;
 	buffer_use_shader(buffer, display.current_shader);
-	buffer->draw_on = display.current;
+	buffer->draw_on = display.current_on;
 }
 
 void display_use_default_buffer()
@@ -876,7 +876,7 @@ void display_draw_buffer(Buffer* buffer, float dx, float dy)
 	assert(buffer);
 
 	buffer_check_empty(display.current_buffer);
-	buffer->draw_on = display.current;
+	buffer->draw_on = display.current_on;
 	buffer_draw(buffer, dx, dy);
 }
 
