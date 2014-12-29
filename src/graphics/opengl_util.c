@@ -34,6 +34,7 @@ void check_opengl_oom(void)
 		log_oom_and_exit();
 }
 
+#ifdef DODEBUG
 const char* getGLError(GLenum error)
 {
 #define casereturn(x) case x: return #x
@@ -49,4 +50,5 @@ const char* getGLError(GLenum error)
 	}
 #undef casereturn
 }
+#endif
 
