@@ -21,7 +21,6 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
-#include <assert.h>
 #include <lua.h>
 
 void dlua_init(const char *filename);
