@@ -88,11 +88,6 @@ if(BUILD_AUDIO)
 	set_target_properties(stb_vorbis PROPERTIES COMPILE_DEFINITIONS "STB_VORBIS_NO_PUSHDATA_API")
 endif()
 
-if(BUILD_GRAPHICS)
-	add_library(stb_image STATIC stb_image.c)
-	set_target_properties(stb_image PROPERTIES COMPILE_FLAGS "-DSTB_IMAGE_IMPLEMENTATION -DSTB_IMAGE_NO_HDR")
-endif()
-
 if(BUILD_FONT)
 	add_library(stb_truetype STATIC stb_truetype.c)
 	set_target_properties(stb_truetype PROPERTIES COMPILE_DEFINITIONS "STB_TRUETYPE_IMPLEMENTATION")
@@ -103,7 +98,7 @@ endif()
 ### miniz
 ###
 if(EMSCRIPTEN)
-    add_library(miniz STATIC miniz.c)
+	add_library(miniz STATIC miniz.c)
 endif()
 
 ###
@@ -111,4 +106,14 @@ endif()
 ###
 if(BUILD_AUDIO)
 	add_library(wavloader STATIC wavloader.c)
+endif()
+
+###
+### libpng
+###
+if(BUILD_GRAPHICS)
+        if(EMSCRIPTEN)
+		include(zlibCMakeLists.cmake)
+		include(libpngCMakeLists.cmake)
+        endif()
 endif()

@@ -7,3 +7,9 @@
 [submodule "external/box2d"]
 	path = external/box2d
 	url = https://github.com/ansman/box2d.git
+[submodule "external/libpng"]
+	path = external/libpng
+	url = https://github.com/glennrp/libpng.git
+[submodule "external/zlib"]
+	path = external/zlib
+	url = https://github.com/madler/zlib

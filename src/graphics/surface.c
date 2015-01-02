@@ -18,15 +18,137 @@
 #include <string.h>
 #include <math.h>
 #include <errno.h>
-
-#define STBI_ONLY_PNG
-#include "stb_image.h"
+#include <stdio.h>
+#include <png.h>
 
 #include "surface.h"
 #include "log.h"
 #include "util.h"
+#include "macro.h"
 
 log_category("graphics");
+
+static int png_load(const char *filename, GLubyte **data, GLuint *width, GLuint *height, SurfaceFormat *format, GLint *internal_format)
+{
+	png_byte header[8] = {};
+	FILE *f;
+
+	assert(data);
+	assert(filename);
+	assert(width);
+	assert(height);
+	assert(format);
+	assert(internal_format);
+
+	f = fopen(filename, "rb");
+	if (!f)
+		return -ENOENT;
+
+	fread(header, 1, sizeof(header), f);
+
+	if (png_sig_cmp(header, 0, sizeof(header))) {
+		fclose(f);
+		return -EBADMSG;
+	}
+
+	png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	if (!png_ptr)
+		log_oom_and_exit();
+
+	png_infop info_ptr = png_create_info_struct(png_ptr);
+	if (!info_ptr)
+		log_oom_and_exit();
+
+	/* Called if there is a libpng error */
+	if (setjmp(png_jmpbuf(png_ptr))) {
+		png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+		fclose(f);
+		return -EBADMSG;
+	}
+
+	png_init_io(png_ptr, f);
+
+	/* let libpng know we already read the header */
+	png_set_sig_bytes(png_ptr, sizeof(header));
+
+	/* read all the info up to the image data */
+	png_read_info(png_ptr, info_ptr);
+
+	int bit_depth;
+	int color_type;
+	bit_depth = png_get_bit_depth(png_ptr, info_ptr);
+	color_type = png_get_color_type(png_ptr, info_ptr);
+
+	/* Convert index color images to RGB images */
+	if (color_type == PNG_COLOR_TYPE_PALETTE)
+		png_set_palette_to_rgb(png_ptr);
+
+	if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8)
+		png_set_expand_gray_1_2_4_to_8(png_ptr);
+
+	if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
+		png_set_tRNS_to_alpha(png_ptr);
+
+	if (bit_depth == 16)
+		png_set_strip_16(png_ptr);
+	else if (bit_depth < 8)
+		png_set_packing(png_ptr);
+
+	/* update the png info struct to apply transformations */
+	png_read_update_info(png_ptr, info_ptr);
+
+	png_uint_32 temp_width;
+	png_uint_32 temp_height;
+	png_get_IHDR(png_ptr, info_ptr, &temp_width, &temp_height, &bit_depth,
+	             &color_type, NULL, NULL, NULL);
+
+	SurfaceFormat temp_format;
+	GLint temp_internal_format;
+	switch (color_type) {
+		case PNG_COLOR_TYPE_GRAY:
+			temp_format = FORMAT_LUMINANCE;
+			temp_internal_format = 1;
+			break;
+		case PNG_COLOR_TYPE_GRAY_ALPHA:
+			temp_format = FORMAT_LUMINANCE_ALPHA;
+			temp_internal_format = 2;
+			break;
+		case PNG_COLOR_TYPE_RGB:
+			temp_format = FORMAT_RGB;
+			temp_internal_format = 3;
+			break;
+		case PNG_COLOR_TYPE_RGB_ALPHA:
+			temp_format = FORMAT_RGBA;
+			temp_internal_format = 4;
+			break;
+		default:
+			png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+			fclose(f);
+			return -ENOTSUP;
+			break;
+	}
+
+	png_byte *image_data = xmalloc(sizeof(png_byte) * temp_width * temp_height * temp_internal_format);
+	png_bytep *row_pointers = xmalloc(sizeof(png_bytep) * temp_height);
+	for (unsigned i = 0; i < temp_height; ++i) {
+		row_pointers[i] = image_data + (i * temp_width * temp_internal_format);
+	}
+
+	/* read the image into image_data throught row_pointers */
+	png_read_image(png_ptr, row_pointers);
+	png_read_end(png_ptr, NULL);
+	png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+	free(row_pointers);
+	fclose(f);
+
+	*width = temp_width;
+	*height = temp_height;
+	*format = temp_format;
+	*internal_format = temp_internal_format;
+	*data = image_data;
+
+	return 0;
+}
 
 static void surface_create_fbo(Surface *s)
 {
@@ -48,7 +170,7 @@ static void surface_create_fbo(Surface *s)
 	s->has_fbo = true;
 }
 
-Surface *surface_new(unsigned int w, unsigned int h, unsigned int texw, unsigned int texh, void *pixels, Surface *current_from, Surface *current_on)
+Surface *surface_new(unsigned int w, unsigned int h, unsigned int texw, unsigned int texh, SurfaceFormat format, void *pixels, Surface *current_from, Surface *current_on)
 {
 	Surface *s = new(Surface, 1);
 	s->filename = NULL;
@@ -67,8 +189,8 @@ Surface *surface_new(unsigned int w, unsigned int h, unsigned int texw, unsigned
 	glGenTextures(1, &(s->tex));
 	glBindTexture(GL_TEXTURE_2D, s->tex);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, s->texw, s->texh, 0,
-	             GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+	glTexImage2D(GL_TEXTURE_2D, 0, format, s->texw, s->texh, 0,
+	             format, GL_UNSIGNED_BYTE, pixels);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->filter);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->filter);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -155,45 +277,47 @@ void surface_set_filter(Surface *s, FilterMode new_filter, Surface *current_surf
 	}
 }
 
-#define RGBA_SIZE 4
 int surface_load(const char *filename, Surface **surface, Surface *current_surface)
 {
 	assert(filename);
 	assert(surface);
 
-	int w, h;
-	int n;
+	GLuint w, h;
+	SurfaceFormat format;
+	GLint internal_format;
 	Surface *tmp;
-	stbi_uc *data = stbi_load(filename, &w, &h, &n, RGBA_SIZE);
-	if (!data)
-		return -ENOENT;
+	GLubyte *data;
+	int r;
+
+	r = png_load(filename, &data, &w, &h, &format, &internal_format);
+	if (r < 0)
+		return r;
 	if (w <= 0 || w > 2048 || h <= 0 || h > 2048) {
-		stbi_image_free(data);
+		free(data);
 		return -E2BIG;
 	}
 
-	int potw = pow(2, ceil(log(w) / log(2)));
-	int poth = pow(2, ceil(log(h) / log(2)));
-
+	GLuint potw = pow(2, ceil(log(w) / log(2)));
+	GLuint poth = pow(2, ceil(log(h) / log(2)));
 	if (potw != w || poth != h) {
-		int y;
-		int x;
-		GLubyte *pixels = new(GLubyte, potw * poth * RGBA_SIZE);
-		memset(pixels, 0, potw * poth * RGBA_SIZE);
+		GLuint y;
+		GLuint x;
+		GLubyte *pixels = new(GLubyte, potw * poth * internal_format);
+		memset(pixels, 0, potw * poth * internal_format);
 		for (y = 0; y < h; y++) {
 			for (x = 0; x < w; x++) {
-				int is = (x + y * w) * RGBA_SIZE;
-				int id = (x + y * potw) * RGBA_SIZE;
-				memcpy(pixels + id, data + is, RGBA_SIZE);
+				int is = (x + y * w) * internal_format;
+				int id = (x + y * potw) * internal_format;
+				memcpy(pixels + id, data + is, internal_format);
 			}
 		}
-		tmp = surface_new(w, h, potw, poth, pixels, current_surface, NULL);
+		tmp = surface_new(w, h, potw, poth, format, pixels, current_surface, NULL);
 		free(pixels);
 	} else {
-		tmp = surface_new(w, h, w, h, data, current_surface, NULL);
+		tmp = surface_new(w, h, w, h, format, data, current_surface, NULL);
 	}
 
-	stbi_image_free(data);
+	free(data);
 
 	tmp->filename = xstrdup(filename);
 	*surface = tmp;

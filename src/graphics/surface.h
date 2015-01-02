@@ -37,6 +37,14 @@ enum FilterMode {
 };
 typedef enum FilterMode FilterMode;
 
+enum SurfaceFormat {
+	FORMAT_LUMINANCE = GL_LUMINANCE,
+	FORMAT_LUMINANCE_ALPHA = GL_LUMINANCE_ALPHA,
+	FORMAT_RGB = GL_RGB,
+	FORMAT_RGBA = GL_RGBA,
+};
+typedef enum SurfaceFormat SurfaceFormat;
+
 struct Surface {
 	char* filename;
 	unsigned int w;
@@ -53,7 +61,14 @@ struct Surface {
 	GLuint fbo;
 };
 
-Surface *surface_new(unsigned int w, unsigned int h, unsigned int texw, unsigned int texh, void *pixels, Surface *current_from, Surface *current_on);
+Surface *surface_new(unsigned int w,
+                     unsigned int h,
+                     unsigned int texw,
+                     unsigned int texh,
+                     SurfaceFormat format,
+                     void *pixels,
+                     Surface *current_from,
+                     Surface *current_on);
 void surface_free(Surface *s);
 void surface_draw_on(Surface *s);
 void surface_draw_from(Surface *s);

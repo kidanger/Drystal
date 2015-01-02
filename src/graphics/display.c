@@ -522,7 +522,7 @@ void display_draw_on(Surface *surface)
  */
 Surface *display_create_surface(unsigned int w, unsigned int h, unsigned int texw, unsigned int texh, unsigned char* pixels)
 {
-	return surface_new(w, h, texw, texh, pixels, display.current_from, display.current_on);
+	return surface_new(w, h, texw, texh, FORMAT_RGBA, pixels, display.current_from, display.current_on);
 }
 
 int display_load_surface(const char * filename, Surface **surface)

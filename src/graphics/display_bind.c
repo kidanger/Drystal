@@ -171,6 +171,8 @@ int mlua_load_surface(lua_State* L)
 	const char * filename = luaL_checkstring(L, 1);
 	r = display_load_surface(filename, &surface);
 	assert_lua_error(L, r != -E2BIG, "load_surface: surface size must be width > 0 and <= 2048, height > 0 and <= 2048");
+	assert_lua_error(L, r != -ENOTSUP, "load_surface: unsupported format");
+	assert_lua_error(L, r != -EBADMSG, "load_surface: not a PNG");
 	if (r < 0) {
 		return luaL_fileresult(L, 0, filename);
 	}
@@ -186,7 +188,7 @@ int mlua_new_surface(lua_State* L)
 	int h = luaL_checkint(L, 2);
 
 	assert_lua_error(L, w > 0 && w <= 2048, "new_surface: width must be > 0 and <= 2048");
-	assert_lua_error(L, h > 0 && h <= 2048, "new_surface: width must be > 0 and <= 2048");
+	assert_lua_error(L, h > 0 && h <= 2048, "new_surface: height must be > 0 and <= 2048");
 
 	bool force_npot = lua_toboolean(L, 3);
 	Surface* surface = display_new_surface(w, h, force_npot);

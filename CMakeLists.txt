@@ -54,11 +54,13 @@ add_subdirectory(external)
 
 include_directories(external)
 include_directories(external/lua/src)
+
 if(BUILD_PHYSICS)
 	include_directories(external/box2d/Box2D)
 endif()
+if(BUILD_GRAPHICS)
+	include_directories(external/libpng)
+	include_directories(${CMAKE_CURRENT_BINARY_DIR}/external/) # for pngconf.h
+endif()
 
 add_subdirectory(src)
-
-include_directories(src)
-

@@ -278,7 +278,7 @@ void buffer_draw(Buffer *b, float dx, float dy)
 		if (!point_shader) {
 			char* err;
 			point_shader = display_new_shader(DEFAULT_VERTEX_SHADER, 0,
-											  DEFAULT_FRAGMENT_SHADER_TEXPOINT, &err);
+			                                  DEFAULT_FRAGMENT_SHADER_TEXPOINT, &err);
 			if (!point_shader) {
 				log_error("Failed to compile point shader:\n%s", err);
 				free(err);

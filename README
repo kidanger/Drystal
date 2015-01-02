@@ -23,12 +23,14 @@ LICENSE:
     LGPLv3 for all Drystal code
 
     The external/ folder contains third-party libraries:
-    - stb_vorbis.c and stb_{image,truetype}.h which are in the public domain
+    - stb_vorbis.c and stb_truetype.h which are in the public domain
     - lua/* which is under the MIT License
     - box2d/* which is under the zlib License
     - lua-cjson/* which is under the MIT License
     - wavloader.c which is in the public domain
     - miniz.c which is in the public domain
+    - libpng/* which is under the libpng License
+    - zlib/* which is under the zlib License
 
 REPOSITORY:
     http://github.com/kidanger/drystal/
@@ -40,6 +42,7 @@ REQUIREMENTS:
     - SDL2
     - OpenAL
     - OpenGL
+    - libpng
 
     Build:
     - CMake
