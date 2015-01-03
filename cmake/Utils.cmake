@@ -1,3 +1,10 @@
+if (CMAKE_CXX_COMPILER MATCHES ".*clang")
+	set(CMAKE_COMPILER_IS_CLANGXX 1)
+endif()
+if (CMAKE_C_COMPILER MATCHES ".*clang")
+	set(CMAKE_COMPILER_IS_CLANGC  1)
+endif()
+
 add_custom_target(astyle COMMAND
     astyle --indent=tab --indent-preprocessor --style=kr
     --pad-oper --pad-header --unpad-paren -S -n
