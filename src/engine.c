@@ -323,25 +323,21 @@ static void engine_reload_queues(void)
 {
 #ifdef BUILD_GRAPHICS
 	{
-		bool try = false;
 		for (int i = 0; i < QUEUES_SIZE; i++) {
-			if (engine.surfaces_to_reload[i])
-				try = true;
-		}
-		if (try) {
-			dlua_foreach("surface", reload_surface, NULL);
+			if (engine.surfaces_to_reload[i]) {
+				dlua_foreach("surface", reload_surface, NULL);
+				break;
+			}
 		}
 	}
 #endif
 #ifdef BUILD_AUDIO
 	{
-		bool try = false;
 		for (int i = 0; i < QUEUES_SIZE; i++) {
-			if (engine.sounds_to_reload[i])
-				try = true;
-		}
-		if (try) {
-			dlua_foreach("sound", reload_sound, NULL);
+			if (engine.sounds_to_reload[i]) {
+				dlua_foreach("sound", reload_sound, NULL);
+				break;
+			}
 		}
 	}
 #endif
