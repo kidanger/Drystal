@@ -130,7 +130,7 @@ int traceback(lua_State *L)
 		printfuncname(L, &d);
 		fprintf(stderr, "\n");
 		if (d.istailcall)
-			fprintf(stderr, "\n\t(...tail calls...)");
+			fprintf(stderr, "\n\t(...tail calls...)\n");
 		++level;
 	}
 
