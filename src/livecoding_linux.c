@@ -43,6 +43,7 @@ static int *wds = NULL;
 static size_t wds_nmemb = 0;
 static size_t wds_count = 0;
 static pthread_t watcher_tid;
+static bool running = false;
 static void *callback_arg = NULL;
 static void (*reload_callback)(void *arg, const char* filename) = NULL;
 
@@ -286,6 +287,7 @@ int livecoding_stop(void)
 	close(wakeup_read_fd);
 	close(wakeup_write_fd);
 
+	running = false;
 	return 0;
 }
 
@@ -298,11 +300,12 @@ int livecoding_start(void)
 		return -errno;
 	}
 
+	running = true;
 	return 0;
 }
 
 int livecoding_is_running(void)
 {
-	return pthread_kill(watcher_tid, 0) != ESRCH;
+	return running;
 }
 
