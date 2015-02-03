@@ -82,6 +82,7 @@ char *strjoin(const char *s, ...)
 	char *join, *p;
 
 	va_start(ap, s);
+	l = strlen(s);
 	for (;;) {
 		const char *t;
 
