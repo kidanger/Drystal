@@ -112,6 +112,7 @@ int mlua_init_physics(lua_State* L)
 	}
 	world = new b2World(b2Vec2(gravity_x, gravity_y));
 	world->SetDestructionListener(&destructionListener);
+	world->SetContactListener(NULL);
 	return 0;
 }
 
