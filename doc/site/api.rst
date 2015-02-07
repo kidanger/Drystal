@@ -104,8 +104,13 @@ To receive events, you have to defined some of the following functions.
 
    :param int x: X coordinate of the mouse when the button was pressed
    :param int y: Y coordinate of the mouse when the button was pressed
-   :param int button: is one of ``drystal.BUTTON_LEFT``, ``drystal.BUTTON_RIGHT``, ``drystal.BUTTON_MIDDLE``,
-           ``drystal.WHEEL_UP`` or ``drystal.WHEEL_DOWN``.
+   :param int button:
+
+         - ``drystal.buttons.left`` (= 1),
+         - ``drystal.buttons.right`` (= 2),
+         - ``drystal.buttons.middle`` (= 3),
+         - ``drystal.buttons.wheel_up`` (= 4),
+         - or ``drystal.buttons.wheel_down`` (= 5).
 
 .. lua:function:: mouse_release(x, y, button)
 
@@ -224,7 +229,12 @@ Surface
 
    .. lua:method:: set_filter(filter)
 
-      :param int filter: is one of ``drystal.NEAREST``, ``drystal.LINEAR``, ``drystal.BILINEAR`` or ``drystal.TRILINEAR``.
+      :param filter:
+
+         - ``drystal.filters.nearest``,
+         - ``drystal.filters.linear`` (= ``drystal.filters.default``),
+         - ``drystal.filters.bilinear``
+         - or ``drystal.filters.trilinear``.
 
    .. warning:: A surface is limited to 2048x2048 pixels. We follow the `WebGL Stats <http://webglstats.com/>`_ and we use the highest texture size at 100%.
 
@@ -277,7 +287,7 @@ Drawing primitives
 
    Draws a point at the given coordinate and with given size.
 
-.. .. lua:function:: draw_point_tex(x, y, size)
+.. lua:function:: draw_point_tex(x, y, size)
 
    Draws a textured point at the given coordinate and with given size.
    The point will be textured with the entire surface bound to :lua:data:`current_draw_from`.
@@ -363,10 +373,16 @@ Blending
 
 .. todo:: Images to show the differences
 
-.. lua:data:: BLEND_DEFAULT
-.. lua:data:: BLEND_ALPHA
-.. lua:data:: BLEND_ADD
-.. lua:data:: BLEND_MULT
+.. lua:function:: set_blend_mode(blend_mode)
+
+   Sets the current blend mode.
+
+   :param blend_mode:
+
+      - ``drystal.blends.alpha`` (= ``drystal.blends.default``),
+      - ``drystal.blends.add``
+      - or ``drystal.blends.mult``.
+
 
 Camera
 ^^^^^^
@@ -640,7 +656,7 @@ Font rendering
 
 .. lua:class:: Font
 
-   .. lua:method:: draw(text: str, x, y[, alignment=1: int])
+   .. lua:method:: draw(text: str, x, y[, alignment=drystal.aligns.left])
 
       Draws ``text`` at the given coordinates.
       Supports '\\n'.
@@ -651,9 +667,9 @@ Font rendering
 
       :param int alignement:
 
-         - if alignment is ``drystal.ALIGN_LEFT``, text is left aligned (default)
-         - if alignment is ``drystal.ALIGN_CENTER``, text is centered around ``x``.
-         - if alignment is ``drystal.ALIGN_RIGHT``, text is right aligned ``x``.
+         - if alignment is ``drystal.aligns.left`` (= 1), text is left aligned (default)
+         - if alignment is ``drystal.aligns.center`` (= 2), text is centered around ``x``.
+         - if alignment is ``drystal.aligns.right`` (= 3), text is right aligned.
 
    .. lua:method:: draw_plain(text: str, x, y)
 

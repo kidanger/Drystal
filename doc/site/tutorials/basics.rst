@@ -210,7 +210,7 @@ is pressed. We use this function to call another function that plays a turn acco
     end
 
     function drystal.mouse_press(x, y, button)
-        if button == drystal.BUTTON_LEFT then
+        if button == drystal.buttons.left then
             play()
         end
     end
@@ -309,7 +309,7 @@ We also make a function to restart the game when it is finished and a player cli
     end
 
     function drystal.mouse_press(x, y, button)
-        if button == drystal.BUTTON_LEFT then
+        if button == drystal.buttons.left then
             if ended then
                 restart()
             else
@@ -354,9 +354,9 @@ and the latter drawing a rectangle that we use to draw a rectangle the size of t
         local _, htext = font:sizeof(text)
         drystal.set_alpha(255)
         drystal.set_color(drystal.colors.white)
-        font:draw(text, W / 2, H / 2 - htext / 2, drystal.ALIGN_CENTER)
+        font:draw(text, W / 2, H / 2 - htext / 2, drystal.aligns.center)
 
-        smallfont:draw('Click to restart', W / 2, H * .7, drystal.ALIGN_CENTER)
+        smallfont:draw('Click to restart', W / 2, H * .7, drystal.aligns.center)
     end
 
 Finally, we update :lua:func:`drystal.draw` so that we call ``draw_gameover()`` when ``ended`` is ``true``:

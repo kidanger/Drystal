@@ -22,9 +22,9 @@ function drystal.draw()
 	font:draw(text, 10, 100)
 	drystal.draw_square(10, 100, font:sizeof(text))
 
-	font:draw(text, 100, 200, drystal.ALIGN_CENTER)
+	font:draw(text, 100, 200, drystal.aligns.center)
 	drystal.draw_line(100, 200, 100, 300)
-	font:draw(text, 300, 200, drystal.ALIGN_RIGHT)
+	font:draw(text, 300, 200, drystal.aligns.right)
 	drystal.draw_line(300, 200, 300, 300)
 end
 

@@ -52,7 +52,7 @@ function drystal.mouse_motion(x, y, dx, dy)
 end
 
 function drystal.mouse_press(x, y, b)
-	if b == drystal.BUTTON_LEFT then
+	if b == drystal.buttons.left then
 		s = drystal.new_system(x - scrollx, y - scrolly)
 		s:set_direction(0, math.pi*2)
 		s:add_size(0, 6)
@@ -61,17 +61,17 @@ function drystal.mouse_press(x, y, b)
 		s:add_color(1, 255, 255, 255)
 		s:start()
 		table.insert(systems, s)
-	elseif b == drystal.BUTTON_RIGHT then
+	elseif b == drystal.buttons.right then
 		scrolling = true
-	elseif b == drystal.WHEEL_UP then
+	elseif b == drystal.buttons.wheel_up then
 		sys1:set_emission_rate(sys1:get_emission_rate() + 1)
-	elseif b == drystal.WHEEL_DOWN then
+	elseif b == drystal.buttons.wheel_down then
 		sys1:set_emission_rate(sys1:get_emission_rate() - 1)
 	end
 end
 
 function drystal.mouse_release(_, _, b)
-	if b == drystal.BUTTON_RIGHT then
+	if b == drystal.buttons.right then
 		scrolling = false
 	end
 end

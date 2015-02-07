@@ -30,13 +30,13 @@ end
 
 function drystal.key_press(k)
 	if k == '[1]' then
-		image:set_filter(drystal.NEAREST)
+		image:set_filter(drystal.filters.nearest)
 	elseif k == '[2]' then
-		image:set_filter(drystal.LINEAR)
+		image:set_filter(drystal.filters.linear)
 	elseif k == '[3]' then
-		image:set_filter(drystal.BILINEAR)
+		image:set_filter(drystal.filters.bilinear)
 	elseif k == '[4]' then
-		image:set_filter(drystal.TRILINEAR)
+		image:set_filter(drystal.filters.trilinear)
 	elseif k == 'a' then
 		drystal.stop()
 	end

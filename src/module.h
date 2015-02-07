@@ -73,6 +73,14 @@ extern "C" {
 	lua_pushnumber(L, constant); \
 	lua_setfield(L, -2, constant_name);
 
+#define BEGIN_ENUM() \
+	lua_newtable(L);
+#define ADD_CONSTANT(name, value) \
+	lua_pushnumber(L, value); \
+	lua_setfield(L, -2, name);
+#define REGISTER_ENUM(name) \
+	lua_setfield(L, -2, name);
+
 #define DECLARE_CONSTANT(constant) \
 	DECLARE_CONSTANT_WITH_NAME(constant, #constant)
 
