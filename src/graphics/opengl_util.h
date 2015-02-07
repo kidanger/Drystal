@@ -30,7 +30,7 @@
 
 void check_opengl_oom(void);
 
-#ifdef DODEBUG
+#ifndef NDEBUG
 const char* getGLError(GLenum error);
 
 #define GLDEBUG(x) \

@@ -43,7 +43,7 @@ struct Source {
 	float desiredVolume;
 };
 
-#ifdef DODEBUG
+#ifndef NDEBUG
 #define audio_check_error() do { \
 		ALint error; \
 		while ((error = alGetError()) != AL_NO_ERROR) { \

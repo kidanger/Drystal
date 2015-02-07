@@ -40,7 +40,7 @@ extern "C" {
 #define log_message(level, msg, ...) \
 	fprintf(stderr, "[%4s|%10s] " msg "\n", level, _log_category, ##__VA_ARGS__)
 
-#ifdef DODEBUG
+#ifndef NDEBUG
 #define log_debug(msg, ...) \
 	log_message("DBG", "[%s:%d %s()] " msg, __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 #define log_info(msg, ...) \
