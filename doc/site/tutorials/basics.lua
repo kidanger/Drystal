@@ -6,7 +6,6 @@ local W, H = 400, 400
 local font = assert(drystal.load_font('arial.ttf', 40))
 local smallfont = assert(drystal.load_font('arial.ttf', 24))
 local spritesheet = drystal.load_surface('spritesheet.png')
-spritesheet:set_filter(drystal.BILINEAR)
 local sprites = {
 	{ x=0, y=0, w=128, h=128 }, -- O
 	{ x=128, y=0, w=128, h=128 }, -- X

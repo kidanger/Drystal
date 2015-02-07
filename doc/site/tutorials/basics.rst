@@ -105,9 +105,6 @@ First, we use our favorite image manipulation program to get a :download:`sprite
 graphics. Then, we load this spritesheet with :lua:func:`drystal.load_surface` which give us a
 :lua:class:`.Surface` that we can manipulate.
 
-For instance, we can set the filter of the surface to :lua:data:`drystal.BILINEAR` in order to get a better surface
-rendering.
-
 Finally, we define a table containing the location of the sprites and their size. It will be needed later when we will
 draw the sprites.
 
@@ -119,7 +116,6 @@ draw the sprites.
 
     -- load resources
     local spritesheet = drystal.load_surface('spritesheet.png')
-    spritesheet:set_filter(drystal.BILINEAR)
     local sprites = {
         { x=0, y=0, w=128, h=128 }, -- O
         { x=128, y=0, w=128, h=128 }, -- X
