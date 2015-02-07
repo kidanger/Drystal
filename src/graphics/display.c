@@ -530,7 +530,6 @@ int display_load_surface(const char * filename, Surface **surface)
 	return surface_load(filename, surface, display.current_from);
 }
 
-#define RGBA_SIZE 4
 Surface *display_new_surface(int w, int h, bool force_npot)
 {
 	assert(w > 0);
