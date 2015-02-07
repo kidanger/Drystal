@@ -56,7 +56,7 @@ Surface *surface_new(unsigned int w, unsigned int h, unsigned int texw, unsigned
 	s->h = h;
 	s->texw = texw;
 	s->texh = texh;
-	s->filter = FILTER_LINEAR;
+	s->filter = FILTER_DEFAULT;
 	s->has_fbo = false;
 	s->has_mipmap = false;
 	s->npot = false;
@@ -69,8 +69,8 @@ Surface *surface_new(unsigned int w, unsigned int h, unsigned int texw, unsigned
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, s->texw, s->texh, 0,
 	             GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, FILTER_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, FILTER_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->filter);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->filter);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
