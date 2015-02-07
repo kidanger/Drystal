@@ -180,10 +180,9 @@ void buffer_push_vertex(Buffer *b, GLfloat x, GLfloat y)
 	size_t cur;
 
 	assert(b);
+	assert(b->current_position < b->size);
 
 	cur = b->current_position * 2;
-
-	assert(cur < b->size * 2);
 
 	b->positions[cur + 0] = x;
 	b->positions[cur + 1] = y;
@@ -196,10 +195,9 @@ void buffer_push_color(Buffer *buffer, GLfloat r, GLfloat g, GLfloat b, GLfloat 
 	size_t cur;
 
 	assert(buffer);
+	assert(buffer->current_color < buffer->size);
 
 	cur = buffer->current_color * 4;
-
-	assert(cur < buffer->size * 4);
 
 	buffer->colors[cur + 0] = r;
 	buffer->colors[cur + 1] = g;
@@ -214,10 +212,9 @@ void buffer_push_tex_coord(Buffer *b, GLfloat x, GLfloat y)
 	size_t cur;
 
 	assert(b);
+	assert(b->current_tex_coord < b->size);
 
 	cur = b->current_tex_coord * 2;
-
-	assert(cur < b->size * 2);
 
 	b->tex_coords[cur + 0] = x;
 	b->tex_coords[cur + 1] = y;
