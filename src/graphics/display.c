@@ -44,6 +44,7 @@ log_category("display");
 struct Display {
 	Buffer *default_buffer;
 	SDL_Window *sdl_window;
+	SDL_GLContext *gl_context;
 	Surface *screen;
 
 	Shader *default_shader;
@@ -100,7 +101,7 @@ static int display_create_window(int w, int h)
 	if (!display.sdl_window) {
 		return -1;
 	}
-	SDL_GL_CreateContext(display.sdl_window);
+	display.gl_context = SDL_GL_CreateContext(display.sdl_window);
 #else
 	display.original_width = w;
 	display.original_height = h;
@@ -141,6 +142,7 @@ void display_init()
 	display.default_buffer = buffer_new(false, BUFFER_DEFAULT_SIZE);
 	display.camera = camera_new();
 	display.sdl_window = NULL;
+	display.gl_context = NULL;
 	display.screen = NULL;
 	display.default_shader = NULL;
 	display.current_shader = NULL;
@@ -185,8 +187,13 @@ void display_free()
 	camera_free(display.camera);
 	display.camera = NULL;
 
+	if (display.gl_context) {
+		SDL_GL_DeleteContext(display.gl_context);
+		display.gl_context = NULL;
+	}
 	if (display.sdl_window) {
 		SDL_DestroyWindow(display.sdl_window);
+		display.sdl_window = NULL;
 	}
 	if (display.screen) {
 		// freed by lua's gc
