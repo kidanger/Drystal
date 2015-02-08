@@ -297,8 +297,8 @@ int surface_load(const char *filename, Surface **surface, Surface *current_surfa
 		return -E2BIG;
 	}
 
-	GLuint potw = pow(2, ceil(log(w) / log(2)));
-	GLuint poth = pow(2, ceil(log(h) / log(2)));
+	GLuint potw = pow(2, (int) ceil(log(w) / log(2)));
+	GLuint poth = pow(2, (int) ceil(log(h) / log(2)));
 	if (potw != w || poth != h) {
 		GLuint y;
 		GLuint x;

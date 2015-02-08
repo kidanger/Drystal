@@ -540,8 +540,8 @@ Surface *display_new_surface(int w, int h, bool force_npot)
 {
 	assert(w > 0);
 	assert(h > 0);
-	int potw = pow(2, ceil(log(w) / log(2)));
-	int poth = pow(2, ceil(log(h) / log(2)));
+	int potw = pow(2, (int) ceil(log(w) / log(2)));
+	int poth = pow(2, (int) ceil(log(h) / log(2)));
 	if (force_npot) {
 		potw = w;
 		poth = h;
