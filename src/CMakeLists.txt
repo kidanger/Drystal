@@ -4,6 +4,7 @@ set(SOURCES
 	dlua.c
 	lua_util.c
 	util.c
+	log.c
 )
 if(EMSCRIPTEN)
 	list(APPEND SOURCES main_emscripten.c)

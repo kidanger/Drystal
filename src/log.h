@@ -21,7 +21,6 @@ extern "C" {
 #endif
 
 #include <stdio.h>
-#include <stdlib.h>
 
 #include "macro.h"
 
@@ -56,11 +55,7 @@ extern "C" {
 #define log_error(msg, ...) \
 	log_message("ERR", msg, ##__VA_ARGS__)
 
-static inline void log_oom_and_exit(void)
-{
-	fprintf(stderr, "Out of memory. Exiting.");
-	exit(EXIT_FAILURE);
-}
+__attribute__((noreturn)) void log_oom_and_exit(void);
 
 #ifdef __cplusplus
 }
