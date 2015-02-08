@@ -237,7 +237,6 @@ bool display_is_available()
 void display_set_title(const char *title)
 {
 	assert(title);
-	assert(display.sdl_window);
 
 	SDL_SetWindowTitle(display.sdl_window, title);
 }
