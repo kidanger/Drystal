@@ -170,7 +170,8 @@ static void surface_create_fbo(Surface *s)
 	s->has_fbo = true;
 }
 
-Surface *surface_new(unsigned int w, unsigned int h, unsigned int texw, unsigned int texh, SurfaceFormat format, void *pixels, Surface *current_from, Surface *current_on)
+Surface *surface_new(unsigned int w, unsigned int h, unsigned int texw, unsigned int texh,
+					 SurfaceFormat format, void *pixels, Surface *current_from, Surface *current_on)
 {
 	Surface *s = new(Surface, 1);
 	s->filename = NULL;
@@ -189,8 +190,10 @@ Surface *surface_new(unsigned int w, unsigned int h, unsigned int texw, unsigned
 	glGenTextures(1, &(s->tex));
 	glBindTexture(GL_TEXTURE_2D, s->tex);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, format, s->texw, s->texh, 0,
-	             format, GL_UNSIGNED_BYTE, pixels);
+	glTexImage2D(GL_TEXTURE_2D, 0, format, s->texw, s->texh,
+				 0, format, GL_UNSIGNED_BYTE, 0);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, s->w, s->h,
+					format, GL_UNSIGNED_BYTE, pixels);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->filter);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->filter);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -285,7 +288,6 @@ int surface_load(const char *filename, Surface **surface, Surface *current_surfa
 	GLuint w, h;
 	SurfaceFormat format;
 	GLint internal_format;
-	Surface *tmp;
 	GLubyte *data;
 	int r;
 
@@ -299,29 +301,10 @@ int surface_load(const char *filename, Surface **surface, Surface *current_surfa
 
 	GLuint potw = pow(2, (int) ceil(log(w) / log(2)));
 	GLuint poth = pow(2, (int) ceil(log(h) / log(2)));
-	if (potw != w || poth != h) {
-		GLuint y;
-		GLuint x;
-		GLubyte *pixels = new(GLubyte, potw * poth * internal_format);
-		memset(pixels, 0, potw * poth * internal_format);
-		for (y = 0; y < h; y++) {
-			for (x = 0; x < w; x++) {
-				int is = (x + y * w) * internal_format;
-				int id = (x + y * potw) * internal_format;
-				memcpy(pixels + id, data + is, internal_format);
-			}
-		}
-		tmp = surface_new(w, h, potw, poth, format, pixels, current_surface, NULL);
-		free(pixels);
-	} else {
-		tmp = surface_new(w, h, w, h, format, data, current_surface, NULL);
-	}
+	*surface = surface_new(w, h, potw, poth, format, data, current_surface, NULL);
+	(*surface)->filename = xstrdup(filename);
 
 	free(data);
-
-	tmp->filename = xstrdup(filename);
-	*surface = tmp;
-
 	return 0;
 }
 
