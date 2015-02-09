@@ -209,7 +209,7 @@
 #define MINIZ_LITTLE_ENDIAN 1
 #endif
 
-#if MINIZ_X86_OR_X64_CPU
+#ifdef MINIZ_X86_OR_X64_CPU
 // Set MINIZ_USE_UNALIGNED_LOADS_AND_STORES to 1 on CPU's that permit efficient integer loads and stores from unaligned addresses.
 #define MINIZ_USE_UNALIGNED_LOADS_AND_STORES 1
 #endif
@@ -750,11 +750,11 @@ typedef struct
   mz_int16 m_look_up[TINFL_FAST_LOOKUP_SIZE], m_tree[TINFL_MAX_HUFF_SYMBOLS_0 * 2];
 } tinfl_huff_table;
 
-#if MINIZ_HAS_64BIT_REGISTERS
+#ifdef MINIZ_HAS_64BIT_REGISTERS
   #define TINFL_USE_64BIT_BITBUF 1
 #endif
 
-#if TINFL_USE_64BIT_BITBUF
+#ifdef TINFL_USE_64BIT_BITBUF
   typedef mz_uint64 tinfl_bit_buf_t;
   #define TINFL_BITBUF_SIZE (64)
 #else
