@@ -107,8 +107,6 @@ static int handle_events(void)
 	} buffer;
 	struct inotify_event *ievent;
 	ssize_t r;
-	ssize_t i;
-	size_t event_size;
 	int count = 0;
 
 	r = read(fd, buffer.raw, EVENT_BUFFER_LEN);
@@ -120,11 +118,7 @@ static int handle_events(void)
 		return -EIO;
 	}
 
-	i = 0;
-	while (i < r) {
-		ievent = (struct inotify_event *)(&buffer.ev + i);
-		event_size = offsetof(struct inotify_event, name) + ievent->len;
-		i += event_size;
+	for (ievent = &buffer.ev; (uint8_t *) ievent < (uint8_t *) buffer.raw + r; ievent = (struct inotify_event *) (ievent + sizeof(struct inotify_event) + ievent->len)) {
 		handle_event(ievent);
 		count++;
 	}
