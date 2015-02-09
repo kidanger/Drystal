@@ -209,15 +209,15 @@ void font_draw(Font *font, const char* text, float x, float y, Alignment align)
 				}
 				if (state->outlined) {
 					display_set_color(state->outr, state->outg, state->outb);
-					float f = font->font_size * 0.04;
+					float f = font->font_size * 0.04f;
 					draw_quad_fancy(q, italic,       -1 * f,        0 * f);
 					draw_quad_fancy(q, italic,        1 * f,        0 * f);
 					draw_quad_fancy(q, italic,        0 * f,       -1 * f);
 					draw_quad_fancy(q, italic,        0 * f,        1 * f);
-					draw_quad_fancy(q, italic,  M_SQRT1_2 * f,  M_SQRT1_2 * f);
-					draw_quad_fancy(q, italic, -M_SQRT1_2 * f,  M_SQRT1_2 * f);
-					draw_quad_fancy(q, italic, -M_SQRT1_2 * f, -M_SQRT1_2 * f);
-					draw_quad_fancy(q, italic,  M_SQRT1_2 * f, -M_SQRT1_2 * f);
+					draw_quad_fancy(q, italic, (float)  M_SQRT1_2 * f, (float)  M_SQRT1_2 * f);
+					draw_quad_fancy(q, italic, (float) -M_SQRT1_2 * f, (float)  M_SQRT1_2 * f);
+					draw_quad_fancy(q, italic, (float) -M_SQRT1_2 * f, (float) -M_SQRT1_2 * f);
+					draw_quad_fancy(q, italic, (float)  M_SQRT1_2 * f, (float) -M_SQRT1_2 * f);
 					display_set_color(state->r, state->g, state->b);
 				}
 				draw_quad_fancy(q, italic, 0.0, 0.0);

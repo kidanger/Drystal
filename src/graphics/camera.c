@@ -54,10 +54,10 @@ void camera_update_matrix(Camera *c, int width, int height)
 
 	angle = c->angle;
 	ratio = (float) width / height;
-	c->matrix[0] = cos(angle);
-	c->matrix[1] = sin(angle) * ratio;
-	c->matrix[2] = -sin(angle) / ratio;
-	c->matrix[3] = cos(angle);
+	c->matrix[0] = cosf(angle);
+	c->matrix[1] = sinf(angle) * ratio;
+	c->matrix[2] = -sinf(angle) / ratio;
+	c->matrix[3] = cosf(angle);
 }
 
 void camera_reset(Camera *c)

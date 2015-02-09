@@ -149,7 +149,7 @@ int mlua_set_volume_music(lua_State *L)
 	Music* music = pop_music(L, 1);
 	float volume = luaL_checknumber(L, 2);
 
-	assert_lua_error(L, volume >= 0.0 && volume <= 1.0, "set_volume: volume must be >= 0 and <= 1");
+	assert_lua_error(L, volume >= 0.0f && volume <= 1.0f, "set_volume: volume must be >= 0 and <= 1");
 
 	music_set_volume(music, volume);
 	return 0;

@@ -29,8 +29,8 @@ void particle_update(Particle *p, System *s, float dt)
 	p->life -= dt;
 
 	p->vel += p->accel * dt;
-	p->x += p->vel * cos(p->dir_angle) * dt;
-	p->y += p->vel * sin(p->dir_angle) * dt;
+	p->x += p->vel * cosf(p->dir_angle) * dt;
+	p->y += p->vel * sinf(p->dir_angle) * dt;
 
 	float liferatio = 1 - p->life / p->lifetime;
 	if (liferatio > s->sizes[p->size_state + 1].at && p->size_state < s->cur_size) {
