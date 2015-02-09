@@ -18,6 +18,7 @@
 #include <assert.h>
 #include <string.h>
 #include <math.h>
+#include <sys/mman.h>
 
 #include <stb_truetype.h>
 
@@ -27,14 +28,13 @@
 #include "parser.h"
 #include "util.h"
 
-// TODO: fixme
-unsigned char file_content[1 << 20];
-unsigned char pixels[512 * 512];
-unsigned char pixels_colored[512 * 512 * 4];
-
 Font* font_load(const char* filename, float size, int first_char, int num_chars)
 {
 	int i;
+	unsigned char *pixels_colored;
+	unsigned char *pixels;
+	unsigned char *data = NULL;
+	long filesize;
 
 	assert(filename);
 
@@ -42,36 +42,45 @@ Font* font_load(const char* filename, float size, int first_char, int num_chars)
 	if (!file)
 		return NULL;
 
+	fseek(file, 0L, SEEK_END);
+	filesize = ftell(file);
+	fseek(file, 0L, SEEK_SET);
+
+	data = mmap(0, filesize, PROT_READ, MAP_PRIVATE, fileno(file), 0);
+	if (data == MAP_FAILED) {
+		fclose(file);
+		return NULL;
+	}
+
 	// TODO: compute texture size
 	int w = 512;
 	int h = 512;
 	Font* font = new(Font, 1);
-
 	font->first_char = first_char;
 	font->num_chars = num_chars;
 	font->char_data = new(stbtt_bakedchar, num_chars);
 	font->font_size = size;
 
-	size_t read = fread(file_content, 1, 1 << 20, file);
-	if (read == 0) {
-		fclose(file);
-		free(font->char_data);
-		free(font);
-		return NULL;
-	}
-	fclose(file);
-
-	stbtt_BakeFontBitmap(file_content, 0, size, pixels, w, h,
+	pixels = new(unsigned char, w * h);
+	stbtt_BakeFontBitmap(data, 0, size, pixels, w, h,
 	                     first_char, num_chars, font->char_data);
 
+	munmap(data, filesize);
+
+	pixels_colored = new(unsigned char, w * h * 4);
 	memset(pixels_colored, 0xff, w * h * 4);
 	for (i = 0; i < w * h; i++) {
 		pixels_colored[i * 4 + 3] = pixels[i];
 	}
+	free(pixels);
 
 	font->surface = display_create_surface(w, h, w, h, pixels_colored);
 	display_set_filter(font->surface, FILTER_NEAREST);
 	font->ref = 0;
+
+	free(pixels_colored);
+
+	fclose(file);
 
 	return font;
 }
