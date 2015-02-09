@@ -22,13 +22,13 @@
 #include <miniz.h>
 
 #include "util.h"
-
+#include "macro.h"
 #include "engine.h"
 #include "log.h"
 
 log_category("main");
 
-static void on_zip_downloaded(void* userdata, void* buffer, int size)
+static void on_zip_downloaded(_unused_ void* userdata, void* buffer, int size)
 {
 	mz_zip_archive za;
 	if (!mz_zip_reader_init_mem(&za, buffer, size, 0)) {

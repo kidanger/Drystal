@@ -265,7 +265,6 @@ void display_set_fullscreen(bool fullscreen)
 void display_resize(int w, int h)
 {
 	int currentw, currenth;
-	int posx, posy;
 
 	SDL_GetWindowSize(display.sdl_window, &currentw, &currenth);
 	if (w == currentw && h == currenth)
@@ -275,6 +274,7 @@ void display_resize(int w, int h)
 #ifdef EMSCRIPTEN
 	emscripten_set_canvas_size(w, h);
 #else
+	int posx, posy;
 	SDL_GetWindowPosition(display.sdl_window, &posx, &posy);
 	SDL_SetWindowSize(display.sdl_window, w, h); // resize
 	SDL_SetWindowPosition(display.sdl_window,

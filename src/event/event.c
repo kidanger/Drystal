@@ -333,7 +333,7 @@ void event_update()
 }
 
 #ifdef EMSCRIPTEN
-static EM_BOOL em_ui_callback(int eventType, const EmscriptenUiEvent *uiEvent, void *userData)
+static EM_BOOL em_ui_callback(_unused_ int eventType, const EmscriptenUiEvent *uiEvent, _unused_ void *userData)
 {
 	int w = uiEvent->windowInnerWidth;
 	int h = uiEvent->windowInnerHeight;
@@ -346,7 +346,7 @@ static EM_BOOL em_ui_callback(int eventType, const EmscriptenUiEvent *uiEvent, v
 	}
 	return false;
 }
-static EM_BOOL em_click_callback(int eventType, const EmscriptenMouseEvent *keyEvent, void *userData)
+static EM_BOOL em_click_callback(_unused_ int eventType, _unused_ const EmscriptenMouseEvent *keyEvent, _unused_ void *userData)
 {
 	// just define it so emscripten's html5 lib can detect click
 	// and request pointer lock
