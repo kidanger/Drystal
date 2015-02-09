@@ -83,6 +83,7 @@ endif()
 add_c_cxx_flag_if_supported(DRYSTAL_DEBUG_FLAGS "-fno-omit-frame-pointer"              HAS_FNO_OMIT_FRAME_POINTER)
 add_c_cxx_flag_if_supported(DRYSTAL_DEBUG_FLAGS "-fsanitize=undefined"                 HAS_FSANITIZE_UNDEFINED)
 add_c_cxx_flag_if_supported(DRYSTAL_FLAGS       "-Wlogical-op"                         HAS_WLOGICAL_OP)
+add_c_cxx_flag_if_supported(DRYSTAL_FLAGS       "-Wdouble-promotion"                   HAS_WDOUBLE_PROMOTION)
 
 add_cxx_flag_if_supported(DRYSTAL_CXX_FLAGS "-Weffc++" HAS_WEFFCPP)
 
