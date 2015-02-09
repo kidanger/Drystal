@@ -125,7 +125,6 @@ static int png_load(const char *filename, GLubyte **data, GLuint *width, GLuint 
 			png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
 			fclose(f);
 			return -ENOTSUP;
-			break;
 	}
 
 	png_byte *image_data = xmalloc(sizeof(png_byte) * temp_width * temp_height * temp_internal_format);
