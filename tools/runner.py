@@ -20,22 +20,23 @@ N = '\033[m'
 
 BUILD_NATIVE_RELEASE = os.path.abspath('build-native-release')
 BUILD_NATIVE_DEBUG = os.path.abspath('build-native-debug')
-BUILD_WEB = os.path.abspath('build-web')
+BUILD_WEB_DEBUG = os.path.abspath('build-web-debug')
+BUILD_WEB_RELEASE = os.path.abspath('build-web-release')
 
 join = os.path.join
 
 BINARY_DIRECTORY_NATIVE_RELEASE = join(BUILD_NATIVE_RELEASE, 'src')
 BINARY_DIRECTORY_NATIVE_DEBUG = join(BUILD_NATIVE_DEBUG, 'src')
-BINARY_DIRECTORY_NATIVE_WEB = join(BUILD_WEB, 'src')
+BINARY_DIRECTORY_WEB_DEBUG = join(BUILD_WEB_DEBUG, 'src')
+BINARY_DIRECTORY_WEB_RELEASE = join(BUILD_WEB_RELEASE, 'src')
 
 NATIVE_CMAKE_DEFINES = []
 
 EMSCRIPTEN_ROOT_PATH = '/usr/lib/emscripten'
 EMSCRIPTEN_CMAKE_DEFINES = ['CMAKE_TOOLCHAIN_FILE=../cmake/Emscripten.cmake',
                             'EMSCRIPTEN_ROOT_PATH=' + EMSCRIPTEN_ROOT_PATH,
-                            'EMSCRIPTEN=1',
                             'BUILD_LIVECODING=NO',
-                            'CMAKE_BUILD_TYPE=Release']
+                            ]
 
 LIB_PATH_RELEASE = join(BUILD_NATIVE_RELEASE, 'external')
 LIB_PATH_DEBUG = join(BUILD_NATIVE_DEBUG, 'external')
@@ -258,13 +259,17 @@ def prepare_native(release=False, enable_coverage=False, disabled_modules=None):
     return program, []
 
 
-def prepare_drystaljs(destination):
+def prepare_drystaljs(release, destination):
     '''
         copy build-web/src/drystal.js to web/drystal.js
     '''
-    srcjs = join(BINARY_DIRECTORY_NATIVE_WEB, 'drystal.js')
+    srcjs = join(BINARY_DIRECTORY_WEB_DEBUG, 'drystal.js')
+    memsrcjs = join(BINARY_DIRECTORY_WEB_DEBUG, 'drystal.js.mem')
+    if release:
+        srcjs = join(BINARY_DIRECTORY_WEB_RELEASE, 'drystal.js')
+        memsrcjs = join(BINARY_DIRECTORY_WEB_RELEASE, 'drystal.js.mem')
+
     js = join(destination, 'drystal.js')
-    memsrcjs = join(BINARY_DIRECTORY_NATIVE_WEB, 'drystal.js.mem')
     memjs = join(destination, 'drystal.js.mem')
 
     if has_been_modified(srcjs, js):
@@ -327,6 +332,22 @@ def copy_and_modify_html(gamedir, zipname, destination, mainfile=None):
     open(join(destination, 'index.html'), 'w').write(html)
 
 
+def prepare_web(release=False, disabled_modules=None):
+    disabled_modules = disabled_modules or []
+    directory = BUILD_WEB_DEBUG
+    build_type = 'RelWithDebInfo'
+    disabled_modules_prefixed = []
+
+    if release:
+        directory = BUILD_WEB_RELEASE
+        build_type = 'Release'
+
+    for d in disabled_modules:
+        disabled_modules_prefixed += ['BUILD_' + d.upper() + '=OFF']
+
+    cmake_update(directory, ['CMAKE_BUILD_TYPE=' + build_type] + EMSCRIPTEN_CMAKE_DEFINES + disabled_modules_prefixed)
+
+
 def run_repack(args):
     zipname = 'game.zip'
     if not os.path.exists(args.destination):
@@ -338,12 +359,12 @@ def run_repack(args):
     else:
         directory, file = os.path.split(args.PATH)
 
-    cmake_update('build-web', EMSCRIPTEN_CMAKE_DEFINES)
+    prepare_web(args.release, args.disable_modules)
 
     # copy html (and check which version of drystaljs is used
     copy_and_modify_html(directory, zipname, args.destination, mainfile=file)
     # copy drystaljs and its data
-    prepare_drystaljs(args.destination)
+    prepare_drystaljs(args.release, args.destination)
 
     # pack game data and copy wgot files
     config = load_config(directory)
@@ -412,6 +433,10 @@ if __name__ == '__main__':
     add_signal_handlers()
 
     parser = argparse.ArgumentParser(description='Drystal roadrunner !')
+    parser.add_argument('-r', '--release', help='compile in release mode',
+                        action='store_true', default=False)
+    parser.add_argument('-D', '--disable-modules', help='disable modules',
+                        nargs='+', choices=['font', 'graphics', 'web', 'utils', 'storage', 'physics', 'particle', 'audio'])
     subparsers = parser.add_subparsers(help='sub-commands')
 
     parser_native = subparsers.add_parser('native', help='run with drystal',
@@ -422,10 +447,6 @@ if __name__ == '__main__':
     parser_native.add_argument('-l', '--live', help='live coding (reload code \
                             when it has been modified)',
                             action='store_true', default=False)
-    parser_native.add_argument('-r', '--release', help='compile in release mode',
-                            action='store_true', default=False)
-    parser_native.add_argument('-D', '--disable-modules', help='disable modules',
-                            nargs='+', choices=['font', 'graphics', 'web', 'utils', 'storage', 'physics', 'particle', 'audio'])
     group = parser_native.add_mutually_exclusive_group()
     group.add_argument('-d', '--debug', help='debug with gdb',
                     action='store_true', default=False)
