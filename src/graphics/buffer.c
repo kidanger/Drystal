@@ -37,11 +37,11 @@ static void buffer_upload(Buffer *b, int method)
 	}
 
 	glBindBuffer(GL_ARRAY_BUFFER, b->buffers[0]);
-	glBufferData(GL_ARRAY_BUFFER, used * 2 * sizeof(GLfloat), b->positions, method);
+	glBufferData(GL_ARRAY_BUFFER, used * 2 * sizeof(GLshort), b->positions, method);
 	check_opengl_oom();
 
 	glBindBuffer(GL_ARRAY_BUFFER, b->buffers[1]);
-	glBufferData(GL_ARRAY_BUFFER, used * 4 * sizeof(GLfloat), b->colors, method);
+	glBufferData(GL_ARRAY_BUFFER, used * 4 * sizeof(GLubyte), b->colors, method);
 	check_opengl_oom();
 
 	if (b->has_texture) {
@@ -66,7 +66,10 @@ static void buffer_partial_free(Buffer *b)
 	free(b->colors);
 	free(b->tex_coords);
 	free(b->point_sizes);
-	b->positions = b->colors = b->tex_coords = b->point_sizes = NULL;
+	b->positions = NULL;
+	b->colors = NULL;
+	b->tex_coords = NULL;
+	b->point_sizes = NULL;
 }
 
 static bool buffer_is_full(const Buffer *b)
@@ -105,8 +108,8 @@ Buffer *buffer_new(bool user_buffer, unsigned int size)
 	Buffer *b = new0(Buffer, 1);
 	b->type = UNDEFINED;
 	b->size = size;
-	b->positions = new(GLfloat, size * 2);
-	b->colors = new(GLfloat, size * 4);
+	b->positions = new(GLshort, size * 2);
+	b->colors = new(GLubyte, size * 4);
 	b->user_buffer = user_buffer;
 
 	return b;
@@ -193,7 +196,7 @@ void buffer_check_not_use_texture(Buffer *b)
 	}
 }
 
-void buffer_push_vertex(Buffer *b, GLfloat x, GLfloat y)
+void buffer_push_vertex(Buffer *b, GLshort x, GLshort y)
 {
 	size_t cur;
 
@@ -208,7 +211,7 @@ void buffer_push_vertex(Buffer *b, GLfloat x, GLfloat y)
 	b->uploaded = false;
 }
 
-void buffer_push_color(Buffer *buffer, GLfloat r, GLfloat g, GLfloat b, GLfloat a)
+void buffer_push_color(Buffer *buffer, GLubyte r, GLubyte g, GLubyte b, GLubyte a)
 {
 	size_t cur;
 
@@ -311,9 +314,9 @@ void buffer_draw(Buffer *b, float dx, float dy)
 		buffer_upload(b, GL_DYNAMIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, b->buffers[0]);
-	glVertexAttribPointer(ATTR_LOCATION_POSITION, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+	glVertexAttribPointer(ATTR_LOCATION_POSITION, 2, GL_SHORT, GL_FALSE, 0, NULL);
 	glBindBuffer(GL_ARRAY_BUFFER, b->buffers[1]);
-	glVertexAttribPointer(ATTR_LOCATION_COLOR, 4, GL_FLOAT, GL_FALSE, 0, NULL);
+	glVertexAttribPointer(ATTR_LOCATION_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, NULL);
 
 	if (b->has_texture) {
 		glBindBuffer(GL_ARRAY_BUFFER, b->buffers[2]);

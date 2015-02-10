@@ -55,10 +55,10 @@ struct Display {
 
 	Buffer *current_buffer;
 
-	float r;
-	float g;
-	float b;
-	float alpha;
+	unsigned char r;
+	unsigned char g;
+	unsigned char b;
+	unsigned char alpha;
 
 	Camera *camera;
 
@@ -148,10 +148,10 @@ int display_init(void)
 	display.current_on = NULL;
 	display.current_from = NULL;
 	display.current_buffer = display.default_buffer;
-	display.r = 1;
-	display.g = 1;
-	display.b = 1;
-	display.alpha = 1;
+	display.r = 255;
+	display.g = 255;
+	display.b = 255;
+	display.alpha = 255;
 	display.original_width = 0;
 	display.original_height = 0;
 	display.debug_mode = false;
@@ -206,16 +206,16 @@ void display_get_color(int *red, int *green, int *blue)
 	assert(green);
 	assert(blue);
 
-	*red = display.r * 255;
-	*green = display.g * 255;
-	*blue = display.b * 255;
+	*red = display.r;
+	*green = display.g;
+	*blue = display.b;
 }
 
 void display_get_alpha(int *a)
 {
 	assert(a);
 
-	*a = display.alpha * 255;
+	*a = display.alpha;
 }
 
 Buffer *display_get_current_buffer(void)
@@ -317,7 +317,7 @@ void display_show_cursor(bool b)
 void display_draw_background()
 {
 	buffer_check_empty(display.current_buffer);
-	glClearColor(display.r, display.g, display.b, display.alpha);
+	glClearColor(display.r / 255.f, display.g / 255.f, display.b / 255.f, display.alpha / 255.f);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
@@ -328,10 +328,10 @@ void display_flip()
 	// save context
 	Surface *oldfrom = display.current_from;
 	Buffer *oldbuffer = display.current_buffer;
-	float oldr = display.r;
-	float oldg = display.g;
-	float oldb = display.b;
-	float oldalpha = display.alpha;
+	unsigned char oldr = display.r;
+	unsigned char oldg = display.g;
+	unsigned char oldb = display.b;
+	unsigned char oldalpha = display.alpha;
 	bool olddebug = display.debug_mode;
 	Camera oldcamera = *display.camera;
 
@@ -394,16 +394,16 @@ void display_set_color(int red, int green, int blue)
 	assert(green >= 0 && green <= 255);
 	assert(blue >= 0 && blue <= 255);
 
-	display.r = red / 255.;
-	display.g = green / 255.;
-	display.b = blue / 255.;
+	display.r = red;
+	display.g = green;
+	display.b = blue;
 }
 
 void display_set_alpha(int a)
 {
 	assert(a >= 0 && a <= 255);
 
-	display.alpha = a / 255.;
+	display.alpha = a;
 }
 
 void display_set_line_width(float width)
@@ -602,10 +602,10 @@ void display_draw_point_tex(float x, float y, float size)
 void display_draw_line(float x1, float y1, float x2, float y2)
 {
 	Buffer *current_buffer = display.current_buffer;
-	float r = display.r;
-	float g = display.g;
-	float b = display.b;
-	float alpha = display.alpha;
+	unsigned char r = display.r;
+	unsigned char g = display.g;
+	unsigned char b = display.b;
+	unsigned char alpha = display.alpha;
 	int i;
 
 	buffer_check_type(current_buffer, LINE_BUFFER);
@@ -621,10 +621,10 @@ void display_draw_line(float x1, float y1, float x2, float y2)
 void display_draw_triangle(float x1, float y1, float x2, float y2, float x3, float y3)
 {
 	Buffer *current_buffer = display.current_buffer;
-	float r = display.r;
-	float g = display.g;
-	float b = display.b;
-	float alpha = display.alpha;
+	unsigned char r = display.r;
+	unsigned char g = display.g;
+	unsigned char b = display.b;
+	unsigned char alpha = display.alpha;
 	int i;
 
 	if (display.debug_mode) {
@@ -649,10 +649,10 @@ void display_draw_surface(float xi1, float yi1, float xi2, float yi2, float xi3,
                           float xo1, float yo1, float xo2, float yo2, float xo3, float yo3)
 {
 	Buffer *current_buffer = display.current_buffer;
-	float r = display.r;
-	float g = display.g;
-	float b = display.b;
-	float alpha = display.alpha;
+	unsigned char r = display.r;
+	unsigned char g = display.g;
+	unsigned char b = display.b;
+	unsigned char alpha = display.alpha;
 	int i;
 	float xxi1, xxi2, xxi3;
 	float yyi1, yyi2, yyi3;
