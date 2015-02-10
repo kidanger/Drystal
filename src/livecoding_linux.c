@@ -282,7 +282,13 @@ int livecoding_stop(void)
 	close(wakeup_read_fd);
 	close(wakeup_write_fd);
 
+	wds = NULL;
+	fd = -1;
+	wakeup_read_fd = -1;
+	wakeup_write_fd = -1;
 	running = false;
+	wds_count = 0;
+	wds_nmemb = 0;
 	return 0;
 }
 
