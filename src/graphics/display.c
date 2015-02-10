@@ -125,12 +125,12 @@ static int display_create_window(int w, int h)
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
-	glEnable(GL_TEXTURE_2D);
 
 #ifndef EMSCRIPTEN
 	glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 #endif
 
+	GLDEBUG();
 	return 0;
 }
 
