@@ -164,6 +164,7 @@ int livecoding_watch_directory_recursively(const char *path)
 
 	r = livecoding_watch_directory(path);
 	if (r < 0) {
+		closedir(dir);
 		return r;
 	}
 
