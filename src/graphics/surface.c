@@ -25,6 +25,7 @@
 #include "log.h"
 #include "util.h"
 #include "macro.h"
+#include "opengl_util.h"
 
 log_category("graphics");
 
@@ -191,8 +192,10 @@ Surface *surface_new(unsigned int w, unsigned int h, unsigned int texw, unsigned
 
 	glTexImage2D(GL_TEXTURE_2D, 0, format, s->texw, s->texh,
 				 0, format, GL_UNSIGNED_BYTE, 0);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, s->w, s->h,
-					format, GL_UNSIGNED_BYTE, pixels);
+	if (pixels) {
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, s->w, s->h,
+						format, GL_UNSIGNED_BYTE, pixels);
+	}
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->filter);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->filter);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -211,6 +214,7 @@ Surface *surface_new(unsigned int w, unsigned int h, unsigned int texw, unsigned
 		glBindFramebuffer(GL_FRAMEBUFFER, current_on ? current_on->fbo : 0);
 	}
 
+	GLDEBUG();
 	return s;
 }
 
