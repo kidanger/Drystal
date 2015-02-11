@@ -58,6 +58,53 @@ REQUIREMENTS:
     - sphinx
     - pip
 
+    Web build:
+    - Emscripten
+
+FIRST TIME:
+    The first time you cloned Drystal you need to initialize the submodules:
+    $ git submodule update --init --recursive
+
+NATIVE BUILD OF DRYSTAL:
+    $ mkdir build-native-release
+    $ cd build-native-release
+    $ cmake .. -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE=Release
+    $ make
+
+    You can now find the executable in the src/ directory
+
+    $ src/drystal --help
+
+WEB BUILD OF DRYSTAL:
+    In order to compile Drystal to javascript you will need Emscripten.
+
+    $ mkdir build-web-release
+    $ cd build-web-release
+    $ cmake .. -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../cmake/Emscripten.cmake -DEMSCRIPTEN_ROOT_PATH=/usr/lib/emscripten -DBUILD_LIVECODING=NO
+    $ make
+
+    You will find the final javascript code (there will be two files drystal.js
+    and drystal.mem.js) in the src/ directory.
+
+BUILD OPTIONS:
+    You can configure the build to fit to your needs, e.g. you do not need
+    the physics engine, you need to add -DBUILD_PHYSICS=OFF
+
+    Here is the list of options:
+    - BUILD_MANPAGES
+        [Default to ON]
+    - BUILD_ENABLE_COVERAGE
+        [Default to OFF]
+    - BUILD_LIVECODING
+        [Default to ON]
+    - BUILD_PHYSICS, BUILD_PARTICLE, BUILD_WEB, BUILD_FONT, BUILD_AUDIO
+      BUILD_STORAGE, BUILD_GRAPHICS, BUILD_UTILS
+        [Default to ON]
+
+    For the web build, removing parts of Drystal that you do not use decrease
+    the size of the final javascript code which helps loading the page of the
+    game faster.
+
 BUILD DOCUMENTATION:
     First, you need sphinx and pip (python2) then, as root, run:
     # pip install sphinx_rtd_theme
