@@ -118,11 +118,10 @@ void msleep(unsigned long milisec)
 {
 	struct timespec ts;
 	ts.tv_sec = milisec / MSEC_PER_SEC;
-	ts.tv_nsec = (milisec % MSEC_PER_SEC) * MSEC_PER_SEC;
+	ts.tv_nsec = (milisec % MSEC_PER_SEC) * USEC_PER_SEC;
 
 	/* we sleep until the time requested has passed */
-	while (nanosleep(&ts, &ts) == -1)
-		continue;
+	while (nanosleep(&ts, &ts) == -1);
 }
 
 bool endswith(const char *s, const char *postfix)
