@@ -1,5 +1,5 @@
 /*
-** $Id: luaconf.h,v 1.176 2013/03/16 21:10:18 roberto Exp $
+** $Id: luaconf.h,v 1.193 2014/03/21 14:27:16 roberto Exp $
 ** Configuration file for Lua
 ** See Copyright Notice in lua.h
 */
@@ -17,6 +17,26 @@
 ** Search for "@@" to find all configurable definitions.
 ** ===================================================================
 */
+
+
+/*
+** ===================================================================
+@@ LUA_INT_INT / LUA_INT_LONG / LUA_INT_LONGLONG defines size for
+@* Lua integers;
+@@ LUA_REAL_FLOAT / LUA_REAL_DOUBLE / LUA_REAL_LONGDOUBLE defines size for
+@* Lua floats.
+**
+** These definitions set the numeric types for Lua. Lua should work
+** fine with 32-bit or 64-bit integers mixed with 32-bit or 64-bit
+** floats. The usual configurations are 64-bit integers and floats (the
+** default) and 32-bit integers and floats (Small Lua, for restricted
+** hardware).
+** =====================================================================
+*/
+//#define LUA_INT_LONGLONG
+#define LUA_INT_LONG
+//#define LUA_REAL_DOUBLE
+#define LUA_REAL_FLOAT
 
 
 /*
@@ -41,23 +61,27 @@
 
 
 #if defined(LUA_USE_LINUX)
+#define LUA_USE_C99
 #define LUA_USE_POSIX
 #define LUA_USE_DLOPEN		/* needs an extra library: -ldl */
 #define LUA_USE_READLINE	/* needs some extra libraries */
-#define LUA_USE_STRTODHEX	/* assume 'strtod' handles hex formats */
-#define LUA_USE_AFORMAT		/* assume 'printf' handles 'aA' specifiers */
-#define LUA_USE_LONGLONG	/* assume support for long long */
 #endif
 
 #if defined(LUA_USE_MACOSX)
+#define LUA_USE_C99
 #define LUA_USE_POSIX
 #define LUA_USE_DLOPEN		/* does not need -ldl */
 #define LUA_USE_READLINE	/* needs an extra library: -lreadline */
-#define LUA_USE_STRTODHEX	/* assume 'strtod' handles hex formats */
-#define LUA_USE_AFORMAT		/* assume 'printf' handles 'aA' specifiers */
-#define LUA_USE_LONGLONG	/* assume support for long long */
 #endif
 
+
+/*
+@@ LUA_USE_C99 includes all functionality from C 99.
+** CHANGE it (define it) if your system is compatible.
+*/
+#if defined(LUA_USE_C99)
+#define LUA_USE_AFORMAT		/* assume 'printf' handles 'aA' specifiers */
+#endif
 
 
 /*
@@ -66,11 +90,6 @@
 ** CHANGE it (define it) if your system is XSI compatible.
 */
 #if defined(LUA_USE_POSIX)
-#define LUA_USE_MKSTEMP
-#define LUA_USE_ISATTY
-#define LUA_USE_POPEN
-#define LUA_USE_ULONGJMP
-#define LUA_USE_GMTIME_R
 #endif
 
 
@@ -93,7 +112,8 @@
 #define LUA_CDIR	"!\\"
 #define LUA_PATH_DEFAULT  \
 		LUA_LDIR"?.lua;"  LUA_LDIR"?\\init.lua;" \
-		LUA_CDIR"?.lua;"  LUA_CDIR"?\\init.lua;" ".\\?.lua"
+		LUA_CDIR"?.lua;"  LUA_CDIR"?\\init.lua;" \
+		".\\?.lua;" ".\\?\\init.lua"
 #define LUA_CPATH_DEFAULT \
 		LUA_CDIR"?.dll;" LUA_CDIR"loadall.dll;" ".\\?.dll"
 
@@ -105,7 +125,8 @@
 #define LUA_CDIR	LUA_ROOT "lib/lua/" LUA_VDIR
 #define LUA_PATH_DEFAULT  \
 		LUA_LDIR"?.lua;"  LUA_LDIR"?/init.lua;" \
-		LUA_CDIR"?.lua;"  LUA_CDIR"?/init.lua;" "./?.lua"
+		LUA_CDIR"?.lua;"  LUA_CDIR"?/init.lua;" \
+		"./?.lua;" "./?/init.lua"
 #define LUA_CPATH_DEFAULT \
 		LUA_CDIR"?.so;" LUA_CDIR"loadall.so;" "./?.so"
 #endif			/* } */
@@ -247,6 +268,11 @@
 #if defined(LUA_COMPAT_ALL)	/* { */
 
 /*
+@@ LUA_COMPAT_BITLIB controls the presence of library 'bit32'.
+*/
+#define LUA_COMPAT_BITLIB
+
+/*
 @@ LUA_COMPAT_UNPACK controls the presence of global 'unpack'.
 ** You can replace it with 'table.unpack'.
 */
@@ -350,7 +376,7 @@
 /*
 @@ LUAI_MAXSTACK limits the size of the Lua stack.
 ** CHANGE it if you need a different limit. This limit is arbitrary;
-** its only purpose is to stop Lua to consume unlimited stack
+** its only purpose is to stop Lua from consuming unlimited stack
 ** space (and to reserve some numbers for pseudo-indices).
 */
 #if LUAI_BITSINT >= 32
@@ -372,69 +398,109 @@
 #define LUAL_BUFFERSIZE		BUFSIZ
 
 
-
-
 /*
 ** {==================================================================
-@@ LUA_NUMBER is the type of numbers in Lua.
-** CHANGE the following definitions only if you want to build Lua
-** with a number type different from double. You may also need to
-** change lua_number2int & lua_number2integer.
+** Configuration for Numbers.
+** Change these definitions if no predefined LUA_REAL_* / LUA_INT_*
+** satisfy your needs.
 ** ===================================================================
 */
 
-#define LUA_NUMBER_FLOAT
+/*
+@@ LUA_NUMBER is the floating-point type used by Lua.
+**
+@@ LUAI_UACNUMBER is the result of an 'usual argument conversion'
+@* over a floating number.
+**
+@@ LUA_NUMBER_FRMLEN is the length modifier for writing floats.
+@@ LUA_NUMBER_SCAN is the format for reading floats.
+@@ LUA_NUMBER_FMT is the format for writing floats.
+@@ lua_number2str converts a float to a string.
+**
+@@ l_mathop allows the addition of an 'l' or 'f' to all math operations
+**
+@@ lua_str2number converts a decimal numeric string to a number.
+*/
+
+#if defined(LUA_REAL_FLOAT)		/* { single float */
+
 #define LUA_NUMBER	float
 
-/*
-@@ LUAI_UACNUMBER is the result of an 'usual argument conversion'
-@* over a number.
-*/
 #define LUAI_UACNUMBER	double
 
-
-/*
-@@ LUA_NUMBER_SCAN is the format for reading numbers.
-@@ LUA_NUMBER_FMT is the format for writing numbers.
-@@ lua_number2str converts a number to a string.
-@@ LUAI_MAXNUMBER2STR is maximum size of previous conversion.
-*/
+#define LUA_NUMBER_FRMLEN	""
 #define LUA_NUMBER_SCAN		"%f"
+#define LUA_NUMBER_FMT		"%.7g"
+
+#define l_mathop(op)		op##f
+
+#define lua_str2number(s,p)	strtof((s), (p))
+
+
+#elif defined(LUA_REAL_LONGDOUBLE)	/* }{ long double */
+
+#define LUA_NUMBER	long double
+
+#define LUAI_UACNUMBER	long double
+
+#define LUA_NUMBER_FRMLEN	"L"
+#define LUA_NUMBER_SCAN		"%Lf"
+#define LUA_NUMBER_FMT		"%.19Lg"
+
+#define l_mathop(op)		op##l
+
+#define lua_str2number(s,p)	strtold((s), (p))
+
+#elif defined(LUA_REAL_DOUBLE)		/* }{ double */
+
+#define LUA_NUMBER	double
+
+#define LUAI_UACNUMBER	double
+
+#define LUA_NUMBER_FRMLEN	""
+#define LUA_NUMBER_SCAN		"%lf"
 #define LUA_NUMBER_FMT		"%.14g"
-#define lua_number2str(s,n)	sprintf((s), LUA_NUMBER_FMT, (n))
-#define LUAI_MAXNUMBER2STR	32 /* 16 digits, sign, point, and \0 */
 
+#define l_mathop(op)		op
 
-/*
-@@ l_mathop allows the addition of an 'l' or 'f' to all math operations
-*/
-#define l_mathop(x)		(x##f)
-
-
-/*
-@@ lua_str2number converts a decimal numeric string to a number.
-@@ lua_strx2number converts an hexadecimal numeric string to a number.
-** In C99, 'strtod' does both conversions. C89, however, has no function
-** to convert floating hexadecimal strings to numbers. For these
-** systems, you can leave 'lua_strx2number' undefined and Lua will
-** provide its own implementation.
-*/
 #define lua_str2number(s,p)	strtod((s), (p))
 
-#if defined(LUA_USE_STRTODHEX)
-#define lua_strx2number(s,p)	strtod((s), (p))
+#else					/* }{ */
+
+#error "numeric real type not defined"
+
+#endif					/* } */
+
+
+#if defined(LUA_ANSI)
+/* C89 does not support 'opf' variants for math functions */
+#undef l_mathop
+#define l_mathop(op)		(lua_Number)op
 #endif
+
+
+#if defined(LUA_ANSI) || defined(_WIN32)
+/* C89 and Windows do not support 'strtof'... */
+#undef lua_str2number
+#define lua_str2number(s,p)	((lua_Number)strtod((s), (p)))
+#endif
+
+
+#define l_floor(x)		(l_mathop(floor)(x))
+
+#define lua_number2str(s,n)	sprintf((s), LUA_NUMBER_FMT, (n))
 
 
 /*
 @@ The luai_num* macros define the primitive operations over numbers.
+@* They should work for any size of floating numbers.
 */
 
 /* the following operations need the math library */
 #if defined(lobject_c) || defined(lvm_c)
 #include <math.h>
-#define luai_nummod(L,a,b)	((a) - l_mathop(floor)((a)/(b))*(b))
-#define luai_numpow(L,a,b)	(l_mathop(pow)(a,b))
+#define luai_nummod(L,a,b)	((void)L, (a) - l_floor((a)/(b))*(b))
+#define luai_numpow(L,a,b)	((void)L, l_mathop(pow)(a,b))
 #endif
 
 /* these are quite standard operations */
@@ -445,93 +511,63 @@
 #define luai_numdiv(L,a,b)	((a)/(b))
 #define luai_numunm(L,a)	(-(a))
 #define luai_numeq(a,b)		((a)==(b))
-#define luai_numlt(L,a,b)	((a)<(b))
-#define luai_numle(L,a,b)	((a)<=(b))
-#define luai_numisnan(L,a)	(!luai_numeq((a), (a)))
+#define luai_numlt(a,b)		((a)<(b))
+#define luai_numle(a,b)		((a)<=(b))
+#define luai_numisnan(a)	(!luai_numeq((a), (a)))
 #endif
 
 
-
 /*
-@@ LUA_INTEGER is the integral type used by lua_pushinteger/lua_tointeger.
-** CHANGE that if ptrdiff_t is not adequate on your machine. (On most
-** machines, ptrdiff_t gives a good choice between int or long.)
+** The following macro checks whether an operation is not safe to be
+** performed by the constant folder. It should result in zero only if
+** the operation is safe.
 */
-#define LUA_INTEGER	ptrdiff_t
-
-/*
-@@ LUA_UNSIGNED is the integral type used by lua_pushunsigned/lua_tounsigned.
-** It must have at least 32 bits.
-*/
-#define LUA_UNSIGNED	unsigned LUA_INT32
-
+#define luai_numinvalidop(op,a,b)	0
 
 
 /*
-** Some tricks with doubles
+@@ LUA_INTEGER is the integer type used by Lua.
+**
+@@ LUA_UNSIGNED is the unsigned version of LUA_INTEGER.
+**
+@@ LUA_INTEGER_FRMLEN is the length modifier for reading/writing integers.
+@@ LUA_INTEGER_SCAN is the format for reading integers.
+@@ LUA_INTEGER_FMT is the format for writing integers.
+@@ lua_integer2str converts an integer to a string.
 */
 
-#if defined(LUA_NUMBER_DOUBLE) && !defined(LUA_ANSI)	/* { */
-/*
-** The next definitions activate some tricks to speed up the
-** conversion from doubles to integer types, mainly to LUA_UNSIGNED.
-**
-@@ LUA_MSASMTRICK uses Microsoft assembler to avoid clashes with a
-** DirectX idiosyncrasy.
-**
-@@ LUA_IEEE754TRICK uses a trick that should work on any machine
-** using IEEE754 with a 32-bit integer type.
-**
-@@ LUA_IEEELL extends the trick to LUA_INTEGER; should only be
-** defined when LUA_INTEGER is a 32-bit integer.
-**
-@@ LUA_IEEEENDIAN is the endianness of doubles in your machine
-** (0 for little endian, 1 for big endian); if not defined, Lua will
-** check it dynamically for LUA_IEEE754TRICK (but not for LUA_NANTRICK).
-**
-@@ LUA_NANTRICK controls the use of a trick to pack all types into
-** a single double value, using NaN values to represent non-number
-** values. The trick only works on 32-bit machines (ints and pointers
-** are 32-bit values) with numbers represented as IEEE 754-2008 doubles
-** with conventional endianess (12345678 or 87654321), in CPUs that do
-** not produce signaling NaN values (all NaNs are quiet).
-*/
+#if defined(LUA_INT_INT)		/* { int */
 
-/* Microsoft compiler on a Pentium (32 bit) ? */
-#if defined(LUA_WIN) && defined(_MSC_VER) && defined(_M_IX86)	/* { */
+#define LUA_INTEGER		int
+#define LUA_INTEGER_FRMLEN	""
 
-#define LUA_MSASMTRICK
-#define LUA_IEEEENDIAN		0
-#define LUA_NANTRICK
+#elif defined(LUA_INT_LONG)	/* }{ long */
+
+#define LUA_INTEGER		long
+#define LUA_INTEGER_FRMLEN	"l"
+
+#elif defined(LUA_INT_LONGLONG)	/* }{ long long */
+
+#if defined(_WIN32)
+#define LUA_INTEGER		__int64
+#define LUA_INTEGER_FRMLEN	"I64"
+#else
+#define LUA_INTEGER		long long
+#define LUA_INTEGER_FRMLEN	"ll"
+#endif
+
+#else				/* }{ */
+
+#error "numeric integer type not defined"
+
+#endif				/* } */
 
 
-/* pentium 32 bits? */
-#elif defined(__i386__) || defined(__i386) || defined(__X86__) /* }{ */
+#define LUA_INTEGER_SCAN	"%" LUA_INTEGER_FRMLEN "d"
+#define LUA_INTEGER_FMT		"%" LUA_INTEGER_FRMLEN "d"
+#define lua_integer2str(s,n)	sprintf((s), LUA_INTEGER_FMT, (n))
 
-#define LUA_IEEE754TRICK
-#define LUA_IEEELL
-#define LUA_IEEEENDIAN		0
-#define LUA_NANTRICK
-
-/* pentium 64 bits? */
-#elif defined(__x86_64)						/* }{ */
-
-#define LUA_IEEE754TRICK
-#define LUA_IEEEENDIAN		0
-
-#elif defined(__POWERPC__) || defined(__ppc__)			/* }{ */
-
-#define LUA_IEEE754TRICK
-#define LUA_IEEEENDIAN		1
-
-#else								/* }{ */
-
-/* assume IEEE754 and a 32-bit integer type */
-#define LUA_IEEE754TRICK
-
-#endif								/* } */
-
-#endif							/* } */
+#define LUA_UNSIGNED		unsigned LUA_INTEGER
 
 /* }================================================================== */
 
@@ -544,6 +580,8 @@
 ** Local configuration. You can use this space to add your redefinitions
 ** without modifying the main part of the file.
 */
+
+
 
 
 

@@ -32,7 +32,8 @@ set(LIB_C  lua/src/lauxlib.c
         lua/src/lstrlib.c
         lua/src/ltablib.c
         lua/src/loadlib.c
-        lua/src/linit.c)
+        lua/src/linit.c
+        lua/src/lutf8lib.c)
 
 include_directories(.)
 include_directories(lua/src)
