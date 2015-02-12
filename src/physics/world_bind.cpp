@@ -343,9 +343,7 @@ public:
 			lua_pushnumber(L, fraction);
 			lua_pushnumber(L, point.x * pixels_per_meter);
 			lua_pushnumber(L, point.y * pixels_per_meter);
-			if (lua_pcall(L, 4, 2, 0)) {
-				luaL_error(L, "error calling raycast callback: %s", lua_tostring(L, -1));
-			}
+			call_lua_function(L, 4, 2);
 			new_fraction = luaL_checknumber(L, -2);
 			save_data = lua_toboolean(L, -1);
 		}
