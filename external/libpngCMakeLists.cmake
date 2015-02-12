@@ -9,7 +9,7 @@ set(ZLIB_INCLUDE_DIR ../zlib/)
 
 # SET LIBNAME
 set(PNG_LIB_NAME png${PNGLIB_MAJOR}${PNGLIB_MINOR})
-set(PNG_LIBRARY ${PNG_LIB_NAME})
+set(PNG_LIBRARY ${PNG_LIB_NAME} PARENT_SCOPE)
 
 # Use the prebuilt pnglibconf.h file from the scripts folder
 # TODO: fix this by building with awk; without this no cmake build can be
