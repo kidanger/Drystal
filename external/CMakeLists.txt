@@ -59,8 +59,12 @@ endif()
 ### Lua_cjson
 ###
 if(BUILD_UTILS)
+        find_program(PATCH_COMMAND patch)
+        if (NOT PATCH_COMMAND)
+		message(FATAL_ERROR "patch command not found")
+        endif()
 	add_custom_command(OUTPUT lua_cjson_patched.c
-	    COMMAND patch --quiet ${CMAKE_CURRENT_SOURCE_DIR}/lua-cjson/lua_cjson.c ${CMAKE_CURRENT_SOURCE_DIR}/cjson.patch -o lua_cjson_patched.c
+	    COMMAND ${PATCH_COMMAND} --quiet ${CMAKE_CURRENT_SOURCE_DIR}/lua-cjson/lua_cjson.c ${CMAKE_CURRENT_SOURCE_DIR}/cjson.patch -o lua_cjson_patched.c
 	    COMMENT "Patching lua-cjson")
 
 	include_directories(lua-cjson)
