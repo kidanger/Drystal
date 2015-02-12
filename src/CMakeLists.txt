@@ -86,7 +86,13 @@ if(NOT DEFINED EMSCRIPTEN)
 	add_c_cxx_flag_if_supported(DRYSTAL_DEBUG_FLAGS "-fsanitize=undefined"                 HAS_FSANITIZE_UNDEFINED)
 endif()
 
-add_cxx_flag_if_supported(DRYSTAL_CXX_FLAGS "-Weffc++" HAS_WEFFCPP)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS "4.6")
+		add_cxx_flag_if_supported(DRYSTAL_CXX_FLAGS "-Weffc++" HAS_WEFFCPP)
+	endif()
+else()
+	add_cxx_flag_if_supported(DRYSTAL_CXX_FLAGS "-Weffc++" HAS_WEFFCPP)
+endif()
 
 add_c_flag_if_supported(DRYSTAL_C_FLAGS "-std=gnu99" HAS_STD_GNU99)
 
