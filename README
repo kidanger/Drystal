@@ -42,7 +42,7 @@ REQUIREMENTS:
     - SDL2
     - OpenAL
     - OpenGL
-    - libpng
+    - libpng >= 1.6
 
     Build:
     - CMake

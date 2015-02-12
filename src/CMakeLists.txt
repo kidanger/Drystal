@@ -106,7 +106,7 @@ if(NOT DEFINED EMSCRIPTEN)
 	include(FindPkgConfig)
 
 	if(BUILD_GRAPHICS)
-		find_package(PNG REQUIRED)
+		find_package(PNG 1.6 REQUIRED)
 		include_directories(${PNG_INCLUDE_DIR})
 		add_definitions(${PNG_DEFINITIONS})
 	endif()
