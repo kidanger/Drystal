@@ -1,6 +1,15 @@
 include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
 
+function(check_compilers_unknown)
+	if (NOT CMAKE_CXX_COMPILER)
+		message(FATAL_ERROR "The C++ compiler was not found. Please add the C++ compiler in your $PATH and re-run CMake.")
+	endif()
+	if (NOT CMAKE_C_COMPILER)
+		message(FATAL_ERROR "The C compiler was not found. Please add the C++ compiler in your $PATH and re-run CMake.")
+	endif()
+endfunction()
+
 function(check_git_submodules_initialized)
 	if (NOT EXISTS "${PROJECT_SOURCE_DIR}/external/box2d/.git"     OR
 	    NOT EXISTS "${PROJECT_SOURCE_DIR}/external/libpng/.git"    OR

@@ -4,6 +4,7 @@ project(drystal)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(Utils)
 
+check_compilers_unknown()
 check_git_submodules_initialized()
 
 option(BUILD_MANPAGES        "Build manpages" ON)
