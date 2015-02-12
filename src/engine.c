@@ -35,6 +35,9 @@
 #endif
 #include "macro.h"
 #include "util.h"
+#ifdef BUILD_LIVECODING
+#include "livecoding.h"
+#endif
 
 #ifdef EMSCRIPTEN
 #include "emscripten.h"
@@ -136,7 +139,11 @@ void engine_load(void)
 		if (successful_load)
 			dlua_call_init();
 	}
-	engine.run = engine.run && successful_load;
+	engine.run = engine.run && (successful_load
+#ifdef BUILD_LIVECODING
+								|| livecoding_is_running()
+#endif
+							   );
 	engine.loaded = true;
 }
 

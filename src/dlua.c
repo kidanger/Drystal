@@ -54,6 +54,9 @@
 #ifdef BUILD_UTILS
 #include "utils/api.h"
 #endif
+#ifdef BUILD_LIVECODING
+#include "livecoding.h"
+#endif
 
 log_category("lua");
 
@@ -189,31 +192,36 @@ bool dlua_load_code(void)
 	lua_State *L = dlua.L;
 
 	assert(lua_gettop(L) == 0);
-	lua_pushcfunction(L, traceback); // used by lua_pcall
 	if (!dlua.library_loaded) {
 		// add drystal lib
 		luaL_requiref(L, "drystal", luaopen_drystal, 0 /* not as global */);
 		register_modules();
 		lua_pop(L, 1);  /* remove lib */
 
-		if (!load_luafiles(L)) {
+		lua_pushcfunction(L, traceback);
+		if (!load_luafiles(L, lua_gettop(L))) {
 			lua_pop(L, 2);
+			assert(lua_gettop(L) == 0);
 			return false;
 		}
+		lua_pop(L, 1);
 		dlua.library_loaded = true;
 	}
 
 	if (luaL_loadfile(L, dlua.filename)) {
-		log_error("%s", lua_tostring(L, -1));
-		lua_pop(L, 2);
-		return false;
-	}
-	if (lua_pcall(L, 0, 0, -2)) {
-		lua_pop(L, 2);
+		fprintf(stderr, "*** ERROR ***\n%s\n", lua_tostring(L, -1));
+		lua_pop(L, 1);
+		assert(lua_gettop(L) == 0);
+#ifdef BUILD_LIVECODING
+		if (livecoding_is_running()) {
+			engine_wait_next_reload();
+		}
+#endif
 		return false;
 	}
 
-	lua_pop(L, 1);
+	call_lua_function(L, 0, 0);
+
 	assert(lua_gettop(L) == 0);
 	return true;
 }
