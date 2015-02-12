@@ -1,6 +1,17 @@
 include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
 
+function(check_git_submodules_initialized)
+	if (NOT EXISTS "${PROJECT_SOURCE_DIR}/external/box2d/.git"     OR
+	    NOT EXISTS "${PROJECT_SOURCE_DIR}/external/libpng/.git"    OR
+	    NOT EXISTS "${PROJECT_SOURCE_DIR}/external/lua/.git"       OR
+	    NOT EXISTS "${PROJECT_SOURCE_DIR}/external/lua-cjson/.git" OR
+	    NOT EXISTS "${PROJECT_SOURCE_DIR}/external/zlib/.git")
+		message(FATAL_ERROR "The git submodules are not available. Please run
+		git submodule update --init --recursive")
+	endif()
+endfunction()
+
 function(add_c_flag_if_supported flags flag has)
         check_c_compiler_flag("${flag}" ${has}_C)
 	if (${${has}_C})

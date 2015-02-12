@@ -1,6 +1,11 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 project(drystal)
 
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(Utils)
+
+check_git_submodules_initialized()
+
 option(BUILD_MANPAGES        "Build manpages" ON)
 option(BUILD_ENABLE_COVERAGE "Enable code coverage" OFF)
 option(BUILD_PHYSICS         "Enable physics module" ON)
@@ -26,10 +31,7 @@ if(BUILD_LIVECODING AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	message(FATAL_ERROR "Cannot enable BUILD_LIVECODING: Linux only")
 endif()
 
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON) # -fPIC
-
-include(Utils)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGXX)
 	set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -march=native")
