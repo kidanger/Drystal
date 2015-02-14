@@ -248,7 +248,7 @@ Surface
 
       local surf = drystal.new_surface(200, 200)
       surf:draw_on() -- the following draw function will act on this surface
-      drystal.set_color(255, 255, 255)
+      drystal.set_color('white')
       drystal.draw_circle(surf.w / 2, surf.h / 2, 100) -- draw a white circle inside the surface
       drystal.screen:draw_on()
       ...
@@ -268,6 +268,14 @@ Drawing primitives
 .. lua:function:: set_color(red: float [0-255], green: float [0-255], blue: float [0-255])
 
    Sets current color used by ``draw_*`` functions.
+
+.. lua:function:: set_color(color: table)
+
+   Sets current color used by ``draw_*`` functions. ``color`` should contains 3 values at keys 1, 2 and 3. For example, ``{128, 128, 128}`` represents gray.
+
+.. lua:function:: set_color(color: string)
+
+   Sets current color used by ``draw_*`` functions. ``color`` should be either a color name from the :lua:data:`colors` table or a '#rgb' or '#rrggbb' CSS-like string.
 
 .. lua:function:: set_alpha(alpha: float [0-255])
 
@@ -559,6 +567,7 @@ Colors
 .. lua:data:: colors
 
    This table contains all of the `W3C colors <http://www.w3.org/TR/css3-color/#svg-color>`_.
+   You can also create colors from the #rgb or #rrggbb syntax by indexing this table, like so: ``drystal.colors['#F0F']``.
 
 .. code::
 

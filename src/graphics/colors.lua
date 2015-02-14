@@ -163,6 +163,44 @@ function Color:hsl()
 	return self.h, self.s, self.l
 end
 
+local function decode_hex_number(str)
+	local b, b2 = str:byte()
+	local n
+	if b >= 97 then
+		n = b - 97 + 10
+	else
+		n = b - 48
+	end
+	if b2 then
+		if b >= 97 then
+			n = n * 16 + b - 97 + 10
+		else
+			n = n * 16 + b - 48
+		end
+	else
+		n = n * 16 + n
+	end
+	return n
+end
+
+local function hex_color(str)
+	local lowstr = str:lower()
+	if #str == 7 then
+		r = decode_hex_number(lowstr:sub(2, 3))
+		g = decode_hex_number(lowstr:sub(4, 5))
+		b = decode_hex_number(lowstr:sub(6, 7))
+	elseif #str == 4 then
+		r = decode_hex_number(lowstr:sub(2, 2))
+		g = decode_hex_number(lowstr:sub(3, 3))
+		b = decode_hex_number(lowstr:sub(4, 4))
+	else
+		error("set_color: " .. str .. " doesn't follow the #rrggbb or #rgb format")
+	end
+	local color = drystal.new_color('rgb', r, g, b)
+	drystal.colors[str] = color -- cache the value
+	return color
+end
+
 -- See http://www.w3.org/TR/css3-color/#svg-color
 drystal.colors = setmetatable ({
 aliceblue            = drystal.new_color {240,248,255},
@@ -314,6 +352,9 @@ yellow               = drystal.new_color {255,255,0},
 yellowgreen          = drystal.new_color {154,205,50},
 }, {
 	__index = function(self, key)
+		if type(key) == 'string' and key:sub(1, 1) == '#' then
+			return hex_color(key)
+		end
 		error('color ' .. key .. ' does not exist', 3)
 	end
 })

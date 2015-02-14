@@ -23,6 +23,7 @@
 #include "buffer.h"
 #include "display_bind.h"
 #include "lua_util.h"
+#include "dlua.h"
 #include "log.h"
 #include "util.h"
 
@@ -33,6 +34,13 @@ IMPLEMENT_PUSHPOP(Surface, surface)
 int mlua_set_color(lua_State* L)
 {
 	assert(L);
+
+	if (lua_isstring(L, 1) && !lua_isnumber(L, 1)) {
+		dlua_get_drystal_field("colors");
+		lua_pushvalue(L, 1);
+		lua_gettable(L, -2);
+		lua_replace(L, 1);
+	}
 
 	if (lua_istable(L, 1)) {
 		lua_rawgeti(L, 1, 1);
