@@ -95,6 +95,18 @@ lua_State *dlua_get_lua_state(void)
 	return dlua.L;
 }
 
+void dlua_get_drystal_field(const char* name)
+{
+	lua_State *L = dlua.L;
+
+	assert(name);
+
+	lua_rawgeti(L, LUA_REGISTRYINDEX, dlua.drystal_table_ref);
+	lua_pushstring(L, name);
+	lua_rawget(L, -2);
+	lua_remove(L, lua_gettop(L) - 1);
+}
+
 /**
  * Search for a function named 'name' in the drystal table.
  * Return true if found and keep the function in the lua stack
@@ -106,14 +118,11 @@ bool dlua_get_function(const char* name)
 
 	assert(name);
 
-	lua_rawgeti(L, LUA_REGISTRYINDEX, dlua.drystal_table_ref);
-	lua_pushstring(L, name);
-	lua_rawget(L, -2);
+	dlua_get_drystal_field(name);
 	if (lua_isfunction(L, -1)) {
-		lua_remove(L, lua_gettop(L) - 1);
 		return true;
 	}
-	lua_pop(L, 2);
+	lua_pop(L, 1);
 	return false;
 }
 

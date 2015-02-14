@@ -40,6 +40,7 @@ void dlua_set_need_to_reload();
 #endif
 void dlua_foreach(const char* type, void(*callback)(void* data, void* callback_arg), void* callback_arg);
 
+void dlua_get_drystal_field(const char* name);
 bool dlua_get_function(const char* name);
 void dlua_free(void);
 
