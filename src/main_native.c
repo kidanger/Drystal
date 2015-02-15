@@ -71,15 +71,10 @@ static int start_livecoding(const char *filename)
 	if (r < 0) {
 		log_error("Cannot watch %s for livecoding: %s", watched_directory, strerror(-r));
 		free(filename_dup);
+		livecoding_quit();
 		return r;
 	}
 
-	r = livecoding_start();
-	if (r < 0) {
-		log_error("Cannot start livecoding: %s", strerror(-r));
-		free(filename_dup);
-		return r;
-	}
 	free(filename_dup);
 
 	return 0;
@@ -131,9 +126,7 @@ int main(int argc, char* argv[])
 	engine_loop();
 
 #ifdef BUILD_LIVECODING
-	if (livecoding) {
-		livecoding_stop();
-	}
+	livecoding_quit();
 #endif
 
 	engine_free();

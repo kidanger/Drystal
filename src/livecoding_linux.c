@@ -197,6 +197,7 @@ int livecoding_watch_directory_recursively(const char *path)
 int livecoding_init(void (*callback)(void *arg, const char* filename), void *arg)
 {
 	int ret;
+	int r;
 	int fildes[2];
 
 	assert(fd < 0);
@@ -224,12 +225,25 @@ int livecoding_init(void (*callback)(void *arg, const char* filename), void *arg
 	reload_callback = callback;
 	callback_arg = arg;
 
+	r = pthread_create(&watcher_tid, NULL, watcher_loop, NULL);
+	if (r < 0) {
+		ret = -errno;
+		goto fail;
+	}
+
+	running = true;
+
 	return 0;
 
 fail:
 	close(fd);
 	close(wakeup_read_fd);
 	close(wakeup_write_fd);
+	free(wds);
+	fd = -1;
+	wakeup_read_fd = -1;
+	wakeup_write_fd = -1;
+	wds = NULL;
 
 	return ret;
 }
@@ -260,9 +274,12 @@ int livecoding_watch_directory(const char *directory)
 	return wd;
 }
 
-int livecoding_stop(void)
+int livecoding_quit(void)
 {
 	size_t i;
+
+	if (!running)
+		return 0;
 
 	assert(wds);
 	assert(fd >= 0);
@@ -289,19 +306,6 @@ int livecoding_stop(void)
 	running = false;
 	wds_count = 0;
 	wds_nmemb = 0;
-	return 0;
-}
-
-int livecoding_start(void)
-{
-	int r;
-
-	r = pthread_create(&watcher_tid, NULL, watcher_loop, NULL);
-	if (r < 0) {
-		return -errno;
-	}
-
-	running = true;
 	return 0;
 }
 
