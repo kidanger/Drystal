@@ -32,9 +32,7 @@ BINARY_DIRECTORY_WEB_RELEASE = join(BUILD_WEB_RELEASE, 'src')
 
 NATIVE_CMAKE_DEFINES = []
 
-EMSCRIPTEN_ROOT_PATH = '/usr/lib/emscripten'
 EMSCRIPTEN_CMAKE_DEFINES = ['CMAKE_TOOLCHAIN_FILE=../cmake/Emscripten.cmake',
-                            'EMSCRIPTEN_ROOT_PATH=' + EMSCRIPTEN_ROOT_PATH,
                             'BUILD_LIVECODING=NO',
                             ]
 
