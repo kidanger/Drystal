@@ -136,13 +136,6 @@ bool engine_is_loaded(void)
 
 void engine_load(void)
 {
-#ifdef BUILD_GRAPHICS
-	if (!display_is_available()) {
-		log_error("Cannot run the engine, display is not available");
-		return;
-	}
-#endif
-
 	bool successful_load = dlua_load_code();
 	if (engine.run) {
 		// run can be disabled before init being called

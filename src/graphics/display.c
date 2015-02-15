@@ -65,7 +65,6 @@ struct Display {
 	int original_width;
 	int original_height;
 
-	bool available;
 	bool debug_mode;
 } display;
 
@@ -155,7 +154,6 @@ int display_init(void)
 	display.alpha = 1;
 	display.original_width = 0;
 	display.original_height = 0;
-	display.available = false;
 	display.debug_mode = false;
 
 	r = SDL_InitSubSystem(SDL_INIT_VIDEO);
@@ -172,8 +170,6 @@ int display_init(void)
 	}
 
 	buffer_use_camera(display.default_buffer, display.camera);
-
-	display.available = true;
 
 	return 0;
 }
@@ -225,11 +221,6 @@ void display_get_alpha(int *a)
 Buffer *display_get_current_buffer(void)
 {
 	return display.current_buffer;
-}
-
-bool display_is_available()
-{
-	return display.available;
 }
 
 /**
