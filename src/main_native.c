@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
 	if (livecoding) {
 		int r = start_livecoding(filename);
 		if (r < 0) {
-			return r;
+			return EXIT_FAILURE;
 		}
 	}
 #endif
