@@ -103,9 +103,12 @@ int main(int argc, char* argv[])
 		if (streq(argv[i], "--help") || streq(argv[i], "-h")) {
 			help();
 			return 0;
-#ifdef BUILD_LIVECODING
 		} else if (streq(argv[i], "--livecoding") || streq(argv[i], "-l")) {
+#ifdef BUILD_LIVECODING
 			livecoding = true;
+#else
+			fprintf(stderr, "Cannot start livecoding: disabled at compilation time.\n");
+			return EXIT_FAILURE;
 #endif
 		} else {
 			filename = argv[i];
