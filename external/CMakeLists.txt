@@ -65,10 +65,14 @@ if(BUILD_UTILS)
         endif()
 	add_custom_command(OUTPUT lua_cjson_patched.c
 	    COMMAND ${PATCH_COMMAND} --quiet ${CMAKE_CURRENT_SOURCE_DIR}/lua-cjson/lua_cjson.c ${CMAKE_CURRENT_SOURCE_DIR}/cjson.patch -o lua_cjson_patched.c
-	    COMMENT "Patching lua-cjson")
+	    COMMENT "Patching lua_cjson.c")
+	add_custom_command(OUTPUT fpconv_patched.c
+	    COMMAND ${PATCH_COMMAND} --quiet ${CMAKE_CURRENT_SOURCE_DIR}/lua-cjson/fpconv.c ${CMAKE_CURRENT_SOURCE_DIR}/cjson-fpconv.patch -o fpconv_patched.c
+	    COMMENT "Patching fpconv.c")
 
 	include_directories(lua-cjson)
-	add_library(lua-cjson STATIC lua-cjson/fpconv.c lua-cjson/strbuf.c lua_cjson_patched.c)
+	add_library(lua-cjson STATIC fpconv_patched.c lua-cjson/strbuf.c lua_cjson_patched.c)
+	set_target_properties(lua-cjson PROPERTIES COMPILE_DEFINITIONS USE_INTERNAL_FPCONV)
 endif()
 
 

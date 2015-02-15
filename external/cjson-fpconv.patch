@@ -1,0 +1,37 @@
+diff --git a/fpconv.c b/fpconv.c
+index 7990831..c9a1330 100644
+--- a/fpconv.c
++++ b/fpconv.c
+@@ -49,6 +49,7 @@ static char locale_decimal_point = '.';
+  * localconv() may not be thread safe (=>crash), and nl_langinfo() is
+  * not supported on some platforms. Use sprintf() instead - if the
+  * locale does change, at least Lua CJSON won't crash. */
++#ifndef USE_INTERNAL_FPCONV
+ static void fpconv_update_locale()
+ {
+     char buf[8];
+@@ -65,6 +66,13 @@ static void fpconv_update_locale()
+     locale_decimal_point = buf[1];
+ }
+ 
++void fpconv_init()
++{
++    fpconv_update_locale();
++}
++#endif
++
++
+ /* Check for a valid number character: [-+0-9a-yA-Y.]
+  * Eg: -0.6e+5, infinity, 0xF0.F0pF0
+  *
+@@ -196,10 +204,5 @@ int fpconv_g_fmt(char *str, double num, int precision)
+     return len;
+ }
+ 
+-void fpconv_init()
+-{
+-    fpconv_update_locale();
+-}
+-
+ /* vi:ai et sw=4 ts=4:
+  */
