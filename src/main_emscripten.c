@@ -20,6 +20,7 @@
 #include <emscripten.h>
 #include <sys/stat.h>
 #include <miniz.h>
+#include <stdlib.h>
 
 #include "util.h"
 #include "macro.h"
@@ -74,6 +75,7 @@ int main(int argc, char* argv[])
 {
 	const char* filename = "main.lua";
 	const char* zipname = "game.zip";
+	int r;
 
 	int ziplen = strlen("--zip=");
 	for (int i = 1; i < argc; i++) {
@@ -84,7 +86,10 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	engine_init(filename, 60);
+	r = engine_init(filename, 60);
+	if (r < 0) {
+		return EXIT_FAILURE;
+	}
 
 	emscripten_async_wget_data(zipname, (void*) zipname, on_zip_downloaded, on_zip_fail);
 	emscripten_set_main_loop(loop, 0, true);

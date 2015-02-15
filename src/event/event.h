@@ -38,7 +38,7 @@ typedef enum Button Button;
 
 void event_update();
 void event_destroy();
-void event_init();
+int event_init();
 
 void event_set_relative_mode(bool relative);
 

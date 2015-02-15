@@ -41,7 +41,7 @@ enum BlendMode {
 };
 typedef enum BlendMode BlendMode;
 
-void display_init();
+int display_init(void);
 void display_free();
 
 void display_set_title(const char *title);

@@ -135,7 +135,7 @@ static int display_create_window(int w, int h)
 }
 
 
-void display_init()
+int display_init(void)
 {
 	int r;
 
@@ -159,21 +159,23 @@ void display_init()
 	display.debug_mode = false;
 
 	r = SDL_InitSubSystem(SDL_INIT_VIDEO);
-	if (r != 0) {
-		log_error("Cannot initialize SDL video subsystem");
-		return;
+	if (r < 0) {
+		log_error("Failed to initialize SDL video subsystem: %s", SDL_GetError());
+		return r;
 	}
 	// create the window in the constructor
 	// so we have an opengl context ready for the user
 	r = display_create_window(2, 2);
 	if (r < 0) {
 		log_error("Cannot create window");
-		return;
+		return r;
 	}
 
 	buffer_use_camera(display.default_buffer, display.camera);
 
 	display.available = true;
+
+	return 0;
 }
 
 void display_free()

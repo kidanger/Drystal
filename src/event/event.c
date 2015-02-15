@@ -354,13 +354,13 @@ static EM_BOOL em_click_callback(_unused_ int eventType, _unused_ const Emscript
 }
 #endif
 
-void event_init(void)
+int event_init(void)
 {
 #ifndef EMSCRIPTEN
-	int err = SDL_InitSubSystem(SDL_INIT_EVENTS);
-	if (err) {
-		log_error("Cannot initialize SDL events subsystem");
-		return;
+	int r = SDL_InitSubSystem(SDL_INIT_EVENTS);
+	if (r < 0) {
+		log_error("Failed to initialize SDL events subsystem: %s", SDL_GetError());
+		return r;
 	}
 #else
 	emscripten_set_resize_callback(NULL, NULL, true, em_ui_callback);
@@ -369,6 +369,8 @@ void event_init(void)
 	SDL_StartTextInput();
 
 	initialize_keys_mapping();
+
+	return 0;
 }
 
 void event_destroy(void)

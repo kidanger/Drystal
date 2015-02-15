@@ -18,7 +18,7 @@
 
 #include <stdbool.h>
 
-void engine_init(const char *filename, unsigned int target_fps);
+int engine_init(const char *filename, unsigned int target_fps);
 void engine_free(void);
 void engine_load(void);
 void engine_loop(void);

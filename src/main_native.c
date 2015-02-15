@@ -95,6 +95,7 @@ static void help(void)
 int main(int argc, char* argv[])
 {
 	const char* filename = "main.lua";
+	int r;
 #ifdef BUILD_LIVECODING
 	bool livecoding = false;
 #endif
@@ -115,7 +116,11 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	engine_init(filename, 60);
+	r = engine_init(filename, 60);
+	if (r < 0) {
+		return EXIT_FAILURE;
+	}
+
 #ifdef BUILD_LIVECODING
 	if (livecoding) {
 		int r = start_livecoding(filename);

@@ -75,7 +75,7 @@ static long unsigned get_now()
 static void engine_reload_queues(void);
 #endif
 
-void engine_init(const char* filename, unsigned int target_fps)
+int engine_init(const char* filename, unsigned int target_fps)
 {
 	engine.target_ms_per_frame = 1000 / target_fps;
 	engine.run = true;
@@ -89,15 +89,25 @@ void engine_init(const char* filename, unsigned int target_fps)
 
 	dlua_init(filename);
 #if defined(BUILD_FONT) || defined(BUILD_GRAPHICS)
-	int err = SDL_Init(0);
-	if (err) {
-		log_error("Cannot initialize SDL");
+	int r = SDL_Init(0);
+	if (r < 0) {
+		log_error("Failed to initialize SDL: %s", SDL_GetError());
+		return r;
 	}
 #endif
 #ifdef BUILD_GRAPHICS
-	display_init();
-	event_init();
+	r = display_init();
+	if (r < 0) {
+		return r;
+	}
+
+	r = event_init();
+	if (r < 0) {
+		return r;
+	}
 #endif
+
+	return 0;
 }
 
 void engine_free(void)
