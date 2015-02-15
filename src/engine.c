@@ -142,11 +142,13 @@ void engine_load(void)
 		if (successful_load)
 			dlua_call_init();
 	}
-	engine.run = engine.run && (successful_load
+
 #ifdef BUILD_LIVECODING
-								|| livecoding_is_running()
+	engine.run = engine.run && (successful_load || livecoding_is_running());
+#else
+	engine.run = engine.run && successful_load;
 #endif
-							   );
+
 	engine.loaded = true;
 }
 
