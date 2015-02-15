@@ -66,5 +66,5 @@ struct Shader {
 Shader *shader_new(GLuint prog_color, GLuint prog_tex, GLuint vert, GLuint frag_color, GLuint frag_tex);
 void shader_free(Shader *s);
 
-void shader_feed(Shader *s, const char* name, float value);
+void shader_feed(const Shader *s, const char* name, float value);
 

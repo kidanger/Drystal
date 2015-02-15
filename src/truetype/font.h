@@ -39,10 +39,10 @@ struct Font {
 };
 
 void font_free(Font *font);
-void font_draw(Font *f, const char* text, float x, float y, Alignment align);
-void font_draw_plain(Font *f, const char* text, float x, float y);
-void font_get_textsize(Font *f, const char* text, float* w, float* h, int nblines);
-void font_get_textsize_plain(Font *f, const char* text, float* w, float* h);
+void font_draw(const Font *f, const char* text, float x, float y, Alignment align);
+void font_draw_plain(const Font *f, const char* text, float x, float y);
+void font_get_textsize(const Font *f, const char* text, float* w, float* h, int nblines);
+void font_get_textsize_plain(const Font *f, const char* text, float* w, float* h);
 
 Font* font_load(const char* filename, float size, int first_char, int num_chars);
 

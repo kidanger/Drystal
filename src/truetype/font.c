@@ -126,7 +126,7 @@ static inline void draw_quad_fancy(const stbtt_aligned_quad q, float italic, flo
 	);
 }
 
-void font_draw_plain(Font *font, const char* text, float x, float y)
+void font_draw_plain(const Font *font, const char* text, float x, float y)
 {
 	assert(font);
 	assert(text);
@@ -153,7 +153,7 @@ void font_draw_plain(Font *font, const char* text, float x, float y)
 		display_draw_from(old_surface);
 }
 
-void font_draw(Font *font, const char* text, float x, float y, Alignment align)
+void font_draw(const Font *font, const char* text, float x, float y, Alignment align)
 {
 	assert(font);
 	assert(text);
@@ -241,7 +241,7 @@ void font_draw(Font *font, const char* text, float x, float y, Alignment align)
 		display_draw_from(old_surface);
 }
 
-void font_get_textsize_plain(Font *font, const char* text, float* w, float* h)
+void font_get_textsize_plain(const Font *font, const char* text, float* w, float* h)
 {
 	assert(font);
 	assert(text);
@@ -272,7 +272,7 @@ void font_get_textsize_plain(Font *font, const char* text, float* w, float* h)
 	*h = maxy;
 }
 
-void font_get_textsize(Font *font, const char* text, float* w, float* h, int nblinesmax)
+void font_get_textsize(const Font *font, const char* text, float* w, float* h, int nblinesmax)
 {
 	assert(font);
 	assert(text);

@@ -149,7 +149,7 @@ void shader_free(Shader *s)
 	free(s);
 }
 
-void shader_feed(Shader *s, const char* name, float value)
+void shader_feed(const Shader *s, const char* name, float value)
 {
 	assert(s);
 	assert(name);
