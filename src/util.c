@@ -29,6 +29,15 @@
 #include "macro.h"
 #include "log.h"
 
+bool use_colors(void)
+{
+#ifdef EMSCRIPTEN
+	return false;
+#else
+	return on_tty();
+#endif
+}
+
 bool on_tty(void)
 {
 	static int cached_on_tty = -1;

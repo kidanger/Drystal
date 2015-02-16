@@ -78,12 +78,12 @@ static void printfuncname(lua_State *L, lua_Debug *d)
 	assert(d);
 
 	if (*d->namewhat != '\0')  /* is there a name? */
-		fprintf(stderr, " in function %s", d->name);
+		fprintf(stderr, " in function %s%s%s" , use_colors() ? ANSI_HIGHLIGHT_PURPLE_ON : "", d->name, use_colors() ? ANSI_RESET : "");
 	else if (*d->what == 'm')  /* main? */
 		fprintf(stderr, " in main chunk");
 	else if (*d->what == 'C') {
 		if (pushglobalfuncname(L, d)) {
-			fprintf(stderr, " in function %s", lua_tostring(L, -1));
+			fprintf(stderr, " in function %s%s%s", use_colors() ? ANSI_HIGHLIGHT_PURPLE_ON : "", lua_tostring(L, -1), use_colors() ? ANSI_RESET : "");
 			lua_remove(L, -2);  /* remove name */
 		} else
 			fprintf(stderr, "?");
@@ -126,9 +126,9 @@ int traceback(lua_State *L)
 			level++;
 			continue;
 		}
-		fprintf(stderr, "\t#%d from %s", level - hidden_levels, d.short_src);
+		fprintf(stderr, "\t#%d from %s%s%s", level - hidden_levels, use_colors() ? ANSI_HIGHLIGHT_ON : "", d.short_src, use_colors() ? ANSI_RESET : "");
 		if (d.currentline > 0)
-			fprintf(stderr, ":%d", d.currentline);
+			fprintf(stderr, ":%s%d%s", use_colors() ? ANSI_HIGHLIGHT_GREEN_ON : "", d.currentline, use_colors() ? ANSI_RESET : "");
 		printfuncname(L, &d);
 		fprintf(stderr, "\n");
 		if (d.istailcall)

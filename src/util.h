@@ -43,6 +43,8 @@ extern "C" {
 #define ANSI_HIGHLIGHT_YELLOW_ON "\x1B[1;33m"
 #define ANSI_HIGHLIGHT_BLUE_ON   "\x1B[1;34m"
 #define ANSI_HIGHLIGHT_GRAY_ON   "\x1B[1;30m"
+#define ANSI_HIGHLIGHT_PURPLE_ON "\x1B[1;35m"
+#define ANSI_HIGHLIGHT_GREEN_ON  "\x1B[1;92m"
 #define ANSI_RESET               "\x1B[0m"
 
 _malloc_ void *xmalloc(size_t size);
@@ -55,6 +57,7 @@ bool is_directory(const char *directory);
 void *xrealloc(void **p, size_t *new_nmemb, size_t need, size_t size, unsigned min_nmemb);
 bool endswith(const char *s, const char *postfix);
 bool on_tty(void);
+bool use_colors(void);
 
 static inline bool startswith(const char *s, const char *prefix)
 {

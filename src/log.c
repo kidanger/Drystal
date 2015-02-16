@@ -20,15 +20,6 @@
 
 #include "log.h"
 
-static bool use_colors(void)
-{
-#ifdef EMSCRIPTEN
-	return false;
-#else
-	return on_tty();
-#endif
-}
-
 _printf_(3, 0) static void log_message(const char *level, const char *category, const char *format, va_list ap)
 {
 	fprintf(stderr, "[%s|%10s] ", level, category);
