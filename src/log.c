@@ -16,11 +16,55 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
 #include "log.h"
+
+static bool use_colors(void)
+{
+#ifdef EMSCRIPTEN
+	return false;
+#else
+	return on_tty();
+#endif
+}
+
+_printf_(3, 0) static void log_message(const char *level, const char *category, const char *format, va_list ap)
+{
+	fprintf(stderr, "[%s|%10s] ", level, category);
+	vfprintf(stderr, format, ap);
+	fprintf(stderr, "\n");
+}
+
+_printf_(3, 0) static void log_internalv(LogLevel level, const char *category, const char *format, va_list ap)
+{
+	switch (level) {
+		case LOG_ERROR:
+			log_message(use_colors() ? ANSI_HIGHLIGHT_RED_ON    "ERR " ANSI_RESET : "ERR ", category, format, ap);
+			break;
+		case LOG_WARNING:
+			log_message(use_colors() ? ANSI_HIGHLIGHT_YELLOW_ON "WARN" ANSI_RESET : "WARN", category, format, ap);
+			break;
+		case LOG_INFO:
+			log_message(use_colors() ? ANSI_HIGHLIGHT_ON        "INFO" ANSI_RESET : "INFO", category, format, ap);
+			break;
+		case LOG_DEBUG:
+			log_message(use_colors() ? ANSI_HIGHLIGHT_GRAY_ON   "DBG " ANSI_RESET : "DBG ", category, format, ap);
+			break;
+	}
+}
 
 void log_oom_and_exit(void)
 {
 	fprintf(stderr, "Out of memory. Exiting.");
 	exit(EXIT_FAILURE);
+}
+
+void log_internal(LogLevel level, const char *category, const char *format, ...)
+{
+	va_list ap;
+
+	va_start(ap, format);
+	log_internalv(level, category, format, ap);
+	va_end(ap);
 }

@@ -23,6 +23,15 @@ extern "C" {
 #include <stdio.h>
 
 #include "macro.h"
+#include "util.h"
+
+typedef enum LogLevel
+{
+	LOG_ERROR,
+	LOG_WARNING,
+	LOG_INFO,
+	LOG_DEBUG,
+} LogLevel;
 
 /*
  * Before using the logging API you must call log_category() at the beginning
@@ -36,24 +45,23 @@ extern "C" {
 #define log_category(cat) \
 	static _unused_ const char *_log_category = cat
 
-#define log_message(level, msg, ...) \
-	fprintf(stderr, "[%4s|%10s] " msg "\n", level, _log_category, ##__VA_ARGS__)
+void log_internal(LogLevel level, const char *category, const char *format, ...) _printf_(3,4);
 
 #ifndef NDEBUG
 #define log_debug(msg, ...) \
-	log_message("DBG", "[%s:%d %s()] " msg, __FILE__, __LINE__, __func__, ##__VA_ARGS__)
+	log_internal(LOG_DEBUG, _log_category, "[%s:%d %s()] " msg, __FILE__, __LINE__, __func__, ##__VA_ARGS__)
 #define log_info(msg, ...) \
-	log_message("INFO", msg, ##__VA_ARGS__)
+	log_internal(LOG_INFO, _log_category, msg, ##__VA_ARGS__)
 #else
 #define log_debug(msg, ...)
 #define log_info(msg, ...)
 #endif
 
 #define log_warning(msg, ...) \
-	log_message("WARN", msg, ##__VA_ARGS__)
+	log_internal(LOG_WARNING, _log_category, msg, ##__VA_ARGS__)
 
 #define log_error(msg, ...) \
-	log_message("ERR", msg, ##__VA_ARGS__)
+	log_internal(LOG_ERROR, _log_category, msg, ##__VA_ARGS__)
 
 __attribute__((noreturn)) void log_oom_and_exit(void);
 

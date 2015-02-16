@@ -23,10 +23,21 @@
 #include <sys/types.h>
 #include <stdarg.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include "util.h"
 #include "macro.h"
 #include "log.h"
+
+bool on_tty(void)
+{
+	static int cached_on_tty = -1;
+
+	if (cached_on_tty < 0)
+		cached_on_tty = isatty(STDOUT_FILENO) > 0;
+
+	return cached_on_tty;
+}
 
 char *xstrdup(const char *s)
 {

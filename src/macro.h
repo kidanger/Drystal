@@ -60,6 +60,7 @@ extern "C" {
 #define _sentinel_ __attribute__ ((sentinel))
 #define _unused_ __attribute__ ((unused))
 #define _alignas_(x) __attribute__((aligned(__alignof(x))))
+#define _printf_(a,b) __attribute__ ((format (printf, a, b)))
 
 #define USEC_PER_SEC 1000000ULL
 #define MSEC_PER_SEC 1000ULL
