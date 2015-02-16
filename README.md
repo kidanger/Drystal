@@ -67,31 +67,33 @@ The documentation of the current release is available in HTML format and can be 
 Requirements
 ------------
 
+To build Drystal, the following tools are needed:
+
+- CMake
+- C compiler — Currently, only clang and gcc are supported.
+- make or ninja — Or any generators supported by CMake
+- C++ compiler (optional)
+- patch (optional)
+
+And the following optional libraries:
+
 - SDL2
 - OpenAL
 - OpenGL
 - libpng >= 1.6
+- Box2D
 
-Build:
-
-- CMake
-- C++ compiler (clang, gcc,...)
-- make or ninja
-- patch
-
-Test coverage:
-
-- gcov
-- lcov
-
-Documentation:
+When building the documentation, the following additional dependencies are needed:
 
 - sphinx
 - pip
 
-Web build:
+When building a web version of Drystal, you also need [Emscripten](kripken.github.io/emscripten-site/).
 
-- Emscripten
+To use the test coverage, the following tools are needed:
+
+- gcov
+- lcov
 
 First time
 ----------
