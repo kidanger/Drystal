@@ -62,7 +62,7 @@ You can clone this repository with the following command
 Documentation
 -------------
 
-http://drystal.github.io/
+The documentation of the current release is available in HTML format and can be found at http://drystal.github.io/
 
 Requirements
 ------------
