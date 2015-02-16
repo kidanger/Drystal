@@ -129,24 +129,21 @@ Build options
 You can configure the build to fit to your needs, e.g. you do not need
 the physics engine, you need to add -DBUILD_PHYSICS=OFF
 
-Here is the list of options:
+Here is the list of options, their default and the additional dependencies needed to build:
 
-- BUILD_MANPAGES
-
-    Default to ON
-
-- BUILD_ENABLE_COVERAGE
-
-    Default to OFF
-
-- BUILD_LIVECODING
-
-    Default to ON
-
-- BUILD_PHYSICS, BUILD_PARTICLE, BUILD_WEB, BUILD_FONT, BUILD_AUDIO,
-  BUILD_STORAGE, BUILD_GRAPHICS, BUILD_UTILS
-
-    Default to ON
+Option                | Default | Additional dependencies
+----------------------|---------|------------------------
+BUILD_MANPAGES        | ON      | xsltproc
+BUILD_ENABLE_COVERAGE | OFF     | lcov, gcov
+BUILD_LIVECODING      | ON      |
+BUILD_PHYSICS         | ON      | Box2D
+BUILD_PARTICLE        | ON      |
+BUILD_WEB             | ON      |
+BUILD_FONT            | ON      | SDL2, OpenGL
+BUILD_AUDIO           | ON      | OpenAL
+BUILD_STORAGE         | ON      |
+BUILD_GRAPHICS        | ON      | SDL2, OpenGL, libpng
+BUILD_UTILS           | ON      |
 
 For the web build, removing parts of Drystal that you do not use decrease
 the size of the final javascript code which helps loading the page of the
