@@ -53,7 +53,11 @@ The external/ folder contains third-party libraries:
 Repository
 ----------
 
-http://github.com/kidanger/drystal/
+The main repository of Drystal is hosted on Github at http://github.com/kidanger/drystal/
+
+You can clone this repository with the following command
+
+    git clone --recursive https://github.com/kidanger/drystal.git
 
 Documentation
 -------------
@@ -91,10 +95,6 @@ Web build:
 
 First time
 ----------
-
-The first time you cloned Drystal you need to initialize the submodules:
-
-    git submodule update --init --recursive
 
 Native build of Drystal
 -----------------------
