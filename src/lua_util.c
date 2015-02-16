@@ -24,6 +24,9 @@
 #include "lua_util.h"
 #include "util.h"
 #include "livecoding.h"
+#include "log.h"
+
+log_category("lua");
 
 /* from lua/src/lauxlib.c */
 static int findfield(lua_State *L, int objidx, int level)
@@ -95,7 +98,6 @@ int traceback(lua_State *L)
 
 	assert(L);
 
-	fprintf(stderr, "*** ERROR ***\n");
 	// from lua/src/lua.c
 	const char *msg = lua_tostring(L, 1);
 	if (msg) {
@@ -103,17 +105,17 @@ int traceback(lua_State *L)
 
 		p = strchr(msg, ':');
 		if (!p || !*(p + 1))
-			fprintf(stderr, "%s\n", msg);
+			log_error("%s", msg);
 		else {
 			p = strchr(p + 1, ':');
 			if (!p || !*(p + 1) || !*(p + 2))
-				fprintf(stderr, "%s\n", msg);
+				log_error("%s", msg);
 			else
-				fprintf(stderr, "%s\n", p + 2);
+				log_error("%s", p + 2);
 		}
 	} else if (!lua_isnoneornil(L, 1)) { /* is there an error object? */
 		if (!luaL_callmeta(L, 1, "__tostring"))  /* try its 'tostring' metamethod */
-			fprintf(stderr, "(no error message)\n");
+			log_error("(no error message)");
 	}
 
 	fprintf(stderr, "stack traceback:\n");
