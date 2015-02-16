@@ -98,8 +98,9 @@ To use the test coverage, the following tools are needed:
 First time
 ----------
 
-Native build of Drystal
------------------------
+### Native build
+
+Once cloned, you can compile Drystal in native mode:
 
     mkdir build-native-release
     cd build-native-release
@@ -110,8 +111,7 @@ You can now find the executable in the src/ directory
 
     src/drystal --help
 
-Web build of Drystal
---------------------
+### Web build
 
 In order to compile Drystal to javascript you will need Emscripten.
 
@@ -145,9 +145,13 @@ BUILD_STORAGE         | ON      |
 BUILD_GRAPHICS        | ON      | SDL2, OpenGL, libpng
 BUILD_UTILS           | ON      |
 
+The additional dependencies listed here are only for a native build. When
+building with Emscripten, all these dependencies are either provided
+by Emscripten or recompiled entirely (using a git submodule).
+
 For the web build, removing parts of Drystal that you do not use decrease
 the size of the final javascript code which helps loading the page of the
-game faster.
+game faster. (e.g. removing the physics module saves ~273 KiB)
 
 Documentation build
 -------------------
