@@ -28,8 +28,6 @@ extern "C" {
 	_Pragma("GCC diagnostic ignored \"-Weffc++\"")
 #define DISABLE_WARNING_STRICT_ALIASING \
 	_Pragma("GCC diagnostic ignored \"-Wstrict-aliasing\"")
-#define DISABLE_WARNING_CAST_ALIGN \
-	_Pragma("GCC diagnostic ignored \"-Wcast-align\"")
 
 #define END_DISABLE_WARNINGS \
 	_Pragma("GCC diagnostic pop")
@@ -42,8 +40,6 @@ extern "C" {
 	_Pragma("clang diagnostic ignored \"-Weffc++\"")
 #define DISABLE_WARNING_STRICT_ALIASING \
 	_Pragma("clang diagnostic ignored \"-Wstrict-aliasing\"")
-#define DISABLE_WARNING_CAST_ALIGN \
-	_Pragma("clang diagnostic ignored \"-Wcast-align\"")
 
 #define END_DISABLE_WARNINGS \
 	_Pragma("clang diagnostic pop")
@@ -51,7 +47,6 @@ extern "C" {
 #define BEGIN_DISABLE_WARNINGS
 #define DISABLE_WARNING_EFFCPP
 #define DISABLE_WARNING_STRICT_ALIASING
-#define DISABLE_WARNING_CAST_ALIGN
 #define END_DISABLE_WARNINGS
 #endif
 #endif
@@ -59,7 +54,6 @@ extern "C" {
 #define _malloc_ __attribute__ ((malloc))
 #define _sentinel_ __attribute__ ((sentinel))
 #define _unused_ __attribute__ ((unused))
-#define _alignas_(x) __attribute__((aligned(__alignof(x))))
 #define _printf_(a,b) __attribute__ ((format (printf, a, b)))
 
 #define USEC_PER_SEC 1000000ULL
