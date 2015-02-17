@@ -85,14 +85,14 @@ end
 function drystal.new_color(t, x, y, z, k)
 	local r, g, b, h, s, l, c, m
 	if type(t) == 'table' then
-		x, y, z = unpack(t)
+		x, y, z = table.unpack(t)
 		t = 'rgb'
 	elseif type(t) ~= 'string' then
 		error('Color: unknown type')
 	end
 
 	if type(x) == 'table' then
-		x, y, z, k = unpack(x)
+		x, y, z, k = table.unpack(x)
 	end
 
 	if t == 'hsl' then
