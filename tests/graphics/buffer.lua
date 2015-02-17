@@ -53,7 +53,7 @@ function drystal.draw()
 
 	if bufferize then
 		if not buffer then
-			buffer = assert(drystal.new_buffer(number * 6))
+			buffer = assert(drystal.new_buffer(number * 6 / 2))
 			buffer:use()
 			heavy_draw(number)
 			buffer:upload_and_free()

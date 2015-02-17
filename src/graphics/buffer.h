@@ -85,12 +85,6 @@ void buffer_check_not_use_texture(Buffer *b);
 void buffer_check_not_full(Buffer *b);
 
 void buffer_upload_and_free(Buffer *b);
-bool buffer_is_fulln(const Buffer *b, int quantity);
-
-static inline bool buffer_is_full(const Buffer *b)
-{
-	return buffer_is_fulln(b, 1);
-}
 
 static inline bool buffer_was_freed(const Buffer *b)
 {

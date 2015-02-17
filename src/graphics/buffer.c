@@ -69,6 +69,37 @@ static void buffer_partial_free(Buffer *b)
 	b->positions = b->colors = b->tex_coords = b->point_sizes = NULL;
 }
 
+static bool buffer_is_full(const Buffer *b)
+{
+	assert(b);
+
+	if (b->type == POINT_BUFFER)
+		return b->current_position > b->size - 1;
+	if (b->type == LINE_BUFFER)
+		return b->current_position > b->size - 2;
+	if (b->type == TRIANGLE_BUFFER)
+		return b->current_position > b->size - 3;
+	return false;
+}
+
+static void buffer_resize(Buffer *b) {
+	size_t size_positions = b->size * 2;
+	size_t size_colors = b->size * 4;
+	size_t size_tex_coords = b->size * 2;
+	size_t size_point_size = b->size;
+
+	XREALLOC(b->positions, size_positions, size_positions + 2);
+	XREALLOC(b->colors, size_colors, size_colors + 4);
+	if (b->tex_coords) {
+		XREALLOC(b->tex_coords, size_tex_coords, size_tex_coords + 2);
+	}
+	if (b->point_sizes) {
+		XREALLOC(b->point_sizes, size_point_size, size_point_size + 1);
+	}
+	b->size = size_colors / 4;
+	log_info("new size: %u", b->size);
+}
+
 Buffer *buffer_new(bool user_buffer, unsigned int size)
 {
 	Buffer *b = new(Buffer, 1);
@@ -139,7 +170,11 @@ void buffer_check_not_full(Buffer *b)
 	assert(b);
 
 	if (buffer_is_full(b)) {
-		buffer_flush(b);
+		if (b->user_buffer) {
+			buffer_resize(b);
+		} else {
+			buffer_flush(b);
+		}
 	}
 }
 
@@ -243,19 +278,6 @@ void buffer_upload_and_free(Buffer *b)
 
 	buffer_upload(b, GL_STATIC_DRAW);
 	buffer_partial_free(b);
-}
-
-bool buffer_is_fulln(const Buffer *b, int quantity)
-{
-	assert(b);
-
-	if (b->type == POINT_BUFFER)
-		return b->current_position > b->size - 1 * quantity;
-	if (b->type == LINE_BUFFER)
-		return b->current_position > b->size - 2 * quantity;
-	if (b->type == TRIANGLE_BUFFER)
-		return b->current_position > b->size - 3 * quantity;
-	return false;
 }
 
 void buffer_draw(Buffer *b, float dx, float dy)

@@ -444,10 +444,9 @@ A buffer can **only contain one type of shape** (point, textured point, line, tr
       If a buffer is freed, you cannot call :lua:meth:`.Buffer:reset`, :lua:meth:`.Buffer:use` or
       :lua:func:`.Buffer.upload_and_free` anymore or errors will be thrown.
 
-.. lua:function:: new_buffer([size: int]) -> Buffer
+.. lua:function:: new_buffer([initial_size: int]) -> Buffer
 
-   Creates a buffer of the specified ``size``. ``size`` must be a multiple of the number of points of the shape you put in it.
-   For example, if you put triangles, ``size`` must be a multiple of 3.
+   Creates a buffer of the specified ``initial_size``. Once the buffer is full, it is resized.
 
 .. lua:function:: use_default_buffer()
 
