@@ -38,7 +38,6 @@ tests = [
 'graphics/draw_point.lua',
 'graphics/precise.lua',
 'graphics/colors.lua',
-'graphics/resize/fixed_size.lua',
 'graphics/resize/resizable.lua',
 'graphics/buffer.lua',
 'graphics/filter.lua',
