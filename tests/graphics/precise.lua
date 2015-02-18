@@ -9,7 +9,7 @@ function drystal.init()
 	drystal.camera.reset()
 
 	image = assert(drystal.load_surface('precise.png'))
-	image:set_filter(drystal.NEAREST)
+	image:set_filter(drystal.filters.nearest)
 
 	surface = drystal.new_surface(w, h)
 	surface:draw_on()
