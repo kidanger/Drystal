@@ -223,9 +223,7 @@ void surface_free(Surface *s)
 	if (!s)
 		return;
 
-	if (s->filename) {
-		free(s->filename);
-	}
+	free(s->filename);
 	glDeleteTextures(1, &(s->tex));
 	if (s->has_fbo) {
 		glDeleteFramebuffers(1, &(s->fbo));

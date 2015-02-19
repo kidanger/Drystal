@@ -193,10 +193,10 @@ void display_free()
 		SDL_DestroyWindow(display.sdl_window);
 		display.sdl_window = NULL;
 	}
-	if (display.screen) {
-		// freed by lua's gc
-		display.screen = NULL;
-	}
+
+	// freed by lua's gc
+	display.screen = NULL;
+
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
