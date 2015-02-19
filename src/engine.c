@@ -273,9 +273,6 @@ static void reload_surface(void* data, _unused_ void* arg)
 	display_free_surface(new_surface);
 
 	display_set_filter(s, filter);
-	if (display_get_draw_from() == s) {
-		surface_draw_from(s);
-	}
 	log_debug("%s reloaded", s->filename);
 }
 
