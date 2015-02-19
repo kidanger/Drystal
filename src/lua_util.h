@@ -24,6 +24,8 @@ extern "C" {
 #include <lua.h>
 #include <lauxlib.h>
 
+#include "log.h"
+
 int traceback(lua_State *L);
 void call_lua_function(lua_State *L, int num_args, int num_ret);
 
@@ -42,7 +44,8 @@ void call_lua_function(lua_State *L, int num_args, int num_ret);
 			lua_rawgeti(L, -1, name->ref); \
 		} else { \
 			T **p = (T **) lua_newuserdata(L, sizeof(T **)); \
-			assert(p); \
+			if (!p) \
+				log_oom_and_exit(); \
 			*p = name; \
 			\
 			lua_newtable(L); /* storage */ \
