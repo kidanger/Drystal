@@ -52,6 +52,7 @@ tests = [
 'graphics/surface_manipulations.lua',
 'graphics/fx.lua',
 'graphics/title.lua',
+'graphics/regressions/font_draw_from.lua',
 ]
 
 addr, port = '127.0.0.1', 8000
@@ -97,7 +98,7 @@ def run_web(args):
     t = threading.Thread(target=http_server, daemon=True)
     t.start()
     for test in tests:
-        if not args.test_type or test.startswith(args.test_type):
+        if not args.test_type or args.test_type in test:
             wd, filename = os.path.split('tests/' + test)
             repack('tests/' + test, args.destination)
             if args.wait:
@@ -110,7 +111,7 @@ def run_web(args):
 def run_native(args):
     drystal, drystal_args = prepare_native(args.release, args.coverage)
     for test in tests:
-        if not args.test_type or test.startswith(args.test_type):
+        if not args.test_type or args.test_type in test:
             wd, filename = os.path.split('tests/' + test)
             test_args = list(drystal_args)
             test_args.append(filename)
@@ -131,7 +132,7 @@ if __name__ == '__main__':
     add_signal_handlers()
 
     parser = argparse.ArgumentParser(description='Drystal testhub!')
-    parser.add_argument('-t', '--test-type', help='test type', choices=['font', 'graphics', 'misc', 'web', 'storage', 'physics', 'particle', 'audio', 'event'])
+    parser.add_argument('-t', '--test-type', help='test type', choices=['font', 'graphics', 'misc', 'web', 'storage', 'physics', 'particle', 'audio', 'event', 'regression'])
     parser.add_argument('-w', '--wait', type=int, help='tell the testhub to wait X seconds before running the next test. By default, you must quit the test.')
     subparsers = parser.add_subparsers(help='sub-commands')
 
