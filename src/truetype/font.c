@@ -149,8 +149,7 @@ void font_draw_plain(const Font *font, const char* text, float x, float y)
 		}
 		++text;
 	}
-	if (old_surface)
-		display_draw_from(old_surface);
+	display_draw_from(old_surface);
 }
 
 void font_draw(const Font *font, const char* text, float x, float y, Alignment align)
@@ -237,8 +236,7 @@ void font_draw(const Font *font, const char* text, float x, float y, Alignment a
 	pop_parser();
 	display_set_color(r, g, b);
 	display_set_alpha(a);
-	if (old_surface)
-		display_draw_from(old_surface);
+	display_draw_from(old_surface);
 }
 
 void font_get_textsize_plain(const Font *font, const char* text, float* w, float* h)

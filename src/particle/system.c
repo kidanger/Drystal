@@ -94,9 +94,8 @@ void system_draw(System *s, float dx, float dy)
 {
 	assert(s);
 
-	Surface* old_surface = NULL;
+	Surface* old_surface = display_get_draw_from();
 	if (s->texture) {
-		old_surface = display_get_draw_from();
 		display_draw_from(s->texture);
 	}
 
@@ -144,8 +143,7 @@ void system_draw(System *s, float dx, float dy)
 			display_draw_point(dx + p->x, dy + p->y, _size);
 	}
 
-	if (old_surface)
-		display_draw_from(old_surface);
+	display_draw_from(old_surface);
 }
 
 void system_emit(System *s)

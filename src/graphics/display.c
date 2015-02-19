@@ -355,8 +355,7 @@ void display_flip()
 
 	// restore context
 	surface_draw_on(display.current_on);
-	if (oldfrom)
-		display_draw_from(oldfrom);
+	display_draw_from(oldfrom);
 	display_use_buffer(oldbuffer);
 	display.debug_mode = olddebug;
 	display.r = oldr;
@@ -491,11 +490,14 @@ Surface *display_get_draw_from()
 
 void display_draw_from(Surface *surface)
 {
-	assert(surface);
 	if (display.current_from != surface) {
 		buffer_check_empty(display.current_buffer);
 		display.current_from = surface;
-		surface_draw_from(surface);
+		if (surface) {
+			surface_draw_from(surface);
+		} else {
+			glBindTexture(GL_TEXTURE_2D, 0);
+		}
 	}
 }
 
