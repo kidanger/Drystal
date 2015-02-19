@@ -102,29 +102,12 @@ static void buffer_resize(Buffer *b) {
 
 Buffer *buffer_new(bool user_buffer, unsigned int size)
 {
-	Buffer *b = new(Buffer, 1);
+	Buffer *b = new0(Buffer, 1);
 	b->type = UNDEFINED;
 	b->size = size;
 	b->positions = new(GLfloat, size * 2);
 	b->colors = new(GLfloat, size * 4);
-	b->tex_coords = NULL;
-	b->point_sizes = NULL;
-	b->current_position = 0;
-	b->current_color = 0;
-	b->current_tex_coord = 0;
-	b->current_point_size = 0;
-	b->uploaded = false;
-	b->has_texture = false;
-	b->shader = NULL;
-	b->camera = NULL;
 	b->user_buffer = user_buffer;
-	b->ref = 0;
-	b->draw_on = NULL;
-
-	b->buffers[0] = 0;
-	b->buffers[1] = 0;
-	b->buffers[2] = 0;
-	b->buffers[3] = 0;
 
 	return b;
 }

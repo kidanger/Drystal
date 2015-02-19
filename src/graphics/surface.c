@@ -173,19 +173,12 @@ static void surface_create_fbo(Surface *s)
 Surface *surface_new(unsigned int w, unsigned int h, unsigned int texw, unsigned int texh,
 					 SurfaceFormat format, void *pixels, Surface *current_from, Surface *current_on)
 {
-	Surface *s = new(Surface, 1);
-	s->filename = NULL;
+	Surface *s = new0(Surface, 1);
 	s->w = w;
 	s->h = h;
 	s->texw = texw;
 	s->texh = texh;
 	s->filter = FILTER_DEFAULT;
-	s->has_fbo = false;
-	s->has_mipmap = false;
-	s->npot = false;
-	s->ref = 0;
-	s->tex = 0;
-	s->fbo = 0;
 
 	glGenTextures(1, &(s->tex));
 	glBindTexture(GL_TEXTURE_2D, s->tex);

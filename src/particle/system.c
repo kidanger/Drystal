@@ -26,30 +26,11 @@ System *system_new(int x, int y)
 {
 	System *s;
 
-	s = new(System, 1);
+	s = new0(System, 1);
 
-	s->particles = NULL;
-	s->cur_size = 0;
-	s->cur_color = 0;
-	s->texture = NULL;
-	s->running = false;
 	s->size = 256;
-	s->used = 0;
 	s->x = x;
 	s->y = y;
-	s->offx = 0;
-	s->offy = 0;
-	s->min_direction = 0;
-	s->max_direction = 0;
-	s->min_lifetime = 0;
-	s->max_lifetime = 0;
-	s->min_initial_acceleration = 0;
-	s->max_initial_acceleration = 0;
-	s->min_initial_velocity = 0;
-	s->max_initial_velocity = 0;
-	s->emission_rate = 0;
-	s->emit_counter = 0;
-	s->ref = 0;
 
 	s->particles = new(Particle, s->size);
 	for (int i = 0; i < s->size; i++)

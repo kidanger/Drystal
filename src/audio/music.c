@@ -34,17 +34,12 @@ static Music *music_new(MusicCallback* clb, ALenum format, int rate)
 
 	assert(clb);
 
-	m = new(Music, 1);
+	m = new0(Music, 1);
 
-	m->source = NULL;
 	m->callback = clb;
 	m->format = format;
 	m->samplesrate = rate;
 	m->buffersize = rate * 0.4;
-	m->ended = false;
-	m->loop = false;
-	m->ref = 0;
-	m->onend_clb = 0;
 	m->pitch = 1.0;
 	m->volume = 1.0;
 	alGenBuffers(STREAM_NUM_BUFFERS, m->alBuffers);

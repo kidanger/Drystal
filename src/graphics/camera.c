@@ -22,15 +22,8 @@
 
 Camera *camera_new(void)
 {
-	Camera *c = new(Camera, 1);
-	c->dx = 0;
-	c->dy = 0;
+	Camera *c = new0(Camera, 1);
 	c->zoom = 1;
-	c->angle = 0;
-	c->matrix[0] = 0;
-	c->matrix[1] = 0;
-	c->matrix[2] = 0;
-	c->matrix[3] = 0;
 
 	return c;
 }

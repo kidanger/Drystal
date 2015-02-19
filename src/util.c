@@ -60,6 +60,18 @@ char *xstrdup(const char *s)
 	return p;
 }
 
+void *xcalloc(size_t nmemb, size_t size)
+{
+	void *p;
+
+	p = calloc(nmemb, size);
+	if (!p) {
+		log_oom_and_exit();
+	}
+
+	return p;
+}
+
 void *xmalloc(size_t size)
 {
 	void *p;

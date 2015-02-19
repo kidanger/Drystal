@@ -27,6 +27,7 @@ extern "C" {
 #include "macro.h"
 
 #define new(t, n) xmalloc(sizeof(t) * (n))
+#define new0(t, n) xcalloc((n), sizeof(t))
 #define newa(t, n) alloca(sizeof(t) * (n))
 
 #define XREALLOC(array, nmemb, need) \

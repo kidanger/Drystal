@@ -32,12 +32,7 @@ static Sound *sound_new(ALushort* buffer, unsigned int length, int samplesrate, 
 	Sound *s;
 	ALenum format = AL_FORMAT_MONO8;
 
-	s = new(Sound, 1);
-
-	s->alBuffer = 0;
-	s->filename = NULL;
-	s->free_me = false;
-	s->ref = 0;
+	s = new0(Sound, 1);
 
 	alGenBuffers(1, &s->alBuffer);
 
