@@ -1,4 +1,16 @@
-include_directories(.)
+include_directories("${PROJECT_SOURCE_DIR}/src")
+include_directories("${PROJECT_SOURCE_DIR}/external")
+include_directories("${PROJECT_SOURCE_DIR}/external/lua/src")
+if (EMSCRIPTEN)
+	if (BUILD_PHYSICS)
+		include_directories("${PROJECT_SOURCE_DIR}/external/box2d/Box2D")
+	endif()
+	if (BUILD_GRAPHICS)
+		include_directories("${PROJECT_SOURCE_DIR}/external/libpng")
+		include_directories("${CMAKE_BINARY_DIR}/external") # for pngconf.h
+	endif()
+endif()
+
 set(SOURCES
 	engine.c
 	dlua.c
