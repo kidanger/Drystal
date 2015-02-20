@@ -32,7 +32,7 @@ if(BUILD_LIVECODING AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	message(FATAL_ERROR "Cannot enable BUILD_LIVECODING: Linux only")
 endif()
 
-if(BUILD_MANPAGES)
+if(BUILD_MANPAGES AND NOT EMSCRIPTEN)
 	add_subdirectory(doc/man)
 endif()
 add_subdirectory(external)
