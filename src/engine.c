@@ -15,7 +15,7 @@
  * along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <stdbool.h>
-#include <sys/time.h>
+#include <time.h>
 #if defined(BUILD_FONT) || defined(BUILD_GRAPHICS)
 #ifndef EMSCRIPTEN
 #include <SDL2/SDL.h>
@@ -66,9 +66,11 @@ struct Engine {
 static long unsigned get_now()
 {
 	// in microsecond
-	struct timeval stTimeVal;
-	gettimeofday(&stTimeVal, NULL);
-	return stTimeVal.tv_sec * USEC_PER_SEC + stTimeVal.tv_usec;
+	struct timespec ts;
+
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+
+	return ts.tv_sec * USEC_PER_SEC + ts.tv_nsec / NSEC_PER_USEC;
 }
 
 #ifdef BUILD_LIVECODING

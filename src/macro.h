@@ -58,6 +58,7 @@ extern "C" {
 
 #define USEC_PER_SEC 1000000ULL
 #define MSEC_PER_SEC 1000ULL
+#define NSEC_PER_USEC 1000ULL
 
 #define MAX(a,b) \
 	({ \
