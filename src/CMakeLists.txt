@@ -180,5 +180,6 @@ if(BUILD_LIVECODING)
 	target_link_libraries(${DRYSTAL_OUT} pthread)
 endif()
 
-install(TARGETS ${DRYSTAL_OUT} DESTINATION bin)
+include(GNUInstallDirs)
+install(TARGETS ${DRYSTAL_OUT} DESTINATION ${CMAKE_INSTALL_BINDIR})
 
