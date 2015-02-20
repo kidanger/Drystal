@@ -56,6 +56,12 @@
 #endif
 #ifdef BUILD_LIVECODING
 #include "livecoding.h"
+#ifdef BUILD_GRAPHICS
+#include "graphics/display.h"
+#endif
+#ifdef BUILD_AUDIO
+#include "audio/audio.h"
+#endif
 #endif
 
 log_category("lua");
@@ -66,9 +72,6 @@ struct DrystalLua {
 	lua_State* L;
 	int drystal_table_ref;
 	bool library_loaded;
-#ifdef BUILD_LIVECODING
-	bool need_to_reload;
-#endif
 	const char* filename;
 } dlua;
 
@@ -77,9 +80,6 @@ void dlua_init(const char *filename)
 	dlua.L = luaL_newstate();
 	dlua.drystal_table_ref = LUA_NOREF;
 	dlua.filename = filename;
-#ifdef BUILD_LIVECODING
-	dlua.need_to_reload = false;
-#endif
 	dlua.library_loaded = false;
 	luaL_openlibs(dlua.L);
 }
@@ -124,48 +124,6 @@ bool dlua_get_function(const char* name)
 	}
 	lua_pop(L, 1);
 	return false;
-}
-
-static void remove_userpackages(void)
-{
-	lua_State *L = dlua.L;
-
-	assert(lua_gettop(L) == 0);
-	log_debug("Removing old packages: ");
-	const char* kept[] = {
-		"_G",
-		LUA_COLIBNAME,
-		LUA_TABLIBNAME,
-		LUA_IOLIBNAME,
-		LUA_OSLIBNAME,
-		LUA_STRLIBNAME,
-		LUA_UTF8LIBNAME,
-		LUA_BITLIBNAME,
-		LUA_MATHLIBNAME,
-		LUA_DBLIBNAME,
-		LUA_LOADLIBNAME,
-		"drystal",
-	};
-	lua_getglobal(L, "package");
-	lua_getfield(L, -1, "loaded");
-	lua_pushnil(L);
-	while (lua_next(L, -2)) {
-		bool remove = true;
-		const char* name = lua_tostring(L, -2);
-		unsigned long i;
-
-		for (i = 0; i < sizeof(kept) / sizeof(const char*) && remove; i++) {
-			remove = remove && !streq(name, kept[i]);
-		}
-		if (remove) {
-			lua_pushnil(L);
-			log_debug("    Removed %s", name);
-			lua_setfield(L, -4, name);
-		}
-		lua_pop(L, 1);
-	}
-	lua_pop(L, 2);
-	assert(lua_gettop(L) == 0);
 }
 
 static void register_modules(void)
@@ -236,23 +194,12 @@ bool dlua_load_code(void)
 	return true;
 }
 
-#ifdef BUILD_LIVECODING
-void dlua_set_need_to_reload()
-{
-	dlua.need_to_reload = true;
-}
-
-bool dlua_is_need_to_reload()
-{
-	return dlua.need_to_reload;
-}
-#endif
-
-void dlua_foreach(const char* type, void(*callback)(void* data, void* callback_arg), void* callback_arg)
+bool dlua_foreach(const char* type, bool(*callback)(void* data, const void* callback_arg), const void* callback_arg)
 {
 	assert(type);
 	assert(callback);
 
+	bool result = false;
 	lua_State *L = dlua.L;
 	lua_getfield(L, LUA_REGISTRYINDEX, "objects");
 	lua_pushnil(L);
@@ -267,36 +214,13 @@ void dlua_foreach(const char* type, void(*callback)(void* data, void* callback_a
 		lua_pop(L, 1);
 		if (streq(type, t)) {
 			void* data = * (void**) lua_touserdata(L, -1);
-			callback(data, callback_arg);
+			result |= callback(data, callback_arg);
 		}
 
 		lua_pop(L, 1);
 	}
 	lua_pop(L, 1);
-}
-
-bool dlua_reload_code(void)
-{
-	lua_State *L = dlua.L;
-	if (dlua_get_function("prereload")) {
-		call_lua_function(L, 0, 0);
-	}
-	remove_userpackages();
-
-	log_info("Reloading code...");
-	bool ok = dlua_load_code();
-	if (ok) {
-		dlua_call_init();
-		if (dlua_get_function("postreload")) {
-			call_lua_function(L, 0, 0);
-		}
-	}
-
-#ifdef BUILD_LIVECODING
-	dlua.need_to_reload = false;
-#endif
-
-	return ok;
+	return result;
 }
 
 void dlua_call_init(void)
@@ -329,17 +253,103 @@ void dlua_call_atexit(void)
 	}
 }
 
+bool dlua_reload_code(void)
+{
+	lua_State* L = dlua.L;
+	assert(L);
+
+	dlua_get_function("reload");
+	call_lua_function(L, 0, 1);
+	bool ok = lua_toboolean(L, -1);
+	lua_pop(L, 1);
+	return ok;
+}
+
 static int mlua_stop(_unused_ lua_State *L)
 {
 	engine_stop();
 	return 0;
 }
 
-static int mlua_reload(_unused_ lua_State *L)
+static int mlua_load_code(_unused_ lua_State *L)
 {
-	dlua_reload_code();
-	return 0;
+	bool ok = dlua_load_code();
+	lua_pushboolean(L, ok);
+	return 1;
 }
+
+#ifdef BUILD_LIVECODING
+#ifdef BUILD_AUDIO
+static bool reload_sound(void* data, const void* arg)
+{
+	const char* filename = arg;
+	Sound* s = data;
+	Sound* new_sound;
+
+	if (strcmp(s->filename, filename))
+		return false;
+
+	if (!(new_sound = sound_load_from_file(s->filename)))
+		return false;
+
+	SWAP(s->alBuffer, new_sound->alBuffer);
+	SWAP(s->free_me, new_sound->free_me);
+	sound_free(new_sound);
+
+	log_debug("%s reloaded", s->filename);
+	return true;
+}
+static int mlua_reload_sound(lua_State *L)
+{
+	assert(L);
+
+	const char* filename = lua_tostring(L, 1);
+	bool done = dlua_foreach("sound", reload_sound, filename);
+	lua_pushboolean(L, done);
+	return 1;
+}
+#endif
+
+#ifdef BUILD_GRAPHICS
+static bool reload_surface(void* data, const void* arg)
+{
+	const char* filename = arg;
+	Surface* s = data;
+	Surface* new_surface;
+
+	if (!s->filename || strcmp(s->filename, filename))
+		return false;
+
+	if (display_load_surface(s->filename, &new_surface))
+		return false;
+
+	FilterMode filter = s->filter;
+	SWAP(s->w, new_surface->w);
+	SWAP(s->h, new_surface->h);
+	SWAP(s->texw, new_surface->texw);
+	SWAP(s->texh, new_surface->texh);
+	SWAP(s->has_fbo, new_surface->has_fbo);
+	SWAP(s->has_mipmap, new_surface->has_mipmap);
+	SWAP(s->npot, new_surface->npot);
+	SWAP(s->tex, new_surface->tex);
+	SWAP(s->fbo, new_surface->fbo);
+	display_free_surface(new_surface);
+
+	display_set_filter(s, filter);
+	log_debug("%s reloaded", s->filename);
+	return true;
+}
+static int mlua_reload_surface(lua_State *L)
+{
+	assert(L);
+
+	const char* filename = lua_tostring(L, 1);
+	bool done = dlua_foreach("surface", reload_surface, filename);
+	lua_pushboolean(L, done);
+	return 1;
+}
+#endif
+#endif
 
 static int mlua_drystal_index(_unused_ lua_State *L)
 {
@@ -367,7 +377,15 @@ int luaopen_drystal(lua_State *L)
 
 	static const luaL_Reg lib[] = {
 		{"stop", mlua_stop},
-		{"reload", mlua_reload},
+#ifdef BUILD_LIVECODING
+		{"_load_code", mlua_load_code},
+#ifdef BUILD_AUDIO
+		{"reload_sound", mlua_reload_sound},
+#endif
+#ifdef BUILD_GRAPHICS
+		{"reload_surface", mlua_reload_surface},
+#endif
+#endif
 		{NULL, NULL}
 	};
 

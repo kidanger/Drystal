@@ -332,6 +332,24 @@ void event_update()
 	}
 }
 
+void event_small_update()
+{
+	SDL_Event event;
+	while (SDL_PollEvent(&event)) {
+		switch (event.type) {
+			case SDL_QUIT:
+				engine_stop();
+				break;
+			case SDL_KEYDOWN:
+				if (event.key.keysym.sym == SDLK_F3)
+					dlua_reload_code();
+				break;
+			default:
+				break;
+		}
+	}
+}
+
 #ifdef EMSCRIPTEN
 static EM_BOOL em_ui_callback(_unused_ int eventType, const EmscriptenUiEvent *uiEvent, _unused_ void *userData)
 {

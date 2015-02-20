@@ -9,6 +9,45 @@ function drystal.file_exists(name)
 	return false
 end
 
+local function remove_userpackages()
+	local keep = {
+		_G=true,
+		coroutine=true,
+		table=true,
+		io=true,
+		os=true,
+		string=true,
+		utf8=true,
+		bit32=true,
+		math=true,
+		debug=true,
+		package=true,
+		drystal=true,
+	}
+	for name, value in pairs(package.loaded) do
+		if not keep[name] then
+			package.loaded[name] = nil
+		end
+	end
+end
+function drystal.reload()
+	if drystal.prereload then
+		drystal.prereload()
+	end
+	remove_userpackages()
+	collectgarbage()
+	local ok = drystal._load_code()
+	if ok then
+		if drystal.init then
+			drystal.init()
+		end
+		if drystal.postreload then
+			drystal.postreload()
+		end
+	end
+	return ok
+end
+
 function table.print(t)
 	local str = {}
 	for k, v in pairs(t) do

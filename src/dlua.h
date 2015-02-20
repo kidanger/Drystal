@@ -34,11 +34,7 @@ void dlua_call_init(void);
 void dlua_call_update(float dt);
 void dlua_call_draw(void);
 void dlua_call_atexit(void);
-#ifdef BUILD_LIVECODING
-bool dlua_is_need_to_reload();
-void dlua_set_need_to_reload();
-#endif
-void dlua_foreach(const char* type, void(*callback)(void* data, void* callback_arg), void* callback_arg);
+bool dlua_foreach(const char* type, bool(*callback)(void* data, const void* callback_arg), const void* callback_arg);
 
 void dlua_get_drystal_field(const char* name);
 bool dlua_get_function(const char* name);

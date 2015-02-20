@@ -37,6 +37,7 @@ enum Button {
 typedef enum Button Button;
 
 void event_update();
+void event_small_update();
 void event_destroy();
 int event_init();
 

@@ -37,6 +37,7 @@
 #include "util.h"
 #ifdef BUILD_LIVECODING
 #include "livecoding.h"
+#include "lua_util.h"
 #endif
 
 #ifdef EMSCRIPTEN
@@ -57,9 +58,8 @@ struct Engine {
 	bool draw_activated;
 #ifdef BUILD_LIVECODING
 	bool wait_next_reload;
-#define QUEUES_SIZE 32
-	char* surfaces_to_reload[QUEUES_SIZE];
-	char* sounds_to_reload[QUEUES_SIZE];
+#define QUEUE_SIZE 128
+	char* files_to_reload[QUEUE_SIZE];
 #endif
 } engine;
 
@@ -74,7 +74,7 @@ static long unsigned get_now()
 }
 
 #ifdef BUILD_LIVECODING
-static void engine_reload_queues(void);
+static void engine_reload_queue(void);
 #endif
 
 int engine_init(const char* filename, unsigned int target_fps)
@@ -177,15 +177,17 @@ void engine_loop(void)
 
 void engine_update(void)
 {
+	float dt = (get_now() - engine.last_update) / (float) USEC_PER_SEC;
+	engine.last_update = get_now();
+
 #ifdef BUILD_LIVECODING
-	if (dlua_is_need_to_reload()) {
-		engine.wait_next_reload = false;
-		dlua_reload_code();
+	if (livecoding_is_running()) {
+		engine_reload_queue();
+		if (engine.wait_next_reload) {
+			event_small_update();
+			return;
+		}
 	}
-	if (engine.wait_next_reload) {
-		return;
-	}
-	engine_reload_queues();
 #endif
 
 #ifdef BUILD_GRAPHICS
@@ -195,9 +197,6 @@ void engine_update(void)
 	// check if an event provocked a stop
 	if (!engine.run)
 		return;
-
-	float dt = (get_now() - engine.last_update) / (float) USEC_PER_SEC;
-	engine.last_update = get_now();
 
 #ifdef BUILD_AUDIO
 	audio_update(dt);
@@ -239,120 +238,49 @@ void engine_wait_next_reload(void)
 	engine.wait_next_reload = true;
 }
 
-#ifdef BUILD_GRAPHICS
-static void reload_surface(void* data, _unused_ void* arg)
+void engine_add_file_to_reloadqueue(const char* filename)
 {
-	Surface* s = data;
-	Surface* new_surface;
-
-	if (!s->filename)
-		return;
-
-	bool found = false;
-	for (int i = 0; i < QUEUES_SIZE; i++) {
-		if (engine.surfaces_to_reload[i] && endswith(s->filename, engine.surfaces_to_reload[i])) {
-			free(engine.surfaces_to_reload[i]);
-			engine.surfaces_to_reload[i] = NULL;
-			found = true;
-		}
-	}
-	if (!found)
-		return;
-
-	if (display_load_surface(s->filename, &new_surface))
-		return;
-
-	FilterMode filter = s->filter;
-	SWAP(s->w, new_surface->w);
-	SWAP(s->h, new_surface->h);
-	SWAP(s->texw, new_surface->texw);
-	SWAP(s->texh, new_surface->texh);
-	SWAP(s->has_fbo, new_surface->has_fbo);
-	SWAP(s->has_mipmap, new_surface->has_mipmap);
-	SWAP(s->npot, new_surface->npot);
-	SWAP(s->tex, new_surface->tex);
-	SWAP(s->fbo, new_surface->fbo);
-	display_free_surface(new_surface);
-
-	display_set_filter(s, filter);
-	log_debug("%s reloaded", s->filename);
-}
-
-void engine_add_surface_to_reloadqueue(const char* filename)
-{
-	for (int i = 0; i < QUEUES_SIZE; i++) {
-		if (!engine.surfaces_to_reload[i]) {
-			engine.surfaces_to_reload[i] = xstrdup(filename);
+	for (int i = 0; i < QUEUE_SIZE; i++) {
+		if (!engine.files_to_reload[i]) {
+			engine.files_to_reload[i] = xstrdup(filename);
 			break;
 		}
 	}
 }
-#endif
 
-#ifdef BUILD_AUDIO
-static void reload_sound(void* data, _unused_ void* arg)
+static void engine_reload_queue(void)
 {
-	Sound* s = data;
-	Sound* new_sound;
+	lua_State* L = dlua_get_lua_state();
+	assert(L);
 
-	if (!s->filename)
-		return;
-
-	bool found = false;
-	for (int i = 0; i < QUEUES_SIZE; i++) {
-		if (engine.sounds_to_reload[i] && endswith(s->filename, engine.sounds_to_reload[i])) {
-			free(engine.sounds_to_reload[i]);
-			engine.sounds_to_reload[i] = NULL;
-			found = true;
-		}
-	}
-	if (!found)
-		return;
-
-	if (!(new_sound = sound_load_from_file(s->filename)))
-		return;
-
-	SWAP(s->alBuffer, new_sound->alBuffer);
-	SWAP(s->free_me, new_sound->free_me);
-	sound_free(new_sound);
-
-	log_debug("%s reloaded", s->filename);
-}
-
-void engine_add_sound_to_reloadqueue(const char* filename)
-{
-	for (int i = 0; i < QUEUES_SIZE; i++) {
-		if (!engine.sounds_to_reload[i]) {
-			engine.sounds_to_reload[i] = xstrdup(filename);
+	int top = lua_gettop(L);
+	bool try_reload = false;
+	for (int i = 0; i < QUEUE_SIZE; i++) {
+		if (engine.files_to_reload[i]) {
+			try_reload = true;
 			break;
 		}
 	}
-}
-#endif
+	if (!try_reload)
+		return;
 
-static void engine_reload_queues(void)
-{
-#ifdef BUILD_GRAPHICS
-	{
-		for (int i = 0; i < QUEUES_SIZE; i++) {
-			if (engine.surfaces_to_reload[i]) {
-				dlua_foreach("surface", reload_surface, NULL);
-				break;
-			}
+	dlua_get_function("_reload_files");
+	lua_newtable(L);
+	int idx = 1;
+	for (int i = 0; i < QUEUE_SIZE; i++) {
+		char* file = engine.files_to_reload[i];
+		if (engine.files_to_reload[i]) {
+			lua_pushstring(L, file);
+			lua_rawseti(L, -2, idx++);
+			free(file);
+			engine.files_to_reload[i] = NULL;
 		}
 	}
-#endif
-#ifdef BUILD_AUDIO
-	{
-		for (int i = 0; i < QUEUES_SIZE; i++) {
-			if (engine.sounds_to_reload[i]) {
-				dlua_foreach("sound", reload_sound, NULL);
-				break;
-			}
-		}
-	}
-#endif
-}
+	call_lua_function(L, 1, 1);
+	engine.wait_next_reload = !lua_toboolean(L, -1);
 
+	lua_pop(L, 1);
+	assert(lua_gettop(L) == top);
+}
 #endif
 

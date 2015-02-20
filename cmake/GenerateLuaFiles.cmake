@@ -13,6 +13,9 @@ endif()
 if(BUILD_GRAPHICS)
 	list(APPEND LUAFILES_LIST "graphics/postfx.lua" "graphics/draw.lua" "graphics/sprite.lua" "graphics/colors.lua")
 endif()
+if(BUILD_LIVECODING)
+	list(APPEND LUAFILES_LIST "reload.lua")
+endif()
 
 set(LUAFILES_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/luafiles.c)
 
