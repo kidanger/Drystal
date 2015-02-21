@@ -11,7 +11,8 @@ set(MAN_RESOURCES
 	drystal.xsl
 )
 
-add_custom_target(man ALL)
+add_custom_target(man)
+install(CODE "EXECUTE_PROCESS(COMMAND ${CMAKE_MAKE_PROGRAM} man)")
 function(add_manpage volume title)
 	add_custom_command(TARGET man
 		DEPENDS ${title}.${volume}.xml ${MAN_RESOURCES}
