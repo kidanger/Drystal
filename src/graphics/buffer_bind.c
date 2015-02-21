@@ -32,7 +32,7 @@ int mlua_new_buffer(lua_State* L)
 
 	Buffer* buffer;
 	if (lua_gettop(L) == 1) {
-		lua_Number size = luaL_checknumber(L, 1);
+		lua_Integer size = luaL_checkinteger(L, 1);
 		buffer = display_new_buffer(size);
 	} else {
 		buffer = display_new_auto_buffer(); // let Display choose a size
