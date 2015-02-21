@@ -55,9 +55,9 @@ function drystal.mouse_motion(x, y)
 	drystal.camera.y = y - 300
 end
 function drystal.mouse_press(x, y, b)
-	if b == drystal.WHEEL_UP then
+	if b == drystal.buttons.wheel_up then
 		drystal.camera.zoom = drystal.camera.zoom * 1.3
-	elseif b == drystal.WHEEL_DOWN then
+	elseif b == drystal.buttons.wheel_down then
 		drystal.camera.zoom = drystal.camera.zoom / 1.3
 	end
 end
