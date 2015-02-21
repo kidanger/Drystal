@@ -27,7 +27,7 @@ typedef struct System System;
 
 #define RAND(a, b) (((float) rand()/RAND_MAX) * ((b) - (a)) + (a))
 
-#define MAX_COLORS 5
+#define MAX_COLORS 16
 struct Color {
 	float at;
 	unsigned char min_r, max_r;
@@ -35,7 +35,7 @@ struct Color {
 	unsigned char min_b, max_b;
 };
 
-#define MAX_SIZES 5
+#define MAX_SIZES 16
 struct Size {
 	float at;
 	float min, max;
