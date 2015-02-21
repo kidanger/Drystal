@@ -30,8 +30,8 @@ int mlua_new_system(lua_State* L)
 {
 	assert(L);
 
-	lua_Integer x = luaL_checkinteger(L, 1);
-	lua_Integer y = luaL_checkinteger(L, 2);
+	lua_Number x = luaL_checknumber(L, 1);
+	lua_Number y = luaL_checknumber(L, 2);
 
 	System* system = system_new(x, y);
 
@@ -68,8 +68,8 @@ int mlua_new_system(lua_State* L)
 	system->colors[1].max_b = system->colors[0].min_b + RAND(0, 50);
 
 	system->emission_rate = RAND(1, 19);
-	system->offx = 0;
-	system->offy = 0;
+	system->offx = 0.f;
+	system->offy = 0.f;
 
 	push_system(L, system);
 	return 1;
@@ -80,8 +80,8 @@ int mlua_set_position_system(lua_State* L)
 	assert(L);
 
 	System* system = pop_system(L, 1);
-	lua_Integer x = luaL_checkinteger(L, 2);
-	lua_Integer y = luaL_checkinteger(L, 3);
+	lua_Number x = luaL_checknumber(L, 2);
+	lua_Number y = luaL_checknumber(L, 3);
 	system->x = x;
 	system->y = y;
 	return 0;
@@ -102,8 +102,8 @@ int mlua_set_offset_system(lua_State* L)
 	assert(L);
 
 	System* system = pop_system(L, 1);
-	lua_Integer ox = luaL_checkinteger(L, 2);
-	lua_Integer oy = luaL_checkinteger(L, 3);
+	lua_Number ox = luaL_checknumber(L, 2);
+	lua_Number oy = luaL_checknumber(L, 3);
 	system->offx = ox;
 	system->offy = oy;
 	return 0;
@@ -208,17 +208,17 @@ int mlua_add_color_system(lua_State* L)
 	System* system = pop_system(L, 1);
 	lua_Number at_lifetime = luaL_checknumber(L, 2);
 	if (lua_gettop(L) == 5) {
-		lua_Number r = luaL_checknumber(L, 3);
-		lua_Number g = luaL_checknumber(L, 4);
-		lua_Number b = luaL_checknumber(L, 5);
+		lua_Integer r = luaL_checkinteger(L, 3);
+		lua_Integer g = luaL_checkinteger(L, 4);
+		lua_Integer b = luaL_checkinteger(L, 5);
 		system_add_color(system, at_lifetime, r, r, g, g, b, b);
 	} else {
-		lua_Number minr = luaL_checknumber(L, 3);
-		lua_Number maxr = luaL_checknumber(L, 4);
-		lua_Number ming = luaL_checknumber(L, 5);
-		lua_Number maxg = luaL_checknumber(L, 6);
-		lua_Number minb = luaL_checknumber(L, 7);
-		lua_Number maxb = luaL_checknumber(L, 8);
+		lua_Integer minr = luaL_checkinteger(L, 3);
+		lua_Integer maxr = luaL_checkinteger(L, 4);
+		lua_Integer ming = luaL_checkinteger(L, 5);
+		lua_Integer maxg = luaL_checkinteger(L, 6);
+		lua_Integer minb = luaL_checkinteger(L, 7);
+		lua_Integer maxb = luaL_checkinteger(L, 8);
 		system_add_color(system, at_lifetime, minr, maxr, ming, maxg, minb, maxb);
 	}
 	return 0;

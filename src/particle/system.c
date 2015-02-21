@@ -22,7 +22,7 @@
 #include "particle.h"
 #include "util.h"
 
-System *system_new(int x, int y)
+System *system_new(float x, float y)
 {
 	System *s;
 
@@ -97,23 +97,23 @@ void system_draw(System *s, float dx, float dy)
 			_size = sizeA * (1 - ratio) + sizeB * ratio;
 		}
 
-		float r, g, b;
+		unsigned char r, g, b;
 		{
 			Color cA = s->colors[p->color_state];
 			Color cB = s->colors[p->color_state + 1];
 
 			float ratio = (liferatio - cA.at) / (cB.at - cA.at);
 
-			float colrA = p->rseed * (cA.max_r - cA.min_r) + cA.min_r;
-			float colrB = p->rseed * (cB.max_r - cB.min_r) + cB.min_r;
+			unsigned char colrA = p->rseed * (cA.max_r - cA.min_r) + cA.min_r;
+			unsigned char colrB = p->rseed * (cB.max_r - cB.min_r) + cB.min_r;
 			r = colrA * (1 - ratio) + colrB * ratio;
 
-			float colgA = p->gseed * (cA.max_g - cA.min_g) + cA.min_g;
-			float colgB = p->gseed * (cB.max_g - cB.min_g) + cB.min_g;
+			unsigned char colgA = p->gseed * (cA.max_g - cA.min_g) + cA.min_g;
+			unsigned char colgB = p->gseed * (cB.max_g - cB.min_g) + cB.min_g;
 			g = colgA * (1 - ratio) + colgB * ratio;
 
-			float colbA = p->bseed * (cA.max_b - cA.min_b) + cA.min_b;
-			float colbB = p->bseed * (cB.max_b - cB.min_b) + cB.min_b;
+			unsigned char colbA = p->bseed * (cA.max_b - cA.min_b) + cA.min_b;
+			unsigned char colbB = p->bseed * (cB.max_b - cB.min_b) + cB.min_b;
 			b = colbA * (1 - ratio) + colbB * ratio;
 		}
 
@@ -196,7 +196,7 @@ void system_add_size(System *s, float at, float min, float max)
 	s->cur_size += 1;
 }
 
-void system_add_color(System *s, float at, float min_r, float max_r, float min_g, float max_g, float min_b, float max_b)
+void system_add_color(System *s, float at, unsigned char min_r, unsigned char max_r, unsigned char min_g, unsigned char max_g, unsigned char min_b, unsigned char max_b)
 {
 	assert(s);
 	assert(s->cur_color != MAX_COLORS);
