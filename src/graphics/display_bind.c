@@ -47,9 +47,9 @@ int mlua_set_color(lua_State* L)
 		lua_rawgeti(L, 1, 2);
 		lua_rawgeti(L, 1, 3);
 	}
-	int r = luaL_checkint(L, -3);
-	int g = luaL_checkint(L, -2);
-	int b = luaL_checkint(L, -1);
+	int r = luaL_checkinteger(L, -3);
+	int g = luaL_checkinteger(L, -2);
+	int b = luaL_checkinteger(L, -1);
 
 	assert_lua_error(L, r >= 0 && r <= 255, "set_color: the red component must be >= 0 and <= 255");
 	assert_lua_error(L, g >= 0 && g <= 255, "set_color: the green component must be >= 0 and <= 255");
@@ -63,7 +63,7 @@ int mlua_set_alpha(lua_State* L)
 {
 	assert(L);
 
-	int alpha = luaL_checkint(L, 1);
+	int alpha = luaL_checkinteger(L, 1);
 
 	assert_lua_error(L, alpha >= 0 && alpha <= 255, "set_alpha: the alpha component must be >= 0 and <= 255");
 
@@ -126,8 +126,8 @@ int mlua_resize(lua_State* L)
 {
 	assert(L);
 
-	int w = luaL_checkint(L, 1);
-	int h = luaL_checkint(L, 2);
+	int w = luaL_checkinteger(L, 1);
+	int h = luaL_checkinteger(L, 2);
 
 	assert_lua_error(L, w > 0, "resize: width must be > 0");
 	assert_lua_error(L, h > 0, "resize: height must be > 0");
@@ -192,8 +192,8 @@ int mlua_new_surface(lua_State* L)
 {
 	assert(L);
 
-	int w = luaL_checkint(L, 1);
-	int h = luaL_checkint(L, 2);
+	int w = luaL_checkinteger(L, 1);
+	int h = luaL_checkinteger(L, 2);
 
 	assert_lua_error(L, w > 0 && w <= 2048, "new_surface: width must be > 0 and <= 2048");
 	assert_lua_error(L, h > 0 && h <= 2048, "new_surface: height must be > 0 and <= 2048");

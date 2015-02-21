@@ -28,13 +28,10 @@ IMPLEMENT_PUSHPOP(System, system)
 
 int mlua_new_system(lua_State* L)
 {
-	int x;
-	int y;
-
 	assert(L);
 
-	x = luaL_checknumber(L, 1);
-	y = luaL_checknumber(L, 2);
+	lua_Integer x = luaL_checkinteger(L, 1);
+	lua_Integer y = luaL_checkinteger(L, 2);
 
 	System* system = system_new(x, y);
 
@@ -83,8 +80,8 @@ int mlua_set_position_system(lua_State* L)
 	assert(L);
 
 	System* system = pop_system(L, 1);
-	lua_Number x = luaL_checknumber(L, 2);
-	lua_Number y = luaL_checknumber(L, 3);
+	lua_Integer x = luaL_checkinteger(L, 2);
+	lua_Integer y = luaL_checkinteger(L, 3);
 	system->x = x;
 	system->y = y;
 	return 0;
@@ -105,8 +102,8 @@ int mlua_set_offset_system(lua_State* L)
 	assert(L);
 
 	System* system = pop_system(L, 1);
-	lua_Number ox = luaL_checknumber(L, 2);
-	lua_Number oy = luaL_checknumber(L, 3);
+	lua_Integer ox = luaL_checkinteger(L, 2);
+	lua_Integer oy = luaL_checkinteger(L, 3);
 	system->offx = ox;
 	system->offy = oy;
 	return 0;
@@ -162,7 +159,7 @@ int mlua_update_system(lua_State* L)
 int mlua_emit_system(lua_State* L)
 {
 	System* system = pop_system(L, 1);
-	int n = luaL_optint(L, 2, 1);
+	int n = luaL_optinteger(L, 2, 1);
 	while (n--)
 		system_emit(system);
 	return 0;
@@ -186,12 +183,8 @@ int mlua_draw_system(lua_State* L)
 	assert(L);
 
 	System* system = pop_system(L, 1);
-	lua_Number dx = 0;
-	lua_Number dy = 0;
-	if (lua_gettop(L) > 1) {
-		dx = luaL_checknumber(L, 2);
-		dy = luaL_checknumber(L, 3);
-	}
+	lua_Number dx = luaL_optnumber(L, 2, 0);
+	lua_Number dy = luaL_optnumber(L, 3, 0);
 	system_draw(system, dx, dy);
 	return 0;
 }
@@ -203,10 +196,7 @@ int mlua_add_size_system(lua_State* L)
 	System* system = pop_system(L, 1);
 	lua_Number at_lifetime = luaL_checknumber(L, 2);
 	lua_Number min = luaL_checknumber(L, 3);
-	lua_Number max = min;
-	if (lua_gettop(L) > 3) {
-		max = luaL_checknumber(L, 4);
-	}
+	lua_Number max = luaL_optnumber(L, 4, min);
 	system_add_size(system, at_lifetime, min, max);
 	return 0;
 }
@@ -236,6 +226,8 @@ int mlua_add_color_system(lua_State* L)
 
 int mlua_clear_sizes_system(lua_State* L)
 {
+	assert(L);
+
 	System* system = pop_system(L, 1);
 	system_clear_sizes(system);
 	return 0;
@@ -243,6 +235,8 @@ int mlua_clear_sizes_system(lua_State* L)
 
 int mlua_clear_colors_system(lua_State* L)
 {
+	assert(L);
+
 	System* system = pop_system(L, 1);
 	system_clear_colors(system);
 	return 0;
@@ -250,6 +244,8 @@ int mlua_clear_colors_system(lua_State* L)
 
 int mlua_set_texture_system(lua_State* L)
 {
+	assert(L);
+
 	System* system = pop_system(L, 1);
 	Surface* surface = pop_surface(L, 2);
 	system_set_texture(system, surface);

@@ -32,7 +32,7 @@ int mlua_draw_font(lua_State* L)
 	const char* text = luaL_checkstring(L, 2);
 	lua_Number x = luaL_checknumber(L, 3);
 	lua_Number y = luaL_checknumber(L, 4);
-	Alignment alignment = (Alignment) luaL_optint(L, 5, ALIGN_LEFT);
+	Alignment alignment = (Alignment) luaL_optinteger(L, 5, ALIGN_LEFT);
 	font_draw(font, text, x, y, alignment);
 	return 0;
 }

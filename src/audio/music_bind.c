@@ -54,10 +54,10 @@ static unsigned int lmc_feed_buffer(MusicCallback *mc, unsigned short *buffer, u
 	}
 	lua_rawgeti(L, LUA_REGISTRYINDEX, lmc->ref);
 	lua_rawgeti(L, LUA_REGISTRYINDEX, lmc->table_ref);
-	lua_pushunsigned(L, len);
+	lua_pushinteger(L, len);
 	lua_call(L, 2, 1);
 
-	i = lua_tounsigned(L, -1);
+	i = luaL_checkinteger(L, -1);
 	lua_pop(L, 1);
 
 	lua_rawgeti(L, LUA_REGISTRYINDEX, lmc->table_ref);
@@ -121,7 +121,7 @@ int mlua_load_music(lua_State *L)
 	} else {
 		LuaMusicCallback *callback = lmc_new(L);
 
-		int samplesrate = luaL_optint(L, 2, DEFAULT_SAMPLES_RATE);
+		int samplesrate = luaL_optinteger(L, 2, DEFAULT_SAMPLES_RATE);
 		music = music_load((MusicCallback *) callback, samplesrate, 1);
 	}
 
