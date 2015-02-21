@@ -98,7 +98,7 @@ To receive events, you have to defined some of the following functions.
 
    Called when the mouse is moved. ``dx`` and ``dy`` are difference between the current position and the last one.
 
-.. lua:function:: mouse_press(x, y, button: int)
+.. lua:function:: mouse_press(x, y, button: integer)
 
    Called when a button (or mouse wheel) is pressed.
 
@@ -112,7 +112,7 @@ To receive events, you have to defined some of the following functions.
          - ``drystal.buttons.wheel_up`` (= 4),
          - or ``drystal.buttons.wheel_down`` (= 5).
 
-.. lua:function:: mouse_release(x, y, button)
+.. lua:function:: mouse_release(x, y, button: integer)
 
    Called when a button (or mouse wheel) is released.
 
@@ -159,7 +159,7 @@ Window
 
    :lua:meth:`.Surface:draw_from`
 
-.. lua:function:: resize(width: int, height: int)
+.. lua:function:: resize(width: integer, height: integer)
 
    Resizes the window (or the canvas in the browser) to the specified dimensions.
 
@@ -444,7 +444,7 @@ A buffer can **only contain one type of shape** (point, textured point, line, tr
       If a buffer is freed, you cannot call :lua:meth:`.Buffer:reset`, :lua:meth:`.Buffer:use` or
       :lua:func:`.Buffer.upload_and_free` anymore or errors will be thrown.
 
-.. lua:function:: new_buffer([initial_size: int]) -> Buffer
+.. lua:function:: new_buffer([initial_size: integer]) -> Buffer
 
    Creates a buffer of the specified ``initial_size``. Once the buffer is full, it is resized.
 
@@ -673,7 +673,7 @@ Font rendering
          - :lua:`"test {r:255|g:0|b:0|!}"` will print the ``!`` in red,
          - :lua:`"{outline|outg:255|t{nooutline|e}st}"` will print ``test`` with a green outline, except the ``e``.
 
-      :param int alignement:
+      :param integer alignement:
 
          - if alignment is ``drystal.aligns.left`` (= 1), text is left aligned (default)
          - if alignment is ``drystal.aligns.center`` (= 2), text is centered around ``x``.
@@ -706,7 +706,7 @@ Particle System
 
       Starts emitting over time.
 
-   .. lua:method:: emit([amount=1: int])
+   .. lua:method:: emit([amount=1: integer])
 
       Emits ``n`` particle(s). This function is useful when the system is paused and you want a fixed number of particle emission at one particular frame. You still need to call *update* so the particles get updated.
 
@@ -1207,7 +1207,7 @@ Music
 
    .. warning:: Only the Ogg_ format is available.
 
-.. lua:function:: load_music(callback: function[, samplesrate=44100: int]) -> Music | (nil, error)
+.. lua:function:: load_music(callback: function[, samplesrate=44100: integer]) -> Music | (nil, error)
 
    Loads a music according to a callback function generating the music.
 
@@ -1239,7 +1239,7 @@ Sound
    Loads a sound from a file. It has to be in WAV_ format. Only 44100Hz, 8 bits or 16 bits are supported.
    If you want to use positional audio, it has to be mono audio.
 
-.. lua:function:: load_sound(callback: function, numsamples: int) -> Sound | (nil, error)
+.. lua:function:: load_sound(callback: function, numsamples: integer) -> Sound | (nil, error)
 
    Loads a sound according to a callback function generating the sound.
 
