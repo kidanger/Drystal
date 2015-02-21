@@ -47,9 +47,9 @@ int mlua_set_color(lua_State* L)
 		lua_rawgeti(L, 1, 2);
 		lua_rawgeti(L, 1, 3);
 	}
-	int r = luaL_checkinteger(L, -3);
-	int g = luaL_checkinteger(L, -2);
-	int b = luaL_checkinteger(L, -1);
+	lua_Integer r = luaL_checknumber(L, -3);
+	lua_Integer g = luaL_checknumber(L, -2);
+	lua_Integer b = luaL_checknumber(L, -1);
 
 	assert_lua_error(L, r >= 0 && r <= 255, "set_color: the red component must be >= 0 and <= 255");
 	assert_lua_error(L, g >= 0 && g <= 255, "set_color: the green component must be >= 0 and <= 255");
@@ -63,7 +63,7 @@ int mlua_set_alpha(lua_State* L)
 {
 	assert(L);
 
-	int alpha = luaL_checkinteger(L, 1);
+	lua_Integer alpha = luaL_checknumber(L, 1);
 
 	assert_lua_error(L, alpha >= 0 && alpha <= 255, "set_alpha: the alpha component must be >= 0 and <= 255");
 

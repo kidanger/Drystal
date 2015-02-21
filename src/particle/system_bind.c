@@ -208,17 +208,17 @@ int mlua_add_color_system(lua_State* L)
 	System* system = pop_system(L, 1);
 	lua_Number at_lifetime = luaL_checknumber(L, 2);
 	if (lua_gettop(L) == 5) {
-		lua_Integer r = luaL_checkinteger(L, 3);
-		lua_Integer g = luaL_checkinteger(L, 4);
-		lua_Integer b = luaL_checkinteger(L, 5);
+		lua_Integer r = luaL_checknumber(L, 3);
+		lua_Integer g = luaL_checknumber(L, 4);
+		lua_Integer b = luaL_checknumber(L, 5);
 		system_add_color(system, at_lifetime, r, r, g, g, b, b);
 	} else {
-		lua_Integer minr = luaL_checkinteger(L, 3);
-		lua_Integer maxr = luaL_checkinteger(L, 4);
-		lua_Integer ming = luaL_checkinteger(L, 5);
-		lua_Integer maxg = luaL_checkinteger(L, 6);
-		lua_Integer minb = luaL_checkinteger(L, 7);
-		lua_Integer maxb = luaL_checkinteger(L, 8);
+		lua_Integer minr = luaL_checknumber(L, 3);
+		lua_Integer maxr = luaL_checknumber(L, 4);
+		lua_Integer ming = luaL_checknumber(L, 5);
+		lua_Integer maxg = luaL_checknumber(L, 6);
+		lua_Integer minb = luaL_checknumber(L, 7);
+		lua_Integer maxb = luaL_checknumber(L, 8);
 		system_add_color(system, at_lifetime, minr, maxr, ming, maxg, minb, maxb);
 	}
 	return 0;
