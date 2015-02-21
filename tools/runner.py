@@ -32,7 +32,7 @@ BINARY_DIRECTORY_WEB_RELEASE = join(BUILD_WEB_RELEASE, 'src')
 
 NATIVE_CMAKE_DEFINES = []
 
-EMSCRIPTEN_CMAKE_DEFINES = ['CMAKE_TOOLCHAIN_FILE=../cmake/Emscripten.cmake',
+EMSCRIPTEN_CMAKE_DEFINES = ['CMAKE_TOOLCHAIN_FILE=' + os.environ['EMSCRIPTEN'] + '/cmake/Modules/Platform/Emscripten.cmake',
                             'BUILD_LIVECODING=NO',
                             ]
 
