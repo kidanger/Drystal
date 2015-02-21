@@ -44,5 +44,8 @@ endif()
 if(BUILD_MANPAGES AND NOT EMSCRIPTEN)
 	add_subdirectory(doc/man)
 endif()
+
+add_definitions(-DLUA_32BITS)
+
 add_subdirectory(external)
 add_subdirectory(src)

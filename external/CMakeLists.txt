@@ -35,12 +35,12 @@ set(LIB_C  lua/src/lauxlib.c
         lua/src/linit.c
         lua/src/lutf8lib.c)
 
-include_directories(.)
 include_directories(lua/src)
 
 add_library(lua STATIC ${CORE_C} ${LIB_C})
 
-add_definitions(-DLUA_COMPAT_ALL)
+add_definitions(-DLUA_COMPAT_5_1)
+add_definitions(-DLUA_COMPAT_5_2)
 if(NOT DEFINED EMSCRIPTEN)
     if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         add_definitions(-DLUA_USE_MACOSX)

@@ -1,6 +1,6 @@
 [submodule "external/lua"]
 	path = external/lua
-	url = https://github.com/LuaDist/lua.git
+	url = https://github.com/kidanger/lua-5.3.git
 [submodule "external/lua-cjson"]
 	path = external/lua-cjson
 	url = https://github.com/mpx/lua-cjson.git
