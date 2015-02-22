@@ -67,8 +67,8 @@ static bool is_valid_filename(char *filename)
 
 static void handle_event(struct inotify_event *ievent)
 {
-	char *event_filename = NULL;
-	char *dirname;
+	char *event_filename;
+	char *dirname = NULL;
 	char *fullname;
 
 	assert(ievent);
