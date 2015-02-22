@@ -234,11 +234,8 @@ int livecoding_init(void (*callback)(void *arg, const char* filename), void *arg
 	wakeup_write_fd = fildes[1];
 
 	size_t dirnames_nb = wds_nmemb;
-	if (!XREALLOC(wds, wds_nmemb, 1)
-		|| !XREALLOC(dirnames, dirnames_nb, 1)) {
-		ret = -ENOMEM;
-		goto fail;
-	}
+	XREALLOC(wds, wds_nmemb, 1);
+	XREALLOC(dirnames, dirnames_nb, 1);
 
 	reload_callback = callback;
 	callback_arg = arg;
@@ -285,11 +282,8 @@ int livecoding_watch_directory(const char *directory)
 	}
 
 	size_t dirnames_nb = wds_nmemb;
-	if (!XREALLOC(wds, wds_nmemb, wds_count + 1)
-		|| !XREALLOC(dirnames, dirnames_nb, wds_count + 1)) {
-		close(wd);
-		return -ENOMEM;
-	}
+	XREALLOC(wds, wds_nmemb, wds_count + 1);
+	XREALLOC(dirnames, dirnames_nb, wds_count + 1);
 	wds[wds_count] = wd;
 	dirnames[wds_count] = xstrdup(directory);
 	wds_count++;
