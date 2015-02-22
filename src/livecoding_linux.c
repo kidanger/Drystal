@@ -42,6 +42,7 @@ static int wakeup_read_fd = -1;
 static int *wds = NULL;
 static size_t wds_nmemb = 0;
 static size_t wds_count = 0;
+static char **dirnames = NULL;
 static pthread_t watcher_tid;
 static bool running = false;
 static void *callback_arg = NULL;
@@ -67,6 +68,8 @@ static bool is_valid_filename(char *filename)
 static void handle_event(struct inotify_event *ievent)
 {
 	char *event_filename = NULL;
+	char *dirname;
+	char *fullname;
 
 	assert(ievent);
 
@@ -76,27 +79,40 @@ static void handle_event(struct inotify_event *ievent)
 		return;
 	}
 
+	for (size_t i = 0; i < wds_count; i++) {
+		if (wds[i] == ievent->wd) {
+			dirname = dirnames[i];
+			break;
+		}
+	}
+	assert(dirname);
+	fullname = strjoin(dirname, "/", event_filename, NULL);
+
 	switch (ievent->mask & (IN_CLOSE_WRITE | IN_CREATE)) {
 		case IN_CLOSE_WRITE:
 			// We don't treat directories modifications
 			if (ievent->mask & IN_ISDIR) {
-				return;
+				break;
 			}
-			if (!is_valid_filename(event_filename))
-				return;
+			if (!is_valid_filename(event_filename)) {
+				break;
+			}
 
-			reload_callback(callback_arg, event_filename);
+			reload_callback(callback_arg, fullname);
 			break;
 		case IN_CREATE:
 			// recursively watch new dirs
 			if (!(ievent->mask & IN_ISDIR)) {
-				return;
+				break;
 			}
-			livecoding_watch_directory(event_filename);
+
+			livecoding_watch_directory(fullname);
 			break;
 		default:
 			break;
 	}
+
+	free(fullname);
 }
 
 static int handle_events(void)
@@ -217,7 +233,9 @@ int livecoding_init(void (*callback)(void *arg, const char* filename), void *arg
 	wakeup_read_fd = fildes[0];
 	wakeup_write_fd = fildes[1];
 
-	if (!XREALLOC(wds, wds_nmemb, 1)) {
+	size_t dirnames_nb = wds_nmemb;
+	if (!XREALLOC(wds, wds_nmemb, 1)
+		|| !XREALLOC(dirnames, dirnames_nb, 1)) {
 		ret = -ENOMEM;
 		goto fail;
 	}
@@ -240,10 +258,12 @@ fail:
 	close(wakeup_read_fd);
 	close(wakeup_write_fd);
 	free(wds);
+	free(dirnames);
 	fd = -1;
 	wakeup_read_fd = -1;
 	wakeup_write_fd = -1;
 	wds = NULL;
+	dirnames = NULL;
 
 	return ret;
 }
@@ -264,11 +284,14 @@ int livecoding_watch_directory(const char *directory)
 		return -errno;
 	}
 
-	if (!XREALLOC(wds, wds_nmemb, wds_count + 1)) {
+	size_t dirnames_nb = wds_nmemb;
+	if (!XREALLOC(wds, wds_nmemb, wds_count + 1)
+		|| !XREALLOC(dirnames, dirnames_nb, wds_count + 1)) {
 		close(wd);
 		return -ENOMEM;
 	}
 	wds[wds_count] = wd;
+	dirnames[wds_count] = xstrdup(directory);
 	wds_count++;
 
 	return wd;
@@ -292,14 +315,17 @@ int livecoding_quit(void)
 	for (i = 0; i < wds_count; i++) {
 		assert(wds[i] >= 0);
 		close(wds[i]);
+		free(dirnames[i]);
 	}
 
 	free(wds);
+	free(dirnames);
 	close(fd);
 	close(wakeup_read_fd);
 	close(wakeup_write_fd);
 
 	wds = NULL;
+	dirnames = NULL;
 	fd = -1;
 	wakeup_read_fd = -1;
 	wakeup_write_fd = -1;
