@@ -269,7 +269,7 @@ static void engine_reload_queue(void)
 	int idx = 1;
 	for (int i = 0; i < QUEUE_SIZE; i++) {
 		char* file = engine.files_to_reload[i];
-		if (engine.files_to_reload[i]) {
+		if (file) {
 			lua_pushstring(L, file);
 			lua_rawseti(L, -2, idx++);
 			free(file);
