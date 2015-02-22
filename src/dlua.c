@@ -271,7 +271,7 @@ static int mlua_stop(_unused_ lua_State *L)
 	return 0;
 }
 
-static int mlua_load_code(_unused_ lua_State *L)
+static int mlua_load_code(lua_State *L)
 {
 	bool ok = dlua_load_code();
 	lua_pushboolean(L, ok);
@@ -377,8 +377,8 @@ int luaopen_drystal(lua_State *L)
 
 	static const luaL_Reg lib[] = {
 		{"stop", mlua_stop},
-#ifdef BUILD_LIVECODING
 		{"_load_code", mlua_load_code},
+#ifdef BUILD_LIVECODING
 #ifdef BUILD_AUDIO
 		{"reload_sound", mlua_reload_sound},
 #endif
