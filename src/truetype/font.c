@@ -157,6 +157,7 @@ void font_draw(const Font *font, const char* text, float x, float y, Alignment a
 	assert(font);
 	assert(text);
 
+	const char* initial_text = text;
 	int initialx = x;
 	int start = font->first_char;
 	int end = start + font->num_chars;
@@ -184,7 +185,7 @@ void font_draw(const Font *font, const char* text, float x, float y, Alignment a
 
 		float line_width;
 		float line_height;
-		if (*(text - 1) != '}' && *(text - 1) != '|') {
+		if (text == initial_text || (*(text - 1) != '}' && *(text - 1) != '|')) {
 			font_get_textsize(font, text, &line_width, &line_height, 1);
 			if (align == ALIGN_CENTER) {
 				x = initialx - line_width / 2;

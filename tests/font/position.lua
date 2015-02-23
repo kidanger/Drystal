@@ -18,7 +18,7 @@ function drystal.draw()
 	drystal.draw_background()
 
 	drystal.set_color(0, 0, 0)
-	local text = '{outline|outg:%d|yeah it\'s c{outg:0|o}ol!}'
+	local text = '{outline|outg:%f|yeah it\'s c{outg:0|o}ol!}'
 	text = text:format((math.sin(time) / 2 + .5)*255)
 	local y = 20
 	local x = 20
