@@ -16,6 +16,7 @@
  */
 #include <assert.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #define WAVLOADER_HEADER_ONLY
 #include <wavloader.c>
@@ -56,40 +57,42 @@ static Sound *sound_new(ALushort* buffer, unsigned int length, int samplesrate, 
 	return s;
 }
 
-Sound *sound_load_from_file(const char *filepath)
+int sound_load_from_file(const char *filepath, Sound **sound)
 {
 	void *buffer = NULL;
 	struct wave_header wave_header;
 	int r;
 
 	assert(filepath);
+	assert(sound);
 
 	if (!audio_init_if_needed())
-		return NULL;
+		return -ENOTSUP;
 
 	r = load_wav(filepath, &wave_header, &buffer);
 	if (r < 0) {
-		return NULL;
+		return r;
 	}
 	if (wave_header.bits_per_sample != 8 && wave_header.bits_per_sample != 16) {
 		free(buffer);
-		return NULL;
+		return -ENOTSUP;
 	}
 	if (wave_header.num_channels != 1 && wave_header.num_channels != 2) {
 		free(buffer);
-		return NULL;
+		return -ENOTSUP;
 	}
 	if (wave_header.sample_rate != 44100) {
 		free(buffer);
-		return NULL;
+		return -ENOTSUP;
 	}
 
-	Sound* sound = sound_new((ALushort *) buffer, wave_header.data_size,
+	*sound = sound_new((ALushort *) buffer, wave_header.data_size,
 	                         wave_header.sample_rate, wave_header.bits_per_sample,
 	                         wave_header.num_channels);
 	free(buffer);
-	sound->filename = xstrdup(filepath);
-	return sound;
+	(*sound)->filename = xstrdup(filepath);
+
+	return 0;
 }
 
 Sound* sound_load(unsigned int len, const float* buffer, int samplesrate)

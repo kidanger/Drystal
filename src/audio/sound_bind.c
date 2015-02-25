@@ -16,6 +16,7 @@
  */
 #include <lua.h>
 #include <lauxlib.h>
+#include <errno.h>
 
 #include "log.h"
 #include "sound_bind.h"
@@ -32,13 +33,20 @@ int mlua_load_sound(lua_State *L)
 	assert(L);
 
 	if (lua_isstring(L, 1)) {
+		int r;
+		Sound *sound;
 		const char* filename = lua_tostring(L, 1);
-		Sound *chunk = sound_load_from_file(filename);
-		if (chunk) {
-			push_sound(L, chunk);
-			return 1;
+		r = sound_load_from_file(filename, &sound);
+		if (r < 0) {
+			lua_pushnil(L);
+			if (r == -ENOTSUP)
+				lua_pushliteral(L, "load_sound: Sound format not supported");
+			else
+				return luaL_fileresult(L, 0, filename);
+			return 2;
 		}
-		return luaL_fileresult(L, 0, filename);
+		push_sound(L, sound);
+		return 1;
 	} else {
 		/*
 		 * Multiple configurations allowed:

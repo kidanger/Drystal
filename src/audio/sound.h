@@ -31,6 +31,6 @@ struct Sound {
 void sound_play(Sound *sound, float volume, float x, float y, float pitch);
 void sound_free(Sound *sound);
 
-Sound *sound_load_from_file(const char *filepath);
+int sound_load_from_file(const char *filepath, Sound **sound);
 Sound *sound_load(unsigned int len, const float* buffer, int samplesrate);
 

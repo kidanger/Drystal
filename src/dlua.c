@@ -285,11 +285,13 @@ static bool reload_sound(void* data, const void* arg)
 	const char* filename = arg;
 	Sound* s = data;
 	Sound* new_sound;
+	int r;
 
 	if (strcmp(s->filename, filename))
 		return false;
 
-	if (!(new_sound = sound_load_from_file(s->filename)))
+	r = sound_load_from_file(s->filename, &new_sound);
+	if (r < 0)
 		return false;
 
 	SWAP(s->alBuffer, new_sound->alBuffer);
