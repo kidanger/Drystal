@@ -8,10 +8,11 @@ Drystal is an opensource game engine.
 
 Games are programmed in Lua and can be exported to Javascript seamlessly.
 
-Author
-------
+Authors
+-------
 
 Jérémy Anger
+Ronny Chevalier
 
 Mailing list
 ------------
