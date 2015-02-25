@@ -280,6 +280,7 @@ static void engine_reload_queue(void)
 	engine.wait_next_reload = !lua_toboolean(L, -1);
 
 	lua_pop(L, 1);
+	(void) top;
 	assert(lua_gettop(L) == top);
 }
 #endif
