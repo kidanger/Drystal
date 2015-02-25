@@ -114,11 +114,13 @@ You can now find the executable in the src/ directory
 
 ### Web build
 
-In order to compile Drystal to javascript you will need Emscripten.
+In order to compile Drystal to javascript you will need Emscripten and the
+$EMSCRIPTEN environment variable should contain the path to your Emscripten
+installation (e.g. /usr/lib/emscripten/).
 
     mkdir build-web-release
     cd build-web-release
-    cmake .. -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../cmake/Emscripten.cmake -DEMSCRIPTEN_ROOT_PATH=/usr/lib/emscripten -DBUILD_LIVECODING=NO
+    cmake .. -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=$EMSCRIPTEN/cmake/Modules/Platform/Emscripten.cmake -DBUILD_LIVECODING=NO
     make
 
 You will find the final javascript code (there will be two files drystal.js
