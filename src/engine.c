@@ -279,8 +279,8 @@ static void engine_reload_queue(void)
 	call_lua_function(L, 1, 1);
 	engine.wait_next_reload = !lua_toboolean(L, -1);
 
-	lua_pop(L, 1);
-	(void) top;
+	if (lua_gettop(L) != top)
+		lua_pop(L, 1);
 	assert(lua_gettop(L) == top);
 }
 #endif
