@@ -32,7 +32,8 @@ BINARY_DIRECTORY_WEB_RELEASE = join(BUILD_WEB_RELEASE, 'src')
 
 NATIVE_CMAKE_DEFINES = []
 
-EMSCRIPTEN_CMAKE_DEFINES = ['CMAKE_TOOLCHAIN_FILE=' + os.environ['EMSCRIPTEN'] + '/cmake/Modules/Platform/Emscripten.cmake',
+EMSCRIPTEN_ROOT = os.environ['EMSCRIPTEN'] if os.environ.get('EMSCRIPTEN') else ""
+EMSCRIPTEN_CMAKE_DEFINES = ['CMAKE_TOOLCHAIN_FILE=' + EMSCRIPTEN_ROOT + '/cmake/Modules/Platform/Emscripten.cmake',
                             'BUILD_LIVECODING=NO',
                             ]
 
@@ -372,6 +373,10 @@ def run_repack(args):
 
 
 def run_web(args):
+    if not EMSCRIPTEN_ROOT:
+        print(E, 'Failed to build web version')
+        print(E, 'EMSCRIPTEN environment variable should contain the path to your emscripten installation')
+        sys.exit(1)
     run_repack(args)
     from http.server import HTTPServer, SimpleHTTPRequestHandler
     addr, port = '127.0.0.1', 8000
