@@ -101,11 +101,25 @@ First time
 
 ### Native build
 
-Once cloned, you can compile Drystal in native mode:
+Once you cloned the repository, you can build Drystal in native mode (i.e.
+that will run on your PC).
+
+First, you need to create a build directory (this is optionnal but it leaves
+the source directory clean):
 
     mkdir build-native-release
     cd build-native-release
+
+Then, you run CMake that configures the build and creates Makefiles:
+
     cmake .. -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE=Release
+
+If everything is ok, CMake tells you that all build files have been written.
+Otherwise, it may fail because of missing dependencies (e.g. libpng was not
+found), so you need to fix this and re-run CMake.
+
+Finally, you run make:
+
     make
 
 You can now find the executable in the src/ directory
@@ -118,9 +132,17 @@ In order to compile Drystal to javascript you will need Emscripten and the
 $EMSCRIPTEN environment variable should contain the path to your Emscripten
 installation (e.g. /usr/lib/emscripten/).
 
+First, you need to create a separate build directory:
+
     mkdir build-web-release
     cd build-web-release
+
+Then, you run CMake that configures the build to use Emscripten and creates Makefiles:
+
     cmake .. -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=$EMSCRIPTEN/cmake/Modules/Platform/Emscripten.cmake -DBUILD_LIVECODING=NO
+
+Finally, you can run make:
+
     make
 
 You will find the final javascript code (there will be two files drystal.js
