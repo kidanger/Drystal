@@ -2,5 +2,6 @@
 
 _arguments \
     {-h,--help}'[Show this help message and exit]' \
+    {-v,--version}'[Show Drystal version and available features]' \
     {-l,--livecoding}'[Enable the livecoding which will reload the lua code when modifications on the files are performed]' \
     '1::Lua file:_files'

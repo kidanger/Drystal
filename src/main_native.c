@@ -30,6 +30,7 @@
 #include "engine.h"
 #include "log.h"
 #include "util.h"
+#include "build.h"
 
 log_category("main");
 
@@ -76,10 +77,17 @@ static void help(void)
 	printf("drystal [OPTIONS] <game.lua>\n\n"
 	       "OPTIONS\n"
 	       "    -h --help       Show this help message and exit\n"
+	       "    -v --version    Show Drystal version and available features\n"
 #ifdef BUILD_LIVECODING
 	       "    -l --livecoding Enable the livecoding which will reload the lua code when modifications on the files are performed\n"
 #endif
 	      );
+}
+
+static void print_version(void)
+{
+	puts(DRYSTAL_VERSION);
+	puts(DRYSTAL_FEATURES);
 }
 
 int main(int argc, char* argv[])
@@ -93,6 +101,9 @@ int main(int argc, char* argv[])
 	for (int i = 1; i < argc; i++) {
 		if (streq(argv[i], "--help") || streq(argv[i], "-h")) {
 			help();
+			return 0;
+		} else if (streq(argv[i], "--version") || streq(argv[i], "-v")) {
+			print_version();
 			return 0;
 		} else if (streq(argv[i], "--livecoding") || streq(argv[i], "-l")) {
 #ifdef BUILD_LIVECODING

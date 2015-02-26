@@ -152,6 +152,8 @@ if(NOT DEFINED EMSCRIPTEN)
 	endif()
 
 	include(BuildCoverage)
+
+	add_definitions("-DDRYSTAL_VERSION=\"${DRYSTAL_VERSION}\"")
 endif()
 
 target_link_libraries(${DRYSTAL_OUT} lua)

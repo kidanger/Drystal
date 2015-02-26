@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 project(drystal)
 
+set(DRYSTAL_VERSION "Drystal 1.1")
+
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(Utils)
 
