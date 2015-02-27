@@ -121,7 +121,6 @@ static int display_create_window(int w, int h)
 	buffer_allocate(display.default_buffer);
 
 	display_set_blend_mode(BLEND_DEFAULT);
-	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
 
