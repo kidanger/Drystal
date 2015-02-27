@@ -16,7 +16,7 @@
  */
 #include <stdbool.h>
 #include <time.h>
-#if defined(BUILD_FONT) || defined(BUILD_GRAPHICS)
+#ifdef BUILD_GRAPHICS
 #ifndef EMSCRIPTEN
 #include <SDL2/SDL.h>
 #else
@@ -90,14 +90,13 @@ int engine_init(const char* filename, unsigned int target_fps)
 #endif
 
 	dlua_init(filename);
-#if defined(BUILD_FONT) || defined(BUILD_GRAPHICS)
+#ifdef BUILD_GRAPHICS
 	int r = SDL_Init(0);
 	if (r < 0) {
 		log_error("Failed to initialize SDL: %s", SDL_GetError());
 		return r;
 	}
-#endif
-#ifdef BUILD_GRAPHICS
+
 	r = display_init();
 	if (r < 0) {
 		return r;
@@ -121,8 +120,6 @@ void engine_free(void)
 #ifdef BUILD_GRAPHICS
 	event_destroy();
 	display_free();
-#endif
-#if defined(BUILD_FONT) || defined(BUILD_GRAPHICS)
 	SDL_Quit();
 #endif
 }
