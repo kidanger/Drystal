@@ -184,7 +184,9 @@ void engine_update(void)
 	if (livecoding_is_running()) {
 		engine_reload_queue();
 		if (engine.wait_next_reload) {
+#ifdef BUILD_GRAPHICS
 			event_small_update();
+#endif
 			return;
 		}
 	}
