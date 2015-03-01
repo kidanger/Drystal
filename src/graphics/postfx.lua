@@ -29,6 +29,9 @@ function drystal.add_postfx(name, code, uniforms)
 	local fx = function(backsurface, ...)
 		drystal.set_color(255, 255, 255)
 		drystal.set_alpha(255)
+		local oldx, oldy = drystal.camera.x, drystal.camera.y
+		local oldzoom, oldangle = drystal.camera.zoom, drystal.camera.angle
+		drystal.camera.reset()
 
 		shader:use()
 		for i, u in ipairs(uniforms) do
@@ -47,6 +50,8 @@ function drystal.add_postfx(name, code, uniforms)
 		if old then
 			old:draw_from()
 		end
+		drystal.camera.x, drystal.camera.y = oldx, oldy
+		drystal.camera.zoom, drystal.camera.angle = oldzoom, oldangle
 	end
 	postfxs[name] = fx
 	return fx
@@ -138,6 +143,9 @@ postfxs.blur = function(backsurface, power)
 
 	drystal.set_alpha(255)
 	drystal.set_color(255,255,255)
+	local oldx, oldy = drystal.camera.x, drystal.camera.y
+	local oldzoom, oldangle = drystal.camera.zoom, drystal.camera.angle
+	drystal.camera.reset()
 
 	backsurface_blur:draw_on()
 	old:draw_from()
@@ -153,6 +161,8 @@ postfxs.blur = function(backsurface, power)
 	if oldfrom then
 		oldfrom:draw_from()
 	end
+	drystal.camera.x, drystal.camera.y = oldx, oldy
+	drystal.camera.zoom, drystal.camera.angle = oldzoom, oldangle
 end
 
 add_postfx('vignette', [[
