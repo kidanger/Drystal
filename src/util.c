@@ -213,7 +213,7 @@ void *xrealloc(void **p, size_t *nmemb, size_t need, size_t size, unsigned min_n
 	new_totalsize = new_nmemb * size;
 
 	if (new_totalsize < size * need)
-		return NULL;
+		log_oom_and_exit();
 
 	q = realloc(*p, new_totalsize);
 	if (!q) {
