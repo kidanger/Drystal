@@ -59,8 +59,9 @@ def signal_handler(signum, frame):
     exit(0)
 
 def add_signal_handlers():
+    if os.name != 'nt':
+        signal.signal(signal.SIGQUIT, signal_handler)
     signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGQUIT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
 
