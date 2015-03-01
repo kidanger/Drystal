@@ -44,7 +44,7 @@ VALGRIND_ARGS_PROFILE = ['--tool=callgrind']
 
 BROWSERS = 'chromium', 'firefox'
 
-HAS_NINJA = subprocess.call(['which', 'ninja'], stdout=subprocess.DEVNULL) == 0
+HAS_NINJA = shutil.which('ninja')
 
 DRYSTAL_LOAD = '<script type="text/javascript" src="drystal.js"></script>'
 
