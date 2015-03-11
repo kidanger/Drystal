@@ -405,7 +405,9 @@ def get_gdb_args(program, pid=None, arguments=None):
 
 
 def run_native(args):
-    wd, filename = os.path.split(args.PATH)
+    wd, filename = args.PATH, None
+    if os.path.isfile(args.PATH):
+        wd, filename = os.path.split(args.PATH)
     program, arguments = prepare_native(args.release, False, args.disable_modules)
 
     if filename:  # other main file
@@ -444,7 +446,7 @@ if __name__ == '__main__':
 
     parser_native = subparsers.add_parser('native', help='run with drystal',
                                         description='run with drystal')
-    parser_native.add_argument('PATH', help='<directory>[/filename.lua]',
+    parser_native.add_argument('PATH', help='<directory>[/main.lua]',
                             type=valid_path)
     parser_native.set_defaults(func=run_native)
     parser_native.add_argument('-l', '--live', help='live coding (reload code \
@@ -460,7 +462,7 @@ if __name__ == '__main__':
 
     parser_web = subparsers.add_parser('web', help='run in a browser',
                                     description='run in a browser')
-    parser_web.add_argument('PATH', help='<directory>[/filename.lua]',
+    parser_web.add_argument('PATH', help='<directory>[/main.lua]',
                             type=valid_path)
     parser_web.set_defaults(func=run_web)
     parser_web.add_argument('-i', '--show-include', help='show files that are (not) included',
@@ -470,7 +472,7 @@ if __name__ == '__main__':
 
     parser_repack = subparsers.add_parser('repack', help='repack',
                                         description='repack')
-    parser_repack.add_argument('PATH', help='<directory>[/filename.lua]',
+    parser_repack.add_argument('PATH', help='<directory>[/main.lua]',
                             type=valid_path)
     parser_repack.set_defaults(func=run_repack)
     parser_repack.add_argument('-i', '--show-include', help='show files that are (not) included',
