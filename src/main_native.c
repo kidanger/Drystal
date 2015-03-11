@@ -74,7 +74,7 @@ static int start_livecoding(const char *filename)
 
 static void help(void)
 {
-	printf("drystal [OPTIONS] <game.lua>\n\n"
+	printf("drystal [OPTIONS] <directory>[/main.lua]\n\n"
 	       "OPTIONS\n"
 	       "    -h --help       Show this help message and exit\n"
 	       "    -v --version    Show Drystal version and available features\n"
@@ -92,7 +92,8 @@ static void print_version(void)
 
 int main(int argc, char* argv[])
 {
-	const char* filename = "main.lua";
+	const char* default_filename = "main.lua";
+	char* filename = NULL;
 	int r;
 #ifdef BUILD_LIVECODING
 	bool livecoding = false;
@@ -113,8 +114,21 @@ int main(int argc, char* argv[])
 			return EXIT_FAILURE;
 #endif
 		} else {
-			filename = argv[i];
+			filename = xstrdup(argv[i]);
 		}
+	}
+
+	if (!filename) {
+		filename = xstrdup(default_filename);
+	} else if (is_directory(filename)) {
+		char* newfilename;
+		if (endswith(filename, "/")) {
+			newfilename = strjoin(filename, default_filename, NULL);
+		} else {
+			newfilename = strjoin(filename, "/", default_filename, NULL);
+		}
+		free(filename);
+		filename = newfilename;
 	}
 
 	r = engine_init(filename, 60);
@@ -139,7 +153,7 @@ int main(int argc, char* argv[])
 #endif
 
 	engine_free();
-
+	free(filename);
 	return 0;
 }
 

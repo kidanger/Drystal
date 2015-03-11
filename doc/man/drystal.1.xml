@@ -50,7 +50,7 @@ along with Drystal.  If not, see <http://www.gnu.org/licenses/>.
     <cmdsynopsis>
       <command>drystal</command>
       <arg choice="opt" rep="repeat">OPTIONS</arg>
-      <arg choice="plain"><replaceable>game.lua</replaceable>
+      <arg choice="opt"><replaceable>directory/game.lua</replaceable>
       </arg>
     </cmdsynopsis>
   </refsynopsisdiv>
