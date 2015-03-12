@@ -78,6 +78,9 @@ char *storage_fetch(const char *key)
 
 	fseek(file, 0L, SEEK_END);
 	filesize = ftell(file);
+	if (filesize < 0) {
+		goto fail;
+	}
 	fseek(file, 0L, SEEK_SET);
 
 	data = mmap(0, filesize, PROT_READ, MAP_PRIVATE, fileno(file), 0);

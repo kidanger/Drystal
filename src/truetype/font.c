@@ -44,6 +44,10 @@ Font* font_load(const char* filename, float size, int first_char, int num_chars)
 
 	fseek(file, 0L, SEEK_END);
 	filesize = ftell(file);
+	if (filesize < 0) {
+		fclose(file);
+		return NULL;
+	}
 	fseek(file, 0L, SEEK_SET);
 
 	data = mmap(0, filesize, PROT_READ, MAP_PRIVATE, fileno(file), 0);
