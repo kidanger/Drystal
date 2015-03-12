@@ -326,7 +326,6 @@ static bool reload_surface(void* data, const void* arg)
 	if (display_load_surface(s->filename, &new_surface))
 		return false;
 
-	FilterMode filter = s->filter;
 	SWAP(s->w, new_surface->w);
 	SWAP(s->h, new_surface->h);
 	SWAP(s->texw, new_surface->texw);
@@ -336,9 +335,10 @@ static bool reload_surface(void* data, const void* arg)
 	SWAP(s->npot, new_surface->npot);
 	SWAP(s->tex, new_surface->tex);
 	SWAP(s->fbo, new_surface->fbo);
+	SWAP(s->filter, new_surface->filter);
 	display_free_surface(new_surface);
 
-	display_set_filter(s, filter);
+	display_set_filter(s, new_surface->filter);
 	log_debug("%s reloaded", s->filename);
 	return true;
 }
