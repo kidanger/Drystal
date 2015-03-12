@@ -31,6 +31,7 @@ log_category("graphics");
 
 static int png_load(const char *filename, GLubyte **data, GLuint *width, GLuint *height, SurfaceFormat *format, GLint *internal_format)
 {
+	size_t r;
 	png_byte header[8] = {};
 	FILE *f;
 
@@ -45,7 +46,11 @@ static int png_load(const char *filename, GLubyte **data, GLuint *width, GLuint 
 	if (!f)
 		return -ENOENT;
 
-	fread(header, 1, sizeof(header), f);
+	r = fread(header, 1, sizeof(header), f);
+	if (r != sizeof(header)) {
+		fclose(f);
+		return -EBADMSG;
+	}
 
 	if (png_sig_cmp(header, 0, sizeof(header))) {
 		fclose(f);
