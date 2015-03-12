@@ -258,7 +258,7 @@ bool dlua_reload_code(void)
 	lua_State* L = dlua.L;
 	assert(L);
 
-	dlua_get_function("reload");
+	assert_se(dlua_get_function("reload"));
 	call_lua_function(L, 0, 1);
 	bool ok = lua_toboolean(L, -1);
 	lua_pop(L, 1);

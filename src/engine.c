@@ -263,7 +263,7 @@ static void engine_reload_queue(void)
 	if (!try_reload)
 		return;
 
-	dlua_get_function("_reload_files");
+	assert_se(dlua_get_function("_reload_files"));
 	lua_newtable(L);
 	int idx = 1;
 	for (int i = 0; i < QUEUE_SIZE; i++) {

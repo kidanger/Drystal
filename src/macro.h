@@ -67,6 +67,13 @@ extern "C" {
 		_a > _b ? _a : _b; \
 	})
 
+/* Assert with Side Effects */
+#ifdef NDEBUG
+#define assert_se(x) (x)
+#else
+#define assert_se(x) assert(x)
+#endif
+
 #ifdef __cplusplus
 }
 #endif
