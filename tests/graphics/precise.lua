@@ -12,14 +12,16 @@ function drystal.init()
 	image:set_filter(drystal.filters.nearest)
 
 	surface = drystal.new_surface(w, h)
+	surface:set_filter(drystal.filters.nearest)
 	surface:draw_on()
 	drystal.set_color(255, 0, 0)
 	drystal.draw_rect(0, 0, w, h)
 
 	local s2 = assert(drystal.new_surface(w-2, h-2))
+	s2:set_filter(drystal.filters.nearest)
 	s2:draw_on()
 	drystal.set_color(0, 255, 0)
-	drystal.draw_rect(0, 0, w-2, h-2)
+	drystal.draw_rect(1, 1, w-2, h-2)
 
 	s2:draw_from()
 	surface:draw_on()
