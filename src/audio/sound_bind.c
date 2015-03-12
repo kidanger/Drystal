@@ -87,6 +87,8 @@ int mlua_load_sound(lua_State *L)
 				buffer[i] = luaL_checknumber(L, -1);
 				lua_pop(L, 1);
 			}
+		} else {
+			luaL_error(L, "load_sound: invalid arguments");
 		}
 
 		Sound *chunk = sound_load(len, buffer, DEFAULT_SAMPLES_RATE);
