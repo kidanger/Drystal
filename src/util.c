@@ -196,6 +196,23 @@ bool is_directory(const char *directory)
 	return false;
 }
 
+bool files_are_same(const char *filea, const char *fileb)
+{
+	struct stat a, b;
+
+	if (!strcmp(filea, fileb))
+		return true;
+
+	if (stat(filea, &a) < 0)
+		return false;
+
+	if (stat(fileb, &b) < 0)
+		return false;
+
+	return a.st_dev == b.st_dev &&
+		a.st_ino == b.st_ino;
+}
+
 void *xrealloc(void **p, size_t *nmemb, size_t need, size_t size, unsigned min_nmemb)
 {
 	size_t new_totalsize;

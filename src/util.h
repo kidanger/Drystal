@@ -55,6 +55,7 @@ int mkdir_p(const char *path);
 _sentinel_ char *strjoin(const char *s, ...);
 void msleep(unsigned long milisec);
 bool is_directory(const char *directory);
+bool files_are_same(const char *filea, const char *fileb);
 void *xrealloc(void **p, size_t *new_nmemb, size_t need, size_t size, unsigned min_nmemb);
 bool endswith(const char *s, const char *postfix);
 bool on_tty(void);

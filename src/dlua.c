@@ -287,7 +287,7 @@ static bool reload_sound(void* data, const void* arg)
 	Sound* new_sound;
 	int r;
 
-	if (strcmp(s->filename, filename))
+	if (!files_are_same(s->filename, filename))
 		return false;
 
 	r = sound_load_from_file(s->filename, &new_sound);
@@ -312,6 +312,7 @@ static int mlua_reload_sound(lua_State *L)
 }
 #endif
 
+
 #ifdef BUILD_GRAPHICS
 static bool reload_surface(void* data, const void* arg)
 {
@@ -319,7 +320,7 @@ static bool reload_surface(void* data, const void* arg)
 	Surface* s = data;
 	Surface* new_surface;
 
-	if (!s->filename || strcmp(s->filename, filename))
+	if (!s->filename || !files_are_same(s->filename, filename))
 		return false;
 
 	if (display_load_surface(s->filename, &new_surface))
