@@ -43,7 +43,7 @@ void call_lua_function(lua_State *L, int num_args, int num_ret);
 		if (name->ref) { \
 			lua_rawgeti(L, -1, name->ref); \
 		} else { \
-			T **p = (T **) lua_newuserdata(L, sizeof(T **)); \
+			T **p = (T **) lua_newuserdata(L, sizeof(T *)); \
 			if (!p) \
 				log_oom_and_exit(); \
 			*p = name; \
