@@ -52,6 +52,9 @@ int mlua_fetch(lua_State* L)
 	char* value = storage_fetch(key);
 
 	if (!value || !value[0]) {
+#ifndef EMSCRIPTEN
+		free(value);
+#endif
 		lua_pushnil(L);
 		return 1;
 	}
