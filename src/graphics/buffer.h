@@ -48,7 +48,7 @@ struct Buffer {
 
 	unsigned int size;
 	GLuint buffers[4]; // first is for positions, second for colors, third (optional) for texcoords, forth (optional) for point sizes
-	GLshort* positions;
+	GLfloat* positions;
 	GLubyte* colors;
 	GLfloat* tex_coords; // only if has_texture
 	GLfloat* point_sizes; // only if POINT_BUFFER
@@ -71,7 +71,7 @@ Buffer *buffer_new(bool user_buffer, unsigned int size);
 void buffer_free(Buffer *b);
 void buffer_allocate(Buffer *b);
 
-void buffer_push_vertex(Buffer *b, GLshort, GLshort);
+void buffer_push_vertex(Buffer *b, GLfloat, GLfloat);
 void buffer_push_color(Buffer *b, GLubyte, GLubyte, GLubyte, GLubyte);
 void buffer_push_tex_coord(Buffer *b, GLfloat, GLfloat);
 void buffer_push_point_size(Buffer *b, GLfloat);
