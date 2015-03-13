@@ -441,8 +441,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Drystal roadrunner !')
     parser.add_argument('-r', '--release', help='compile in release mode',
                         action='store_true', default=False)
-    parser.add_argument('-D', '--disable-modules', help='disable modules',
-                        nargs='+', choices=['font', 'graphics', 'web', 'utils', 'storage', 'physics', 'particle', 'audio'])
     subparsers = parser.add_subparsers(help='sub-commands')
 
     parser_native = subparsers.add_parser('native', help='run with drystal',
@@ -453,6 +451,8 @@ if __name__ == '__main__':
     parser_native.add_argument('-l', '--live', help='live coding (reload code \
                             when it has been modified)',
                             action='store_true', default=False)
+    parser_native.add_argument('-D', '--disable-modules', help='disable modules',
+                        nargs='+', choices=['font', 'graphics', 'web', 'utils', 'storage', 'physics', 'particle', 'audio'])
     group = parser_native.add_mutually_exclusive_group()
     group.add_argument('-d', '--debug', help='debug with gdb',
                     action='store_true', default=False)
@@ -470,6 +470,8 @@ if __name__ == '__main__':
                             action='store_true', default=False)
     parser_web.add_argument('-d', '--destination', help='folder where web files will be put',
                             default='web')
+    parser_web.add_argument('-D', '--disable-modules', help='disable modules',
+                        nargs='+', choices=['font', 'graphics', 'web', 'utils', 'storage', 'physics', 'particle', 'audio'])
 
     parser_repack = subparsers.add_parser('repack', help='repack',
                                         description='repack')
@@ -480,6 +482,8 @@ if __name__ == '__main__':
                             action='store_true', default=False)
     parser_repack.add_argument('-d', '--destination', help='folder where web files will be put',
                             default='web')
+    parser_repack.add_argument('-D', '--disable-modules', help='disable modules',
+                        nargs='+', choices=['font', 'graphics', 'web', 'utils', 'storage', 'physics', 'particle', 'audio'])
 
     if len(sys.argv) > 1:
         args = parser.parse_args()
