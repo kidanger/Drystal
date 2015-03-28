@@ -185,6 +185,9 @@ static void music_stream(Music *m)
 		audio_check_error();
 
 		len = m->callback->feed_buffer(m->callback, buff, m->buffersize);
+		if (len == 0 && !m->loop)
+			break;
+
 		alBufferData(buffer, m->format, buff, len * sizeof(ALushort), m->samplesrate);
 		audio_check_error();
 
@@ -197,14 +200,16 @@ static void music_stream(Music *m)
 				rest = m->callback->feed_buffer(m->callback, buff + len, m->buffersize - len);
 				alBufferData(buffer, m->format, buff, (len + rest) * sizeof(ALushort), m->samplesrate);
 				audio_check_error();
-			} else {
-				m->ended = true;
 			}
 		}
 
 		alSourceQueueBuffers(source->alSource, 1, &buffer);
 		audio_check_error();
 	}
+
+	int nb_queued;
+	alGetSourcei(source->alSource, AL_BUFFERS_QUEUED, &nb_queued);
+	m->ended = nb_queued == 0;
 }
 
 Music* music_load(MusicCallback* callback, int samplesrate, int num_channels)
@@ -299,6 +304,8 @@ void music_update(Music *m)
 	assert(m);
 
 	if (m->source) {
+		music_stream(m);
+
 		if (m->ended) {
 			music_stop(m);
 			if (m->onend_clb) {
@@ -306,9 +313,6 @@ void music_update(Music *m)
 				lua_rawgeti(L, LUA_REGISTRYINDEX, m->onend_clb);
 				call_lua_function(L, 0, 0);
 			}
-		}
-		else {
-			music_stream(m);
 		}
 	}
 }

@@ -4,4 +4,3 @@ build-*/
 *.swp
 /doc/site/_build/
 /tests/storage/.storage
-/tests/audio/test.ogg

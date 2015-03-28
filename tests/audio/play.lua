@@ -6,6 +6,8 @@ function drystal.init()
 	print("press p to play a wav sound")
 	print("press i to play a ogg music")
 	print("press o to pause a ogg music")
+	print("press u to stop a ogg music")
+	print("press b to toggle looping")
 	print("press l to lower the volume of every music")
 	print("press z to lower the volume of every sound")
 	print("press t to set the music volume to 0.5")
@@ -19,6 +21,7 @@ local music = assert(drystal.load_music("test.ogg"))
 local pitch = 1.0
 local sound_volume = 1.0
 local music_volume = 1.0
+local loop = false
 function drystal.key_press(key)
 	if key == 'a' then
 		drystal.stop()
@@ -42,15 +45,18 @@ function drystal.key_press(key)
 		sound_volume = sound_volume - 0.3
 		drystal.set_sound_volume(sound_volume)
 	elseif key == 'i' then
-		music:play(false, function()
+		music:play(loop, function()
 			print "music ended"
 		end)
 		print('play music')
 	elseif key == 'o' then
 		music:pause()
 		print('pause music')
-	elseif key == 'o' then
+	elseif key == 'u' then
 		music:stop()
 		print('stop music')
+	elseif key == 'b' then
+		loop = not loop
+		print('loop:', loop)
 	end
 end
