@@ -252,6 +252,15 @@ int mlua_set_texture_system(lua_State* L)
 	return 0;
 }
 
+int mlua_clone_system(lua_State* L)
+{
+	assert(L);
+
+	System* system = pop_system(L, 1);
+	push_system(L, system_clone(system));
+	return 1;
+}
+
 int mlua_free_system(lua_State* L)
 {
 	assert(L);

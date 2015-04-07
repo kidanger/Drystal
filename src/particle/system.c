@@ -39,6 +39,18 @@ System *system_new(float x, float y)
 	return s;
 }
 
+System *system_clone(System* s)
+{
+	System *new = new(System, 1);
+	memcpy(new, s, sizeof(System));
+
+	new->particles = new(Particle, new->size);
+	memcpy(new->particles, s->particles, s->size * sizeof(Particle));
+	new->ref = 0;
+
+	return new;
+}
+
 void system_free(System *s)
 {
 	if (!s)
@@ -229,3 +241,4 @@ void system_set_texture(System* s, Surface* tex)
 {
 	s->texture = tex;
 }
+

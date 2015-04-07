@@ -48,6 +48,7 @@ BEGIN_MODULE(particle)
 		ADD_MINMAX(initial_velocity)
 #undef ADD_GETSET
 
+		ADD_METHOD(system, clone)
 		ADD_GC(free_system)
 	REGISTER_CLASS(system, "System")
 END_MODULE()

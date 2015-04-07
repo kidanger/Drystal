@@ -72,6 +72,7 @@ struct System {
 };
 
 System *system_new(float x, float y);
+System *system_clone(System* s);
 void system_free(System *s);
 
 void system_start(System *s);

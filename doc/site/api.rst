@@ -718,6 +718,10 @@ Particle System
 
       Removes all existing particles.
 
+   .. lua:method:: clone() -> System
+
+      Returns an exact copy of the system.
+
    .. lua:method:: draw([x=0: float[, y=0: float]))
 
       Draws the particles of the system. ``x`` and ``y`` can be used as offset.

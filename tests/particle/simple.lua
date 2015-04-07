@@ -53,13 +53,16 @@ end
 
 function drystal.mouse_press(x, y, b)
 	if b == drystal.buttons.left then
-		s = drystal.new_system(x - scrollx, y - scrolly)
-		s:set_direction(0, math.pi*2)
+		local s = drystal.new_system(x - scrollx, y - scrolly)
+		s:set_direction(0, math.pi/2)
 		s:add_size(0, 6)
 		s:add_size(1, 6)
 		s:add_color(0, 0, 0, 0)
 		s:add_color(1, 255, 255, 255)
 		s:start()
+		table.insert(systems, s)
+		local s = s:clone()
+		s:set_direction(math.pi, math.pi + math.pi/2)
 		table.insert(systems, s)
 	elseif b == drystal.buttons.right then
 		scrolling = true
