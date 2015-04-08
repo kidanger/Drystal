@@ -826,9 +826,10 @@ Particle System
 ..    .. lua:method:: set_max_initial_velocity(max: float)
 ..    .. lua:method:: get_max_initial_velocity() -> float
 
-.. lua:function:: new_system(x, y) -> System
+.. lua:function:: new_system(x, y[, size=256]) -> System
 
 Creates a new particle system at given position.
+You can specify the default number of particles held by the system with the ``size`` parameter. If the system need to hold more particles, it resizes automatically.
 
 .. warning:: By default, attributes are initialized with random values. Make sure to call appropriate setters to obtain the desired particle effect.
 

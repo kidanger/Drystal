@@ -53,8 +53,8 @@ struct System {
 	Surface* texture;
 	bool running;
 
-	int size;
-	int used;
+	size_t size;
+	size_t used;
 
 	float x, y;
 	float offx, offy;
@@ -71,7 +71,7 @@ struct System {
 	int ref;
 };
 
-System *system_new(float x, float y);
+System *system_new(float x, float y, size_t size);
 System *system_clone(System* s);
 void system_free(System *s);
 

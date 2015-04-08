@@ -21,19 +21,22 @@
 #include "system.h"
 #include "particle.h"
 #include "util.h"
+#include "log.h"
 
-System *system_new(float x, float y)
+log_category("system");
+
+System *system_new(float x, float y, size_t size)
 {
 	System *s;
 
 	s = new0(System, 1);
 
-	s->size = 256;
 	s->x = x;
 	s->y = y;
+	s->size = size;
 
 	s->particles = new(Particle, s->size);
-	for (int i = 0; i < s->size; i++)
+	for (size_t i = 0; i < s->size; i++)
 		s->particles[i].dead = true;
 
 	return s;
@@ -78,7 +81,7 @@ void system_reset(System *s)
 {
 	assert(s);
 
-	for (int i = 0; i < s->used; i++)
+	for (size_t i = 0; i < s->used; i++)
 		s->particles[i].dead = true;
 	s->used = 0;
 }
@@ -144,8 +147,10 @@ void system_emit(System *s)
 	assert(s);
 
 	if (s->used == s->size) {
-		return;
+		XREALLOC(s->particles, s->size, s->size + 1);
+		log_debug("realloc upto %zu particles", s->size);
 	}
+
 	Particle* p = &s->particles[s->used];
 	p->x = s->x + RAND(-s->offx, s->offx);
 	p->y = s->y + RAND(-s->offy, s->offy);
@@ -172,12 +177,12 @@ void system_update(System *s, float dt)
 {
 	assert(s);
 
-	for (int i = 0; i < s->used; i++) {
+	for (size_t i = 0; i < s->used; i++) {
 		Particle* p = &s->particles[i];
 		particle_update(p, s, dt);
 	}
 
-	for (int i = 0; i < s->used; i++) {
+	for (size_t i = 0; i < s->used; i++) {
 		Particle* p = &s->particles[i];
 		if (p->life <= 0) {
 			p->dead = true;
@@ -190,7 +195,7 @@ void system_update(System *s, float dt)
 	if (s->running) {
 		float rate = 1.0f / s->emission_rate;
 		s->emit_counter += dt;
-		if (s->emit_counter > rate && s->used < s->size) {
+		if (s->emit_counter > rate) {
 			system_emit(s);
 			s->emit_counter -= rate;
 		}

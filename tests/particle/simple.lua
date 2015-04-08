@@ -1,6 +1,6 @@
 local drystal = require 'drystal'
 
-local sys1 = drystal.new_system(200, 300)
+local sys1 = drystal.new_system(200, 300, 5)
 sys1:add_size(0, 6)
 sys1:add_size(1, 6)
 sys1:add_color(0, 0, 255, 0, 255, 0, 255)

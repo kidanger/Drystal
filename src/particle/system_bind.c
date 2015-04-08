@@ -32,8 +32,9 @@ int mlua_new_system(lua_State* L)
 
 	lua_Number x = luaL_checknumber(L, 1);
 	lua_Number y = luaL_checknumber(L, 2);
+	lua_Integer size = luaL_optinteger(L, 3, 256);
 
-	System* system = system_new(x, y);
+	System* system = system_new(x, y, size);
 
 	system->min_direction = 0;
 	system->max_direction = M_PI * 2;
