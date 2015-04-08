@@ -439,6 +439,14 @@ void display_set_filter(Surface* surface, FilterMode filter)
 	surface_set_filter(surface, filter, display.current_from);
 }
 
+void display_get_pixel(Surface* surface, unsigned int x, unsigned int y,
+					   int* red, int* green, int* blue, int* alpha)
+{
+	assert(surface);
+
+	surface_get_pixel(surface, x, y, red, green, blue, alpha, display.current_on);
+}
+
 Camera *display_get_camera()
 {
 	return display.camera;

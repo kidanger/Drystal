@@ -41,6 +41,7 @@ int mlua_free_surface(lua_State* L);
 int mlua_draw_on_surface(lua_State* L);
 int mlua_draw_from_surface(lua_State* L);
 int mlua_set_filter_surface(lua_State* L);
+int mlua_get_pixel_surface(lua_State* L);
 
 int mlua_draw_background(lua_State *L);
 int mlua_draw_point(lua_State* L);

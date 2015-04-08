@@ -58,6 +58,7 @@ BEGIN_MODULE(graphics)
 		ADD_METHOD(surface, set_filter)
 		ADD_METHOD(surface, draw_on)
 		ADD_METHOD(surface, draw_from)
+		ADD_METHOD(surface, get_pixel)
 		ADD_GC(free_surface)
 	REGISTER_CLASS_WITH_INDEX(surface, "Surface")
 

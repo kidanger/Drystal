@@ -238,6 +238,9 @@ Surface
 
    .. warning:: A surface is limited to 2048x2048 pixels. We follow the `WebGL Stats <http://webglstats.com/>`_ and we use the highest texture size at 100%.
 
+   .. lua:method:: get_pixel(x, y) -> r, g, b, a
+
+      Returns red/green/blue/alpha components at given pixel position. Top-right is at (1, 1) and bottom-left is at (surface.w, surface.h) included.
 
 .. lua:function:: new_surface(width, height)
 

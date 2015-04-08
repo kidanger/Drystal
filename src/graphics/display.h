@@ -60,6 +60,8 @@ void display_get_alpha(int *a);
 void display_set_line_width(float width);
 void display_set_blend_mode(BlendMode mode);
 void display_set_filter(Surface* surface, FilterMode mode);
+void display_get_pixel(Surface* surface, unsigned int x, unsigned int y,
+		       int* red, int* green, int* blue, int* alpha);
 
 Camera *display_get_camera();
 void display_reset_camera();

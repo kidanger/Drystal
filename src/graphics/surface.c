@@ -222,6 +222,8 @@ void surface_free(Surface *s)
 		return;
 
 	free(s->filename);
+	free(s->pixels);
+
 	glDeleteTextures(1, &(s->tex));
 	if (s->has_fbo) {
 		glDeleteFramebuffers(1, &(s->fbo));
@@ -234,6 +236,7 @@ void surface_draw_on(Surface *s)
 	assert(s);
 
 	s->has_mipmap = false;
+	s->pixels_valid = false;
 	if (!s->has_fbo) {
 		surface_create_fbo(s);
 		// We do not need to bind the fbo since it is done in create_fbo
@@ -277,6 +280,34 @@ void surface_set_filter(Surface *s, FilterMode new_filter, Surface *current_surf
 	if (s != current_surface) {
 		glBindTexture(GL_TEXTURE_2D, current_surface ? current_surface->tex : 0);
 	}
+}
+
+void surface_get_pixel(Surface *s, unsigned int x, unsigned int y,
+					   int *red, int *green, int *blue, int *alpha, Surface *current_on)
+{
+	assert(s);
+	assert(current_on);
+	assert(s != current_on);
+
+	if (!s->pixels_valid) {
+		surface_draw_on(s);
+		s->pixels_valid = true;
+
+		if (!s->pixels)
+			s->pixels = new(unsigned char, s->w * s->h * 4);
+
+		glReadPixels(0, 0, s->w, s->h, GL_RGBA, GL_UNSIGNED_BYTE, s->pixels);
+		GLDEBUG();
+
+		surface_draw_on(current_on);
+		log_debug("fetch pixels");
+	}
+
+	size_t idx = (x + y * s->w) * 4;
+	*red = s->pixels[idx];
+	*green = s->pixels[idx + 1];
+	*blue = s->pixels[idx + 2];
+	*alpha = s->pixels[idx + 3];
 }
 
 int surface_load(const char *filename, Surface **surface, Surface *current_surface)

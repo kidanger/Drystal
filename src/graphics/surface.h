@@ -59,6 +59,9 @@ struct Surface {
 
 	GLuint tex;
 	GLuint fbo;
+
+	unsigned char *pixels;
+	bool pixels_valid;
 };
 
 Surface *surface_new(unsigned int w,
@@ -73,6 +76,8 @@ void surface_free(Surface *s);
 void surface_draw_on(Surface *s);
 void surface_draw_from(Surface *s);
 void surface_set_filter(Surface *s, FilterMode filter, Surface *current_surface);
+void surface_get_pixel(Surface *s, unsigned int x, unsigned int y,
+		       int *red, int *green, int *blue, int *alpha, Surface *current_on);
 
 static inline void surface_get_size(const Surface *s, unsigned int *w, unsigned int *h)
 {

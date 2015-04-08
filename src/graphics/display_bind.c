@@ -254,6 +254,30 @@ int mlua_set_filter_surface(lua_State* L)
 	return 0;
 }
 
+int mlua_get_pixel_surface(lua_State* L)
+{
+	assert(L);
+
+	Surface* surface = pop_surface(L, 1);
+	unsigned int x = luaL_checkinteger(L, 2);
+	unsigned int y = luaL_checkinteger(L, 3);
+	assert_lua_error(L, surface != display_get_draw_on(), "get_pixel: the surface is currently drawn on");
+	assert_lua_error(L, x >= 1, "get_pixel: x must be greater or equal to 1");
+	assert_lua_error(L, y >= 1, "get_pixel: y must be greater or equal to 1");
+	assert_lua_error(L, x <= surface->w, "get_pixel: x must be equal or less than texture's width");
+	assert_lua_error(L, y <= surface->h, "get_pixel: y must be equal or less than texture's height");
+
+	lua_Integer r, g, b;
+	lua_Integer a;
+	display_get_pixel(surface, x - 1, y - 1, &r, &g, &b, &a);
+
+	lua_pushinteger(L, r);
+	lua_pushinteger(L, g);
+	lua_pushinteger(L, b);
+	lua_pushinteger(L, a);
+	return 4;
+}
+
 int mlua_draw_background(_unused_ lua_State *L)
 {
 	display_draw_background();
