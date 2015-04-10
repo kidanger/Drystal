@@ -45,12 +45,12 @@ static void on_zip_downloaded(_unused_ void* userdata, void* buffer, int size)
 		}
 		const char* filename = file_stat.m_filename;
 
+		int r = mkdir_p(filename);
+		if (r < 0) {
+			log_error("Cannot unzip game files: %s", strerror(-r));
+			break;
+		}
 		if (!mz_zip_reader_is_file_a_directory(&za, i)) {
-			int r = mkdir_p(filename);
-			if (r < 0) {
-				log_error("Cannot unzip game files: %s", strerror(-r));
-				break;
-			}
 			mz_zip_reader_extract_to_file(&za, i, filename, 0);
 		}
 	}
