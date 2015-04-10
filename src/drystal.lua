@@ -35,7 +35,6 @@ function drystal.reload()
 		drystal.prereload()
 	end
 	remove_userpackages()
-	collectgarbage()
 	local ok = drystal._load_code()
 	if ok then
 		if drystal.init then
@@ -45,6 +44,7 @@ function drystal.reload()
 			drystal.postreload()
 		end
 	end
+	collectgarbage()
 	return ok
 end
 

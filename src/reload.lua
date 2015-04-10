@@ -73,6 +73,7 @@ function drystal.hotswap(filename)
 	if drystal.init ~= init and drystal.init then
 		drystal.init()
 	end
+	collectgarbage()
 	return true
 end
 
