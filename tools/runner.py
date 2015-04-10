@@ -42,7 +42,10 @@ LIB_PATH_DEBUG = join(BUILD_NATIVE_DEBUG, 'external')
 VALGRIND_ARGS_MEMCHECK = ['--tool=memcheck', '--leak-check=full', '--suppressions=' + os.path.abspath('./tools/drystal.supp')]
 VALGRIND_ARGS_PROFILE = ['--tool=callgrind']
 
-BROWSERS = 'chromium', 'firefox'
+BROWSERS = (
+    'chromium --allow-file-access-from-files --user-data-dir=/tmp/drystal-browser',
+    'firefox',
+)
 
 HAS_NINJA = shutil.which('ninja')
 
@@ -84,9 +87,13 @@ def execute(args, fork=False, cwd=None, stdin=None, stdout=None):
 
     print(I + strcmd, N)
     if fork:
-        return subprocess.Popen(args, cwd=cwd, stdin=stdin, stdout=stdout)
+        try:
+            subprocess.Popen(args, cwd=cwd, stdin=stdin, stdout=stdout)
+            return True
+        except OSError:
+            return False
     else:
-        return subprocess.call(args, cwd=cwd, stdin=stdin, stdout=stdout)
+        return subprocess.call(args, cwd=cwd, stdin=stdin, stdout=stdout) == 0
 
 
 def has_been_modified(fullpath, old):
@@ -207,18 +214,18 @@ def cmake_update(build, definitions=[], force_clean=False):
     if not os.path.exists(build):
         os.mkdir(build)
         defs = ['-D' + d for d in definitions]
-        if execute(['cmake', '..', '-G', generator] + defs, cwd=build) != 0:
+        if not execute(['cmake', '..', '-G', generator] + defs, cwd=build):
             print(E, 'cmake failed. Fix CMakeLists.txt and try again!', N)
             clean(build)
             sys.exit(1)
-    if execute([builder], cwd=build) != 0:
+    if not execute([builder], cwd=build):
         print(E, builder, 'failed, stopping.', N)
         sys.exit(1)
 
 
 def run_target(build, target):
     builder = HAS_NINJA and 'ninja' or 'make'
-    if execute([builder, target], cwd=build) != 0:
+    if not execute([builder, target], cwd=build):
         print(E, builder, target, 'failed, stopping.', N)
         sys.exit(1)
 
@@ -378,17 +385,15 @@ def run_web(args):
         print(E, 'Failed to build web version')
         print(E, 'EMSCRIPTEN environment variable should contain the path to your emscripten installation')
         sys.exit(1)
+
     run_repack(args)
-    from http.server import HTTPServer, SimpleHTTPRequestHandler
-    addr, port = '127.0.0.1', 8000
-    httpd = HTTPServer((addr, port), SimpleHTTPRequestHandler)
     for b in BROWSERS:
-        if not execute([b, addr + ':' + str(port) + '/' + args.destination]):
-            print(G, '- page opened in', b, N)
+        cmd = b.split(' ') + [join(args.destination, 'index.html')]
+        if execute(cmd):
+            print(G, '- page opened in', cmd[0], N)
             break
-        else:
-            print(W, '! unable to open a browser', N)
-    httpd.serve_forever()
+    else:
+        print(W, '! unable to open a browser', N)
 
 
 def get_gdb_args(program, pid=None, arguments=None):
