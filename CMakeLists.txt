@@ -55,6 +55,7 @@ endif()
 if(BUILD_MANPAGES AND NOT EMSCRIPTEN)
 	add_subdirectory(doc/man)
 endif()
+add_subdirectory(tools)
 
 add_definitions(-DLUA_32BITS)
 

@@ -6,11 +6,10 @@
 import os
 import sys
 import shutil
-import fnmatch
-import zipfile
-import subprocess
-import configparser
 import signal
+
+from drystaljs import load_config, execute, has_been_modified, generate_html
+from drystaljs import package_data, copy_wget_files, try_launch_browser, copy_drystal
 
 G = '\033[92m'
 I = '\033[95m'
@@ -42,20 +41,8 @@ LIB_PATH_DEBUG = join(BUILD_NATIVE_DEBUG, 'external')
 VALGRIND_ARGS_MEMCHECK = ['--tool=memcheck', '--leak-check=full', '--suppressions=' + os.path.abspath('./tools/drystal.supp')]
 VALGRIND_ARGS_PROFILE = ['--tool=callgrind']
 
-BROWSERS = (
-    'chromium --allow-file-access-from-files --user-data-dir=/tmp/drystal-browser',
-    'firefox',
-)
-
 HAS_NINJA = shutil.which('ninja')
 
-DRYSTAL_LOAD = '<script type="text/javascript" src="drystal.js"></script>'
-
-DRYSTAL_ADD_ARGUMENTS = '''
-<script type='text/javascript'>
-Module[\'arguments\'] = ARGS;
-</script>
-'''
 
 def signal_handler(signum, frame):
     print(I + 'Signal ' + str(signum) + ' caught, quitting...')
@@ -66,137 +53,6 @@ def add_signal_handlers():
         signal.signal(signal.SIGQUIT, signal_handler)
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
-
-
-def parent(directory):
-    return os.path.abspath(join(directory, os.pardir))
-
-
-def execute(args, fork=False, cwd=None, stdin=None, stdout=None):
-    strcmd = ' '.join(args)
-    if stdin:
-        strcmd += ' < ' + stdin
-        stdin = open(stdin, 'r')
-    if stdout:
-        strcmd += ' > ' + stdout
-        stdout = open(stdout, 'w')
-    if cwd:
-        strcmd = '[' + cwd + '] $ ' + strcmd
-    else:
-        strcmd = '$ ' + strcmd
-
-    print(I + strcmd, N)
-    if fork:
-        try:
-            subprocess.Popen(args, cwd=cwd, stdin=stdin, stdout=stdout)
-            return True
-        except OSError:
-            return False
-    else:
-        return subprocess.call(args, cwd=cwd, stdin=stdin, stdout=stdout) == 0
-
-
-def has_been_modified(fullpath, old):
-    if not os.path.exists(old):
-        return True
-    elif os.path.isdir(fullpath):
-        for f in os.listdir(fullpath):
-            o = join(old, f)
-            fp = join(fullpath, f)
-            if has_been_modified(fp, o):
-                return True
-    elif os.path.getmtime(fullpath) > os.path.getmtime(old):
-        return True
-    return False
-
-
-def load_config(from_directory):
-    config = configparser.ConfigParser(allow_no_value=True)
-    config.optionxform = str  # upper case is important too
-    cfg = locate_recursively(os.path.abspath(from_directory),
-                             os.getcwd(), 'drystal.cfg')
-    if not cfg:
-        print(E, 'cannot find drystal.cfg', N)
-        sys.exit(1)
-    print(G, '- reading configuration from', cfg)
-    config.read(cfg)
-    return config
-
-
-def config_include_directory(config, directory):
-    for rule in config:
-        if rule != '*':
-            if fnmatch.fnmatch(directory, rule):
-                return True
-    return directory in config
-
-
-def config_is_wgetted(config, directory, file):
-    if directory != '*' and config_is_wgetted(config, '*', file):
-        return True
-    if directory == '':
-        directory = '.'
-    if directory not in config or 'wget' not in config[directory]:
-        return False
-    for rule in config[directory]['wget'].split():
-        if fnmatch.fnmatch(file, rule):
-            return True
-    return False
-
-
-def config_include_file(config, directory, file):
-    # magic directory
-    if directory != '*' and config_include_file(config, '*', file):
-        return True
-    if directory == '':
-        directory = '.'
-    if not config_include_directory(config, directory):
-        return False
-    for rule in config[directory]:
-        if fnmatch.fnmatch(file, rule):
-            return True
-    return False
-
-
-def copy_wget_files(path, config, destination, verbose=False):
-    print(G, '- copying wgot files', N)
-    files = []
-
-    def collect(path, directory):
-        dirs = []
-        for f in os.listdir(join(path, directory)):
-            if f.startswith('.'):
-                continue
-            dest = join(directory, f)
-            full = join(path, dest)
-            if os.path.isdir(full) and config_include_directory(config, dest):
-                dirs.append(dest)
-            elif os.path.isfile(full):
-                if config_is_wgetted(config, directory, f):
-                    files.append(dest)
-        for d in dirs:
-            collect(path, d)
-
-    collect(path, '')
-
-    for f in files:
-        dir = join(destination, os.path.split(f)[0])
-        if not os.path.exists(dir):
-            os.makedirs(dir)
-
-        if verbose:
-            print(G, '\t@ ', f, N)
-        shutil.copy(join(path, f), join(destination, f))
-
-
-def locate_recursively(from_dir, to_dir, name):
-    directory = from_dir
-    while directory != to_dir and directory != '/':
-        files = os.listdir(directory)
-        if name in files:
-            return join(directory, name)
-        directory = parent(directory)
-    return None
 
 
 def clean(directory):
@@ -215,18 +71,18 @@ def cmake_update(build, definitions=[], force_clean=False):
         os.mkdir(build)
         defs = ['-D' + d for d in definitions]
         if not execute(['cmake', '..', '-G', generator] + defs, cwd=build):
-            print(E, 'cmake failed. Fix CMakeLists.txt and try again!', N)
+            print(E + 'cmake failed. Fix CMakeLists.txt and try again!', N)
             clean(build)
             sys.exit(1)
     if not execute([builder], cwd=build):
-        print(E, builder, 'failed, stopping.', N)
+        print(E + builder, 'failed, stopping.', N)
         sys.exit(1)
 
 
 def run_target(build, target):
     builder = HAS_NINJA and 'ninja' or 'make'
     if not execute([builder, target], cwd=build):
-        print(E, builder, target, 'failed, stopping.', N)
+        print(E + builder, target, 'failed, stopping.', N)
         sys.exit(1)
 
 
@@ -266,80 +122,15 @@ def prepare_native(release=False, enable_coverage=False, disabled_modules=None):
     return program, []
 
 
-def prepare_drystaljs(release, destination):
-    '''
-        copy build-web/src/drystal.js to web/drystal.js
-    '''
-    srcjs = join(BINARY_DIRECTORY_WEB_DEBUG, 'drystal.js')
-    memsrcjs = join(BINARY_DIRECTORY_WEB_DEBUG, 'drystal.js.mem')
+def prepare_drystaljs(options, release):
+    directory = BINARY_DIRECTORY_WEB_DEBUG
     if release:
-        srcjs = join(BINARY_DIRECTORY_WEB_RELEASE, 'drystal.js')
-        memsrcjs = join(BINARY_DIRECTORY_WEB_RELEASE, 'drystal.js.mem')
+        directory = BINARY_DIRECTORY_WEB_RELEASE
 
-    js = join(destination, 'drystal.js')
-    memjs = join(destination, 'drystal.js.mem')
-
-    if has_been_modified(srcjs, js):
-        print(G, '- copy drystal.js', N)
-        shutil.copyfile(srcjs, js)
-    if os.path.exists(memsrcjs):
-        if has_been_modified(memsrcjs, memjs):
-            print(G, '- copy drystal.js.mem', N)
-            shutil.copyfile(memsrcjs, memjs)
+    copy_drystal(options, directory)
 
 
-def package_data(path, zipname, destination, config, verbose=False):
-    files = []
-
-    def collect(path, directory):
-        dirs = []
-        for f in os.listdir(join(path, directory)):
-            if f.startswith('.'):
-                continue
-            dest = join(directory, f)
-            full = join(path, dest)
-            if os.path.isdir(full) and config_include_directory(config, dest):
-                dirs.append(dest)
-            elif os.path.isfile(full):
-                if config_include_file(config, directory, f):
-                    if verbose:
-                        print(G, '\t+ ', dest, N)
-                    files.append((full, dest))
-                else:
-                    if verbose:
-                        print(W, '\t~ ', dest, N)
-
-        # collect directories after files
-        for d in dirs:
-            collect(path, d)
-
-    if verbose:
-        print(G, '- collecting files', N)
-    collect(path, '')
-
-    zipfullpath = join(destination, zipname)
-    with zipfile.ZipFile(zipfullpath, 'w', zipfile.ZIP_DEFLATED) as zipf:
-        for fullpath, destpath in files:
-            zipf.write(fullpath, destpath)
-
-
-def copy_and_modify_html(gamedir, zipname, destination, mainfile=None):
-    mainfile = mainfile or 'main.lua'
-    htmlfile = locate_recursively(os.path.abspath(gamedir), os.getcwd(),
-                                  'index.html')
-    if not htmlfile:
-        print(E, 'cannot find index.html', N)
-        sys.exit(1)
-    print(G, '- copy', htmlfile, N)
-    html = open(htmlfile, 'r').read()
-
-    html = html.replace('{{{DRYSTAL_LOAD}}}', DRYSTAL_LOAD)
-    html = html.replace('{{{DRYSTAL_ADD_ARGUMENTS}}}',
-                        DRYSTAL_ADD_ARGUMENTS.replace('ARGS', str(['--zip=' + zipname, mainfile])))
-    open(join(destination, 'index.html'), 'w').write(html)
-
-
-def prepare_web(release=False, disabled_modules=None):
+def prepare_webbuild(release=False, disabled_modules=None):
     disabled_modules = disabled_modules or []
     directory = BUILD_WEB_DEBUG
     build_type = 'RelWithDebInfo'
@@ -356,44 +147,35 @@ def prepare_web(release=False, disabled_modules=None):
 
 
 def run_repack(args):
-    zipname = 'game.zip'
-    if not os.path.exists(args.destination):
-        os.mkdir(args.destination)
-
     if os.path.isdir(args.PATH):
         directory = args.PATH
         file = None
     else:
         directory, file = os.path.split(args.PATH)
 
-    prepare_web(args.release, args.disable_modules)
+    config, options = load_config(directory)
+    options['arguments'] += file
 
-    # copy html (and check which version of drystaljs is used
-    copy_and_modify_html(directory, zipname, args.destination, mainfile=file)
-    # copy drystaljs and its data
-    prepare_drystaljs(args.release, args.destination)
+    if not os.path.exists(options['destination']):
+        os.mkdir(options['destination'])
 
-    # pack game data and copy wgot files
-    config = load_config(directory)
-    package_data(directory, zipname, args.destination,
-                 config, args.show_include)
-    copy_wget_files(directory, config, args.destination, args.show_include)
+    prepare_webbuild(args.release, args.disable_modules)
+
+    prepare_drystaljs(options, args.release)
+    generate_html(directory, options)
+
+    package_data(directory, config, options, args.show_include)
+    copy_wget_files(directory, config, options, args.show_include)
 
 
 def run_web(args):
     if not EMSCRIPTEN_ROOT:
-        print(E, 'Failed to build web version')
-        print(E, 'EMSCRIPTEN environment variable should contain the path to your emscripten installation')
+        print(E + 'Failed to build web version')
+        print(E + 'EMSCRIPTEN environment variable should contain the path to your emscripten installation')
         sys.exit(1)
 
     run_repack(args)
-    for b in BROWSERS:
-        cmd = b.split(' ') + [join(args.destination, 'index.html')]
-        if execute(cmd):
-            print(G, '- page opened in', cmd[0], N)
-            break
-    else:
-        print(W, '! unable to open a browser', N)
+    try_launch_browser(args)
 
 
 def get_gdb_args(program, pid=None, arguments=None):
@@ -473,8 +255,6 @@ if __name__ == '__main__':
     parser_web.set_defaults(func=run_web)
     parser_web.add_argument('-i', '--show-include', help='show files that are (not) included',
                             action='store_true', default=False)
-    parser_web.add_argument('-d', '--destination', help='folder where web files will be put',
-                            default='web')
     parser_web.add_argument('-D', '--disable-modules', help='disable modules',
                         nargs='+', choices=['font', 'graphics', 'web', 'utils', 'storage', 'physics', 'particle', 'audio'])
 
@@ -485,8 +265,6 @@ if __name__ == '__main__':
     parser_repack.set_defaults(func=run_repack)
     parser_repack.add_argument('-i', '--show-include', help='show files that are (not) included',
                             action='store_true', default=False)
-    parser_repack.add_argument('-d', '--destination', help='folder where web files will be put',
-                            default='web')
     parser_repack.add_argument('-D', '--disable-modules', help='disable modules',
                         nargs='+', choices=['font', 'graphics', 'web', 'utils', 'storage', 'physics', 'particle', 'audio'])
 
