@@ -24,6 +24,7 @@ extern "C" {
 #include <lua.h>
 
 void dlua_init(const char *filename);
+void dlua_add_arg(const char*);
 
 lua_State *dlua_get_lua_state(void);
 

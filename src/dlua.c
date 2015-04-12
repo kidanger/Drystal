@@ -77,11 +77,18 @@ struct DrystalLua {
 
 void dlua_init(const char *filename)
 {
-	dlua.L = luaL_newstate();
+	lua_State *L = luaL_newstate();
+	dlua.L = L;
 	dlua.drystal_table_ref = LUA_NOREF;
 	dlua.filename = filename;
 	dlua.library_loaded = false;
-	luaL_openlibs(dlua.L);
+	luaL_openlibs(L);
+
+	// add arg table, with filename at index 0
+	lua_newtable(L);
+	lua_pushstring(L, filename);
+	lua_rawseti(L, -2, 0);
+	lua_setglobal(L, "arg");
 }
 
 void dlua_free(void)
@@ -93,6 +100,21 @@ void dlua_free(void)
 lua_State *dlua_get_lua_state(void)
 {
 	return dlua.L;
+}
+
+void dlua_add_arg(const char* arg)
+{
+	lua_State *L = dlua.L;
+	assert(lua_gettop(L) == 0);
+
+	assert(arg);
+
+	lua_getglobal(L, "arg");
+	int n = luaL_len(L, -1);
+	lua_pushstring(L, arg);
+	lua_rawseti(L, -2, n + 1);
+	lua_pop(L, 1);
+	assert(lua_gettop(L) == 0);
 }
 
 void dlua_get_drystal_field(const char* name)

@@ -23,11 +23,11 @@
 #include <stdlib.h>
 
 #include "livecoding.h"
-#include "dlua.h"
 #include "macro.h"
 #endif
 
 #include "engine.h"
+#include "dlua.h"
 #include "log.h"
 #include "util.h"
 #include "build.h"
@@ -98,8 +98,10 @@ int main(int argc, char* argv[])
 #ifdef BUILD_LIVECODING
 	bool livecoding = false;
 #endif
+	bool is_arg[argc];
 
 	for (int i = 1; i < argc; i++) {
+		is_arg[i] = false;
 		if (streq(argv[i], "--help") || streq(argv[i], "-h")) {
 			help();
 			return 0;
@@ -113,8 +115,10 @@ int main(int argc, char* argv[])
 			fprintf(stderr, "Cannot start livecoding: disabled at compilation time.\n");
 			return EXIT_FAILURE;
 #endif
-		} else {
+		} else if (!filename) {
 			filename = xstrdup(argv[i]);
+		} else {
+			is_arg[i] = true;
 		}
 	}
 
@@ -134,6 +138,12 @@ int main(int argc, char* argv[])
 	r = engine_init(filename, 60);
 	if (r < 0) {
 		return EXIT_FAILURE;
+	}
+
+	for (int i = 1; i < argc; i++) {
+		if (is_arg[i]) {
+			dlua_add_arg(argv[i]);
+		}
 	}
 
 #ifdef BUILD_LIVECODING

@@ -23,6 +23,7 @@
 #include <stdlib.h>
 
 #include "util.h"
+#include "dlua.h"
 #include "macro.h"
 #include "engine.h"
 #include "log.h"
@@ -77,13 +78,17 @@ int main(int argc, char* argv[])
 	char* filename = NULL;
 	const char* zipname = "game.zip";
 	int r;
+	bool is_arg[argc];
 
 	int ziplen = strlen("--zip=");
 	for (int i = 1; i < argc; i++) {
+		is_arg[i] = false;
 		if (!strncmp(argv[i], "--zip=", ziplen)) {
 			zipname = argv[i] + ziplen;
-		} else {
+		} else if (!filename) {
 			filename = xstrdup(argv[i]);
+		} else {
+			is_arg[i] = true;
 		}
 	}
 
@@ -103,6 +108,12 @@ int main(int argc, char* argv[])
 	r = engine_init(filename, 60);
 	if (r < 0) {
 		return EXIT_FAILURE;
+	}
+
+	for (int i = 1; i < argc; i++) {
+		if (is_arg[i]) {
+			dlua_add_arg(argv[i]);
+		}
 	}
 
 	emscripten_async_wget_data(zipname, (void*) zipname, on_zip_downloaded, on_zip_fail);
