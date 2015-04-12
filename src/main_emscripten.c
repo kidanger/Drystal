@@ -73,7 +73,8 @@ static void loop()
 
 int main(int argc, char* argv[])
 {
-	const char* filename = "main.lua";
+	const char* default_filename = "main.lua";
+	char* filename = NULL;
 	const char* zipname = "game.zip";
 	int r;
 
@@ -82,8 +83,21 @@ int main(int argc, char* argv[])
 		if (!strncmp(argv[i], "--zip=", ziplen)) {
 			zipname = argv[i] + ziplen;
 		} else {
-			filename = argv[i];
+			filename = xstrdup(argv[i]);
 		}
+	}
+
+	if (!filename) {
+		filename = xstrdup(default_filename);
+	} else if (is_directory(filename)) {
+		char* newfilename;
+		if (endswith(filename, "/")) {
+			newfilename = strjoin(filename, default_filename, NULL);
+		} else {
+			newfilename = strjoin(filename, "/", default_filename, NULL);
+		}
+		free(filename);
+		filename = newfilename;
 	}
 
 	r = engine_init(filename, 60);
