@@ -94,6 +94,9 @@ static int display_create_window(int w, int h)
 	assert(h > 0);
 
 #ifndef EMSCRIPTEN
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 	display.sdl_window = SDL_CreateWindow("Drystal",
 	                                      SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 	                                      w, h, SDL_WINDOW_OPENGL);
@@ -123,10 +126,6 @@ static int display_create_window(int w, int h)
 	display_set_blend_mode(BLEND_DEFAULT);
 	glEnable(GL_BLEND);
 	glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
-
-#ifndef EMSCRIPTEN
-	glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-#endif
 
 	GLDEBUG();
 	return 0;
