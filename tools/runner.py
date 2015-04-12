@@ -154,7 +154,8 @@ def run_repack(args):
         directory, file = os.path.split(args.PATH)
 
     config, options = load_config(directory)
-    options['arguments'] += file
+    if file:
+        options['arguments'] += file
 
     if not os.path.exists(options['destination']):
         os.mkdir(options['destination'])
