@@ -57,8 +57,8 @@ Font* font_load(const char* filename, float size, int first_char, int num_chars)
 	}
 
 	// TODO: compute texture size
-	int w = 512;
-	int h = 512;
+	int w = 2048;
+	int h = 2048;
 	Font* font = new(Font, 1);
 	font->first_char = first_char;
 	font->num_chars = num_chars;
