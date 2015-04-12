@@ -107,14 +107,14 @@ def execute(args, fork=False, cwd=None, stdin=None, stdout=None):
         strcmd = '$ ' + strcmd
 
     print(I + strcmd, N)
-    if fork:
-        try:
+    try:
+        if fork:
             subprocess.Popen(args, cwd=cwd, stdin=stdin, stdout=stdout)
             return True
-        except OSError:
-            return False
-    else:
-        return subprocess.call(args, cwd=cwd, stdin=stdin, stdout=stdout) == 0
+        else:
+            return subprocess.call(args, cwd=cwd, stdin=stdin, stdout=stdout) == 0
+    except OSError:
+        return False
 
 
 def has_been_modified(fullpath, old):
