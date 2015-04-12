@@ -69,7 +69,7 @@ DEFAULT_INDEX_HTML = """
           element.value = ''; // clear browser cache
           return function(text) {
             text = Array.prototype.slice.call(arguments).join(' ');
-            element.value += text + "\n";
+            element.value += text + "\\n";
             element.scrollTop = 99999; // focus on bottom
           };
         })(),
