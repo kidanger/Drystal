@@ -522,16 +522,16 @@ Colors
 .. lua:class:: Color
 
    .. lua:method:: rgb() -> r, g, b
- 
-      Gets the RGB values of the color.
+
+      Gets the RGB values of the color. You can also use ``.r``, ``.g`` and ``.b``.
 
    .. lua:method:: hsl() -> h, s, l
 
-      Gets the HSL values of the color.
+      Gets the HSL values of the color. You can also use ``.h``, ``.s`` and ``.l``.
 
    .. lua:method:: cmyk() -> c, m, y, k
 
-      Gets the CMYK values of the color.
+      Gets the CMYK values of the color. You can also use ``.c``, ``.m``, ``.y`` and ``.k``.
 
    .. lua:method:: add(color) -> Color
 
