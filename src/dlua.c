@@ -388,6 +388,8 @@ static bool reload_surface(void* data, const void* arg)
 	SWAP(s->tex, new_surface->tex);
 	SWAP(s->fbo, new_surface->fbo);
 	SWAP(s->filter, new_surface->filter);
+	SWAP(s->pixels, new_surface->pixels);
+	SWAP(s->pixels_valid, new_surface->pixels_valid);
 	display_free_surface(new_surface);
 
 	display_set_filter(s, new_surface->filter);
