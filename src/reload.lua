@@ -83,9 +83,11 @@ function drystal._reload_files(files)
 			goto continue
 		end
 		if drystal.hotswap(file) then
-			print('Hotswapped: ' .. file)
+			drystal.log_warning('Hotswapped: ' .. file)
 		elseif drystal.reload_sound and drystal.reload_sound(file) then
+			drystal.log_warning('Reloaded: ' .. file)
 		elseif drystal.reload_surface and drystal.reload_surface(file) then
+			drystal.log_warning('Reloaded: ' .. file)
 		end
 		::continue::
 	end

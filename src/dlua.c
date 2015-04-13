@@ -293,6 +293,36 @@ static int mlua_stop(_unused_ lua_State *L)
 	return 0;
 }
 
+static int mlua_log_error(lua_State *L)
+{
+	const char* str = luaL_checkstring(L, 1);
+	log_error("%s", str);
+	return 0;
+}
+
+static int mlua_log_warning(lua_State *L)
+{
+	const char* str = luaL_checkstring(L, 1);
+	log_warning("%s", str);
+	return 0;
+}
+
+static int mlua_log_info(lua_State *L)
+{
+	const char* str = luaL_checkstring(L, 1);
+	log_info("%s", str);
+	(void) str;
+	return 0;
+}
+
+static int mlua_log_debug(lua_State *L)
+{
+	const char* str = luaL_checkstring(L, 1);
+	log_debug("%s", str);
+	(void) str;
+	return 0;
+}
+
 static int mlua_load_code(lua_State *L)
 {
 	bool ok = dlua_load_code();
@@ -402,6 +432,10 @@ int luaopen_drystal(lua_State *L)
 
 	static const luaL_Reg lib[] = {
 		{"stop", mlua_stop},
+		{"log_error", mlua_log_error},
+		{"log_warning", mlua_log_warning},
+		{"log_info", mlua_log_info},
+		{"log_debug", mlua_log_debug},
 		{"_load_code", mlua_load_code},
 #ifdef BUILD_LIVECODING
 #ifdef BUILD_AUDIO
