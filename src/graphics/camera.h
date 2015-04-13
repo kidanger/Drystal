@@ -16,6 +16,8 @@
  */
 #pragma once
 
+#include <stdbool.h>
+
 typedef struct Camera Camera;
 
 struct Camera {
@@ -26,9 +28,13 @@ struct Camera {
 	float matrix[4];
 };
 
-Camera *camera_new();
+Camera *camera_new(void);
 void camera_free(Camera *c);
 
 void camera_update_matrix(Camera *c, int width, int height);
 void camera_reset(Camera *c);
+void camera_push(Camera *c);
+void camera_pop(Camera *c);
+bool camera_stack_is_full(void);
+bool camera_stack_is_empty(void);
 

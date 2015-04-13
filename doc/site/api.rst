@@ -420,6 +420,13 @@ The camera can be used the modify position and size of the following draws.
 
    Resets the camera fields to default values.
 
+.. lua:function:: drystal.camera.push()
+
+   Saves the current camera state. You can then restore it with :lua:func:`drystal.camera.pop`.
+
+.. lua:function:: drystal.camera.pop()
+
+   Restores the camera to the previous state.
 
 Buffer
 ^^^^^^

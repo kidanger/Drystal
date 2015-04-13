@@ -111,8 +111,9 @@ BEGIN_MODULE(graphics)
 		lua_pushcfunction(L, mlua_camera__index);
 		lua_setfield(L, -2, "__index");
 		lua_setmetatable(L, -2);
-		lua_pushcfunction(L, mlua_camera_reset);
-		lua_setfield(L, -2, "reset");
+		PUSH_FUNC("reset", camera_reset);
+		PUSH_FUNC("push", camera_push);
+		PUSH_FUNC("pop", camera_pop);
 
 		// glue it on drystal table
 		lua_setfield(L, -2, "camera");

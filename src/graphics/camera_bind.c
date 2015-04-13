@@ -22,6 +22,7 @@
 #include "camera_bind.h"
 #include "macro.h"
 #include "util.h"
+#include "lua_util.h"
 
 int mlua_camera__newindex(lua_State* L)
 {
@@ -77,3 +78,24 @@ int mlua_camera_reset(_unused_ lua_State *L)
 	display_reset_camera();
 	return 0;
 }
+
+int mlua_camera_push(lua_State *L)
+{
+	assert(L);
+
+	assert_lua_error(L, !camera_stack_is_full(), "push: camera stack is full");
+
+	display_push_camera();
+	return 0;
+}
+
+int mlua_camera_pop(lua_State *L)
+{
+	assert(L);
+
+	assert_lua_error(L, !camera_stack_is_empty(), "push: camera stack is empty");
+
+	display_pop_camera();
+	return 0;
+}
+

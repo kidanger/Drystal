@@ -19,6 +19,12 @@ function drystal.draw()
 
 	drystal.set_color(255, 255, 255)
 	drystal.draw_circle(300, 200, 10)
+
+	drystal.camera.push()
+	drystal.camera.reset()
+	drystal.set_color(255, 255, 255)
+	drystal.draw_circle(300, 200, 10)
+	drystal.camera.pop()
 end
 
 function drystal.mouse_motion(x, y)

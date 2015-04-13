@@ -21,4 +21,6 @@
 int mlua_camera__newindex(lua_State* L);
 int mlua_camera__index(lua_State* L);
 int mlua_camera_reset(lua_State*);
+int mlua_camera_push(lua_State *L);
+int mlua_camera_pop(lua_State *L);
 

@@ -20,7 +20,11 @@
 #include "camera.h"
 #include "util.h"
 
-Camera *camera_new(void)
+#define CAMERA_STACK_SIZE (64)
+static Camera cameraStack[CAMERA_STACK_SIZE];
+static size_t cameraStackIndex;
+
+Camera *camera_new()
 {
 	Camera *c = new0(Camera, 1);
 	c->zoom = 1;
@@ -61,5 +65,31 @@ void camera_reset(Camera *c)
 	c->dy = 0;
 	c->angle = 0;
 	c->zoom = 1;
+}
+
+void camera_push(Camera *c)
+{
+	assert(c);
+	assert(!camera_stack_is_full());
+
+	cameraStack[cameraStackIndex++] = *c;
+}
+
+void camera_pop(Camera *c)
+{
+	assert(c);
+	assert(!camera_stack_is_empty());
+
+	*c = cameraStack[--cameraStackIndex];
+}
+
+bool camera_stack_is_full(void)
+{
+	return cameraStackIndex == CAMERA_STACK_SIZE;
+}
+
+bool camera_stack_is_empty(void)
+{
+	return cameraStackIndex == 0;
 }
 

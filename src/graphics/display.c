@@ -459,6 +459,21 @@ void display_reset_camera()
 	camera_update_matrix(display.camera, display.current_on->w, display.current_on->h);
 }
 
+void display_push_camera()
+{
+	buffer_check_empty(display.current_buffer);
+
+	camera_push(display.camera);
+}
+
+void display_pop_camera()
+{
+	buffer_check_empty(display.current_buffer);
+
+	camera_pop(display.camera);
+	camera_update_matrix(display.camera, display.current_on->w, display.current_on->h);
+}
+
 void display_set_camera_position(float dx, float dy)
 {
 	buffer_check_empty(display.current_buffer);

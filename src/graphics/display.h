@@ -65,6 +65,8 @@ void display_get_pixel(Surface* surface, unsigned int x, unsigned int y,
 
 Camera *display_get_camera();
 void display_reset_camera();
+void display_push_camera();
+void display_pop_camera();
 void display_set_camera_position(float dx, float dy);
 void display_set_camera_angle(float angle);
 void display_set_camera_zoom(float zoom);
