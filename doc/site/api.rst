@@ -428,6 +428,10 @@ The camera can be used the modify position and size of the following draws.
 
    Restores the camera to the previous state.
 
+.. lua:function:: drystal.screen2scene(x: float, y: float) -> float, float
+
+   Computes the position of screen coordinates ``(x, y)`` to scene/camera coordinates.
+
 Buffer
 ^^^^^^
 
