@@ -306,6 +306,8 @@ int mlua_draw_point_tex(lua_State* L)
 {
 	assert(L);
 
+	assert_lua_error(L, display_get_draw_from(), "draw_point_tex: no 'drawn from' surface bound");
+
 	Buffer* buffer = display_get_current_buffer();
 	if (buffer->user_buffer) {
 		BufferType type = buffer->type;
@@ -366,6 +368,8 @@ int mlua_draw_surface(lua_State* L)
 {
 	assert(L);
 
+	assert_lua_error(L, display_get_draw_from(), "draw_surface: no 'drawn from' surface bound");
+
 	Buffer* buffer = display_get_current_buffer();
 	if (buffer->user_buffer) {
 		BufferType type = buffer->type;
@@ -394,6 +398,8 @@ int mlua_draw_surface(lua_State* L)
 int mlua_draw_quad(lua_State* L)
 {
 	assert(L);
+
+	assert_lua_error(L, display_get_draw_from(), "draw_quad: no 'drawn from' surface bound");
 
 	Buffer* buffer = display_get_current_buffer();
 	if (buffer->user_buffer) {
