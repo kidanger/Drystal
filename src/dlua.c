@@ -357,7 +357,7 @@ static int mlua_reload_sound(lua_State *L)
 {
 	assert(L);
 
-	const char* filename = lua_tostring(L, 1);
+	const char* filename = luaL_checkstring(L, 1);
 	bool done = dlua_foreach("sound", reload_sound, filename);
 	lua_pushboolean(L, done);
 	return 1;
@@ -400,7 +400,7 @@ static int mlua_reload_surface(lua_State *L)
 {
 	assert(L);
 
-	const char* filename = lua_tostring(L, 1);
+	const char* filename = luaL_checkstring(L, 1);
 	bool done = dlua_foreach("surface", reload_surface, filename);
 	lua_pushboolean(L, done);
 	return 1;
