@@ -279,24 +279,23 @@ void display_resize(int w, int h)
 }
 
 void display_screen2scene(float x, float y, float * tx, float * ty)
-{
+{;
+	assert(display.current_on);
 	assert(tx);
 	assert(ty);
 
 	Camera *camera = display.camera;
-	Surface *screen = display.screen;
+	Surface *destination = display.current_on;
 
-	float zoom = camera->zoom;
-	x -= camera->dx;
-	y -= camera->dy;
-	*tx = camera->matrix[0] * x + camera->matrix[2] * y;
-	*ty = camera->matrix[1] * x + camera->matrix[3] * y;
+	float sx = (x + camera->dx) / destination->w - .5f;
+	float sy = (y + camera->dy) / destination->h - .5f;
+	sx *= camera->zoom;
+	sy *= camera->zoom;
 
-	float dx = (x + camera->dx) - screen->w / 2;
-	float dy = (y + camera->dy) - screen->h / 2;
-	// MAGIC, don't modify
-	*tx += dx * (1 - zoom) / zoom;
-	*ty += dy * (1 - zoom) / zoom;
+	float rx = camera->matrix[0] * sx + camera->matrix[2] * sy;
+	float ry = camera->matrix[1] * sx + camera->matrix[3] * sy;
+	*tx = (rx + .5f) * destination->w;
+	*ty = (ry + .5f) * destination->h;
 }
 
 void display_show_cursor(bool b)
