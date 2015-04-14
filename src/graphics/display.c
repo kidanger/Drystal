@@ -24,8 +24,6 @@
 #include "emscripten.h" // see show_cursor
 #endif
 
-#define GL_VERTEX_PROGRAM_POINT_SIZE 0x8642
-
 #include <assert.h>
 #include <errno.h>
 #include <math.h>
