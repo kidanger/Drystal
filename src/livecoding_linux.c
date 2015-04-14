@@ -33,6 +33,9 @@
 #include "livecoding.h"
 #include "macro.h"
 #include "util.h"
+#include "log.h"
+
+log_category("livecode");
 
 #define EVENT_BUFFER_LEN (20 * (sizeof(struct inotify_event) + FILENAME_MAX))
 
@@ -287,6 +290,8 @@ int livecoding_watch_directory(const char *directory)
 	wds[wds_count] = wd;
 	dirnames[wds_count] = xstrdup(directory);
 	wds_count++;
+
+	log_info("watch %s", directory);
 
 	return wd;
 }
