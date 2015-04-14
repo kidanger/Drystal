@@ -34,8 +34,8 @@ function lume.hotswap(modname)
 		for k, v in pairs(_G) do _G[k] = oldglobal[k] end
 		err = lume.trim(e)
 	end
-	local ok, oldmod = pcall(require, modname)
-	oldmod = ok and oldmod or nil
+
+	local oldmod = package.loaded[modname]
 	xpcall(function()
 		package.loaded[modname] = nil
 		local newmod = require(modname)
