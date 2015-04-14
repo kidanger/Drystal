@@ -1,6 +1,6 @@
 local drystal = require 'drystal'
 
-tex = drystal.load_surface('smoke.png')
+tex = drystal.load_surface('spritesheet.png')
 local sys_smoke = drystal.new_system(200, 596)
 
 sys_smoke:set_sizes {
@@ -22,7 +22,7 @@ sys_smoke:set_initial_velocity(100, 150)
 sys_smoke:set_initial_acceleration(0)
 sys_smoke:set_offset(-10, 20, 0, 10)
 sys_smoke:set_emission_rate(16)
-sys_smoke:set_texture(tex)
+sys_smoke:set_texture(tex, 0, 0)
 
 local sys_smoke_opaque = drystal.new_system(600, 600)
 
@@ -43,7 +43,7 @@ sys_smoke_opaque:set_direction(-math.pi / 2 - math.pi/8, -math.pi/2 + math.pi/8)
 sys_smoke_opaque:set_initial_velocity(100, 150)
 sys_smoke_opaque:set_initial_acceleration(0)
 sys_smoke_opaque:set_emission_rate(25)
-sys_smoke_opaque:set_texture(tex)
+sys_smoke_opaque:set_texture(tex, 0, 0)
 
 function drystal.init()
 	drystal.resize(800, 600)

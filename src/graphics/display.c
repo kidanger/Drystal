@@ -66,12 +66,6 @@ struct Display {
 	bool debug_mode;
 } display;
 
-static inline void display_convert_texcoords(float x, float y, float *dx, float *dy)
-{
-	*dx = x / display.current_from->texw;
-	*dy = y / display.current_from->texh;
-}
-
 static Shader *display_create_default_shader()
 {
 	const char* strvert = DEFAULT_VERTEX_SHADER;
@@ -516,6 +510,7 @@ void display_draw_from(Surface *surface)
 		} else {
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
+		display.current_buffer->draw_from = display.current_from;
 	}
 }
 
@@ -532,7 +527,6 @@ void display_draw_on(Surface *surface)
 		glViewport(0, 0, w, h);
 		camera_update_matrix(display.camera, w, h);
 		display.current_buffer->draw_on = display.current_on;
-		display.default_buffer->draw_on = display.current_on;
 	}
 }
 
@@ -602,7 +596,7 @@ void display_draw_point(float x, float y, float size)
 	buffer_push_point_size(current_buffer, size);
 	buffer_push_color(current_buffer, display.r, display.g, display.b, display.alpha);
 }
-void display_draw_point_tex(float x, float y, float size)
+void display_draw_point_tex(float sx, float sy, float x, float y, float size)
 {
 	assert(display.current_from);
 	Buffer *current_buffer = display.current_buffer;
@@ -612,7 +606,7 @@ void display_draw_point_tex(float x, float y, float size)
 	buffer_check_not_full(current_buffer);
 
 	buffer_push_vertex(current_buffer, x, y);
-	buffer_push_tex_coord(current_buffer, 0, 0); // useless for textured points
+	buffer_push_tex_coord(current_buffer, sx, sy);
 	buffer_push_point_size(current_buffer, size);
 	buffer_push_color(current_buffer, display.r, display.g, display.b, display.alpha);
 }
@@ -672,8 +666,6 @@ void display_draw_surface(float xi1, float yi1, float xi2, float yi2, float xi3,
 	unsigned char b = display.b;
 	unsigned char alpha = display.alpha;
 	int i;
-	float xxi1, xxi2, xxi3;
-	float yyi1, yyi2, yyi3;
 
 	if (display.debug_mode) {
 		display_draw_line(xo1, yo1, xo2, yo2);
@@ -684,17 +676,13 @@ void display_draw_surface(float xi1, float yi1, float xi2, float yi2, float xi3,
 
 	assert(display.current_from);
 
-	display_convert_texcoords(xi1, yi1, &xxi1, &yyi1);
-	display_convert_texcoords(xi2, yi2, &xxi2, &yyi2);
-	display_convert_texcoords(xi3, yi3, &xxi3, &yyi3);
-
 	buffer_check_type(current_buffer, TRIANGLE_BUFFER);
 	buffer_check_use_texture(current_buffer);
 	buffer_check_not_full(current_buffer);
 
-	buffer_push_tex_coord(current_buffer, xxi1, yyi1);
-	buffer_push_tex_coord(current_buffer, xxi2, yyi2);
-	buffer_push_tex_coord(current_buffer, xxi3, yyi3);
+	buffer_push_tex_coord(current_buffer, xi1, yi1);
+	buffer_push_tex_coord(current_buffer, xi2, yi2);
+	buffer_push_tex_coord(current_buffer, xi3, yi3);
 
 	buffer_push_vertex(current_buffer, xo1, yo1);
 	buffer_push_vertex(current_buffer, xo2, yo2);
@@ -882,6 +870,7 @@ void display_use_buffer(Buffer* buffer)
 	display.current_buffer = buffer;
 	buffer_use_shader(buffer, display.current_shader);
 	buffer->draw_on = display.current_on;
+	buffer->draw_from = display.current_from;
 }
 
 void display_use_default_buffer()
@@ -895,6 +884,7 @@ void display_draw_buffer(Buffer* buffer, float dx, float dy)
 
 	buffer_check_empty(display.current_buffer);
 	buffer->draw_on = display.current_on;
+	buffer->draw_from = display.current_from;
 	buffer_draw(buffer, dx, dy);
 }
 

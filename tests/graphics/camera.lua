@@ -30,15 +30,18 @@ function drystal.draw()
 	drystal.camera.push()
 	drystal.camera.reset()
 	drystal.camera.zoom = 0.3
-	drystal.camera.angle = math.pi * .1
+	drystal.camera.angle = math.pi / 4
 	drystal.camera.x = 200
 	drystal.camera.y = -20
 
 	drystal.set_color 'blue'
 	drystal.draw_square(0, 0, drystal.screen.w, drystal.screen.h)
 	local mxx, myy = drystal.screen2scene(mx, my)
+	drystal.set_color 'green'
+	drystal.draw_circle(mx, my, 40)
 	drystal.camera.pop()
 
+	drystal.set_color 'blue'
 	drystal.camera.push()
 	drystal.camera.reset()
 	drystal.draw_circle(mxx, myy, 9)

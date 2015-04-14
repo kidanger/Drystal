@@ -84,7 +84,7 @@ Surface *display_get_draw_from();
 
 void display_draw_background();
 void display_draw_point(float x, float y, float size);
-void display_draw_point_tex(float x, float y, float size);
+void display_draw_point_tex(float sx, float sy, float x, float y, float size);
 void display_draw_line(float x1, float y1, float x2, float y2);
 void display_draw_triangle(float x1, float y1, float x2, float y2, float x3, float y3);
 void display_draw_surface(float, float, float, float, float, float, float, float, float, float, float, float);

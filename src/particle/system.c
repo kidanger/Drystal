@@ -134,7 +134,7 @@ void system_draw(System *s, float dx, float dy)
 
 		display_set_color(r, g, b);
 		if (s->texture)
-			display_draw_point_tex(dx + p->x, dy + p->y, _size);
+			display_draw_point_tex(s->sprite_x, s->sprite_y, dx + p->x, dy + p->y, _size);
 		else
 			display_draw_point(dx + p->x, dy + p->y, _size);
 	}
@@ -242,8 +242,10 @@ void system_clear_colors(System *s)
 	s->cur_color = 0;
 }
 
-void system_set_texture(System* s, Surface* tex)
+void system_set_texture(System* s, Surface* tex, float x, float y)
 {
 	s->texture = tex;
+	s->sprite_x = x;
+	s->sprite_y = y;
 }
 

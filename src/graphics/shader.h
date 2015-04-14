@@ -59,6 +59,7 @@ struct Shader {
 		GLuint zoomLocation;
 		GLuint rotationMatrixLocation;
 		GLuint destinationSizeLocation;
+		GLuint sourceSizeLocation;
 	} vars[2];
 	int ref;
 

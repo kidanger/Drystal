@@ -65,6 +65,7 @@ struct Buffer {
 
 	int ref;
 	const Surface* draw_on;
+	const Surface* draw_from;
 };
 
 Buffer *buffer_new(bool user_buffer, unsigned int size);

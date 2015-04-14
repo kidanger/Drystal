@@ -316,10 +316,12 @@ int mlua_draw_point_tex(lua_State* L)
 			return luaL_error(L, "the current buffer cannot contain textured points");
 	}
 
-	lua_Number x = luaL_checknumber(L, 1);
-	lua_Number y = luaL_checknumber(L, 2);
-	lua_Number size = luaL_checknumber(L, 3);
-	display_draw_point_tex(x, y, size);
+	lua_Number sx = luaL_checknumber(L, 1);
+	lua_Number sy = luaL_checknumber(L, 2);
+	lua_Number x = luaL_checknumber(L, 3);
+	lua_Number y = luaL_checknumber(L, 4);
+	lua_Number size = luaL_checknumber(L, 5);
+	display_draw_point_tex(sx, sy, x, y, size);
 	return 0;
 }
 

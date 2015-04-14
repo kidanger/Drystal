@@ -68,6 +68,9 @@ struct System {
 	float emission_rate;
 	float emit_counter;
 
+	int sprite_x;
+	int sprite_y;
+
 	int ref;
 };
 
@@ -85,5 +88,5 @@ void system_add_size(System *s, float at, float min, float max);
 void system_add_color(System *s, float at, unsigned char min_r, unsigned char max_r, unsigned char min_g, unsigned char max_g, unsigned char min_b, unsigned char max_b);
 void system_clear_sizes(System *s);
 void system_clear_colors(System *s);
-void system_set_texture(System* s, Surface* tex);
+void system_set_texture(System* s, Surface* tex, float x, float y);
 

@@ -1,7 +1,7 @@
 local drystal = require 'drystal'
 
 local squish = assert(drystal.load_sound('squish2.wav'))
-tex = assert(drystal.load_surface('blood.png'))
+tex = assert(drystal.load_surface('spritesheet.png'))
 local sys_blood = drystal.new_system(300, 600)
 
 sys_blood:set_sizes {
@@ -20,7 +20,7 @@ sys_blood:set_direction(-math.pi, math.pi)
 sys_blood:set_initial_velocity(50, 150)
 sys_blood:set_initial_acceleration(-100, 0)
 sys_blood:set_offset(0, 0, 0, 0)
-sys_blood:set_texture(tex)
+sys_blood:set_texture(tex, 128, 0)
 
 function drystal.init()
 	drystal.resize(800, 600)

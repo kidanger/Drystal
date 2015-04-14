@@ -26,7 +26,7 @@ function drystal.draw()
 	end
 
 	drystal.set_color(drystal.colors.lime)
-	drystal.draw_point_tex(mx-8, my-8, 15)
+	drystal.draw_point_tex(0, 0, mx-8, my-8, 15)
 end
 
 function drystal.mouse_motion(x, y)

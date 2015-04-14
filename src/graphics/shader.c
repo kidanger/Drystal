@@ -29,59 +29,60 @@ log_category("shader");
 #define HASH(x) x
 
 const char* SHADER_PREFIX = SHADER_STRING
-                            (
-                                HASH(#)version 100 \n
-                                HASH(#)ifdef GL_ES \n
-                                precision mediump float; \n
-                                HASH(#)endif \n
-                            );
+(
+HASH(#)version 100 \n
+HASH(#)ifdef GL_ES \n
+precision mediump float; \n
+HASH(#)endif \n
+);
 
 const char* DEFAULT_VERTEX_SHADER = SHADER_STRING
-                                    (
-                                        attribute vec2 position;	// position of the vertice
-                                        attribute vec4 color;		// color of the vertice
-                                        attribute vec2 texCoord;	// texture coordinates
-                                        attribute float pointSize;	// size of points
+(
+attribute vec2 position;	// position of the vertice
+attribute vec4 color;		// color of the vertice
+attribute vec2 texCoord;	// texture coordinates
+attribute float pointSize;	// size of points
 
-                                        varying vec4 fColor;
-                                        varying vec2 fTexCoord;
+varying vec4 fColor;
+varying vec2 fTexCoord;
 
-                                        uniform float cameraDx;
-                                        uniform float cameraDy;
-                                        uniform float cameraZoom;
-                                        uniform mat2 rotationMatrix;
-                                        uniform vec2 destinationSize;		// size of the destination texture
-                                        mat2 cameraMatrix = rotationMatrix * cameraZoom;
+uniform float cameraDx;
+uniform float cameraDy;
+uniform float cameraZoom;
+uniform mat2 rotationMatrix;
+uniform vec2 destinationSize;		// size of the destination texture
+uniform vec2 sourceSize;
+mat2 cameraMatrix = rotationMatrix * cameraZoom;
 
-                                        void main()
+void main()
 {
 	gl_PointSize = pointSize * cameraZoom;
 	vec2 position2d = cameraMatrix * (2. * (position - vec2(cameraDx, cameraDy)) / destinationSize - 1.);
 	gl_Position = vec4(position2d, 0.0, 1.0);
 	fColor = color;
-	fTexCoord = texCoord;
+	fTexCoord = texCoord / sourceSize;
 }
-                                    );
+);
 
 const char* DEFAULT_FRAGMENT_SHADER_COLOR = SHADER_STRING
-        (
-            varying vec4 fColor;
-            varying vec2 fTexCoord;
+(
+varying vec4 fColor;
+varying vec2 fTexCoord;
 
-            void main()
+void main()
 {
 	gl_FragColor = fColor;
 }
-        );
+);
 
 const char* DEFAULT_FRAGMENT_SHADER_TEX = SHADER_STRING
-        (
-            uniform sampler2D tex;
+(
+uniform sampler2D tex;
 
-            varying vec4 fColor;
-            varying vec2 fTexCoord;
+varying vec4 fColor;
+varying vec2 fTexCoord;
 
-            void main()
+void main()
 {
 	vec4 color;
 	vec4 texval = texture2D(tex, fTexCoord);
@@ -89,25 +90,29 @@ const char* DEFAULT_FRAGMENT_SHADER_TEX = SHADER_STRING
 	color.a = texval.a * fColor.a;
 	gl_FragColor = color;
 }
-        );
+);
 
 const char* DEFAULT_FRAGMENT_SHADER_TEXPOINT = SHADER_STRING
-        (
-            uniform sampler2D tex;
+(
+uniform sampler2D tex;
 
-            varying vec4 fColor;
-            varying vec2 fTexCoord;
+varying vec4 fColor;
+varying vec2 fTexCoord;
 
-            void main()
+uniform vec2 sourceSize;
+
+void main()
 {
 	vec4 color;
-	vec2 pos = vec2(gl_PointCoord.x, 1. - gl_PointCoord.y);
+	vec2 start = fTexCoord + vec2(0, 64) / sourceSize;
+	vec2 end = fTexCoord + vec2(64, 0) / sourceSize;
+	vec2 pos = mix(start, end, gl_PointCoord);
 	vec4 texval = texture2D(tex, pos);
 	color.rgb = mix(texval.rgb, fColor.rgb, vec3(1.) - fColor.rgb);
 	color.a = texval.a * fColor.a;
 	gl_FragColor = color;
 }
-        );
+);
 
 Shader *shader_new(GLuint prog_color, GLuint prog_tex, GLuint vert, GLuint frag_color, GLuint frag_tex)
 {
@@ -125,12 +130,14 @@ Shader *shader_new(GLuint prog_color, GLuint prog_tex, GLuint vert, GLuint frag_
 	s->vars[VAR_LOCATION_COLOR].zoomLocation = glGetUniformLocation(prog_color, "cameraZoom");
 	s->vars[VAR_LOCATION_COLOR].rotationMatrixLocation = glGetUniformLocation(prog_color, "rotationMatrix");
 	s->vars[VAR_LOCATION_COLOR].destinationSizeLocation = glGetUniformLocation(prog_color, "destinationSize");
+	s->vars[VAR_LOCATION_COLOR].sourceSizeLocation = glGetUniformLocation(prog_color, "sourceSize");
 
 	s->vars[VAR_LOCATION_TEX].dxLocation = glGetUniformLocation(prog_tex, "cameraDx");
 	s->vars[VAR_LOCATION_TEX].dyLocation = glGetUniformLocation(prog_tex, "cameraDy");
 	s->vars[VAR_LOCATION_TEX].zoomLocation = glGetUniformLocation(prog_tex, "cameraZoom");
 	s->vars[VAR_LOCATION_TEX].rotationMatrixLocation = glGetUniformLocation(prog_tex, "rotationMatrix");
 	s->vars[VAR_LOCATION_TEX].destinationSizeLocation = glGetUniformLocation(prog_tex, "destinationSize");
+	s->vars[VAR_LOCATION_TEX].sourceSizeLocation = glGetUniformLocation(prog_tex, "sourceSize");
 
 	return s;
 }

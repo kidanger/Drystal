@@ -249,7 +249,9 @@ int mlua_set_texture_system(lua_State* L)
 
 	System* system = pop_system(L, 1);
 	Surface* surface = pop_surface(L, 2);
-	system_set_texture(system, surface);
+	lua_Number x = luaL_checknumber(L, 3);
+	lua_Number y = luaL_checknumber(L, 4);
+	system_set_texture(system, surface, x, y);
 	return 0;
 }
 

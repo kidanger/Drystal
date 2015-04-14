@@ -336,6 +336,8 @@ void buffer_draw(Buffer *b, float dx, float dy)
 	glUniform1f(shader->vars[locationIndex].zoomLocation, b->camera->zoom);
 	glUniformMatrix2fv(shader->vars[locationIndex].rotationMatrixLocation, 1, GL_FALSE, b->camera->matrix);
 	glUniform2f(shader->vars[locationIndex].destinationSizeLocation, b->draw_on->texw, b->draw_on->texh);
+	if (b->draw_from)
+		glUniform2f(shader->vars[locationIndex].sourceSizeLocation, b->draw_from->texw, b->draw_from->texh);
 
 	GLint draw_type;
 	if (b->type == POINT_BUFFER) {

@@ -298,10 +298,10 @@ Drawing primitives
 
    Draws a point at the given coordinate and with given size.
 
-.. lua:function:: draw_point_tex(x, y, size)
+.. lua:function:: draw_point_tex(sourcex, sourcey, x, y, size)
 
    Draws a textured point at the given coordinate and with given size.
-   The point will be textured with the entire surface bound to :lua:data:`current_draw_from`.
+   The point will be textured with the surface bound to :lua:data:`current_draw_from`, starting from ``sourcex, sourcey`` to ``sourcex+64, sourcey+64``.
 
 .. lua:function:: draw_line(x1, y1, x2, y2)
 
@@ -762,9 +762,10 @@ Particle System
 
       Adds a random color at a desired particle's lifetime.
 
-   .. lua:method:: set_texture(tex: Surface)
+   .. lua:method:: set_texture(tex: Surface, sourcex, sourcey)
 
-      Sets the texture of the particles. By default, the system doesn't have texture, particles will be represented by colored squares.
+      Sets the texture of the particles. See :lua:func:`drystal.draw_point_tex` for details about ``sourcex`` and ``sourcey``.
+      By default, the system doesn't have texture, particles will be represented by colored squares.
 
    .. lua:method:: set_position(x: float, y: float)
 
