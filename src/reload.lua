@@ -46,6 +46,16 @@ function lume.hotswap(modname)
 				_G[k] = v
 			end
 		end
+		if type(newmod) == 'table' then
+			for k, v in pairs(newmod) do
+				newmod[k] = nil
+			end
+			newmod.__index = oldmod
+			newmod.__newindex = function(t, k, v)
+				oldmod[k] = v
+			end
+			setmetatable(newmod, newmod)
+		end
 	end, onerror)
 	package.loaded[modname] = oldmod
 	if err then return nil, err end

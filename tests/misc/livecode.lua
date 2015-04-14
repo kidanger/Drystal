@@ -1,8 +1,9 @@
 local drystal = require 'drystal'
-local l = require 'dir.livecode2'
+local L = require 'dir.livecode2'
 
 drystal.resize(300, 200)
 
+local l = L.new()
 print('value:', l.value)
 
 local old
