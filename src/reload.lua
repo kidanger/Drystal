@@ -77,11 +77,14 @@ function drystal.hotswap(filename)
 	return true
 end
 
+drystal.reload_callbacks = {}
+
 function drystal._reload_files(files)
 	for _, file in ipairs(files) do
 		if not drystal.file_exists(file) then
 			goto continue
 		end
+
 		if drystal.hotswap(file) then
 			drystal.log_warning('Hotswapped: ' .. file)
 		elseif drystal.reload_sound and drystal.reload_sound(file) then
@@ -89,10 +92,21 @@ function drystal._reload_files(files)
 		elseif drystal.reload_surface and drystal.reload_surface(file) then
 			drystal.log_warning('Reloaded: ' .. file)
 		end
+
+		for expr, callback in pairs(drystal.reload_callbacks) do
+			if file:match(expr) then
+				callback(file)
+			end
+		end
+
 		::continue::
 	end
 
 	-- run if there are no errors
 	return not next(errors)
+end
+
+function drystal.set_reload_callback(expr, cb)
+	drystal.reload_callbacks[expr] = cb
 end
 
