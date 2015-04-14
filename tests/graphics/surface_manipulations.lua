@@ -11,6 +11,7 @@ varying vec4 fColor;
 varying vec2 fTexCoord;
 
 uniform vec2 destinationSize;
+uniform vec2 sourceSize;
 
 #define pi ]]..math.pi..[[
 
@@ -28,7 +29,7 @@ void main()
 
 	gl_Position = vec4(pos, 0., 1.);
 	fColor = color;
-	fTexCoord = texCoord;
+	fTexCoord = texCoord / sourceSize;
 }
 ]]
 

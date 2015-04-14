@@ -16,6 +16,7 @@ varying vec4 fColor;
 varying vec2 fTexCoord;
 
 uniform vec2 destinationSize;
+uniform vec2 sourceSize;
 
 uniform float mx;
 uniform float my;
@@ -27,7 +28,7 @@ void main()
 	gl_Position = vec4(pos, mx*my+pos.x*pos.y, 1.0);
 	vec3 offcolor = vec3(pos, pos.x + pos.y) - vec3(mx, my, mx*my);
 	fColor = color - vec4(offcolor, 0.);
-	fTexCoord = texCoord;
+	fTexCoord = texCoord / sourceSize;
 }
 ]]
 local fragcolor = [[

@@ -36,13 +36,13 @@ int mlua_new_shader(lua_State* L)
 	const char *vert = NULL, *frag_color = NULL, *frag_tex = NULL;
 	// strings can be nil
 	if (lua_gettop(L) >= 1) { // one argument, it's the vertex shader
-		vert = luaL_checkstring(L, 1);
+		vert = lua_tostring(L, 1);
 	}
 	if (lua_gettop(L) >= 2) {
-		frag_color = luaL_checkstring(L, 2);
+		frag_color = lua_tostring(L, 2);
 	}
 	if (lua_gettop(L) >= 3) {
-		frag_tex = luaL_checkstring(L, 3);
+		frag_tex = lua_tostring(L, 3);
 	}
 	char* error;
 	Shader* shader = display_new_shader(vert, frag_color, frag_tex, &error);
