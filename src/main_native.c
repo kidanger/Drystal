@@ -60,10 +60,19 @@ static int start_livecoding(const char *filename)
 
 	r = livecoding_watch_directory_recursively(watched_directory);
 	if (r < 0) {
-		log_error("Cannot watch %s for livecoding: %s", watched_directory, strerror(-r));
+		log_error("Cannot watch the directory '%s' for livecoding: %s", watched_directory, strerror(-r));
 		free(filename_dup);
 		livecoding_quit();
 		return r;
+	}
+
+	if (!files_are_same(watched_directory, ".")) {
+		r = livecoding_watch_directory_recursively(".");
+		if (r < 0) {
+			log_error("Cannot watch the directory '.' for livecoding: %s", strerror(-r));
+			livecoding_quit();
+			return r;
+		}
 	}
 
 	free(filename_dup);
