@@ -51,9 +51,6 @@ function lume.hotswap(modname)
 				newmod[k] = nil
 			end
 			newmod.__index = oldmod
-			newmod.__newindex = function(t, k, v)
-				oldmod[k] = v
-			end
 			setmetatable(newmod, newmod)
 		end
 	end, onerror)
