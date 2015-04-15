@@ -279,15 +279,23 @@ void display_screen2scene(float x, float y, float * tx, float * ty)
 	Camera *camera = display.camera;
 	Surface *destination = display.current_on;
 
-	float sx = (x + camera->dx) / destination->w - .5f;
-	float sy = (y + camera->dy) / destination->h - .5f;
-	sx *= camera->zoom;
-	sy *= camera->zoom;
+	float sx = x;
+	float sy = y;
 
-	float rx = camera->matrix[0] * sx + camera->matrix[2] * sy;
-	float ry = camera->matrix[1] * sx + camera->matrix[3] * sy;
-	*tx = (rx + .5f) * destination->w;
-	*ty = (ry + .5f) * destination->h;
+	sx -= destination->w / 2.f;
+	sy -= destination->h / 2.f;
+	sx /= camera->zoom;
+	sy /= camera->zoom;
+	float rx = cosf(-camera->angle) * sx - sinf(-camera->angle) * sy;
+	float ry = sinf(-camera->angle) * sx + cosf(-camera->angle) * sy;
+	rx += destination->w / 2.f;
+	ry += destination->h / 2.f;
+
+	rx -= camera->dx;
+	ry -= camera->dy;
+
+	*tx = rx;
+	*ty = ry;
 }
 
 void display_show_cursor(bool b)
