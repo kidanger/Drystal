@@ -138,7 +138,7 @@ def prepare_webbuild(release=False, disabled_modules=None):
 
     if release:
         directory = BUILD_WEB_RELEASE
-        build_type = 'Release'
+        build_type = 'MinSizeRel'
 
     for d in disabled_modules:
         disabled_modules_prefixed += ['BUILD_' + d.upper() + '=OFF']

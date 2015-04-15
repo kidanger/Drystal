@@ -17,6 +17,13 @@ local function compute(n)
 	return acc
 end
 
+local function compute_int(n)
+	local acc = 1
+	for i = 1, n do
+		acc = acc * 2 - n / 10
+	end
+	return acc
+end
 
 function drystal.update(dt)
 	compute(number)

@@ -51,7 +51,6 @@ function draw_sprite_simple:draw()
 	drystal.set_alpha(255)
 	drystal.draw_background()
 
-	local random = math.random
 	for i = 1, number do
 		local x = random(W)
 		local y = random(H)
@@ -64,11 +63,10 @@ function draw_sprite_rotated:draw()
 	drystal.set_alpha(255)
 	drystal.draw_background()
 
-	local random = math.random
 	for i = 1, number do
 		local x = random(W)
 		local y = random(H)
-		local r = random(math.pi)
+		local r = random() * math.pi
 		drystal.draw_sprite_rotated(sprite, x, y, r)
 	end
 end
@@ -78,7 +76,6 @@ function draw_sprite_resized:draw()
 	drystal.set_alpha(255)
 	drystal.draw_background()
 
-	local random = math.random
 	for i = 1, number do
 		local x = random(W)
 		local y = random(H)
@@ -147,6 +144,7 @@ function drystal.update(dt)
 	end
 	tick = tick + 1
 	if tick > 600 and dt - target <= 1 then
+		collectgarbage()
 		print(state.name .. '        ' .. state.max)
 		current_state = current_state + 1
 		if states[current_state] then
