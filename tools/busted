@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+./tools/runner.py -r unittest -- $@
+

@@ -188,7 +188,7 @@ def get_gdb_args(program, pid=None, arguments=None):
     return args
 
 
-def run_native(args):
+def run_native(args, additional_args=None):
     wd, filename = None, None
     if args.dir:
         wd = args.dir
@@ -203,6 +203,8 @@ def run_native(args):
         arguments.append(filename)
     if args.live:
         arguments.append("--livecoding")
+    if additional_args:
+        arguments += additional_args
 
     if args.debug:
         execute(get_gdb_args(program, arguments=arguments), cwd=wd)
@@ -219,7 +221,7 @@ def run_unittest(args):
     args.disable_modules = []
     args.live = False
     args.dir = '.'
-    run_native(args)
+    run_native(args, args.opt)
 
 
 def valid_path(path):
@@ -281,6 +283,7 @@ if __name__ == '__main__':
 
     parser_unittest = subparsers.add_parser('unittest', help='launch unit tests',
                                        description='launch unit tests')
+    parser_unittest.add_argument('opt', help='option for busted', nargs='*')
     parser_unittest.set_defaults(func=run_unittest)
     group = parser_unittest.add_mutually_exclusive_group()
     group.add_argument('-d', '--debug', help='debug with gdb',
