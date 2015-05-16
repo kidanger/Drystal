@@ -403,7 +403,7 @@ def publish(args):
     directory = os.getcwd()
     config, options = load_config(directory)
     destination = options['destination']
-    if not os.path.exists(destionation):
+    if not os.path.exists(destination):
         print(E + 'game not packed, please run \'drystaljs pack\'')
 
     dostash = not execute(['git', 'diff', '--quiet']) or not execute(['git', 'diff', '--cached', '--quiet'])
