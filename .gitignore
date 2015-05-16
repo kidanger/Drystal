@@ -4,3 +4,6 @@ build-*/
 *.swp
 /doc/site/_build/
 /tests/storage/.storage
+.luarocks
+.rocks
+
