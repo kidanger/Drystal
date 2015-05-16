@@ -33,6 +33,7 @@ int mlua_new_buffer(lua_State* L)
 	Buffer* buffer;
 	if (lua_gettop(L) == 1) {
 		lua_Integer size = luaL_checkinteger(L, 1);
+		assert_lua_error(L, size > 0, "size should be positive");
 		buffer = display_new_buffer(size);
 	} else {
 		buffer = display_new_auto_buffer(); // let Display choose a size
@@ -47,9 +48,7 @@ int mlua_use_buffer(lua_State* L)
 	assert(L);
 
 	Buffer* buffer = pop_buffer(L, 1);
-	if (buffer_was_freed(buffer)) {
-		return luaL_error(L, "cannot use() a freed buffer");
-	}
+	assert_lua_error(L, !buffer_was_freed(buffer), "cannot use() a freed buffer");
 	display_use_buffer(buffer);
 	return 0;
 }
@@ -79,9 +78,7 @@ int mlua_reset_buffer(lua_State* L)
 	assert(L);
 
 	Buffer* buffer = pop_buffer(L, 1);
-	if (buffer_was_freed(buffer)) {
-		return luaL_error(L, "cannot reset() a freed buffer");
-	}
+	assert_lua_error(L, !buffer_was_freed(buffer), "cannot reset() a freed buffer");
 	buffer_reset(buffer);
 	return 0;
 }
@@ -91,9 +88,7 @@ int mlua_upload_and_free_buffer(lua_State* L)
 	assert(L);
 
 	Buffer* buffer = pop_buffer(L, 1);
-	if (buffer_was_freed(buffer)) {
-		return luaL_error(L, "cannot upload_and_free() a freed buffer");
-	}
+	assert_lua_error(L, !buffer_was_freed(buffer), "cannot upload_and_free() a freed buffer");
 	buffer_upload_and_free(buffer);
 	return 0;
 }
