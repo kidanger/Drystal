@@ -105,6 +105,7 @@ void display_use_buffer(Buffer *buffer);
 void display_use_default_buffer();
 void display_draw_buffer(Buffer *buffer, float dx, float dy);
 Buffer *display_get_current_buffer(void);
+void display_free_buffer(Buffer* buffer);
 
 void display_flip();
 bool display_is_debug();

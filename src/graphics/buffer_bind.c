@@ -104,7 +104,7 @@ int mlua_free_buffer(lua_State* L)
 
 	log_debug("");
 	Buffer* buffer = pop_buffer(L, 1);
-	buffer_free(buffer);
+	display_free_buffer(buffer);
 	return 0;
 }
 

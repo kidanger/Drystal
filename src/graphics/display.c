@@ -208,11 +208,6 @@ void display_get_alpha(int *a)
 	*a = display.alpha;
 }
 
-Buffer *display_get_current_buffer(void)
-{
-	return display.current_buffer;
-}
-
 /**
  * Screen
  */
@@ -894,5 +889,21 @@ void display_draw_buffer(Buffer* buffer, float dx, float dy)
 	buffer->draw_on = display.current_on;
 	buffer->draw_from = display.current_from;
 	buffer_draw(buffer, dx, dy);
+}
+
+Buffer *display_get_current_buffer(void)
+{
+	return display.current_buffer;
+}
+
+void display_free_buffer(Buffer* buffer)
+{
+	if (!buffer)
+		return;
+
+	if (buffer == display.current_buffer) {
+		display_use_default_buffer();
+	}
+	buffer_free(buffer);
 }
 
