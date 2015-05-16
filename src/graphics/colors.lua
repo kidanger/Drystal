@@ -164,7 +164,7 @@ function Color:hsl()
 end
 
 local function decode_hex_number(str)
-	local b, b2 = str:byte()
+	local b, b2 = str:byte(1, 2)
 	local n
 	if b >= 97 then
 		n = b - 97 + 10
@@ -172,10 +172,10 @@ local function decode_hex_number(str)
 		n = b - 48
 	end
 	if b2 then
-		if b >= 97 then
-			n = n * 16 + b - 97 + 10
+		if b2 >= 97 then
+			n = n * 16 + b2 - 97 + 10
 		else
-			n = n * 16 + b - 48
+			n = n * 16 + b2 - 48
 		end
 	else
 		n = n * 16 + n
