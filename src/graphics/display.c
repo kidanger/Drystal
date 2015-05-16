@@ -847,11 +847,8 @@ void display_free_shader(Shader *shader)
 	if (!shader)
 		return;
 
-	if (shader != display.default_shader) {
-		GLuint prog;
-		glGetIntegerv(GL_CURRENT_PROGRAM, (GLint*)&prog);
-		if (prog == shader->prog_color || prog == shader->prog_tex)
-			display_use_default_shader();
+	if (shader == display.current_shader) {
+		display_use_default_shader();
 	}
 
 	shader_free(shader);
