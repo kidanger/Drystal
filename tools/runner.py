@@ -10,12 +10,7 @@ import signal
 
 from drystaljs import load_config, execute, has_been_modified, generate_html
 from drystaljs import package_data, copy_wget_files, try_launch_browser, copy_drystal
-
-G = '\033[92m'
-I = '\033[95m'
-W = '\033[93m'
-E = '\033[91m'
-N = '\033[m'
+from drystaljs import G, I, W, E, N
 
 BUILD_NATIVE_RELEASE = os.path.abspath('build-native-release')
 BUILD_NATIVE_DEBUG = os.path.abspath('build-native-debug')
@@ -45,7 +40,7 @@ HAS_NINJA = shutil.which('ninja')
 
 
 def signal_handler(signum, frame):
-    print(I + 'Signal ' + str(signum) + ' caught, quitting...')
+    print(I + 'Signal ' + str(signum) + ' caught, quitting...' + N)
     exit(0)
 
 def add_signal_handlers():
@@ -71,18 +66,18 @@ def cmake_update(build, definitions=[], force_clean=False):
         os.mkdir(build)
         defs = ['-D' + d for d in definitions]
         if not execute(['cmake', '..', '-G', generator] + defs, cwd=build):
-            print(E + 'cmake failed. Fix CMakeLists.txt and try again!', N)
+            print(E + 'cmake failed. Fix CMakeLists.txt and try again!' + N)
             clean(build)
             sys.exit(1)
     if not execute([builder], cwd=build):
-        print(E + builder, 'failed, stopping.', N)
+        print(E + builder, 'failed, stopping.' + N)
         sys.exit(1)
 
 
 def run_target(build, target):
     builder = HAS_NINJA and 'ninja' or 'make'
     if not execute([builder, target], cwd=build):
-        print(E + builder, target, 'failed, stopping.', N)
+        print(E + builder, target, 'failed, stopping.' + N)
         sys.exit(1)
 
 
@@ -171,8 +166,8 @@ def run_repack(args):
 
 def run_web(args):
     if not EMSCRIPTEN_ROOT:
-        print(E + 'Failed to build web version')
-        print(E + 'EMSCRIPTEN environment variable should contain the path to your emscripten installation')
+        print(E + 'Failed to build web version' + N)
+        print(E + 'EMSCRIPTEN environment variable should contain the path to your emscripten installation' + N)
         sys.exit(1)
 
     run_repack(args)

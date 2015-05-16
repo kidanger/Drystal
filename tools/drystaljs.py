@@ -15,11 +15,13 @@ BROWSERS = (
     'firefox',
 )
 
-G = '\033[92m'
-I = '\033[95m'
-W = '\033[93m'
-E = '\033[91m'
-N = '\033[m'
+G, I, W, E, N = '', '', '', '', ''
+if sys.stdout.isatty():
+    G = '\033[92m'
+    I = '\033[95m'
+    W = '\033[93m'
+    E = '\033[91m'
+    N = '\033[m'
 
 DEFAULT_DRYSTAL_CFG = """
 [options]
@@ -106,7 +108,8 @@ def execute(args, fork=False, cwd=None, stdin=None, stdout=None):
     else:
         strcmd = '$ ' + strcmd
 
-    print(I + strcmd, N)
+    print(I + strcmd + N)
+    sys.stdout.flush()
     try:
         if fork:
             subprocess.Popen(args, cwd=cwd, stdin=stdin, stdout=stdout)
@@ -152,9 +155,9 @@ def load_config(from_directory):
     cfg = locate_recursively(os.path.abspath(from_directory),
                              os.getcwd(), 'drystal.cfg')
     if not cfg:
-        print(E + 'cannot find drystal.cfg', N)
+        print(E + 'cannot find drystal.cfg' + N)
         sys.exit(1)
-    print(G, '- reading configuration from', cfg, N)
+    print(G, '- reading configuration from', cfg + N)
     config.read(cfg)
     return config, config_get_options(config)
 
@@ -184,7 +187,7 @@ def config_get_options(config):
     options = {}
 
     if 'options' not in config:
-        print(E + '\'options\' section not found in configuration', N)
+        print(E + '\'options\' section not found in configuration' + N)
         sys.exit(1)
 
     def fill(opt, default=None):
@@ -193,7 +196,7 @@ def config_get_options(config):
         elif default:
             options[opt] = default
         else:
-            print(E + 'option \'' + opt + '\' not found in configuration', N)
+            print(E + 'option \'' + opt + '\' not found in configuration' + N)
             sys.exit(1)
 
     fill('version')
@@ -233,22 +236,22 @@ def package_data(path, config, options, verbose=False):
                 dirs.append(dest)
                 files.append((full, dest))
                 if verbose:
-                    print(G, '\t+ ', dest + '/', N)
+                    print(G, '\t+ ', dest + '/' + N)
             elif os.path.isfile(full):
                 if config_include_file(config, directory, f):
                     if verbose:
-                        print(G, '\t+ ', dest, N)
+                        print(G, '\t+ ', dest + N)
                     files.append((full, dest))
                 else:
                     if verbose:
-                        print(W, '\t~ ', dest, N)
+                        print(W, '\t~ ', dest + N)
 
         # collect directories after files
         for d in dirs:
             collect(path, d)
 
     if verbose:
-        print(G, '- collecting files', N)
+        print(G, '- collecting files' + N)
     collect(path, '')
 
     zipfullpath = os.path.join(options['destination'], options['zip'])
@@ -258,7 +261,7 @@ def package_data(path, config, options, verbose=False):
 
 
 def copy_wget_files(path, config, options, verbose=False):
-    print(G, '- copying wgot files', N)
+    print(G, '- copying wgot files' + N)
     files = []
 
     def collect(path, directory):
@@ -284,7 +287,7 @@ def copy_wget_files(path, config, options, verbose=False):
             os.makedirs(dir)
 
         if verbose:
-            print(G, '\t@ ', f, N)
+            print(G, '\t@ ', f + N)
         src = os.path.join(path, f)
         dst = os.path.join(options['destination'], f)
         if has_been_modified(src, dst):
@@ -292,7 +295,7 @@ def copy_wget_files(path, config, options, verbose=False):
 
 
 def wget(url, dest):
-    print(G, '- wget', dest, N)
+    print(G, '- wget', dest + N)
     try:
         response = urllib.request.urlopen(url)
         open(dest, 'wb').write(response.read())
@@ -305,7 +308,7 @@ def generate_html(gamedir, options):
     htmlfile = locate_recursively(os.path.abspath(gamedir), os.getcwd(), options['htmltemplate'])
 
     if not htmlfile:
-        print(E + 'cannot find', options['htmltemplate'], N)
+        print(E + 'cannot find', options['htmltemplate'] + N)
         sys.exit(1)
 
     html = open(htmlfile, 'r').read()
@@ -314,7 +317,7 @@ def generate_html(gamedir, options):
     argumentsstr = DRYSTAL_ADD_ARGUMENTS.replace('ARGS',
             str(['--zip=' + options['zip'], options['arguments']]))
     html = html.replace('{{{DRYSTAL_ADD_ARGUMENTS}}}', argumentsstr)
-    print(G, '- generate', options['html'], N)
+    print(G, '- generate', options['html'] + N)
     open(os.path.join(options['destination'], options['html']), 'w').write(html)
 
 
@@ -323,11 +326,11 @@ def download_drystal(options):
     destjs = os.path.join(options['destination'], 'drystal.js')
     if not os.path.exists(destjs) and not wget(url + '/drystal.js', destjs):
         print(E + 'cannot download drystal.js, are you sure the version \''
-                + options['version'] + '\' exists?', N)
+                + options['version'] + '\' exists?' + N)
         sys.exit(1)
     if not os.path.exists(destjs + '.mem') and not wget(url + '/drystal.js.mem', destjs + '.mem'):
         print(E + 'cannot download drystal.js.mem, are you sure the version \''
-                + options['version'] + '\' exists?', N)
+                + options['version'] + '\' exists?' + N)
         sys.exit(1)
 
 def copy_drystal(options, directory):
@@ -338,10 +341,10 @@ def copy_drystal(options, directory):
     jsmem = os.path.join(destination, 'drystal.js.mem')
 
     if has_been_modified(srcjs, js):
-        print(G, '- copy drystal.js', N)
+        print(G, '- copy drystal.js' + N)
         shutil.copyfile(srcjs, js)
     if os.path.exists(srcjsmem) and has_been_modified(srcjsmem, jsmem):
-        print(G, '- copy drystal.js.mem', N)
+        print(G, '- copy drystal.js.mem' + N)
         shutil.copyfile(srcjsmem, jsmem)
 
 
@@ -349,22 +352,22 @@ def try_launch_browser(options):
     for b in BROWSERS:
         cmd = b.split(' ') + [os.path.join(os.getcwd(), 'web', 'index.html')]
         if execute(cmd):
-            print(G, '- page opened in', cmd[0], N)
+            print(G, '- page opened in', cmd[0] + N)
             break
     else:
-        print(W, '! unable to open a browser', N)
+        print(W, '! unable to open a browser' + N)
 
 
 def init(args):
     if not os.path.exists('drystal.cfg'):
-        print(G, '- create drystal.cfg', N)
+        print(G, '- create drystal.cfg' + N)
         open('drystal.cfg', 'w').write(DEFAULT_DRYSTAL_CFG)
 
     directory = os.getcwd()
     config, options = load_config(directory)
 
     if not os.path.exists(options['htmltemplate']):
-        print(G, '- create', options['htmltemplate'], N)
+        print(G, '- create', options['htmltemplate'] + N)
         open(options['htmltemplate'], 'w').write(DEFAULT_INDEX_HTML)
 
 
@@ -373,7 +376,7 @@ def clean(args):
     config, options = load_config(directory)
     destination = options['destination']
     if os.path.exists(destination):
-        print(G, '- remove', destination, N)
+        print(G, '- remove', destination + N)
         shutil.rmtree(destination)
 
 
@@ -404,11 +407,11 @@ def publish(args):
     config, options = load_config(directory)
     destination = options['destination']
     if not os.path.exists(destination):
-        print(E + 'game not packed, please run \'drystaljs pack\'')
+        print(E + 'game not packed, please run \'drystaljs pack\'' + N)
 
     dostash = not execute(['git', 'diff', '--quiet']) or not execute(['git', 'diff', '--cached', '--quiet'])
     if dostash:
-        print(G, '- stashing', N)
+        print(G, '- stashing' + N)
         execute(['git', 'stash', '--quiet'])
     execute(['git', 'checkout', options['publish']])
     files = []
@@ -419,23 +422,23 @@ def publish(args):
                 shutil.copytree(full, f)
             else:
                 shutil.copy(full, f)
-            print(I, '- copy', f, N)
+            print(I, '- copy', f + N)
         except OSError:
-            print(W, '- don\'t copy', f + ', already there', N)
+            print(W, '- don\'t copy', f + ', already there' + N)
         files.append(f)
     execute(['git', 'add'] + files)
     docommit = not execute(['git', 'diff', '--quiet']) or not execute(['git', 'diff', '--cached', '--quiet'])
     if docommit:
-        print(G, '- commiting', N)
+        print(G, '- commiting' + N)
         execute(['git', 'commit'])
         if not args.no_push:
-            print(G, '- pushing', N)
+            print(G, '- pushing' + N)
             execute(['git', 'push'])
     else:
-        print(G, '- nothing to commit', N)
+        print(G, '- nothing to commit' + N)
     execute(['git', 'checkout', 'master'])
     if dostash:
-        print(G, '- poping stash', N)
+        print(G, '- poping stash' + N)
         execute(['git', 'stash', 'pop', '--quiet'])
 
 
