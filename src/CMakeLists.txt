@@ -156,7 +156,7 @@ if(NOT DEFINED EMSCRIPTEN)
 	add_definitions("-DDRYSTAL_VERSION=\"${DRYSTAL_VERSION}\"")
 endif()
 
-target_link_libraries(${DRYSTAL_OUT} lua)
+target_link_libraries(${DRYSTAL_OUT} lualib)
 if(BUILD_UTILS)
 	target_link_libraries(${DRYSTAL_OUT} lua-cjson)
 endif()

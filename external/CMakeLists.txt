@@ -37,21 +37,28 @@ set(LIB_C  lua/src/lauxlib.c
 
 include_directories(lua/src)
 
-add_library(lua STATIC ${CORE_C} ${LIB_C})
+add_library(lualib STATIC ${CORE_C} ${LIB_C})
 
 add_definitions(-DLUA_COMPAT_5_1)
 add_definitions(-DLUA_COMPAT_5_2)
 if(NOT DEFINED EMSCRIPTEN)
+    add_executable(lua ${CORE_C} ${LIB_C} lua/src/lua.c)
+    target_link_libraries(lua m)
+
     if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
         add_definitions(-DLUA_USE_MACOSX)
         find_library(DL_LIBRARY NAMES dl)
+        target_link_libraries(lualib ${DL_LIBRARY})
         target_link_libraries(lua ${DL_LIBRARY})
     elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
         add_definitions(-DLUA_USE_WIN)
     elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         add_definitions(-DLUA_USE_LINUX)
         find_library(DL_LIBRARY NAMES dl)
+        find_library(READLINE_LIBRARY NAMES readline)
+        target_link_libraries(lualib ${DL_LIBRARY})
         target_link_libraries(lua ${DL_LIBRARY})
+        target_link_libraries(lua ${READLINE_LIBRARY})
     endif()
 endif()
 
