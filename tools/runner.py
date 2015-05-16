@@ -194,9 +194,14 @@ def get_gdb_args(program, pid=None, arguments=None):
 
 
 def run_native(args):
-    wd, filename = args.PATH, None
-    if os.path.isfile(args.PATH):
-        wd, filename = os.path.split(args.PATH)
+    wd, filename = None, None
+    if args.dir:
+        wd = args.dir
+        filename = args.PATH
+    else:
+        wd = args.PATH
+        if os.path.isfile(args.PATH):
+            wd, filename = os.path.split(args.PATH)
     program, arguments = prepare_native(args.release, False, args.disable_modules)
 
     if filename:  # other main file
@@ -212,6 +217,14 @@ def run_native(args):
         execute(['valgrind'] + VALGRIND_ARGS_MEMCHECK + [program] + arguments, cwd=wd)
     else:
         execute([program] + arguments, cwd=wd)
+
+
+def run_unittest(args):
+    args.PATH = 'tools/unittest.lua'
+    args.disable_modules = []
+    args.live = False
+    args.dir = '.'
+    run_native(args)
 
 
 def valid_path(path):
@@ -236,6 +249,8 @@ if __name__ == '__main__':
     parser_native.add_argument('PATH', help='<directory>[/main.lua]',
                             type=valid_path)
     parser_native.set_defaults(func=run_native)
+    parser_native.add_argument('--dir', help='execute from directory',
+                            type=valid_path)
     parser_native.add_argument('-l', '--live', help='live coding (reload code \
                             when it has been modified)',
                             action='store_true', default=False)
@@ -268,6 +283,17 @@ if __name__ == '__main__':
                             action='store_true', default=False)
     parser_repack.add_argument('-D', '--disable-modules', help='disable modules',
                         nargs='+', choices=['font', 'graphics', 'web', 'utils', 'storage', 'physics', 'particle', 'audio'])
+
+    parser_unittest = subparsers.add_parser('unittest', help='launch unit tests',
+                                       description='launch unit tests')
+    parser_unittest.set_defaults(func=run_unittest)
+    group = parser_unittest.add_mutually_exclusive_group()
+    group.add_argument('-d', '--debug', help='debug with gdb',
+                    action='store_true', default=False)
+    group.add_argument('-p', '--profile', help='profile with valgrind',
+                    action='store_true', default=False)
+    group.add_argument('-m', '--memcheck', help='check memory with valgrind',
+                    action='store_true', default=False)
 
     if len(sys.argv) > 1:
         args = parser.parse_args()
