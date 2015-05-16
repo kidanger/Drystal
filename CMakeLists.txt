@@ -58,7 +58,5 @@ if(BUILD_MANPAGES AND NOT EMSCRIPTEN)
 endif()
 add_subdirectory(tools)
 
-add_definitions(-DLUA_32BITS)
-
 add_subdirectory(external)
 add_subdirectory(src)
