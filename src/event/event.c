@@ -35,15 +35,13 @@ log_category("event");
 
 static int keys_table_ref;
 
-#define TRANSFORM(key) ((((key) >> 16) | (key)) & 0xffff)
-
 static void initialize_keys_mapping(void)
 {
 	lua_State *L = dlua_get_lua_state();
 
 	lua_createtable(L, 0, 118);
 #define ADD_KEY(key, keyname) \
-	lua_pushnumber(L, TRANSFORM(key)); \
+	lua_pushinteger(L, key); \
 	lua_pushliteral(L, keyname); \
 	lua_settable(L, -3)
 
@@ -184,7 +182,7 @@ static void push_keyname(lua_State *L, SDL_Keycode key)
 	assert(L);
 
 	lua_rawgeti(L, LUA_REGISTRYINDEX, keys_table_ref);
-	lua_pushnumber(L, TRANSFORM(key));
+	lua_pushinteger(L, key);
 	lua_rawget(L, -2);
 	if (lua_isstring(L, -1)) {
 		lua_remove(L, lua_gettop(L) - 1);
