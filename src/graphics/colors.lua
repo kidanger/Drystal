@@ -352,8 +352,13 @@ yellow               = drystal.new_color {255,255,0},
 yellowgreen          = drystal.new_color {154,205,50},
 }, {
 	__index = function(self, key)
-		if type(key) == 'string' and key:sub(1, 1) == '#' then
-			return hex_color(key)
+		if type(key) == 'string' then
+			if key:sub(1, 1) == '#' then
+				return hex_color(key)
+			else
+				local c = rawget(self, key:lower())
+				if c then return c end
+			end
 		end
 		error('color ' .. key .. ' does not exist', 3)
 	end
