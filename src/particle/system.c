@@ -90,6 +90,9 @@ void system_draw(System *s, float dx, float dy)
 {
 	assert(s);
 
+	if (!s->used)
+		return;
+
 	Surface* old_surface = display_get_draw_from();
 	if (s->texture) {
 		display_draw_from(s->texture);
