@@ -250,6 +250,11 @@ int mlua_set_filter_surface(lua_State* L)
 
 	Surface* surface = pop_surface(L, 1);
 	FilterMode mode = (FilterMode) luaL_checkinteger(L, 2);
+	assert_lua_error(L, mode == FILTER_NEAREST || mode == FILTER_LINEAR
+					 || mode == FILTER_BILINEAR || mode == FILTER_TRILINEAR,
+					 "set_filter: invalid filter (drystal.filters.nearest, linear/default, bilinear, trilinear)");
+	assert_lua_error(L, !surface->npot || mode == FILTER_NEAREST || mode == FILTER_LINEAR,
+					 "set_filter: invalid filter for NPOT texture");
 	display_set_filter(surface, mode);
 	return 0;
 }
