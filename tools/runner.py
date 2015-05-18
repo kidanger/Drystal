@@ -197,7 +197,7 @@ def run_native(args, additional_args=None):
         wd = args.PATH
         if os.path.isfile(args.PATH):
             wd, filename = os.path.split(args.PATH)
-    program, arguments = prepare_native(args.release, False, args.disable_modules)
+    program, arguments = prepare_native(args.release, args.coverage, args.disable_modules)
 
     if filename:  # other main file
         arguments.append(filename)
@@ -214,6 +214,10 @@ def run_native(args, additional_args=None):
         execute(['valgrind'] + VALGRIND_ARGS_MEMCHECK + [program] + arguments, cwd=wd)
     else:
         execute([program] + arguments, cwd=wd)
+
+    if args.coverage:
+        directory = args.release and BUILD_NATIVE_RELEASE or BUILD_NATIVE_DEBUG
+        run_target(directory, 'coverage-report')
 
 
 def run_unittest(args):
@@ -260,6 +264,8 @@ if __name__ == '__main__':
                     action='store_true', default=False)
     group.add_argument('-m', '--memcheck', help='check memory with valgrind',
                     action='store_true', default=False)
+    group.add_argument('-c', '--coverage', help='enable code coverage',
+                    action='store_true', default=False)
 
     parser_web = subparsers.add_parser('web', help='run in a browser',
                                     description='run in a browser')
@@ -291,6 +297,8 @@ if __name__ == '__main__':
     group.add_argument('-p', '--profile', help='profile with valgrind',
                     action='store_true', default=False)
     group.add_argument('-m', '--memcheck', help='check memory with valgrind',
+                    action='store_true', default=False)
+    group.add_argument('-c', '--coverage', help='enable code coverage',
                     action='store_true', default=False)
 
     if len(sys.argv) > 1:
