@@ -240,7 +240,7 @@ Surface
 
    .. lua:method:: get_pixel(x, y) -> r, g, b, a
 
-      Returns red/green/blue/alpha components at given pixel position. Top-right is at (1, 1) and bottom-left is at (surface.w, surface.h) included.
+      Returns red/green/blue/alpha components at given pixel position. Top-left is at (1, 1) and bottom-right is at (surface.w, surface.h) included.
 
 .. lua:function:: new_surface(width, height)
 
