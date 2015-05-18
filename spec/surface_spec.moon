@@ -65,7 +65,7 @@ describe 'surface', ->
 				\draw_on!
 				drystal.draw_background!
 				drystal.screen\draw_on!
-				assert.color surf, 1, 1, 'red', 255
+				assert.color surf, 1, 1, 'red'
 
 	describe 'set_filter', ->
 
