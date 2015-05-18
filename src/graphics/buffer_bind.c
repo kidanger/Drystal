@@ -90,6 +90,7 @@ int mlua_upload_and_free_buffer(lua_State* L)
 	Buffer* buffer = pop_buffer(L, 1);
 	assert_lua_error(L, !buffer_was_freed(buffer), "cannot upload_and_free() a freed buffer");
 	buffer_upload_and_free(buffer);
+	display_use_default_buffer();
 	return 0;
 }
 
