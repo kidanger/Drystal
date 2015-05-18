@@ -286,8 +286,8 @@ void display_screen2scene(float x, float y, float * tx, float * ty)
 	rx += destination->w / 2.f;
 	ry += destination->h / 2.f;
 
-	rx -= camera->dx;
-	ry -= camera->dy;
+	rx += camera->dx;
+	ry += camera->dy;
 
 	*tx = rx;
 	*ty = ry;

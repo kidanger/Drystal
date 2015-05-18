@@ -53,8 +53,8 @@ function drystal.draw()
 end
 
 function drystal.mouse_motion(x, y)
-	drystal.camera.x = x - 400
-	drystal.camera.y = y - 300
+	drystal.camera.x = 400 - x
+	drystal.camera.y = 300 - y
 end
 function drystal.mouse_press(x, y, b)
 	if b == drystal.buttons.wheel_up then

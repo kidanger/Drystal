@@ -57,7 +57,7 @@ mat2 cameraMatrix = rotationMatrix * cameraZoom;
 void main()
 {
 	gl_PointSize = pointSize * cameraZoom;
-	vec2 position2d = cameraMatrix * (2. * (position - vec2(cameraDx, cameraDy)) / destinationSize - 1.);
+	vec2 position2d = cameraMatrix * (2. * (position + vec2(cameraDx, cameraDy)) / destinationSize - 1.);
 	gl_Position = vec4(position2d, 0.0, 1.0);
 	fColor = color;
 	fTexCoord = texCoord / sourceSize;
