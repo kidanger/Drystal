@@ -4,13 +4,10 @@ describe 'buffer', ->
 
 	before_each ->
 		drystal.use_default_buffer!
-
-	it 'cannot be modified after free', ->
-		with drystal.new_buffer!
-			\upload_and_free!
-			assert.error -> \reset!
-			assert.error -> \use!
-			assert.error -> \upload_and_free!
+		drystal.screen\draw_on!
+		drystal.set_color 'white'
+		drystal.set_alpha 255
+		drystal.draw_background!
 
 	it 'resizes', ->
 		with drystal.new_buffer 10
@@ -22,18 +19,39 @@ describe 'buffer', ->
 		assert.error -> drystal.new_buffer 0
 
 	it 'contains drawing primitives', ->
-		surface = drystal.new_surface 10, 10
-		buffer = drystal.new_buffer!
-		buffer\use!
+		assert.color drystal.screen, 1, 1, 'white'
+		with drystal.new_buffer!
+			\use!
+			drystal.set_color 'blue'
+			drystal.draw_rect 0, 0, 2, 2
 
-		drystal.set_color 'blue'
-		drystal.draw_rect 0, 0, 3, 3
-		assert.color surface, 1, 1, 'black', 0
-		drystal.use_default_buffer!
+			drystal.use_default_buffer!  -- prevent the buffer from being drawn by screen.draw_on
+			assert.color drystal.screen, 1, 1, 'white'
+			\draw!
+			assert.color drystal.screen, 1, 1, 'blue'
 
-		surface\draw_on!
-		buffer\draw!
-		assert.color surface, 1, 1, 'blue', 255
+	it 'contains drawing primitives even when upload_and_free-ed', ->
+		assert.color drystal.screen, 1, 1, 'white'
+		with drystal.new_buffer!
+			\use!
+			drystal.set_color 'blue'
+			drystal.draw_rect 0, 0, 2, 2
+
+			\upload_and_free!
+			assert.color drystal.screen, 1, 1, 'white'
+			\draw!
+			assert.color drystal.screen, 1, 1, 'blue'
+
+	it 'resets correctly', ->
+		with drystal.new_buffer!
+			\use!
+			drystal.set_color 'blue'
+			drystal.draw_rect 0, 0, 2, 2
+
+			\reset!
+			assert.color drystal.screen, 1, 1, 'white'
+			\draw!
+			assert.color drystal.screen, 1, 1, 'white'
 
 	it 'cannot contain lines after draw_rect', ->
 		with drystal.new_buffer!
@@ -67,5 +85,18 @@ describe 'buffer', ->
 			drystal.draw_sprite {x: 0, y: 0, w: 0, h:0}, 0, 0
 			assert.error -> drystal.draw_point 0, 0, 0, 0, 1
 
--- TODO: upload_and_free, reset
+	it 'cannot be modified after upload_and_free', ->
+		with drystal.new_buffer!
+			\upload_and_free!
+			assert.error -> \reset!
+			assert.error -> \use!
+			assert.error -> \upload_and_free!
+
+	it 'should use default buffer after upload_and_free', ->
+		with drystal.new_buffer!
+			\upload_and_free!
+			drystal.set_color 'black'
+			drystal.draw_rect 0, 0, 2, 2
+			drystal.use_default_buffer!
+			assert.color drystal.screen, 1, 1, 'black'
 
