@@ -178,11 +178,18 @@ int mlua_load_surface(lua_State* L)
 	Surface *surface;
 	const char * filename = luaL_checkstring(L, 1);
 	r = display_load_surface(filename, &surface);
-	assert_lua_error(L, r != -E2BIG, "load_surface: surface size must be width > 0 and <= 2048, height > 0 and <= 2048");
-	assert_lua_error(L, r != -ENOTSUP, "load_surface: unsupported format");
-	assert_lua_error(L, r != -EBADMSG, "load_surface: not a PNG");
 	if (r < 0) {
-		return luaL_fileresult(L, 0, filename);
+		lua_pushnil(L);
+		if (r == -E2BIG) {
+			lua_pushliteral(L, "load_surface: surface size must be width > 0 and <= 2048, height > 0 and <= 2048");
+		} else if (r == -ENOTSUP) {
+			lua_pushliteral(L, "load_surface: unsupported format");
+		} else if (r == -EBADMSG) {
+			lua_pushliteral(L, "load_surface: not a PNG");
+		} else {
+			lua_pushfstring(L, "%s: %s", "load_surface", strerror(errno));
+		}
+		return 2;
 	}
 	push_surface(L, surface);
 	return 1;
