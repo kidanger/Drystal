@@ -5,6 +5,8 @@ describe 'surface', ->
 	before_each ->
 		drystal.set_alpha 255
 		drystal.set_color 'black'
+		drystal.screen\draw_on!
+		drystal.draw_background!
 
 	it 'can be created', ->
 		assert.userdata drystal.new_surface 10, 10
@@ -19,6 +21,26 @@ describe 'surface', ->
 		with surf = drystal.new_surface 10, 10
 			assert.color surf, 1, 1, 'black', 0
 
+	it 'can be drawn on', ->
+		with surf = drystal.new_surface 10, 10
+			\draw_on!
+
+			drystal.set_color 'green'
+			drystal.draw_background!
+			assert.color surf, 1, 1, 'green'
+
+			drystal.set_color 'blue'
+			drystal.draw_rect 0, 0, 5, 5
+			assert.color surf, 1, 1, 'blue'
+
+	it 'can be drawn from', ->
+		drystal.set_color 'white'
+		with drystal.load_surface 'spec/32x32.png'
+			\draw_from!
+			drystal.draw_sprite {x:0, y:0, w:.w, h:.h}, 0, 0
+			assert.color drystal.screen, 1, 1, 'black'
+			assert.color drystal.screen, 2, 1, 'red'
+
 	describe 'load', ->
 
 		it 'loads power-of-two images', ->
@@ -27,8 +49,8 @@ describe 'surface', ->
 				assert.equals 32, surf.w
 				assert.equals 32, surf.h
 				assert.color surf, 1, 1, 'black', 0
-				assert.color surf, 2, 1, 'red', 255
-				assert.color surf, 3, 1, 'blue', 255
+				assert.color surf, 2, 1, 'red'
+				assert.color surf, 3, 1, 'blue'
 
 		it 'loads non-power-of-two images', ->
 			with surf = drystal.load_surface 'spec/40x40.png'
@@ -36,8 +58,8 @@ describe 'surface', ->
 				assert.equals 40, surf.w
 				assert.equals 40, surf.h
 				assert.color surf, 1, 1, 'black', 0
-				assert.color surf, 2, 1, 'red', 255
-				assert.color surf, 3, 1, 'blue', 255
+				assert.color surf, 2, 1, 'red'
+				assert.color surf, 3, 1, 'blue'
 
 		it 'returns an error if the file doesn\'t exist', ->
 			with ok, err = drystal.load_surface 'no-file'
@@ -114,6 +136,4 @@ describe 'surface', ->
 				assert.error -> \set_filter drystal.filters.bilinear
 				assert.error -> \set_filter drystal.filters.trilinear
 				assert.error -> \set_filter -1
-
--- TODO: draw_on, draw_from
 
