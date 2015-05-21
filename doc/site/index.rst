@@ -37,7 +37,7 @@ Features
 
 Some additional modules:
 
-- **Truetype**: loads .ttf files and render. Using the given syntax, you can highlight words with color/size change.
+- **Font**: loads .ttf files and render. Using the given syntax, you can highlight words with color/size change.
 - **Web**: adds a wget function to download content (ex: download sounds if needed) or run JS code
 - **Physics**: uses Box2D to compute physics simulation (not a one-to-one binding)
 - **Particle** systems to easily improve the game aspect

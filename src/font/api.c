@@ -19,7 +19,7 @@
 #include "font.h"
 #include "api.h"
 
-BEGIN_MODULE(truetype)
+BEGIN_MODULE(font)
 	DECLARE_FUNCTION(load_font)
 
 	BEGIN_CLASS(font)

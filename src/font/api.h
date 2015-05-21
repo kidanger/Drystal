@@ -18,5 +18,5 @@
 
 #include "module.h"
 
-DECLARE_MODULE(truetype)
+DECLARE_MODULE(font)
 

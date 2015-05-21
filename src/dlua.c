@@ -33,7 +33,7 @@
 #include "physics/api.hpp"
 #endif
 #ifdef BUILD_FONT
-#include "truetype/api.h"
+#include "font/api.h"
 #endif
 #ifdef BUILD_PARTICLE
 #include "particle/api.h"
@@ -163,7 +163,7 @@ static void register_modules(void)
 	REGISTER_MODULE(storage, dlua.L);
 #endif
 #ifdef BUILD_FONT
-	REGISTER_MODULE(truetype, dlua.L);
+	REGISTER_MODULE(font, dlua.L);
 #endif
 #ifdef BUILD_WEB
 	REGISTER_MODULE(web, dlua.L);
