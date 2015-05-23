@@ -37,6 +37,8 @@ int load_luafiles(lua_State* L, int traceback_index)
 foreach (luacode ${LUAFILES_LIST})
     file(READ ${luacode} FILE_CONTENT)
     get_filename_component(luacode_short ${luacode} NAME)
+    # \\ => \\\\
+    string(REGEX REPLACE "\\\\\\\\" "\\\\\\\\\\\\\\\\" FILE_CONTENT "${FILE_CONTENT}")
     # \n => \\n
     string(REGEX REPLACE "\\\\\\n" "\\\\\\\\n" FILE_CONTENT "${FILE_CONTENT}")
     # " => \"
