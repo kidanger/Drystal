@@ -33,7 +33,7 @@ static ALCdevice* device;
 static float globalSoundVolume = 1.;
 static float globalMusicVolume = 1.;
 
-Source sources[NUM_SOURCES];
+static Source sources[NUM_SOURCES];
 
 static void audio_init(void)
 {

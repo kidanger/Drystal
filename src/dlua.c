@@ -68,7 +68,7 @@ log_category("lua");
 
 static int luaopen_drystal(lua_State*); // defined at the end of this file
 
-struct DrystalLua {
+static struct DrystalLua {
 	lua_State* L;
 	int drystal_table_ref;
 	bool library_loaded;

@@ -48,7 +48,7 @@
 
 log_category("engine");
 
-struct Engine {
+static struct Engine {
 	unsigned long target_ms_per_frame;
 	bool run;
 	bool loaded;

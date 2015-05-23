@@ -39,7 +39,7 @@
 
 log_category("display");
 
-struct Display {
+static struct Display {
 	Buffer *default_buffer;
 	SDL_Window *sdl_window;
 	SDL_GLContext *gl_context;
