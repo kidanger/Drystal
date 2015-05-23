@@ -1,7 +1,7 @@
 drystal = require 'drystal'
 
 describe 'surface', ->
-	
+
 	before_each ->
 		drystal.set_alpha 255
 		drystal.set_color 'black'
@@ -68,6 +68,11 @@ describe 'surface', ->
 
 		it 'returns an error if the file isn\'t an image', ->
 			with ok, err = drystal.load_surface 'spec/surface_spec.moon'
+				assert.nil ok
+				assert.string err
+
+		it 'returns an error if the file is corrupted', ->
+			with ok, err = drystal.load_surface 'spec/bad_32x32.png'
 				assert.nil ok
 				assert.string err
 
