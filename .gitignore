@@ -6,4 +6,5 @@ build-*/
 /tests/storage/.storage
 .luarocks
 .rocks
+.storage
 
