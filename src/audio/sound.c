@@ -117,9 +117,9 @@ void sound_free(Sound *s)
 	if (!s)
 		return;
 
-	free(s->filename);
 	// if there's no more source playing the sound, free it
 	if (audio_try_free_sound(s)) {
+		free(s->filename);
 		alDeleteBuffers(1, &s->alBuffer);
 		audio_check_error();
 		free(s);
