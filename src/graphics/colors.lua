@@ -360,7 +360,7 @@ yellowgreen          = drystal.new_color {154,205,50},
 				if c then return c end
 			end
 		end
-		error('color ' .. key .. ' does not exist', 3)
+		error('color ' .. key .. ' does not exist')
 	end
 })
 
