@@ -5,6 +5,8 @@ package.cpath = './.rocks/lib/lua/5.3/?.so;' .. package.cpath
 
 require "moonscript"
 require 'spec.tools'
+drystal = require 'drystal'
+os.exit = drystal.stop
 
 require 'busted.runner' {
 	batch=true,
