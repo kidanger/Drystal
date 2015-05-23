@@ -194,7 +194,6 @@ int mlua_free_music(lua_State *L)
 {
 	assert(L);
 
-	log_debug("");
 	Music* music = pop_music(L, 1);
 	music_free(music);
 	return 0;

@@ -87,7 +87,6 @@ int mlua_free_shader(lua_State* L)
 {
 	assert(L);
 
-	log_debug("");
 	Shader* shader = pop_shader(L, 1);
 	display_free_shader(shader);
 	return 0;

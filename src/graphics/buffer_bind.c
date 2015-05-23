@@ -98,7 +98,6 @@ int mlua_free_buffer(lua_State* L)
 {
 	assert(L);
 
-	log_debug("");
 	Buffer* buffer = pop_buffer(L, 1);
 	display_free_buffer(buffer);
 	return 0;

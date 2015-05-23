@@ -124,7 +124,6 @@ int mlua_free_sound(lua_State *L)
 {
 	assert(L);
 
-	log_debug("");
 	Sound* sound = pop_sound(L, 1);
 	sound_free(sound);
 	return 0;

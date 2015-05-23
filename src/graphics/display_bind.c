@@ -215,7 +215,6 @@ int mlua_free_surface(lua_State* L)
 {
 	assert(L);
 
-	log_debug("");
 	Surface* surface = pop_surface(L, 1);
 	display_free_surface(surface);
 	return 0;
