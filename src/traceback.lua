@@ -190,7 +190,7 @@ local function show_variable(self, name, value)
 		local info = self.getinfo(value, "nS")
 		local fun_name = info.name or m_known_functions[value] or m_user_known_functions[value]
 		if info.what == "C" then
-			valuestr = C .. (fun_name and ("function: " .. fun_name) or tostring(value))
+			valuestr = 'C' .. (fun_name and ("function: " .. fun_name) or tostring(value))
 		else
 			local source = info.short_src
 			if source:sub(2,7) == "string" then
