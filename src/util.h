@@ -23,6 +23,7 @@ extern "C" {
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "macro.h"
 
@@ -58,8 +59,8 @@ bool is_directory(const char *directory);
 bool files_are_same(const char *filea, const char *fileb);
 void *xrealloc(void **p, size_t *new_nmemb, size_t need, size_t size, unsigned min_nmemb);
 bool endswith(const char *s, const char *postfix);
-bool on_tty(void);
-bool use_colors(void);
+bool on_tty(int fd);
+bool stderr_use_colors(void);
 
 static inline bool startswith(const char *s, const char *prefix)
 {

@@ -16,6 +16,7 @@
  */
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
 #include <time.h>
@@ -29,23 +30,27 @@
 #include "macro.h"
 #include "log.h"
 
-bool use_colors(void)
+bool stderr_use_colors(void)
 {
 #ifdef EMSCRIPTEN
+	(void) file;
 	return false;
 #else
-	return on_tty();
+	return on_tty(STDERR_FILENO);
 #endif
 }
 
-bool on_tty(void)
+bool on_tty(int fd)
 {
-	static int cached_on_tty = -1;
+	static int cached_on_tty[256];
 
-	if (cached_on_tty < 0)
-		cached_on_tty = isatty(STDOUT_FILENO) > 0;
+	if (fd >= 256)
+		return isatty(fd) > 0;
 
-	return cached_on_tty;
+	if (cached_on_tty[fd] == 0)
+		cached_on_tty[fd] = isatty(fd) > 0 ? 2 : 1;
+
+	return cached_on_tty[fd] == 2;
 }
 
 char *xstrdup(const char *s)

@@ -31,16 +31,16 @@ _printf_(3, 0) static void log_internalv(LogLevel level, const char *category, c
 {
 	switch (level) {
 		case LOG_ERROR:
-			log_message(use_colors() ? ANSI_HIGHLIGHT_RED_ON    "ERR " ANSI_RESET : "ERR ", category, format, ap);
+			log_message(stderr_use_colors() ? ANSI_HIGHLIGHT_RED_ON    "ERR " ANSI_RESET : "ERR ", category, format, ap);
 			break;
 		case LOG_WARNING:
-			log_message(use_colors() ? ANSI_HIGHLIGHT_YELLOW_ON "WARN" ANSI_RESET : "WARN", category, format, ap);
+			log_message(stderr_use_colors() ? ANSI_HIGHLIGHT_YELLOW_ON "WARN" ANSI_RESET : "WARN", category, format, ap);
 			break;
 		case LOG_INFO:
-			log_message(use_colors() ? ANSI_HIGHLIGHT_ON        "INFO" ANSI_RESET : "INFO", category, format, ap);
+			log_message(stderr_use_colors() ? ANSI_HIGHLIGHT_ON        "INFO" ANSI_RESET : "INFO", category, format, ap);
 			break;
 		case LOG_DEBUG:
-			log_message(use_colors() ? ANSI_HIGHLIGHT_GRAY_ON   "DBG " ANSI_RESET : "DBG ", category, format, ap);
+			log_message(stderr_use_colors() ? ANSI_HIGHLIGHT_GRAY_ON   "DBG " ANSI_RESET : "DBG ", category, format, ap);
 			break;
 	}
 }
