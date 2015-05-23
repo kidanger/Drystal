@@ -23,6 +23,10 @@ local function C(str, c)
 	return ''
 end
 
+local function remove_colors(str)
+	return str:gsub('(\x1B%[.-m)', '')
+end
+
 local m_known_tables = { [_G] = "_G" }
 local m_user_known_tables = {}
 local m_known_functions = {}
@@ -304,13 +308,32 @@ local function enhance_line(line, err)
 		errvariable = errvariable or err:match("attempt to .- a .- value %(" .. k .. " '(.-)'%)")
 	end
 	if errvariable then
-		local c
-		repeat
-			line, c = line:gsub('([^%w_])(' .. errvariable .. ')([^%w_])',
-					   '%1' .. C_BACKGROUND_RED .. '%2' .. C_BACKGROUND_RESET .. '%3')
-		until c == 0
+		line = '-' .. line .. '-'
+		print(line)
+		while true do
+			local old = line
+			line = line:gsub('([^%w_])(' .. errvariable .. ')([^%w_])',
+					'%1' .. C_BACKGROUND_RED .. '%2' .. C_BACKGROUND_RESET .. '%3')
+			if old == line then break end
+		end
+		line = line:sub(2, -2)
+		print(line)
 	end
 	return line
+end
+
+local function transform_message(message)
+	if type(message) == "table" then
+		local err = "{\n"
+		for k, v in pairs(message) do
+			err = err .. ('    %s=%s,\n'):format(safe_tostring(k), safe_tostring(v))
+		end
+		return err .. '}'
+	elseif type(message) == "string" then
+		return message:gsub('(.*:.*: )', '')
+	elseif message then
+		return tostring(message)
+	end
 end
 
 local function stacktrace(thread, message, level, use_color)
@@ -323,6 +346,7 @@ local function stacktrace(thread, message, level, use_color)
 	level = level or 1
 
 	local dumper = Dumper.new(thread)
+	local err = transform_message(message)
 	
 	dumper:add 'stack traceback:'
 	
@@ -357,31 +381,22 @@ local function stacktrace(thread, message, level, use_color)
 		if info.currentline then
 			local line = get_line(info, info.currentline)
 			if line then
-				dumper:add(('   \\-> %s'):format(C(line:gsub('^%s+', ''), C_HIGHLIGHT_GREEN)))
+				line = line:gsub('^%s+', '')
+				if i == 1 and err then
+					line = enhance_line(line, err)
+				end
+				dumper:add(('   \\-> %s'):format(C(line, C_HIGHLIGHT_GREEN)))
 			end
 		end
 	end
 
-	local err
-	if type(message) == "table" then
-		err = "{\n"
-		for k, v in pairs(message) do
-			err = err .. ('    %s=%s,\n'):format(safe_tostring(k), safe_tostring(v))
-		end
-		err = err .. '}'
-	elseif type(message) == "string" then
-		err = message:gsub('(.*:.*: )', '')
-	elseif message then
-		err = tostring(message)
-	end
 	if err then
 		dumper:add(C('error: ' .. err, C_HIGHLIGHT_RED))
-		dumper.lines[#dumper.lines - 1] = enhance_line(dumper.lines[#dumper.lines - 1], err)
 	end
 
 	local lines = table.concat(dumper.lines, '\n')
 	if not use_color then
-		lines = lines:gsub('(\x1B%[.-m)', '')
+		lines = remove_colors(lines)
 	end
 	return lines
 end
