@@ -44,7 +44,7 @@ extern "C" {
 #define ANSI_HIGHLIGHT_RED_ON    "\x1B[1;31m"
 #define ANSI_HIGHLIGHT_YELLOW_ON "\x1B[1;33m"
 #define ANSI_HIGHLIGHT_BLUE_ON   "\x1B[1;34m"
-#define ANSI_HIGHLIGHT_GRAY_ON   "\x1B[1;30m"
+#define ANSI_HIGHLIGHT_GRAY_ON   "\x1B[1;90m"
 #define ANSI_HIGHLIGHT_PURPLE_ON "\x1B[1;35m"
 #define ANSI_HIGHLIGHT_GREEN_ON  "\x1B[1;92m"
 #define ANSI_RESET               "\x1B[0m"
