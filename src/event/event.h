@@ -36,10 +36,10 @@ enum Button {
 };
 typedef enum Button Button;
 
-void event_update();
-void event_small_update();
-void event_destroy();
-int event_init();
+void event_update(void);
+void event_small_update(void);
+void event_destroy(void);
+int event_init(void);
 
 void event_set_relative_mode(bool relative);
 

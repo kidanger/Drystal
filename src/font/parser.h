@@ -60,7 +60,7 @@ static inline void textstate_reset(TextState *t)
 	t->shadow_y = 0;
 }
 
-TextState* push_parser();
+TextState* push_parser(void);
 bool parse(TextState **state, const char **text, const char **end);
-void pop_parser();
+void pop_parser(void);
 

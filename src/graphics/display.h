@@ -42,13 +42,13 @@ enum BlendMode {
 typedef enum BlendMode BlendMode;
 
 int display_init(void);
-void display_free();
+void display_free(void);
 
 void display_set_title(const char *title);
 void display_show_cursor(bool);
 void display_resize(int w, int h);
 void display_screen2scene(float x, float y, float * tx, float * ty);
-void display_toggle_debug_mode();
+void display_toggle_debug_mode(void);
 void display_set_fullscreen(bool fullscreen);
 
 void display_set_color(int red, int green, int blue);
@@ -63,15 +63,15 @@ void display_set_filter(Surface* surface, FilterMode mode);
 void display_get_pixel(Surface* surface, unsigned int x, unsigned int y,
 		       int* red, int* green, int* blue, int* alpha);
 
-Camera *display_get_camera();
-void display_reset_camera();
-void display_push_camera();
-void display_pop_camera();
+Camera *display_get_camera(void);
+void display_reset_camera(void);
+void display_push_camera(void);
+void display_pop_camera(void);
 void display_set_camera_position(float dx, float dy);
 void display_set_camera_angle(float angle);
 void display_set_camera_zoom(float zoom);
 
-Surface* display_get_screen();
+Surface* display_get_screen(void);
 Surface* display_create_surface(unsigned int w, unsigned int h, unsigned int texw, unsigned int texh, unsigned char* pixels);
 Surface* display_new_surface(int w, int h, bool force_npot);
 int display_load_surface(const char *filename, Surface **surface);
@@ -79,10 +79,10 @@ void display_free_surface(Surface *surface);
 
 void display_draw_on(Surface *surface);
 void display_draw_from(Surface *surface);
-Surface *display_get_draw_on();
-Surface *display_get_draw_from();
+Surface *display_get_draw_on(void);
+Surface *display_get_draw_from(void);
 
-void display_draw_background();
+void display_draw_background(void);
 void display_draw_point(float x, float y, float size);
 void display_draw_point_tex(float sx, float sy, float x, float y, float size);
 void display_draw_line(float x1, float y1, float x2, float y2);
@@ -93,7 +93,7 @@ void display_draw_quad(float xi1, float yi1, float xi2, float yi2, float xi3, fl
 
 Shader* display_new_shader(const char* strvert, const char* strfragcolor, const char* strfragtex, char** error);
 void display_use_shader(Shader *shader);
-void display_use_default_shader();
+void display_use_default_shader(void);
 void display_free_shader(Shader *shader);
 
 Buffer* display_new_buffer(unsigned int size);
@@ -102,11 +102,11 @@ static inline Buffer* display_new_auto_buffer(void)
 	return display_new_buffer(BUFFER_DEFAULT_SIZE);
 }
 void display_use_buffer(Buffer *buffer);
-void display_use_default_buffer();
+void display_use_default_buffer(void);
 void display_draw_buffer(Buffer *buffer, float dx, float dy);
 Buffer *display_get_current_buffer(void);
 void display_free_buffer(Buffer* buffer);
 
-void display_flip();
-bool display_is_debug();
+void display_flip(void);
+bool display_is_debug(void);
 
