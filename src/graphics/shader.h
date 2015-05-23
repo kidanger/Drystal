@@ -25,12 +25,12 @@
 
 typedef struct Shader Shader;
 
-const char* SHADER_PREFIX;
-const char* DEFAULT_VERTEX_SHADER;
-const char* DEFAULT_FRAGMENT_SHADER_COLOR;
-const char* DEFAULT_FRAGMENT_SHADER_TEX;
+extern const char* SHADER_PREFIX;
+extern const char* DEFAULT_VERTEX_SHADER;
+extern const char* DEFAULT_FRAGMENT_SHADER_COLOR;
+extern const char* DEFAULT_FRAGMENT_SHADER_TEX;
 
-const char* DEFAULT_FRAGMENT_SHADER_TEXPOINT;
+extern const char* DEFAULT_FRAGMENT_SHADER_TEXPOINT;
 
 typedef enum AttrLocationIndex {
 	// WebGL wants 0 as an attribute, so here it is
