@@ -286,6 +286,10 @@ void surface_get_pixel(Surface *s, unsigned int x, unsigned int y,
 					   int *red, int *green, int *blue, int *alpha, Surface *current_on)
 {
 	assert(s);
+	assert(red);
+	assert(green);
+	assert(blue);
+	assert(alpha);
 	assert(current_on);
 	assert(s != current_on);
 
