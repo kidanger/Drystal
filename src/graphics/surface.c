@@ -300,7 +300,6 @@ void surface_get_pixel(Surface *s, unsigned int x, unsigned int y,
 		GLDEBUG();
 
 		surface_draw_on(current_on);
-		log_debug("fetch pixels");
 	}
 
 	size_t idx = (x + y * s->w) * 4;
