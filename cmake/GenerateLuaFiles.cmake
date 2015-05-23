@@ -1,6 +1,6 @@
 # put all .lua files into a single .cpp files
 # the function load_luafiles runs those codes and return 1 if success
-set(LUAFILES_LIST "drystal.lua")
+set(LUAFILES_LIST "drystal.lua" "traceback.lua")
 if(BUILD_WEB)
 	list(APPEND LUAFILES_LIST "web/web.lua")
 endif()
