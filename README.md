@@ -11,8 +11,8 @@ Games are programmed in Lua and can be exported to Javascript seamlessly.
 Authors
 -------
 
-Jérémy Anger
-Ronny Chevalier
+- Jérémy Anger
+- Ronny Chevalier
 
 Mailing list
 ------------
