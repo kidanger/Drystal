@@ -63,7 +63,6 @@ static void on_zip_downloaded(_unused_ void* userdata, void* buffer, int size)
 static void on_zip_fail(_unused_ void* userdata)
 {
 	log_error("Unable to download.");
-	engine_load(); // load anyway (as long as old method still work)
 }
 
 static void loop()
