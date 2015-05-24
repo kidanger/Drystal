@@ -33,7 +33,6 @@
 bool stderr_use_colors(void)
 {
 #ifdef EMSCRIPTEN
-	(void) file;
 	return false;
 #else
 	return on_tty(STDERR_FILENO);

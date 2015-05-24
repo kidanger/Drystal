@@ -32,6 +32,7 @@ log_category("main");
 
 static void on_zip_downloaded(_unused_ void* userdata, void* buffer, int size)
 {
+	log_info("Done.");
 	mz_zip_archive za;
 	if (!mz_zip_reader_init_mem(&za, buffer, size, 0)) {
 		log_error("Cannot unzip game files: invalid archive");
@@ -59,9 +60,9 @@ static void on_zip_downloaded(_unused_ void* userdata, void* buffer, int size)
 	engine_load();
 }
 
-static void on_zip_fail(void* userdata)
+static void on_zip_fail(_unused_ void* userdata)
 {
-	log_error("Unable to download %s", (char *) userdata);
+	log_error("Unable to download.");
 	engine_load(); // load anyway (as long as old method still work)
 }
 
@@ -116,7 +117,8 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	emscripten_async_wget_data(zipname, (void*) zipname, on_zip_downloaded, on_zip_fail);
+	log_info("Downloading %s...", zipname);
+	emscripten_async_wget_data(zipname, NULL, on_zip_downloaded, on_zip_fail);
 	emscripten_set_main_loop(loop, 0, true);
 
 	return 0;
