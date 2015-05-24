@@ -57,6 +57,7 @@ static struct Display {
 	unsigned char g;
 	unsigned char b;
 	unsigned char alpha;
+	float line_width;
 
 	Camera *camera;
 
@@ -142,6 +143,7 @@ int display_init(void)
 	display.g = 255;
 	display.b = 255;
 	display.alpha = 255;
+	display.line_width = 1.f;
 	display.original_width = 0;
 	display.original_height = 0;
 	display.debug_mode = false;
@@ -401,8 +403,7 @@ void display_set_alpha(int a)
 void display_set_line_width(float width)
 {
 	assert(width >= 0);
-	buffer_check_empty(display.current_buffer);
-	glLineWidth(width);
+	display.line_width = width;
 }
 
 void display_set_blend_mode(BlendMode mode)
@@ -614,21 +615,24 @@ void display_draw_point_tex(float sx, float sy, float x, float y, float size)
 
 void display_draw_line(float x1, float y1, float x2, float y2)
 {
-	Buffer *current_buffer = display.current_buffer;
-	unsigned char r = display.r;
-	unsigned char g = display.g;
-	unsigned char b = display.b;
-	unsigned char alpha = display.alpha;
-	int i;
-
-	buffer_check_type(current_buffer, LINE_BUFFER);
-	buffer_check_not_use_texture(current_buffer);
-	buffer_check_not_full(current_buffer);
-
-	buffer_push_vertex(current_buffer, x1, y1);
-	buffer_push_vertex(current_buffer, x2, y2);
-	for (i = 0; i < 2; i++)
-		buffer_push_color(current_buffer, r, g, b, alpha);
+	float lw = display.line_width;
+	float dx = y1 - y2;
+	float dy = x2 - x1;
+	float sum = sqrtf(dx * dx + dy * dy);
+	dx /= sum;
+	dy /= sum;
+	dx *= lw / 2;
+	dy *= lw / 2;
+	float xx1 = x1 - dx;
+	float xx2 = x1 + dx;
+	float xx3 = x2 + dx;
+	float xx4 = x2 - dx;
+	float yy1 = y1 - dy;
+	float yy2 = y1 + dy;
+	float yy3 = y2 + dy;
+	float yy4 = y2 - dy;
+	display_draw_triangle(xx1, yy1, xx2, yy2, xx3, yy3);
+	display_draw_triangle(xx1, yy1, xx3, yy3, xx4, yy4);
 }
 
 void display_draw_triangle(float x1, float y1, float x2, float y2, float x3, float y3)
@@ -641,13 +645,17 @@ void display_draw_triangle(float x1, float y1, float x2, float y2, float x3, flo
 	int i;
 
 	if (display.debug_mode) {
+		float lw = display.line_width;
+		display.line_width = 1.f;
+		display.debug_mode = false;
 		display_draw_line(x1, y1, x2, y2);
 		display_draw_line(x2, y2, x3, y3);
 		display_draw_line(x3, y3, x1, y1);
+		display.debug_mode = true;
+		display.line_width = lw;
 		return;
 	}
 
-	buffer_check_type(current_buffer, TRIANGLE_BUFFER);
 	buffer_check_not_use_texture(current_buffer);
 	buffer_check_not_full(current_buffer);
 
@@ -677,7 +685,6 @@ void display_draw_surface(float xi1, float yi1, float xi2, float yi2, float xi3,
 
 	assert(display.current_from);
 
-	buffer_check_type(current_buffer, TRIANGLE_BUFFER);
 	buffer_check_use_texture(current_buffer);
 	buffer_check_not_full(current_buffer);
 

@@ -32,19 +32,10 @@ typedef struct Buffer Buffer;
 #include "camera.h"
 #include "surface.h"
 
-// should be multiple of 2 (for GL_LINES) and of 3 (GL_TRIANGLES)
-#define BUFFER_DEFAULT_SIZE 2 * 3 * 4096
-
-enum BufferType {
-	UNDEFINED,
-	LINE_BUFFER,
-	TRIANGLE_BUFFER,
-};
-typedef enum BufferType BufferType;
+// should be multiple of 3 (GL_TRIANGLES)
+#define BUFFER_DEFAULT_SIZE 3 * 4096
 
 struct Buffer {
-	BufferType type;
-
 	unsigned int size;
 	GLuint buffers[3]; // first is for positions, second for colors, third (optional) for texcoords
 	GLfloat* positions;
@@ -75,7 +66,6 @@ void buffer_push_tex_coord(Buffer *b, GLfloat, GLfloat);
 
 void buffer_draw(Buffer *b, float dx, float dy);
 
-void buffer_check_type(Buffer *b, BufferType);
 void buffer_check_empty(Buffer *b);
 void buffer_check_use_texture(Buffer *b);
 void buffer_check_not_use_texture(Buffer *b);

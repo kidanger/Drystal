@@ -69,11 +69,7 @@ static bool buffer_is_full(const Buffer *b)
 {
 	assert(b);
 
-	if (b->type == LINE_BUFFER)
-		return b->current_position > b->size - 2;
-	if (b->type == TRIANGLE_BUFFER)
-		return b->current_position > b->size - 3;
-	return false;
+	return b->current_position > b->size - 3;
 }
 
 static void buffer_resize(Buffer *b) {
@@ -93,7 +89,6 @@ static void buffer_resize(Buffer *b) {
 Buffer *buffer_new(bool user_buffer, unsigned int size)
 {
 	Buffer *b = new0(Buffer, 1);
-	b->type = UNDEFINED;
 	b->size = size;
 	b->positions = new(GLfloat, size * 2);
 	b->colors = new(GLubyte, size * 4);
@@ -111,7 +106,6 @@ void buffer_allocate(Buffer *b)
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glEnableVertexAttribArray(ATTR_LOCATION_POSITION);
 	glEnableVertexAttribArray(ATTR_LOCATION_COLOR);
-	b->type = UNDEFINED;
 }
 
 void buffer_free(Buffer *b)
@@ -122,17 +116,6 @@ void buffer_free(Buffer *b)
 	glDeleteBuffers(3, b->buffers);
 	buffer_partial_free(b);
 	free(b);
-}
-
-void buffer_check_type(Buffer *b, BufferType atype)
-{
-	assert(b);
-
-	if (b->type != atype) {
-		buffer_flush(b);
-
-		b->type = atype;
-	}
 }
 
 void buffer_check_not_full(Buffer *b)
@@ -250,7 +233,6 @@ void buffer_draw(Buffer *b, float dx, float dy)
 
 	assert(b->current_color == b->current_position);
 	assert(!b->has_texture || b->current_color == b->current_tex_coord);
-	assert(b->type != UNDEFINED);
 	assert(shader);
 	assert(b->camera);
 
@@ -289,13 +271,7 @@ void buffer_draw(Buffer *b, float dx, float dy)
 	if (b->draw_from)
 		glUniform2f(shader->vars[locationIndex].sourceSizeLocation, b->draw_from->texw, b->draw_from->texh);
 
-	GLint draw_type;
-	if (b->type == LINE_BUFFER) {
-		draw_type = GL_LINES;
-	} else {
-		draw_type = GL_TRIANGLES;
-	}
-	glDrawArrays(draw_type, 0, used);
+	glDrawArrays(GL_TRIANGLES, 0, used);
 
 	if (b->has_texture) {
 		glDisableVertexAttribArray(ATTR_LOCATION_TEXCOORD);

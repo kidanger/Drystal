@@ -301,10 +301,9 @@ int mlua_draw_point(lua_State* L)
 
 	Buffer* buffer = display_get_current_buffer();
 	if (buffer->user_buffer) {
-		BufferType type = buffer->type;
-		if (display_is_debug() && (type == UNDEFINED || type == LINE_BUFFER)) {
-		} else if (type != UNDEFINED && (type != TRIANGLE_BUFFER || buffer->has_texture))
-			return luaL_error(L, "the current buffer cannot contain points");
+		if (display_is_debug()) {
+		} else if (buffer->size > 0 && buffer->has_texture)
+			return luaL_error(L, "the current buffer cannot contain non-textured points");
 	}
 
 	lua_Number x = luaL_checknumber(L, 1);
@@ -322,9 +321,8 @@ int mlua_draw_point_tex(lua_State* L)
 
 	Buffer* buffer = display_get_current_buffer();
 	if (buffer->user_buffer) {
-		BufferType type = buffer->type;
-		if (display_is_debug() && (type == UNDEFINED || type == LINE_BUFFER)) {
-		} else if (type != UNDEFINED && (type != TRIANGLE_BUFFER || !buffer->has_texture))
+		if (display_is_debug()) {
+		} else if (buffer->size > 0 && !buffer->has_texture)
 			return luaL_error(L, "the current buffer cannot contain textured points");
 	}
 
@@ -343,8 +341,7 @@ int mlua_draw_line(lua_State* L)
 
 	Buffer* buffer = display_get_current_buffer();
 	if (buffer->user_buffer) {
-		BufferType type = buffer->type;
-		if (type != UNDEFINED && (type != LINE_BUFFER || buffer->has_texture))
+		if (buffer->size > 0 &&  buffer->has_texture)
 			return luaL_error(L, "the current buffer cannot contain lines");
 	}
 
@@ -362,10 +359,9 @@ int mlua_draw_triangle(lua_State* L)
 
 	Buffer* buffer = display_get_current_buffer();
 	if (buffer->user_buffer) {
-		BufferType type = buffer->type;
-		if (display_is_debug() && (type == UNDEFINED || type == LINE_BUFFER)) {
-		} else if (type != UNDEFINED && (type != TRIANGLE_BUFFER || buffer->has_texture))
-			return luaL_error(L, "the current buffer cannot contain triangles");
+		if (display_is_debug()) {
+		} else if (buffer->size > 0 && buffer->has_texture)
+			return luaL_error(L, "the current buffer cannot contain non-textured triangles");
 	}
 
 	lua_Number x1 = luaL_checknumber(L, 1);
@@ -386,9 +382,8 @@ int mlua_draw_surface(lua_State* L)
 
 	Buffer* buffer = display_get_current_buffer();
 	if (buffer->user_buffer) {
-		BufferType type = buffer->type;
-		if (display_is_debug() && (type == UNDEFINED || type == LINE_BUFFER)) {
-		} else if (type != UNDEFINED && (type != TRIANGLE_BUFFER || !buffer->has_texture))
+		if (display_is_debug()) {
+		} else if (buffer->size > 0 && !buffer->has_texture)
 			return luaL_error(L, "the current buffer cannot contain textured triangles");
 	}
 
@@ -417,9 +412,8 @@ int mlua_draw_quad(lua_State* L)
 
 	Buffer* buffer = display_get_current_buffer();
 	if (buffer->user_buffer) {
-		BufferType type = buffer->type;
-		if (display_is_debug() && (type == UNDEFINED || type == LINE_BUFFER)) {
-		} else if (type != UNDEFINED && (type != TRIANGLE_BUFFER || !buffer->has_texture))
+		if (display_is_debug()) {
+		} else if (buffer->size > 0 && !buffer->has_texture)
 			return luaL_error(L, "the current buffer cannot contain textured triangles");
 	}
 
