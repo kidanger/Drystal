@@ -589,29 +589,27 @@ void display_free_surface(Surface* surface)
 
 void display_draw_point(float x, float y, float size)
 {
-	Buffer *current_buffer = display.current_buffer;
-
-	buffer_check_type(current_buffer, POINT_BUFFER);
-	buffer_check_not_use_texture(current_buffer);
-	buffer_check_not_full(current_buffer);
-
-	buffer_push_vertex(current_buffer, x, y);
-	buffer_push_point_size(current_buffer, size);
-	buffer_push_color(current_buffer, display.r, display.g, display.b, display.alpha);
+	float hs = size / 2;
+	display_draw_triangle(x - hs, y - hs,
+						  x + hs, y - hs,
+						  x + hs, y + hs);
+	display_draw_triangle(x - hs, y - hs,
+						  x + hs, y + hs,
+						  x - hs, y + hs);
 }
+
 void display_draw_point_tex(float sx, float sy, float x, float y, float size)
 {
-	assert(display.current_from);
-	Buffer *current_buffer = display.current_buffer;
-
-	buffer_check_type(current_buffer, POINT_BUFFER);
-	buffer_check_use_texture(current_buffer);
-	buffer_check_not_full(current_buffer);
-
-	buffer_push_vertex(current_buffer, x, y);
-	buffer_push_tex_coord(current_buffer, sx, sy);
-	buffer_push_point_size(current_buffer, size);
-	buffer_push_color(current_buffer, display.r, display.g, display.b, display.alpha);
+	float hs = size / 2;
+	float sprite_size = 64;
+	display_draw_quad(sx, sy,
+					  sx + sprite_size, sy,
+					  sx + sprite_size, sy + sprite_size,
+					  sx, sy + sprite_size,
+					  x - hs, y - hs,
+					  x + hs, y - hs,
+					  x + hs, y + hs,
+					  x - hs, y + hs);
 }
 
 void display_draw_line(float x1, float y1, float x2, float y2)
@@ -784,7 +782,6 @@ Shader * display_new_shader(const char* strvert, const char* strfragcolor, const
 	glBindAttribLocation(prog_color, ATTR_LOCATION_POSITION, "position");
 	glBindAttribLocation(prog_color, ATTR_LOCATION_COLOR, "color");
 	glBindAttribLocation(prog_color, ATTR_LOCATION_TEXCOORD, "texCoord");
-	glBindAttribLocation(prog_color, ATTR_LOCATION_POINTSIZE, "pointSize");
 	glAttachShader(prog_color, vert);
 	glAttachShader(prog_color, frag_color);
 	glLinkProgram(prog_color);
@@ -794,7 +791,6 @@ Shader * display_new_shader(const char* strvert, const char* strfragcolor, const
 	glBindAttribLocation(prog_tex, ATTR_LOCATION_POSITION, "position");
 	glBindAttribLocation(prog_tex, ATTR_LOCATION_COLOR, "color");
 	glBindAttribLocation(prog_tex, ATTR_LOCATION_TEXCOORD, "texCoord");
-	glBindAttribLocation(prog_tex, ATTR_LOCATION_POINTSIZE, "pointSize");
 	glAttachShader(prog_tex, vert);
 	glAttachShader(prog_tex, frag_tex);
 	glLinkProgram(prog_tex);

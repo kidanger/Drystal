@@ -59,17 +59,17 @@ describe 'buffer', ->
 			drystal.draw_rect 0, 0, 1, 1
 			assert.error -> drystal.draw_line 0, 0, 1, 1
 
-	it 'cannot contain points after draw_line', ->
+	it 'cannot contain triangles after draw_line', ->
 		with drystal.new_buffer!
 			\use!
 			drystal.draw_line 0, 0, 1, 1
 			assert.error -> drystal.draw_point 0, 0, 1
 
-	it 'cannot contain triangles after draw_point', ->
+	it 'can contain triangles after draw_point', ->
 		with drystal.new_buffer!
 			\use!
 			drystal.draw_point 0, 0, 1
-			assert.error -> drystal.draw_rect 0, 0, 1, 1
+			drystal.draw_rect 0, 0, 1, 1
 
 	it 'cannot contain textured triangle after draw_point', ->
 		with buffer, surf = drystal.new_buffer!, drystal.new_surface 1, 1
@@ -78,12 +78,12 @@ describe 'buffer', ->
 			drystal.draw_point 0, 0, 1
 			assert.error -> drystal.draw_sprite {x: 0, y: 0, w: 1, h:1}, 0, 0
 
-	it 'cannot contain textured points after draw_sprite', ->
+	it 'can contain textured points after draw_sprite', ->
 		with buffer, surf = drystal.new_buffer!, drystal.new_surface 1, 1
 			buffer\use!
 			surf\draw_from!
 			drystal.draw_sprite {x: 0, y: 0, w: 0, h:0}, 0, 0
-			assert.error -> drystal.draw_point 0, 0, 0, 0, 1
+			drystal.draw_point_tex 0, 0, 0, 0, 1
 
 	it 'cannot be modified after upload_and_free', ->
 		with drystal.new_buffer!

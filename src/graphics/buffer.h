@@ -37,7 +37,6 @@ typedef struct Buffer Buffer;
 
 enum BufferType {
 	UNDEFINED,
-	POINT_BUFFER,
 	LINE_BUFFER,
 	TRIANGLE_BUFFER,
 };
@@ -47,15 +46,13 @@ struct Buffer {
 	BufferType type;
 
 	unsigned int size;
-	GLuint buffers[4]; // first is for positions, second for colors, third (optional) for texcoords, forth (optional) for point sizes
+	GLuint buffers[3]; // first is for positions, second for colors, third (optional) for texcoords
 	GLfloat* positions;
 	GLubyte* colors;
 	GLfloat* tex_coords; // only if has_texture
-	GLfloat* point_sizes; // only if POINT_BUFFER
 	unsigned int current_position;
 	unsigned int current_color;
 	unsigned int current_tex_coord;
-	unsigned int current_point_size;
 	bool uploaded;
 
 	bool has_texture;
@@ -75,7 +72,6 @@ void buffer_allocate(Buffer *b);
 void buffer_push_vertex(Buffer *b, GLfloat, GLfloat);
 void buffer_push_color(Buffer *b, GLubyte, GLubyte, GLubyte, GLubyte);
 void buffer_push_tex_coord(Buffer *b, GLfloat, GLfloat);
-void buffer_push_point_size(Buffer *b, GLfloat);
 
 void buffer_draw(Buffer *b, float dx, float dy);
 
@@ -96,7 +92,7 @@ static inline void buffer_reset(Buffer *b)
 {
 	assert(b);
 
-	b->current_position = b->current_color = b->current_tex_coord = b->current_point_size = 0;
+	b->current_position = b->current_color = b->current_tex_coord = 0;
 }
 
 static inline void buffer_flush(Buffer *b)

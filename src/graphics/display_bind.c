@@ -302,7 +302,8 @@ int mlua_draw_point(lua_State* L)
 	Buffer* buffer = display_get_current_buffer();
 	if (buffer->user_buffer) {
 		BufferType type = buffer->type;
-		if (type != UNDEFINED && (type != POINT_BUFFER || buffer->has_texture))
+		if (display_is_debug() && (type == UNDEFINED || type == LINE_BUFFER)) {
+		} else if (type != UNDEFINED && (type != TRIANGLE_BUFFER || buffer->has_texture))
 			return luaL_error(L, "the current buffer cannot contain points");
 	}
 
@@ -323,7 +324,7 @@ int mlua_draw_point_tex(lua_State* L)
 	if (buffer->user_buffer) {
 		BufferType type = buffer->type;
 		if (display_is_debug() && (type == UNDEFINED || type == LINE_BUFFER)) {
-		} else if (type != UNDEFINED && (type != POINT_BUFFER || !buffer->has_texture))
+		} else if (type != UNDEFINED && (type != TRIANGLE_BUFFER || !buffer->has_texture))
 			return luaL_error(L, "the current buffer cannot contain textured points");
 	}
 

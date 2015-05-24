@@ -30,14 +30,11 @@ extern const char* DEFAULT_VERTEX_SHADER;
 extern const char* DEFAULT_FRAGMENT_SHADER_COLOR;
 extern const char* DEFAULT_FRAGMENT_SHADER_TEX;
 
-extern const char* DEFAULT_FRAGMENT_SHADER_TEXPOINT;
-
 typedef enum AttrLocationIndex {
 	// WebGL wants 0 as an attribute, so here it is
 	ATTR_LOCATION_POSITION = 0,
 	ATTR_LOCATION_COLOR,
 	ATTR_LOCATION_TEXCOORD,
-	ATTR_LOCATION_POINTSIZE,
 } AttrLocationIndex;
 
 enum VarLocationIndex {
