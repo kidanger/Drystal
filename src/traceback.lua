@@ -337,6 +337,7 @@ local function transform_message(message)
 end
 
 local function stacktrace(thread, message, level, use_color)
+	debug.newtraceback = debug.traceback
 	if type(thread) ~= "thread" then
 		-- shift parameters left
 		thread, message, level, use_color = nil, thread, message, level
@@ -398,6 +399,7 @@ local function stacktrace(thread, message, level, use_color)
 	if not use_color then
 		lines = remove_colors(lines)
 	end
+	debug.newtraceback = oldnewtraceback
 	return lines
 end
 
