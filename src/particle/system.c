@@ -135,7 +135,20 @@ void system_draw(System *s, float dx, float dy)
 			b = colbA * (1 - ratio) + colbB * ratio;
 		}
 
+		unsigned char alpha = 255;
+		if (s->cur_alpha) {
+			Alpha aA = s->alphas[p->alpha_state];
+			Alpha aB = s->alphas[p->alpha_state + 1];
+
+			float ratio = (liferatio - aA.at) / (aB.at - aA.at);
+
+			float alphaA = p->sizeseed * (aA.max - aA.min) + aA.min;
+			float alphaB = p->sizeseed * (aB.max - aB.min) + aB.min;
+			alpha = alphaA * (1 - ratio) + alphaB * ratio;
+		}
+
 		display_set_color(r, g, b);
+		display_set_alpha(alpha);
 		if (s->texture)
 			display_draw_point_tex(s->sprite_x, s->sprite_y, dx + p->x, dy + p->y, _size);
 		else
@@ -161,8 +174,10 @@ void system_emit(System *s)
 	p->rseed = (float) rand() / RAND_MAX;
 	p->gseed = (float) rand() / RAND_MAX;
 	p->bseed = (float) rand() / RAND_MAX;
+	p->alphaseed = (float) rand() / RAND_MAX;
 	p->color_state = 0;
 	p->size_state = 0;
+	p->alpha_state = 0;
 
 	p->dir_angle = RAND(s->min_direction, s->max_direction);
 	p->accel = RAND(s->min_initial_acceleration, s->max_initial_acceleration);
@@ -231,6 +246,17 @@ void system_add_color(System *s, float at, unsigned char min_r, unsigned char ma
 	s->cur_color += 1;
 }
 
+void system_add_alpha(System *s, float at, float min, float max)
+{
+	assert(s);
+	assert(s->cur_alpha != MAX_ALPHAS);
+
+	s->alphas[s->cur_alpha].at = at;
+	s->alphas[s->cur_alpha].min = min;
+	s->alphas[s->cur_alpha].max = max;
+	s->cur_alpha += 1;
+}
+
 void system_clear_sizes(System *s)
 {
 	assert(s);
@@ -243,6 +269,13 @@ void system_clear_colors(System *s)
 	assert(s);
 
 	s->cur_color = 0;
+}
+
+void system_clear_alphas(System *s)
+{
+	assert(s);
+
+	s->cur_alpha = 0;
 }
 
 void system_set_texture(System* s, Surface* tex, float x, float y)

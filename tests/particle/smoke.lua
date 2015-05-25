@@ -15,6 +15,11 @@ sys_smoke:set_colors {
 	[0.7]=drystal.colors.gray:darker(),
 	[1]='black',
 }
+sys_smoke:set_alphas {
+	[0]=20,
+	[0.2]=100,
+	[1]=0,
+}
 
 sys_smoke:set_lifetime(3)
 sys_smoke:set_direction(-math.pi / 2 - math.pi/8, -math.pi/2 + math.pi/8)
@@ -67,7 +72,6 @@ function drystal.draw()
 
 	sys_smoke_opaque:draw()
 
-	drystal.set_alpha(75)
 	drystal.set_blend_mode(drystal.blends.add)
 	sys_smoke:draw()
 end

@@ -20,6 +20,7 @@
 
 typedef struct Color Color;
 typedef struct Size Size;
+typedef struct Alpha Alpha;
 typedef struct System System;
 
 #include "graphics/surface.h"
@@ -41,6 +42,12 @@ struct Size {
 	float min, max;
 };
 
+#define MAX_ALPHAS 16
+struct Alpha {
+	float at;
+	float min, max;
+};
+
 struct System {
 	Particle* particles;
 
@@ -49,6 +56,9 @@ struct System {
 
 	int cur_color;
 	Color colors[MAX_COLORS];
+
+	int cur_alpha;
+	Alpha alphas[MAX_ALPHAS];
 
 	Surface* texture;
 	bool running;
@@ -86,7 +96,9 @@ void system_emit(System *s);
 void system_update(System *s, float dt);
 void system_add_size(System *s, float at, float min, float max);
 void system_add_color(System *s, float at, unsigned char min_r, unsigned char max_r, unsigned char min_g, unsigned char max_g, unsigned char min_b, unsigned char max_b);
+void system_add_alpha(System *s, float at, float min, float max);
 void system_clear_sizes(System *s);
 void system_clear_colors(System *s);
+void system_clear_alphas(System *s);
 void system_set_texture(System* s, Surface* tex, float x, float y);
 

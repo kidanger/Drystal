@@ -39,6 +39,9 @@ struct Particle {
 	float rseed;
 	float gseed;
 	float bseed;
+
+	int alpha_state;
+	float alphaseed;
 };
 
 void particle_update(Particle *p, System *sys, float dt);

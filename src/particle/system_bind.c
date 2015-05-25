@@ -68,6 +68,13 @@ int mlua_new_system(lua_State* L)
 	system->colors[1].min_b = RAND(0, 125);
 	system->colors[1].max_b = system->colors[0].min_b + RAND(0, 50);
 
+	system->alphas[0].at = 0;
+	system->alphas[0].min = 255;
+	system->alphas[0].max = 255;
+	system->alphas[1].at = 1;
+	system->alphas[1].min = 255;
+	system->alphas[1].max = 255;
+
 	system->emission_rate = RAND(1, 19);
 	system->offx = 0.f;
 	system->offy = 0.f;
@@ -225,6 +232,18 @@ int mlua_add_color_system(lua_State* L)
 	return 0;
 }
 
+int mlua_add_alpha_system(lua_State* L)
+{
+	assert(L);
+
+	System* system = pop_system(L, 1);
+	lua_Number at_lifetime = luaL_checknumber(L, 2);
+	lua_Number min = luaL_checknumber(L, 3);
+	lua_Number max = luaL_optnumber(L, 4, min);
+	system_add_alpha(system, at_lifetime, min, max);
+	return 0;
+}
+
 int mlua_clear_sizes_system(lua_State* L)
 {
 	assert(L);
@@ -240,6 +259,15 @@ int mlua_clear_colors_system(lua_State* L)
 
 	System* system = pop_system(L, 1);
 	system_clear_colors(system);
+	return 0;
+}
+
+int mlua_clear_alphas_system(lua_State* L)
+{
+	assert(L);
+
+	System* system = pop_system(L, 1);
+	system_clear_alphas(system);
 	return 0;
 }
 

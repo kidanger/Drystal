@@ -32,10 +32,9 @@ for k, v in pairs(funcs) do
 	System[k] = v
 end
 
-function System:set_sizes(sizes)
-	self:clear_sizes()
+local function preprocess(data)
 	local s = {}
-	for at, value in pairs(sizes) do
+	for at, value in pairs(data) do
 		table.insert(s, {at=at, value=value})
 	end
 	table.sort(s, function(a, b) return a.at < b.at end)
@@ -45,6 +44,12 @@ function System:set_sizes(sizes)
 	if s[#s].at ~= 1 then
 		table.insert(s, {at=1, value=s[#s].value})
 	end
+	return s
+end
+
+function System:set_sizes(sizes)
+	self:clear_sizes()
+	local s = preprocess(sizes)
 	for _, data in ipairs(s) do
 		if type(data.value) == 'table' then
 			self:add_size(data.at, unpack(data.value))
@@ -56,17 +61,7 @@ end
 
 function System:set_colors(colors)
 	self:clear_colors()
-	local c = {}
-	for at, value in pairs(colors) do
-		table.insert(c, {at=at, value=value})
-	end
-	table.sort(c, function(a, b) return a.at < b.at end)
-	if c[1].at ~= 0 then
-		table.insert(c, 1, {at=0, value=c[1].value})
-	end
-	if c[#c].at ~= 1 then
-		table.insert(c, {at=1, value=c[#c].value})
-	end
+	local c = preprocess(colors)
 	for _, data in ipairs(c) do
 		local c1, c2 = data.value, data.value
 		if type(data.value[1]) == 'table' or type(data.value[1]) == 'string' then
@@ -80,6 +75,18 @@ function System:set_colors(colors)
 			c2 = drystal.colors[c2]
 		end
 		self:add_color(data.at, c1[1], c2[1], c1[2], c2[2], c1[3], c1[3])
+	end
+end
+
+function System:set_alphas(alphas)
+	self:clear_alphas()
+	local a = preprocess(alphas)
+	for _, data in ipairs(a) do
+		if type(data.value) == 'table' then
+			self:add_alpha(data.at, unpack(data.value))
+		else
+			self:add_alpha(data.at, data.value)
+		end
 	end
 end
 

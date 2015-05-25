@@ -39,5 +39,8 @@ void particle_update(Particle *p, System *s, float dt)
 	if (liferatio > s->colors[p->color_state + 1].at && p->color_state < s->cur_color) {
 		p->color_state += 1;
 	}
+	if (liferatio > s->alphas[p->alpha_state + 1].at && p->alpha_state < s->cur_alpha) {
+		p->alpha_state += 1;
+	}
 }
 
