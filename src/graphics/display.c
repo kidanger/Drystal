@@ -635,7 +635,7 @@ void display_draw_triangle(float x1, float y1, float x2, float y2, float x3, flo
 	unsigned char alpha = display.alpha;
 	int i;
 
-	if (display.debug_mode) {
+	if (display.debug_mode && !current_buffer->user_buffer) {
 		display.debug_mode = false;
 		display_draw_line(x1, y1, x2, y2, 1.f);
 		display_draw_line(x2, y2, x3, y3, 1.f);
@@ -664,10 +664,12 @@ void display_draw_surface(float xi1, float yi1, float xi2, float yi2, float xi3,
 	unsigned char alpha = display.alpha;
 	int i;
 
-	if (display.debug_mode) {
+	if (display.debug_mode && !current_buffer->user_buffer) {
+		display.debug_mode = false;
 		display_draw_line(xo1, yo1, xo2, yo2, 1.f);
 		display_draw_line(xo2, yo2, xo3, yo3, 1.f);
 		display_draw_line(xo3, yo3, xo1, yo1, 1.f);
+		display.debug_mode = true;
 		return;
 	}
 

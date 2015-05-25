@@ -53,17 +53,17 @@ describe 'buffer', ->
 			\draw!
 			assert.color drystal.screen, 1, 1, 'white'
 
-	it 'cannot contain lines after draw_rect', ->
+	it 'can contain lines after draw_rect', ->
 		with drystal.new_buffer!
 			\use!
 			drystal.draw_rect 0, 0, 1, 1
-			assert.error -> drystal.draw_line 0, 0, 1, 1
+			drystal.draw_line 0, 0, 1, 1
 
-	it 'cannot contain triangles after draw_line', ->
+	it 'can contain triangles after draw_line', ->
 		with drystal.new_buffer!
 			\use!
 			drystal.draw_line 0, 0, 1, 1
-			assert.error -> drystal.draw_point 0, 0, 1
+			drystal.draw_point 0, 0, 1
 
 	it 'can contain triangles after draw_point', ->
 		with drystal.new_buffer!

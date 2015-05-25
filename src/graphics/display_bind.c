@@ -288,11 +288,8 @@ int mlua_draw_point(lua_State* L)
 	assert(L);
 
 	Buffer* buffer = display_get_current_buffer();
-	if (buffer->user_buffer) {
-		if (display_is_debug()) {
-		} else if (buffer->size > 0 && buffer->has_texture)
-			return luaL_error(L, "the current buffer cannot contain non-textured points");
-	}
+	assert_lua_error(L, !buffer->user_buffer || buffer_is_empty(buffer) || !buffer->has_texture,
+					 "draw_point: the current buffer cannot contain non textured points");
 
 	lua_Number x = luaL_checknumber(L, 1);
 	lua_Number y = luaL_checknumber(L, 2);
@@ -308,11 +305,8 @@ int mlua_draw_point_tex(lua_State* L)
 	assert_lua_error(L, display_get_draw_from(), "draw_point_tex: no 'drawn from' surface bound");
 
 	Buffer* buffer = display_get_current_buffer();
-	if (buffer->user_buffer) {
-		if (display_is_debug()) {
-		} else if (buffer->size > 0 && !buffer->has_texture)
-			return luaL_error(L, "the current buffer cannot contain textured points");
-	}
+	assert_lua_error(L, !buffer->user_buffer || buffer_is_empty(buffer) || buffer->has_texture,
+					 "draw_point_tex: the current buffer cannot contain textured points");
 
 	lua_Number sx = luaL_checknumber(L, 1);
 	lua_Number sy = luaL_checknumber(L, 2);
@@ -328,10 +322,8 @@ int mlua_draw_line(lua_State* L)
 	assert(L);
 
 	Buffer* buffer = display_get_current_buffer();
-	if (buffer->user_buffer) {
-		if (buffer->size > 0 &&  buffer->has_texture)
-			return luaL_error(L, "the current buffer cannot contain lines");
-	}
+	assert_lua_error(L, !buffer->user_buffer || buffer_is_empty(buffer) || !buffer->has_texture,
+					 "draw_line: the current buffer cannot contain lines");
 
 	lua_Number x1 = luaL_checknumber(L, 1);
 	lua_Number y1 = luaL_checknumber(L, 2);
@@ -348,11 +340,8 @@ int mlua_draw_triangle(lua_State* L)
 	assert(L);
 
 	Buffer* buffer = display_get_current_buffer();
-	if (buffer->user_buffer) {
-		if (display_is_debug()) {
-		} else if (buffer->size > 0 && buffer->has_texture)
-			return luaL_error(L, "the current buffer cannot contain non-textured triangles");
-	}
+	assert_lua_error(L, !buffer->user_buffer || buffer_is_empty(buffer) || !buffer->has_texture,
+					 "draw_triangle: the current buffer cannot contain non textured triangles");
 
 	lua_Number x1 = luaL_checknumber(L, 1);
 	lua_Number y1 = luaL_checknumber(L, 2);
@@ -371,11 +360,8 @@ int mlua_draw_surface(lua_State* L)
 	assert_lua_error(L, display_get_draw_from(), "draw_surface: no 'drawn from' surface bound");
 
 	Buffer* buffer = display_get_current_buffer();
-	if (buffer->user_buffer) {
-		if (display_is_debug()) {
-		} else if (buffer->size > 0 && !buffer->has_texture)
-			return luaL_error(L, "the current buffer cannot contain textured triangles");
-	}
+	assert_lua_error(L, !buffer->user_buffer || buffer_is_empty(buffer) || buffer->has_texture,
+					 "draw_surface: the current buffer cannot contain textured triangles");
 
 	lua_Number i1 = luaL_checknumber(L, 1);
 	lua_Number i2 = luaL_checknumber(L, 2);
@@ -401,11 +387,8 @@ int mlua_draw_quad(lua_State* L)
 	assert_lua_error(L, display_get_draw_from(), "draw_quad: no 'drawn from' surface bound");
 
 	Buffer* buffer = display_get_current_buffer();
-	if (buffer->user_buffer) {
-		if (display_is_debug()) {
-		} else if (buffer->size > 0 && !buffer->has_texture)
-			return luaL_error(L, "the current buffer cannot contain textured triangles");
-	}
+	assert_lua_error(L, !buffer->user_buffer || buffer_is_empty(buffer) || buffer->has_texture,
+					 "draw_quad: the current buffer cannot contain textured triangles");
 
 	lua_Number i1 = luaL_checknumber(L, 1);
 	lua_Number i2 = luaL_checknumber(L, 2);

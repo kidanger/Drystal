@@ -85,6 +85,13 @@ static inline void buffer_reset(Buffer *b)
 	b->current_position = b->current_color = b->current_tex_coord = 0;
 }
 
+static inline bool buffer_is_empty(Buffer *b)
+{
+	assert(b);
+
+	return !b->current_position;
+}
+
 static inline void buffer_flush(Buffer *b)
 {
 	assert(b);
