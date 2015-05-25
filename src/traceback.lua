@@ -309,7 +309,6 @@ local function enhance_line(line, err)
 	end
 	if errvariable then
 		line = '-' .. line .. '-'
-		print(line)
 		while true do
 			local old = line
 			line = line:gsub('([^%w_])(' .. errvariable .. ')([^%w_])',
@@ -317,7 +316,6 @@ local function enhance_line(line, err)
 			if old == line then break end
 		end
 		line = line:sub(2, -2)
-		print(line)
 	end
 	return line
 end
