@@ -51,7 +51,6 @@ BEGIN_MODULE(graphics)
 	/* DISPLAY SETTERS */
 	DECLARE_FUNCTION(set_color)
 	DECLARE_FUNCTION(set_alpha)
-	DECLARE_FUNCTION(set_line_width)
 	DECLARE_FUNCTION(set_blend_mode)
 
 	BEGIN_CLASS(surface)

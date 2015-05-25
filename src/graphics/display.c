@@ -57,7 +57,6 @@ static struct Display {
 	unsigned char g;
 	unsigned char b;
 	unsigned char alpha;
-	float line_width;
 
 	Camera *camera;
 
@@ -143,7 +142,6 @@ int display_init(void)
 	display.g = 255;
 	display.b = 255;
 	display.alpha = 255;
-	display.line_width = 1.f;
 	display.original_width = 0;
 	display.original_height = 0;
 	display.debug_mode = false;
@@ -400,12 +398,6 @@ void display_set_alpha(int a)
 	display.alpha = a;
 }
 
-void display_set_line_width(float width)
-{
-	assert(width >= 0);
-	display.line_width = width;
-}
-
 void display_set_blend_mode(BlendMode mode)
 {
 	buffer_check_empty(display.current_buffer);
@@ -613,16 +605,15 @@ void display_draw_point_tex(float sx, float sy, float x, float y, float size)
 					  x - hs, y + hs);
 }
 
-void display_draw_line(float x1, float y1, float x2, float y2)
+void display_draw_line(float x1, float y1, float x2, float y2, float width)
 {
-	float lw = display.line_width;
 	float dx = y1 - y2;
 	float dy = x2 - x1;
 	float sum = sqrtf(dx * dx + dy * dy);
 	dx /= sum;
 	dy /= sum;
-	dx *= lw / 2;
-	dy *= lw / 2;
+	dx *= width / 2;
+	dy *= width / 2;
 	float xx1 = x1 - dx;
 	float xx2 = x1 + dx;
 	float xx3 = x2 + dx;
@@ -645,14 +636,11 @@ void display_draw_triangle(float x1, float y1, float x2, float y2, float x3, flo
 	int i;
 
 	if (display.debug_mode) {
-		float lw = display.line_width;
-		display.line_width = 1.f;
 		display.debug_mode = false;
-		display_draw_line(x1, y1, x2, y2);
-		display_draw_line(x2, y2, x3, y3);
-		display_draw_line(x3, y3, x1, y1);
+		display_draw_line(x1, y1, x2, y2, 1.f);
+		display_draw_line(x2, y2, x3, y3, 1.f);
+		display_draw_line(x3, y3, x1, y1, 1.f);
 		display.debug_mode = true;
-		display.line_width = lw;
 		return;
 	}
 
@@ -677,9 +665,9 @@ void display_draw_surface(float xi1, float yi1, float xi2, float yi2, float xi3,
 	int i;
 
 	if (display.debug_mode) {
-		display_draw_line(xo1, yo1, xo2, yo2);
-		display_draw_line(xo2, yo2, xo3, yo3);
-		display_draw_line(xo3, yo3, xo1, yo1);
+		display_draw_line(xo1, yo1, xo2, yo2, 1.f);
+		display_draw_line(xo2, yo2, xo3, yo3, 1.f);
+		display_draw_line(xo3, yo3, xo1, yo1, 1.f);
 		return;
 	}
 

@@ -57,7 +57,6 @@ void display_set_alpha(int a);
 void display_get_color(int *red, int *green, int *blue);
 void display_get_alpha(int *a);
 
-void display_set_line_width(float width);
 void display_set_blend_mode(BlendMode mode);
 void display_set_filter(Surface* surface, FilterMode mode);
 void display_get_pixel(Surface* surface, unsigned int x, unsigned int y,
@@ -85,7 +84,7 @@ Surface *display_get_draw_from(void);
 void display_draw_background(void);
 void display_draw_point(float x, float y, float size);
 void display_draw_point_tex(float sx, float sy, float x, float y, float size);
-void display_draw_line(float x1, float y1, float x2, float y2);
+void display_draw_line(float x1, float y1, float x2, float y2, float width);
 void display_draw_triangle(float x1, float y1, float x2, float y2, float x3, float y3);
 void display_draw_surface(float, float, float, float, float, float, float, float, float, float, float, float);
 void display_draw_quad(float xi1, float yi1, float xi2, float yi2, float xi3, float yi3, float xi4, float yi4,

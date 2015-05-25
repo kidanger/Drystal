@@ -71,18 +71,6 @@ int mlua_set_alpha(lua_State* L)
 	return 0;
 }
 
-int mlua_set_line_width(lua_State* L)
-{
-	assert(L);
-
-	lua_Number width = luaL_checknumber(L, 1);
-
-	assert_lua_error(L, width >= 0, "set_line_width: must be >= 0");
-
-	display_set_line_width(width);
-	return 0;
-}
-
 int mlua_set_fullscreen(lua_State* L)
 {
 	assert(L);
@@ -349,7 +337,9 @@ int mlua_draw_line(lua_State* L)
 	lua_Number y1 = luaL_checknumber(L, 2);
 	lua_Number x2 = luaL_checknumber(L, 3);
 	lua_Number y2 = luaL_checknumber(L, 4);
-	display_draw_line(x1, y1, x2, y2);
+	lua_Number width = luaL_optnumber(L, 5, 1.f);
+	assert_lua_error(L, width >= 0, "draw_line: width must be >= 0");
+	display_draw_line(x1, y1, x2, y2, width);
 	return 0;
 }
 

@@ -25,7 +25,6 @@ DECLARE_PUSHPOP(Surface, surface)
 
 int mlua_set_color(lua_State* L);
 int mlua_set_alpha(lua_State* L);
-int mlua_set_line_width(lua_State* L);
 int mlua_set_title(lua_State* L);
 int mlua_set_blend_mode(lua_State* L);
 

@@ -284,10 +284,6 @@ Drawing primitives
 
    Sets the current alpha used by ``draw_*`` functions.
 
-.. lua:function:: set_line_width(width: float)
-
-   Sets the current line width used by :lua:func:`drystal.draw_line`.
-
 .. lua:function:: draw_background()
 
    Clears the current :lua:data:`current_draw_on` surface.
@@ -303,7 +299,7 @@ Drawing primitives
    Draws a textured point at the given coordinate and with given size.
    The point will be textured with the surface bound to :lua:data:`current_draw_from`, starting from ``sourcex, sourcey`` to ``sourcex+64, sourcey+64``.
 
-.. lua:function:: draw_line(x1, y1, x2, y2)
+.. lua:function:: draw_line(x1, y1, x2, y2, width=1: float)
 
    Draws a line between the two given points.
 
@@ -330,7 +326,7 @@ Drawing primitives
 
    Draws a filled rotated rectangle.
 
-.. lua:function:: draw_square(x, y, w, h)
+.. lua:function:: draw_square(x, y, w, h, width)
 
    Draws a non-filled rectangle.
 
@@ -344,7 +340,7 @@ Drawing primitives
 
    Draws a filled polygon.
 
-.. lua:function:: draw_polyline(x1, y1, x2, y2, ...)
+.. lua:function:: draw_polyline(loop, width, x1, y1, x2, y2, ...)
 
    Draws a non-filled polygon.
 

@@ -24,7 +24,7 @@ function drystal.draw()
 	drystal.draw_polygon(unpack(points))
 
 	drystal.set_color(200, 0, 0)
-	drystal.draw_polyline(false, unpack(points))
+	drystal.draw_polyline(false, 5, unpack(points))
 
 	if #mouse_points > 2 then
 		drystal.draw_polygon(unpack(mouse_points))

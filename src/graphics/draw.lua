@@ -132,21 +132,26 @@ function drystal.draw_polygon(...)
 	drystal.draw_triangle(coords[#coords - 1], coords[#coords], coords[1], coords[2], cx, cy)
 end
 
-function drystal.draw_polyline(loop, ...)
+function drystal.draw_polyline(loop, width, ...)
 	local coords = {...}
+	if #coords % 2 == 1 then
+		table.insert(coords, 1, width)
+		width = 1
+	end
 	for i = 1, #coords - 2, 2 do
-		drystal.draw_line(coords[i], coords[i+1], coords[i+2], coords[i+3])
+		drystal.draw_line(coords[i], coords[i+1], coords[i+2], coords[i+3], width)
 	end
 	if loop then
-		drystal.draw_line(coords[1], coords[2], coords[#coords-1], coords[#coords])
+		drystal.draw_line(coords[1], coords[2], coords[#coords-1], coords[#coords], width)
 	end
 end
 
-function drystal.draw_square(x, y, w, h)
-	drystal.draw_line(x, y, x+w, y)
-	drystal.draw_line(x, y+h, x+w, y+h)
-	drystal.draw_line(x, y, x, y+h)
-	drystal.draw_line(x+w, y, x+w, y+h)
+function drystal.draw_square(x, y, w, h, width)
+	width = width or 1
+	drystal.draw_line(x, y, x+w, y, width)
+	drystal.draw_line(x, y+h, x+w, y+h, width)
+	drystal.draw_line(x, y, x, y+h, width)
+	drystal.draw_line(x+w, y, x+w, y+h, width)
 end
 
 function drystal.draw_rect_rotated(x, y, w, h, angle, hx, hy)
