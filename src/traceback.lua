@@ -335,6 +335,7 @@ local function transform_message(message)
 end
 
 local function stacktrace(thread, message, level, use_color)
+	local oldnewtraceback = debug.newtraceback
 	debug.newtraceback = debug.traceback
 	if type(thread) ~= "thread" then
 		-- shift parameters left
