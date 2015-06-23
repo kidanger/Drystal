@@ -11,7 +11,7 @@ Lua
 ^^^
 
 - `Programming In Lua <http://www.lua.org/pil/>`_
-- `Lua 5.2 manual <http://www.lua.org/manual/5.2/manual.html>`_
+- `Lua 5.3 manual <http://www.lua.org/manual/5.3/manual.html>`_
 
 
 Box2D
