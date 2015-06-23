@@ -65,6 +65,11 @@ Documentation
 
 The documentation of the current release is available in HTML format and can be found at http://drystal.github.io/
 
+Demos
+-----
+
+You can find games made with Drystal at https://github.com/kidanger/drystal-demos
+
 Requirements
 ------------
 
