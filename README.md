@@ -54,11 +54,11 @@ The external/ folder contains third-party libraries:
 Repository
 ----------
 
-The main repository of Drystal is hosted on Github at http://github.com/kidanger/drystal/
+The main repository of Drystal is hosted on Github at http://github.com/kidanger/Drystal/
 
 You can clone this repository with the following command
 
-    git clone --recursive https://github.com/kidanger/drystal.git
+    git clone --recursive https://github.com/kidanger/Drystal.git
 
 Documentation
 -------------

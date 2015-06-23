@@ -45,12 +45,11 @@ Some additional modules:
 - **Particle**: renders particles (e.g. smoke, fire,...) to easily improve the game aspect
 - **Storage**: saves and loads data (e.g. game saves)
 
-
 Contribute
 ----------
 
-- Source Code: http://github.com/kidanger/drystal
-- Please report any issue here: http://github.com/kidanger/drystal/issues
+- Source Code: http://github.com/kidanger/Drystal
+- Please report any issue here: http://github.com/kidanger/Drystal/issues
 
 
 Support
