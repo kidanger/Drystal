@@ -1,0 +1,40 @@
+#compdef drystaljs
+
+_drystaljs_publish() {
+  _arguments \
+      {-h,--help}'[Show this help message and exit]' \
+      {-n,--no-push}'[Do not push after commiting]'
+}
+
+_drystaljs_pack() {
+  _arguments \
+      {-h,--help}'[Show this help message and exit]' \
+      {-l,--local=}'[Use a local javascript file]:javascript file:_files'
+}
+
+(( $+functions[_drystaljs_command] )) || _drystaljs_command()
+{
+    local -a _drystaljs_cmds
+    _drystaljs_cmds=(
+        "init:Initialize configuration"
+        "clean:Clean directory"
+        "run:Run in a browser"
+        "pack:Pack"
+        "publish:Publish"
+    )
+    if (( CURRENT == 1 )); then
+        _describe -t commands 'drystaljs command' _drystaljs_cmds || compadd "$@"
+    else
+        local curcontext="$curcontext"
+        cmd="${${_drystaljs_cmds[(r)$words[1]:*]%%:*}}"
+        if (( $+functions[_drystaljs_$cmd] )); then
+            _drystaljs_$cmd
+        else
+            _message "no more options"
+        fi
+    fi
+}
+
+_arguments \
+    {-h,--help}'[Show this help message and exit]' \
+    '*::drystaljs command:_drystaljs_command'
