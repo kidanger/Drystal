@@ -45,6 +45,43 @@ Some additional modules:
 - **Particle**: renders particles (e.g. smoke, fire,...) to easily improve the game aspect
 - **Storage**: saves and loads data (e.g. game saves)
 
+How to get Drystal?
+-------------------
+
+In order to build Drystal you need to install the following packages on your system:
+
+- cmake
+- gcc
+- make
+- patch
+- git
+- libpng
+- openal
+- box2d
+- sdl2
+
+Then, you need to get Drystal source code::
+
+    git clone --recursive http://github.com/kidanger/Drystal.git
+    cd Drystal
+
+Then, you run CMake that configures the build::
+
+    cmake -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=/usr
+
+If everything is ok, CMake tells you that all build files have been written.
+Otherwise, it may fail because of missing dependencies (e.g. libpng was not
+found), so you need to fix this and re-run CMake.
+
+Finally, you run make to build Drystal and make install to install it::
+
+    make
+    sudo make install
+
+You can now use Drystal::
+
+    drystal --help
+
 Contribute
 ----------
 
