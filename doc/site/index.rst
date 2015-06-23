@@ -35,6 +35,7 @@ Features
 - **Drawing primitives**: lines, triangles, rectangles (filled or not), circles and polygons
 - **Audio** support: multiple musics, multiple sounds at once, loadable from file or from lua-generated buffers
 - **Shader** support: GLSL and post processing effect facilities (e.g. distortion, pixelation, blur,...)
+- **Livecoding**: see instantly the modifications done in your game on the screen without restarting it
 
 Some additional modules:
 
