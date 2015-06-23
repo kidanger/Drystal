@@ -73,5 +73,7 @@ The external/ folder contains third-party libraries:
 - lua-cjson/ which is under the MIT License
 - wavloader.c which is in the public domain
 - miniz.c which is in the public domain
+- libpng/\* which is under the libpng License
+- zlib/\* which is under the zlib License
 
 .. _Emscripten: http://www.emscripten.org
