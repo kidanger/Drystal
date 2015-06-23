@@ -30,7 +30,7 @@ Features
 
 - **Window** creation: hide cursor and relative mode
 - **User events**: keyboard, mouse
-- **Textures**: load various formats, render to texture support, ability to apply transformations (rotation, resizes)
+- **Textures**: load PNGs, render to texture support, ability to apply transformations (rotation, resizes)
 - **Drawing primitives**: lines, triangles, rectangles (filled or not), circles and polygons
 - **Audio** support: multiple musics, multiple sounds at once, loadable from file or from lua-generated buffers
 - **Shader** support: GLSL and post processing effect facilities
