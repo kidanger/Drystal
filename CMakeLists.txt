@@ -60,3 +60,4 @@ add_subdirectory(tools)
 
 add_subdirectory(external)
 add_subdirectory(src)
+add_subdirectory(misc/shell-completion/zsh/)
