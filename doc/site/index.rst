@@ -38,11 +38,11 @@ Features
 
 Some additional modules:
 
-- **Font**: loads .ttf files and render. Using the given syntax, you can highlight words with color/size change.
-- **Web**: adds a wget function to download content (ex: download sounds if needed) or run JS code
+- **Font**: loads TTF files and display text. Using the given syntax, you can highlight words with color/size change.
+- **Web**: downloads content from the web (ex: download sounds if needed) or runs javascript code
 - **Physics**: uses Box2D to compute physics simulation (not a one-to-one binding)
-- **Particle** systems to easily improve the game aspect
-- **Storage** to save/load games (even in browser)
+- **Particle**: renders particles (e.g. smoke, fire,...) to easily improve the game aspect
+- **Storage**: saves and loads data (e.g. game saves)
 
 
 Contribute
