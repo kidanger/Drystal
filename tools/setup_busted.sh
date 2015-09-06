@@ -11,17 +11,19 @@ rm -rf .rocks
 
 ROOT=`pwd`
 BUILD=$ROOT/build-native-$TYPE
+ROCKVER=2.2.2
 
-wget http://luarocks.org/releases/luarocks-2.2.1.tar.gz
-tar zxpf luarocks-2.2.1.tar.gz
-rm luarocks-2.2.1.tar.gz
-mv luarocks-2.2.1 .luarocks
+wget https://github.com/keplerproject/luarocks/archive/v${ROCKVER}.tar.gz || exit 1
+tar zxpf v${ROCKVER}.tar.gz
+rm luarocks-${ROCKVER}.tar.gz
+mv luarocks-$ROCKVER .luarocks
 
 cd .luarocks
-sh configure --lua-version=5.3 --with-lua-bin=$BUILD/external --with-lua-include=$ROOT/external/lua/src --prefix=`pwd`
-make bootstrap
+sh configure --lua-version=5.3 --with-lua-bin=$BUILD/external --with-lua-include=$ROOT/external/lua/src --prefix=`pwd` --sysconfdir=`pwd`/luarocks --force-config || exit 1
+make build || exit 1
+make install || exit 1
 cd ..
 
-./.luarocks/bin/luarocks --tree=.rocks install busted
-./.luarocks/bin/luarocks --tree=.rocks install moonscript
+./.luarocks/bin/luarocks --tree=.rocks install busted || exit 1
+./.luarocks/bin/luarocks --tree=.rocks install moonscript || exit 1
 
