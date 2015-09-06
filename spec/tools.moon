@@ -21,7 +21,7 @@ is_color = (state, args) ->
 	alpha = alpha or 255
 
 	assert(#args >= 4, say("assertion.internal.argtolittle", { "is_color", 4, #args }))
-	assert(type(surface) == 'userdata' and surface.__type == 'surface', say("assertion.internal.badargtype", { "is_color", "surface", surface or 'nil'}))
+	assert(type(surface) == 'userdata' and surface.__type == 'surface', say("assertion.internal.badargtype", { 1, "is_color", "surface", surface or 'nil' }))
 
 	c = color
 	if type(color) ~= 'table'
