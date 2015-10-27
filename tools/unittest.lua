@@ -9,6 +9,7 @@ drystal = require 'drystal'
 os.exit = drystal.stop
 
 require 'busted.runner' {
+	standalone=false,
 	batch=true,
 }
 
