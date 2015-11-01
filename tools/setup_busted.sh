@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 if [ -z "$1" ]; then
-    TYPE=release
+    TYPE=Release
 else
     TYPE=$1
 fi

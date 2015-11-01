@@ -119,58 +119,36 @@ First time
 
 ### Native build
 
-Once you cloned the repository, you can build Drystal in native mode (i.e.
-that will run on your PC).
+Once you cloned the repository and installed all the requirements, you can
+build Drystal in native mode (i.e. that will run on your computer).
 
-First, you need to create a build directory (this is optionnal but it leaves
-the source directory clean):
+    make native
 
-    mkdir build-native-release
-    cd build-native-release
+You can now find the executable in the build directory:
 
-Then, you run CMake that configures the build and creates Makefiles:
+    build-native-Debug/src/drystal --help
 
-    cmake .. -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE=Release
+or install it:
 
-If everything is ok, CMake tells you that all build files have been written.
-Otherwise, it may fail because of missing dependencies (e.g. libpng was not
-found), so you need to fix this and re-run CMake.
-
-Finally, you run make:
-
-    make
-
-You can now find the executable in the src/ directory
-
-    src/drystal --help
+    make install-native CMAKE_FLAGS=-DCMAKE_INSTALL_PREFIX:PATH=$HOME/.local/
 
 ### Web build
 
-In order to compile Drystal to javascript you will need Emscripten and the
-$EMSCRIPTEN environment variable should contain the path to your Emscripten
-installation (e.g. /usr/lib/emscripten/).
+In order to compile Drystal to javascript you will also need to install
+[Emscripten](https://kripken.github.io/emscripten-site/), then you can run:
 
-First, you need to create a separate build directory:
-
-    mkdir build-web-release
-    cd build-web-release
-
-Then, you run CMake that configures the build to use Emscripten and creates Makefiles:
-
-    cmake .. -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=$EMSCRIPTEN/cmake/Modules/Platform/Emscripten.cmake -DBUILD_LIVECODING=NO
-
-Finally, you can run make:
-
-    make
+    make web
 
 You will find the final javascript code (there will be two files drystal.js
-and drystal.mem.js) in the src/ directory.
+and drystal.mem.js) in the build-web-Release-src/ directory.
 
 Build options
 -------------
 
-You can configure the build to fit to your needs, e.g. you do not need
-the physics engine, you need to add -DBUILD_PHYSICS=OFF
+You can configure the build to fit to your needs, for example if you do not
+need the physics engine, you can run:
+
+    make native CMAKE_FLAGS="-DBUILD_PHYSICS=OFF"
 
 Here is the list of options, their default and the additional dependencies needed to build:
 

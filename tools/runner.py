@@ -12,10 +12,10 @@ from drystaljs import load_config, execute, has_been_modified, generate_html
 from drystaljs import package_data, copy_wget_files, try_launch_browser, copy_drystal
 from drystaljs import G, I, W, E, N
 
-BUILD_NATIVE_RELEASE = os.path.abspath('build-native-release')
-BUILD_NATIVE_DEBUG = os.path.abspath('build-native-debug')
-BUILD_WEB_DEBUG = os.path.abspath('build-web-debug')
-BUILD_WEB_RELEASE = os.path.abspath('build-web-release')
+BUILD_NATIVE_RELEASE = os.path.abspath('build-native-Release')
+BUILD_NATIVE_DEBUG = os.path.abspath('build-native-Debug')
+BUILD_WEB_DEBUG = os.path.abspath('build-web-Debug')
+BUILD_WEB_RELEASE = os.path.abspath('build-web-Release')
 
 join = os.path.join
 
