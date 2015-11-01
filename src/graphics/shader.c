@@ -51,10 +51,10 @@ uniform float cameraZoom;
 uniform mat2 rotationMatrix;
 uniform vec2 destinationSize;		// size of the destination texture
 uniform vec2 sourceSize;
-mat2 cameraMatrix = rotationMatrix * cameraZoom;
 
 void main()
 {
+	mat2 cameraMatrix = rotationMatrix * cameraZoom;
 	vec2 position2d = cameraMatrix * (2. * (position + vec2(cameraDx, cameraDy)) / destinationSize - 1.);
 	gl_Position = vec4(position2d, 0.0, 1.0);
 	fColor = color;
