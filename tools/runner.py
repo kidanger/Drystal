@@ -27,9 +27,7 @@ BINARY_DIRECTORY_WEB_RELEASE = join(BUILD_WEB_RELEASE, 'src')
 NATIVE_CMAKE_DEFINES = []
 
 EMSCRIPTEN_ROOT = os.environ['EMSCRIPTEN'] if os.environ.get('EMSCRIPTEN') else "/usr/lib/emscripten/" if os.path.exists("/usr/lib/emscripten/") else ""
-EMSCRIPTEN_CMAKE_DEFINES = ['CMAKE_TOOLCHAIN_FILE=' + EMSCRIPTEN_ROOT + '/cmake/Modules/Platform/Emscripten.cmake',
-                            'BUILD_LIVECODING=NO',
-                            ]
+EMSCRIPTEN_CMAKE_DEFINES = ['CMAKE_TOOLCHAIN_FILE=' + EMSCRIPTEN_ROOT + '/cmake/Modules/Platform/Emscripten.cmake']
 
 LIB_PATH_RELEASE = join(BUILD_NATIVE_RELEASE, 'external')
 LIB_PATH_DEBUG = join(BUILD_NATIVE_DEBUG, 'external')

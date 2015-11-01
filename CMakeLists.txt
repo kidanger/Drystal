@@ -5,6 +5,7 @@ set(DRYSTAL_VERSION "Drystal 1.1")
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(Utils)
+include(CMakeDependentOption)
 
 check_compilers_unknown()
 check_git_submodules_initialized()
@@ -19,7 +20,7 @@ option(BUILD_AUDIO           "Enable audio module" ON)
 option(BUILD_STORAGE         "Enable storage module (needs BUILD_UTILS as dependency)" ON)
 option(BUILD_GRAPHICS        "Enable graphics module" ON)
 option(BUILD_UTILS           "Enable utils module" ON)
-option(BUILD_LIVECODING      "Enable livecoding (available only on Linux)" ON)
+cmake_dependent_option(BUILD_LIVECODING      "Enable livecoding (available only on Linux)" ON "NOT EMSCRIPTEN" OFF)
 
 if(BUILD_FONT AND NOT BUILD_GRAPHICS)
 	message(FATAL_ERROR "Cannot enable BUILD_FONT: BUILD_GRAPHICS is needed as a dependency")
