@@ -8,6 +8,19 @@ Drystal is an opensource game engine.
 
 Games are programmed in Lua and can be exported to Javascript seamlessly.
 
+```lua
+local drystal = require 'drystal'
+
+function drystal.init()
+  print('Game initialized!')
+end
+
+function drystal.draw()
+  drystal.set_color('red')
+  drystal.draw_background()
+end
+```
+
 Authors
 -------
 
