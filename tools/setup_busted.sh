@@ -26,4 +26,5 @@ cd ..
 
 ./.luarocks/bin/luarocks --tree=.rocks install busted || exit 1
 ./.luarocks/bin/luarocks --tree=.rocks install moonscript || exit 1
+./.luarocks/bin/luarocks --tree=.rocks install lua_cliargs 2.5-5 || exit 1 # temporary fix for outdated busted
 
